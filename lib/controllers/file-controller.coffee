@@ -13,5 +13,4 @@ class FileController extends ItemController
     return @item.getBaseName();
 
   performOpenAction: ->
-    console.log("Open file.");
     atom.workspace.open(@getFile().getPath());

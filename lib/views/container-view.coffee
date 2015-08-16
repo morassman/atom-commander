@@ -1,5 +1,5 @@
 FSItem = require '../model/fs-item'
-{View} = require 'atom-space-pen-views'
+{View, TextEditorView} = require 'atom-space-pen-views'
 {Directory, File} = require 'atom'
 FileController = require '../controllers/file-controller'
 DirectoryController = require '../controllers/directory-controller'
@@ -13,11 +13,23 @@ class ContainerView extends View
     @directory = null;
     @highlightedIndex = null;
 
+    @directoryEditor.addClass('directory-editor');
+
+  setMainView: (@mainView) ->
+
   @content: ->
+    @div =>
+      @subview 'directoryEditor', new TextEditorView(mini: true)
+      @container();
 
   initialize: (state) ->
+    @on 'dblclick', '.item', (e) =>
+      @requestFocus();
+      @highlightIndex(e.currentTarget.index);
+      @openHighlightedItem();
+
     @on 'click', '.item', (e) =>
-      @focus();
+      @requestFocus();
       @highlightIndex(e.currentTarget.index);
 
     atom.commands.add @element,
@@ -29,12 +41,21 @@ class ContainerView extends View
      'core:move-to-bottom': => @scrollToBottom()
      'atom-commander:open-highlighted-item': => @openHighlightedItem()
      'atom-commander:open-parent-directory': => @openParentDirectory()
+     'atom-commander:highlight-first-item': => @highlightFirstItem()
+     'atom-commander:highlight-last-item': => @highlightLastItem()
+     'atom-commander:page-up': => @pageUp()
+     'atom-commander:page-down': => @pageDown()
+
+  requestFocus: ->
+    @mainView.focusView(@);
 
   focus: ->
     @tableBody.focus()
+    @refreshHighlight();
 
   unfocus: ->
     atom.workspace.getActivePane().activate()
+    @refreshHighlight();
 
   hasFocus: ->
     return @tableBody.is(':focus') or document.activeElement is @tableBody[0]
@@ -61,6 +82,17 @@ class ContainerView extends View
     if @highlightedIndex != null
       @highlightIndex(@highlightedIndex+1);
 
+  pageUp: ->
+
+  pageDown: ->
+
+  highlightFirstItem: ->
+    @highlightIndex(0);
+
+  highlightLastItem: ->
+    if @itemViews.length > 0
+      @highlightIndex(@itemViews.length - 1);
+
   highlightIndex: (index) ->
     if @highlightedIndex != null
       @itemViews[@highlightedIndex].highlight(false);
@@ -73,11 +105,17 @@ class ContainerView extends View
       index = @itemViews.length - 1;
 
     @highlightedIndex = index;
+    @refreshHighlight();
 
+  refreshHighlight: ->
     if @highlightedIndex != null
       itemView = @itemViews[@highlightedIndex]
-      itemView.highlight(true);
-      itemView.scrollIntoViewIfNeeded(true)
+
+      if @hasFocus()
+        itemView.highlight(true);
+        itemView.scrollIntoViewIfNeeded(true)
+      else
+        itemView.highlight(false);
 
   highlightIndexWithName: (name) ->
     itemView = @getItemViewWithName(name);
@@ -111,6 +149,8 @@ class ContainerView extends View
     @itemViews = [];
     @highlightedIndex = null;
     index = 0;
+
+    @directoryEditor.setText(@directory.getPath());
 
     if !@directory.isRoot()
       itemView = @createParentView(index, new DirectoryController(@directory.getParent()));

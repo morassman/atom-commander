@@ -9,6 +9,9 @@ class AtomCommanderView extends View
   constructor: ->
     super();
 
+    @leftView.setMainView(@);
+    @rightView.setMainView(@);
+
     @leftView.addClass('left');
     @rightView.addClass('right');
 
@@ -46,8 +49,19 @@ class AtomCommanderView extends View
   getElement: ->
     @element
 
+  getOtherView: (view) ->
+    if view == @leftView
+      return @rightView;
+
+    return @leftView;
+
+  focusView: (view) ->
+    otherView = @getOtherView(view);
+    otherView.unfocus();
+    view.focus();
+
   focusOtherView: ->
     if @leftView.hasFocus()
-      @rightView.focus();
+      @focusView(@rightView);
     else
-      @leftView.focus();
+      @focusView(@leftView);

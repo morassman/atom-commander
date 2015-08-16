@@ -9,7 +9,7 @@ class ListView extends ContainerView
   constructor: ->
     super();
 
-  @content: ->
+  @container: ->
     @div {class: 'list-view-resizer tool-panel', click:'focus'}, =>
       @div {class: 'list-view-scroller'}, =>
         @table {class: 'list-view-table focusable-panel'}, =>

@@ -13,5 +13,4 @@ class DirectoryController extends ItemController
     return @item.getBaseName();
 
   performOpenAction: ->
-    console.log("Open directory.");
     @getContainerView().openDirectory(@getDirectory());
