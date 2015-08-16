@@ -1,70 +1,41 @@
-ItemView = require './item-view'
-FSItem = require '../model/fs-item'
-{Directory, File} = require 'atom'
-{$, $$, View} = require 'atom-space-pen-views'
+ListFileView = require './list-file-view'
+ListDirectoryView = require './list-directory-view'
+ContainerView = require './container-view'
+{$} = require 'atom-space-pen-views'
 
 module.exports =
-class ListView extends View
+class ListView extends ContainerView
 
   constructor: ->
     super();
-    @itemViews = [];
-    @directory = null;
-    @highlightedIndex = null;
 
   @content: ->
     @div {class: 'list-view-resizer tool-panel', click:'focus'}, =>
       @div {class: 'list-view-scroller'}, =>
-        @table {class: 'list-view-table'}, =>
-          @tbody {class: 'list-view list focusable-panel', tabindex: -1, outlet: 'tableBody'}
+        @table {class: 'list-view-table focusable-panel'}, =>
+          @tbody {class: 'list-view list', tabindex: -1, outlet: 'tableBody'}
 
-  initialize: (state) ->
-    @on 'click', '.item', (e) =>
-      @focus();
-      @highlightIndex(e.currentTarget.index);
-
-    atom.commands.add @element,
-     'core:move-up': @moveUp.bind(this)
-     'core:move-down': @moveDown.bind(this)
-     'core:page-up': => @pageUp()
-     'core:page-down': => @pageDown()
-     'core:move-to-top': => @scrollToTop()
-     'core:move-to-bottom': => @scrollToBottom()
-     'atom-commander:open-highlighted-item': => @openHighlightedItem()
-     'atom-commander:open-parent-directory': => @openParentDirectory()
-
-  focus: ->
-    @tableBody.focus()
-
-  unfocus: ->
-    atom.workspace.getActivePane().activate()
-
-  hasFocus: ->
-    @tableBody.is(':focus') or document.activeElement is @tableBody[0]
-
-  toggleFocus: ->
-    if @hasFocus()
-      @unfocus()
-    else
-      @show()
-
-  setItems: (@items) ->
-    @itemViews = [];
-    @highlightedIndex = null;
-
+  clearItemViews: ->
     @tableBody.empty();
     @tableBody.append($(@createHeaderView()));
 
-    index = 0;
-    for item in @items
-      itemView = new ItemView();
-      itemView.initialize(index, item);
-      @itemViews.push(itemView);
-      @tableBody[0].appendChild(itemView);
-      index++;
+  createParentView: (index, directoryController) ->
+    itemView = new ListDirectoryView();
+    itemView.initialize(@, index, true, directoryController);
+    return itemView;
 
-    if @items.length > 0
-      @highlightIndex(0);
+  createFileView: (index, fileController) ->
+    itemView = new ListFileView();
+    itemView.initialize(@, index, fileController);
+    return itemView;
+
+  createDirectoryView: (index, directoryController) ->
+    itemView = new ListDirectoryView();
+    itemView.initialize(@, index, false, directoryController);
+    return itemView;
+
+  addItemView: (itemView) ->
+    @tableBody[0].appendChild(itemView);
 
   createHeaderView: ->
     return """
@@ -73,71 +44,3 @@ class ListView extends View
         <th>Extension</th>
       </tr>
     """;
-
-  moveUp: (event) ->
-    if @highlightedIndex != null
-      @highlightIndex(@highlightedIndex-1);
-
-  moveDown: (event) ->
-    if @highlightedIndex != null
-      @highlightIndex(@highlightedIndex+1);
-
-  highlightIndex: (index) ->
-    if @highlightedIndex != null
-      @itemViews[@highlightedIndex].highlight(false);
-
-    if @itemViews.length == 0
-      index = null;
-    else if index < 0
-      index = 0;
-    else if index >= @itemViews.length
-      index = @itemViews.length - 1;
-
-    @highlightedIndex = index;
-
-    if @highlightedIndex != null
-      itemView = @itemViews[@highlightedIndex]
-      itemView.highlight(true);
-      itemView.scrollIntoViewIfNeeded(true)
-
-  highlightIndexWithName: (name) ->
-    itemView = @getItemViewWithName(name);
-
-    if itemView != null
-      @highlightIndex(itemView.index);
-
-  getItemViewWithName: (name) ->
-    for itemView in @itemViews
-      if itemView.item.getName() == name
-        return itemView;
-
-    return null;
-
-  openHighlightedItem: ->
-    if @highlightedIndex == null
-      return;
-
-    itemView = @itemViews[@highlightedIndex];
-
-    if itemView.item.isFile()
-      @openFile(itemView.item.item);
-    else if itemView.item.isDirectory()
-      @openDirectory(itemView.item.getDirectory());
-
-  openFile: (file) ->
-    atom.workspace.open(file.getPath());
-
-  openParentDirectory: ->
-    if !@directory.isRoot()
-      name = @directory.getBaseName();
-      @openDirectory(@directory.getParent());
-      @highlightIndexWithName(name);
-
-  openDirectory: (@directory) ->
-    entries = @directory.getEntriesSync();
-    fsItems = [];
-
-    for entry in entries
-      fsItems.push(new FSItem(entry));
-
-    @setItems(fsItems);

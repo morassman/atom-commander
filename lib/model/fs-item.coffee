@@ -6,9 +6,6 @@ class FSItem
   # item : File or Directory
   constructor: (@item) ->
 
-  # Sets the view that represents this item.
-  setView: (@view) ->
-
   getName: ->
     return @item.getBaseName();
 

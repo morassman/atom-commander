@@ -20,15 +20,6 @@ module.exports = AtomCommander =
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle': => @toggle()
 
-    # root = new Directory("/");
-    # entries = root.getEntriesSync();
-    # fsItems = [];
-    #
-    # for entry in entries
-    #   fsItems.push(new FSItem(entry));
-    #
-    # @listView.setItems(fsItems);
-
   deactivate: ->
     @modalPanel.destroy()
     @subscriptions.dispose()

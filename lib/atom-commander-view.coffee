@@ -8,13 +8,27 @@ class AtomCommanderView extends View
 
   constructor: ->
     super();
-    root = new Directory("/");
 
     @leftView.addClass('left');
     @rightView.addClass('right');
 
-    @leftView.openDirectory(root);
-    @rightView.openDirectory(root);
+    directory = @getInitialDirectory();
+
+    @leftView.openDirectory(directory);
+    @rightView.openDirectory(directory);
+
+  getInitialDirectory: ->
+    directories = atom.project.getDirectories();
+
+    if directories.length > 0
+      return directories[0];
+
+    directory = new File(atom.config.getUserConfigPath()).getParent();
+
+    if (directory.existsSync())
+      return directory;
+
+    return new Directory('/');
 
   @content: ->
     @div {class: 'atom-commander'}, =>
