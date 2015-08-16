@@ -1,0 +1,83 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+
+.atom-commander {
+  .content {
+    width: 100%;
+    overflow:hidden;
+  }
+
+  .left {
+    width: 50%;
+    float: left;
+  }
+
+  .right {
+    width: 50%;
+    float: right;
+  }
+}
+
+.list-view-resizer {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  cursor: default;
+  -webkit-user-select: none;
+  min-height: 100px;
+  height: 200px;
+  z-index: 2;
+}
+
+.list-view-scroller {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.list-view {
+  min-height: -webkit-min-content;
+  min-width: 100%;
+  position: relative;
+
+  .list {
+    position: static;
+  }
+}
+
+.list-view-table {
+  width: 100%;
+
+  th {
+    text-align: center;
+    font-weight: bold;
+  }
+
+  td {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+
+  .item {
+  }
+
+  .directory {
+    font-weight: bold;
+  }
+
+  .file {
+
+  }
+
+  .extension {
+    text-align: right;
+  }
+
+  .highlighted {
+    color: @text-color-highlight;
+    background-color: @background-color-selected;
+  }
+}
