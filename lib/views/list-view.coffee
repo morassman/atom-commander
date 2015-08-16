@@ -11,7 +11,7 @@ class ListView extends ContainerView
 
   @container: ->
     @div {class: 'list-view-resizer tool-panel', click:'requestFocus'}, =>
-      @div {class: 'list-view-scroller'}, =>
+      @div {class: 'list-view-scroller', outlet:'scroller'}, =>
         @table {class: 'list-view-table'}, =>
           @tbody {class: 'list-view list', tabindex: -1, outlet: 'tableBody'}
 
@@ -51,3 +51,26 @@ class ListView extends ContainerView
 
   hasFocus: ->
     return @tableBody.is(':focus') or document.activeElement is @tableBody[0]
+
+  pageUp: ->
+    @pageAdjust(true);
+
+  pageDown: ->
+    @pageAdjust(false);
+
+  pageAdjust: (up) ->
+    if (@highlightIndex == null) or (@itemViews.length == 0)
+      return;
+
+    itemViewHeight = @tableBody.height() / @itemViews.length;
+
+    if (itemViewHeight == 0)
+      return;
+
+    scrollHeight = @scroller.scrollBottom() - @scroller.scrollTop();
+    itemsPerPage = Math.round(scrollHeight / itemViewHeight);
+
+    if up
+      @highlightIndex(@highlightedIndex - itemsPerPage);
+    else
+      @highlightIndex(@highlightedIndex + itemsPerPage);

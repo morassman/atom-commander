@@ -81,8 +81,10 @@ class ContainerView extends View
     if @highlightedIndex != null
       @highlightIndex(@highlightedIndex+1);
 
+  # Override
   pageUp: ->
 
+  # Override
   pageDown: ->
 
   highlightFirstItem: ->
