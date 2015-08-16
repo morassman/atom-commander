@@ -10,9 +10,9 @@ class ListView extends ContainerView
     super();
 
   @container: ->
-    @div {class: 'list-view-resizer tool-panel', click:'focus'}, =>
+    @div {class: 'list-view-resizer tool-panel', click:'requestFocus'}, =>
       @div {class: 'list-view-scroller'}, =>
-        @table {class: 'list-view-table focusable-panel'}, =>
+        @table {class: 'list-view-table'}, =>
           @tbody {class: 'list-view list', tabindex: -1, outlet: 'tableBody'}
 
   clearItemViews: ->
@@ -44,3 +44,10 @@ class ListView extends ContainerView
         <th>Extension</th>
       </tr>
     """;
+
+  focus: ->
+    @tableBody.focus();
+    super();
+
+  hasFocus: ->
+    return @tableBody.is(':focus') or document.activeElement is @tableBody[0]

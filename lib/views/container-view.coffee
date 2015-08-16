@@ -50,15 +50,14 @@ class ContainerView extends View
     @mainView.focusView(@);
 
   focus: ->
-    @tableBody.focus()
     @refreshHighlight();
 
   unfocus: ->
     atom.workspace.getActivePane().activate()
     @refreshHighlight();
 
-  hasFocus: ->
-    return @tableBody.is(':focus') or document.activeElement is @tableBody[0]
+  # Override and return whether view has focus.
+  hasfocus: ->
 
   # Override to remove all item views.
   clearItemViews: ->
