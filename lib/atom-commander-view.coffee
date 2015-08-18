@@ -27,12 +27,7 @@ class AtomCommanderView extends View
     if directories.length > 0
       return directories[0];
 
-    directory = new File(atom.config.getUserConfigPath()).getParent();
-
-    if (directory.existsSync())
-      return directory;
-
-    return new Directory('/');
+    return new Directory(process.env['HOME']);
 
   @content: ->
     @div {class: 'atom-commander'}, =>
