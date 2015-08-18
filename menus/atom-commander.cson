@@ -10,7 +10,7 @@
   {
     'label': 'Packages'
     'submenu': [
-      'label': 'atom-commander'
+      'label': 'Atom Commander'
       'submenu': [
         {
           'label': 'Toggle'

@@ -4,6 +4,8 @@ Dual-pane file manager for Atom.
 
 This is not meant to replace the tree view nor to be a full featured file manager. More features will be added in time, but the primary focus is to provide a way to browse the file system in a way that's familiar to many people.
 
+After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle` from the Command Palette to open the panel.
+
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/panel.png?raw=true)
 
 ## Buttons

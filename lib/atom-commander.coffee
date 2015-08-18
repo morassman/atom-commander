@@ -11,7 +11,7 @@ module.exports = AtomCommander =
     @atomCommanderView = new AtomCommanderView(@)
     # @modalPanel = atom.workspace.addModalPanel(item: @atomCommanderView.getElement(), visible: false)
     # @listView = new ListView();
-    @bottomPanel = atom.workspace.addBottomPanel(item: @atomCommanderView.getElement(), visible: true)
+    @bottomPanel = atom.workspace.addBottomPanel(item: @atomCommanderView.getElement(), visible: false)
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
