@@ -65,7 +65,7 @@ class ContainerView extends View
     @refreshHighlight();
 
   # Override and return whether view has focus.
-  hasfocus: ->
+  hasFocus: ->
 
   # Override to remove all item views.
   clearItemViews: ->
@@ -199,6 +199,10 @@ class ContainerView extends View
 
   directoryEditorCancel: ->
     @directoryEditor.setText(@directory.getPath());
+
+  addProject: ->
+    if @directory != null
+      atom.project.addPath(@directory.getPath());
 
   dispose: ->
     @disposables.dispose();

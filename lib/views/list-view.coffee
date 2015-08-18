@@ -49,7 +49,7 @@ class ListView extends ContainerView
     @tableBody.focus();
     super();
 
-  hasfocus: ->
+  hasFocus: ->
     return @tableBody.is(':focus') or document.activeElement is @tableBody[0]
 
   pageUp: ->

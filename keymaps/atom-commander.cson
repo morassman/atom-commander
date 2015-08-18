@@ -8,7 +8,11 @@
 # For more detailed documentation see
 # https://atom.io/docs/latest/behind-atom-keymaps-in-depth
 'atom-workspace':
-  'ctrl-alt-o': 'atom-commander:toggle'
+  'f9': 'atom-commander:toggle'
+
+'.atom-commander':
+  'f3': 'atom-commander:add-project'
+  'f9': 'atom-commander:hide'
 
 '.list-view':
   'enter': 'atom-commander:open-highlighted-item'
