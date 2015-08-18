@@ -4,6 +4,11 @@
   "version": "0.0.0",
   "description": "Dual-pane file manager",
   "keywords": [
+    "file",
+    "directory",
+    "folder",
+    "manager",
+    "commander"
   ],
   "activationCommands": {
   },
