@@ -84,5 +84,10 @@ class AtomCommanderView extends View
       @focusedView.addProject();
 
   hideButton: ->
-    console.log("hide");
     @main.hide();
+
+  refocusLastView: ->
+    if @focusedView != null
+      @focusView(@focusedView);
+    else
+      @focusView(@leftView);

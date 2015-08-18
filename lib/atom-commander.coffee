@@ -32,6 +32,7 @@ module.exports = AtomCommander =
       @bottomPanel.hide()
     else
       @bottomPanel.show()
+      @atomCommanderView.refocusLastView();
 
   hide: ->
     @bottomPanel.hide();
