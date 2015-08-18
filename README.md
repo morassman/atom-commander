@@ -34,6 +34,8 @@ Tab|Switch to the other pane.
 
 ## Next Up
 - Make the panel resizable.
+- Load directories asynchronously.
+- Add proper error handling for file system errors.
 - Allow files and directories to be selected.
 - Implement the rest of the buttons:
  - New File
