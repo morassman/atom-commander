@@ -152,7 +152,16 @@ class ContainerView extends View
       @openDirectory(@directory.getParent());
       @highlightIndexWithName(name);
 
-  openDirectory: (@directory) ->
+  openDirectory: (directory) ->
+    try
+      @tryOpenDirectory(directory);
+    catch error
+      try
+        @tryOpenDirectory(new Directory(process.env['HOME']));
+      catch error2
+        @tryOpenDirectory(new Directory(process.env['PWD']));
+
+  tryOpenDirectory: (@directory) ->
     if @directoryDisposable
       @directoryDisposable.dispose();
       @directoryDisposable = null;
