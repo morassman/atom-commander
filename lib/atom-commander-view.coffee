@@ -1,5 +1,4 @@
 ListView = require './views/list-view'
-FSItem = require './model/fs-item'
 {Directory} = require 'atom'
 {View} = require 'atom-space-pen-views'
 
@@ -44,6 +43,8 @@ class AtomCommanderView extends View
      'atom-commander:focus-other-view': => @focusOtherView()
 
   destroy: ->
+    @leftView.dispose();
+    @rightView.dispose();
     @element.remove();
 
   getElement: ->

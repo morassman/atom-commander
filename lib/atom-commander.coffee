@@ -1,4 +1,3 @@
-FSItem = require './model/fs-item'
 ListView = require './views/list-view'
 AtomCommanderView = require './atom-commander-view'
 {CompositeDisposable, Directory} = require 'atom'

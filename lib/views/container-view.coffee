@@ -1,6 +1,5 @@
-FSItem = require '../model/fs-item'
 {View, TextEditorView} = require 'atom-space-pen-views'
-{Directory, File} = require 'atom'
+{CompositeDisposable, Directory, File} = require 'atom'
 FileController = require '../controllers/file-controller'
 DirectoryController = require '../controllers/directory-controller'
 
@@ -11,14 +10,23 @@ class ContainerView extends View
     super();
     @itemViews = [];
     @directory = null;
+    @directoryDisposable = null;
     @highlightedIndex = null;
+    @disposables = new CompositeDisposable();
 
     @directoryEditor.addClass('directory-editor');
+
+    @directoryEditor.focusout =>
+      @directoryEditorCancel();
+
+    @disposables.add atom.commands.add @directoryEditor.element,
+      'core:confirm': => @directoryEditorConfirm()
+      'core:cancel': => @directoryEditorCancel()
 
   setMainView: (@mainView) ->
 
   @content: ->
-    @div =>
+    @div {class: 'tool-panel'}, =>
       @subview 'directoryEditor', new TextEditorView(mini: true)
       @container();
 
@@ -145,6 +153,10 @@ class ContainerView extends View
       @highlightIndexWithName(name);
 
   openDirectory: (@directory) ->
+    if @directoryDisposable
+      @directoryDisposable.dispose();
+      @directoryDisposable = null;
+
     @clearItemViews();
 
     @itemViews = [];
@@ -171,3 +183,22 @@ class ContainerView extends View
 
     if @itemViews.length > 0
       @highlightIndex(0);
+
+    @directoryDisposable = @directory.onDidChange =>
+      @refreshDirectory();
+
+  refreshDirectory: ->
+    @openDirectory(@directory);
+    # TODO : Highlight the previously highlighted item.
+
+  directoryEditorConfirm: ->
+    directory = new Directory(@directoryEditor.getText().trim());
+
+    if directory.existsSync() and directory.isDirectory()
+      @openDirectory(directory);
+
+  directoryEditorCancel: ->
+    @directoryEditor.setText(@directory.getPath());
+
+  dispose: ->
+    @disposables.dispose();
