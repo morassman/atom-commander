@@ -28,7 +28,8 @@ class ContainerView extends View
   @content: ->
     @div {class: 'tool-panel'}, =>
       @subview 'directoryEditor', new TextEditorView(mini: true)
-      @container();
+      @div {class: 'container-view'}, =>
+        @container();
 
   initialize: (state) ->
     @on 'dblclick', '.item', (e) =>
@@ -53,6 +54,7 @@ class ContainerView extends View
      'atom-commander:highlight-last-item': => @highlightLastItem()
      'atom-commander:page-up': => @pageUp()
      'atom-commander:page-down': => @pageDown()
+     'atom-commander:select-item': => @selectItem();
 
   requestFocus: ->
     @mainView.focusView(@);
@@ -94,6 +96,15 @@ class ContainerView extends View
 
   # Override
   pageDown: ->
+
+  selectItem: ->
+    if @highlightedIndex == null
+      return;
+
+    itemView = @itemViews[@highlightedIndex];
+    itemView.toggleSelect();
+
+    @highlightIndex(@highlightedIndex+1);
 
   highlightFirstItem: ->
     @highlightIndex(0);
@@ -138,6 +149,12 @@ class ContainerView extends View
         return itemView;
 
     return null;
+
+  getHighlightedItemName: ->
+    if @highlightedIndex == null
+      return null;
+
+    return @itemViews[@highlightedIndex].getName();
 
   openHighlightedItem: ->
     if @highlightedIndex == null
@@ -196,9 +213,36 @@ class ContainerView extends View
     @directoryDisposable = @directory.onDidChange =>
       @refreshDirectory();
 
+  getSelectedNames: ->
+    selectedNames = [];
+
+    for itemView in @itemViews
+      if itemView.selected
+        selectedNames.push(itemView.getName());
+
+    return selectedNames;
+
+  selectNames: (names) ->
+    for itemView in @itemViews
+      if names.indexOf(itemView.getName()) > -1
+        itemView.select(true);
+
   refreshDirectory: ->
+    # Remember both the index and the name.
+    index = @highlightedIndex;
+    name = @getHighlightedItemName();
+    selectedNames = @getSelectedNames();
+
     @openDirectory(@directory);
-    # TODO : Highlight the previously highlighted item.
+
+    # If the item with the name still exists then highlight it, otherwise highlight the index.
+    itemView = @getItemViewWithName(name);
+
+    if itemView != null
+      index = itemView.index;
+
+    @highlightIndex(index);
+    @selectNames(selectedNames);
 
   directoryEditorConfirm: ->
     directory = new Directory(@directoryEditor.getText().trim());

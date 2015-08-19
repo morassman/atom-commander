@@ -3,6 +3,8 @@ class BaseItemView extends HTMLElement
 
   constructor: ->
     super();
+    @selected = false;
+    @highlighted = false;
 
   initialize: (@containerView, @itemController) ->
     @itemController.initialize(@);
@@ -17,11 +19,29 @@ class BaseItemView extends HTMLElement
   # Override to return the name of this item.
   getName: ->
 
-  highlight: (enable) ->
-    if enable
+  # Override to return whether this item is selectable.
+  isSelectable: ->
+
+  highlight: (@highlighted) ->
+    @refreshClassList();
+
+  toggleSelect: ->
+    @select(!@selected);
+
+  select: (selected) ->
+    if @isSelectable()
+      @selected = selected;
+      @refreshClassList();
+
+  refreshClassList: ->
+    @.classList.remove('selected');
+    @.classList.remove('highlighted');
+
+    if @highlighted
       @.classList.add('highlighted');
-    else
-      @.classList.remove('highlighted');
+
+    if @selected
+      @.classList.add('selected');
 
   performOpenAction: ->
     @itemController.performOpenAction();

@@ -27,4 +27,7 @@ class ListFileView extends ListItemView
   getName: ->
     return @itemController.getName();
 
+  isSelectable: ->
+    return true;
+
 module.exports = document.registerElement('list-file-view', prototype: ListFileView.prototype, extends: 'tr')

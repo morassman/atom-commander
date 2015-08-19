@@ -12,15 +12,18 @@
 
 '.atom-commander':
   'f3': 'atom-commander:add-project'
+  'f4': 'atom-commander:new-file'
+  'f7': 'atom-commander:new-directory'
   'f9': 'atom-commander:hide'
+  'tab': 'atom-commander:focus-other-view'
 
-'.list-view':
+'.container-view':
   'enter': 'atom-commander:open-highlighted-item'
   'backspace': 'atom-commander:open-parent-directory'
-  'tab': 'atom-commander:focus-other-view'
   'left': 'atom-commander:highlight-first-item'
   'right': 'atom-commander:highlight-last-item'
   'home': 'atom-commander:highlight-first-item'
   'end': 'atom-commander:highlight-last-item'
   'pageup': 'atom-commander:page-up'
   'pagedown': 'atom-commander:page-down'
+  'space': 'atom-commander:select-item'

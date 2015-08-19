@@ -29,6 +29,9 @@ class ListDirectoryView extends ListItemView
 
     return @itemController.getName();
 
+  isSelectable: ->
+    return !@parentDirectory;
+
   performOpenAction: ->
     if @parentDirectory
       @getContainerView().openParentDirectory();

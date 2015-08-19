@@ -1,6 +1,9 @@
-ListView = require './views/list-view'
+fs = require 'fs-plus'
 {Directory} = require 'atom'
 {View} = require 'atom-space-pen-views'
+ListView = require './views/list-view'
+NewFileDialog = require './dialogs/new-file-dialog'
+NewDirectoryDialog = require './dialogs/new-directory-dialog'
 
 module.exports =
 class AtomCommanderView extends View
@@ -27,7 +30,7 @@ class AtomCommanderView extends View
     if directories.length > 0
       return directories[0];
 
-    return new Directory(process.env['HOME']);
+    return new Directory(fs.getHomeDirectory());
 
   @content: ->
     @div {class: 'atom-commander'}, =>
@@ -36,18 +39,20 @@ class AtomCommanderView extends View
         @subview 'rightView', new ListView();
       @div {class: 'btn-group-xs'}, =>
         @button 'F3 Add Project', {class: 'btn', style: 'width: 14.28%', click: 'addProjectButton'}
-        @button 'F4 New File', {class: 'btn disabled', style: 'width: 14.28%'}
+        @button 'F4 New File', {class: 'btn', style: 'width: 14.28%', click: 'newFileButton'}
         @button 'F5 Copy', {class: 'btn disabled', style: 'width: 14.28%'}
         @button 'F6 Move', {class: 'btn disabled', style: 'width: 14.28%'}
-        @button 'F7 Make Dir', {class: 'btn disabled', style: 'width: 14.28%'}
+        @button 'F7 Make Dir', {class: 'btn', style: 'width: 14.28%', click: 'newDirectoryButton'}
         @button 'F8 Delete', {class: 'btn disabled', style: 'width: 14.28%'}
         @button 'F9 Hide', {class: 'btn', style: 'width: 14.28%', click: 'hideButton'}
 
   initialize: ->
     atom.commands.add @element,
-     'atom-commander:focus-other-view': => @focusOtherView()
-     'atom-commander:add-project': => @addProjectButton();
-     'atom-commander:hide': => @hideButton();
+      'atom-commander:focus-other-view': => @focusOtherView()
+      'atom-commander:add-project': => @addProjectButton();
+      'atom-commander:new-file': => @newFileButton();
+      'atom-commander:new-directory': => @newDirectoryButton();
+      'atom-commander:hide': => @hideButton();
 
   destroy: ->
     @leftView.dispose();
@@ -77,6 +82,30 @@ class AtomCommanderView extends View
   addProjectButton: ->
     if @focusedView != null
       @focusedView.addProject();
+
+  getFocusedViewDirectory: ->
+    if @focusedView == null
+      return null;
+
+    return @focusedView.directory;
+
+  newFileButton: ->
+    directory = @getFocusedViewDirectory();
+
+    if directory == null
+      return;
+
+    dialog = new NewFileDialog(@focusedView, directory);
+    dialog.attach();
+
+  newDirectoryButton: ->
+    directory = @getFocusedViewDirectory();
+
+    if directory == null
+      return;
+
+    dialog = new NewDirectoryDialog(@focusedView, directory);
+    dialog.attach();
 
   hideButton: ->
     @main.hide();
