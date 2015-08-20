@@ -1,3 +1,4 @@
+fs = require 'fs-plus'
 {View, TextEditorView} = require 'atom-space-pen-views'
 {CompositeDisposable, Directory, File} = require 'atom'
 FileController = require '../controllers/file-controller'
@@ -175,12 +176,26 @@ class ContainerView extends View
     try
       @tryOpenDirectory(directory);
     catch error
-      try
-        @tryOpenDirectory(new Directory(process.env['HOME']));
-      catch error2
-        @tryOpenDirectory(new Directory(process.env['PWD']));
+      # If the directory couldn't be opened and one hasn't been opened yet then
+      # revert to opening the home folder and finally the PWD.
+      if @directory == null
+        try
+          @tryOpenDirectory(new Directory(fs.getHomeDirectory()));
+        catch error2
+          @tryOpenDirectory(new Directory(process.env['PWD']));
 
-  tryOpenDirectory: (@directory) ->
+  tryOpenDirectory: (newDirectory) ->
+    if !fs.isDirectorySync(newDirectory.getRealPathSync())
+      throw new Error("Invalid path.");
+
+    # The following will throw an error if the entries could not be read. It
+    # is done here in order to prevent the rest from happening if the directory
+    # cannot be read.
+    entries = newDirectory.getEntriesSync();
+
+    #If the directory could be read then update the field.
+    @directory = newDirectory;
+
     if @directoryDisposable
       @directoryDisposable.dispose();
       @directoryDisposable = null;
@@ -199,7 +214,7 @@ class ContainerView extends View
       @addItemView(itemView);
       index++;
 
-    for entry in @directory.getEntriesSync()
+    for entry in entries
       if entry instanceof File
         itemView = @createFileView(index, new FileController(entry));
       else
