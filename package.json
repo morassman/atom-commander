@@ -1,7 +1,7 @@
 {
   "name": "atom-commander",
   "main": "./lib/atom-commander",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Dual-pane file manager.",
   "keywords": [
     "file",
