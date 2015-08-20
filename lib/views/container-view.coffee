@@ -34,12 +34,12 @@ class ContainerView extends View
   initialize: (state) ->
     @on 'dblclick', '.item', (e) =>
       @requestFocus();
-      @highlightIndex(e.currentTarget.index);
+      @highlightIndex(e.currentTarget.index, false);
       @openHighlightedItem();
 
     @on 'click', '.item', (e) =>
       @requestFocus();
-      @highlightIndex(e.currentTarget.index);
+      @highlightIndex(e.currentTarget.index, false);
 
     atom.commands.add @element,
      'core:move-up': @moveUp.bind(this)
@@ -113,7 +113,7 @@ class ContainerView extends View
     if @itemViews.length > 0
       @highlightIndex(@itemViews.length - 1);
 
-  highlightIndex: (index) ->
+  highlightIndex: (index, scroll=true) ->
     if @highlightedIndex != null
       @itemViews[@highlightedIndex].highlight(false);
 
@@ -125,15 +125,17 @@ class ContainerView extends View
       index = @itemViews.length - 1;
 
     @highlightedIndex = index;
-    @refreshHighlight();
+    @refreshHighlight(scroll);
 
-  refreshHighlight: ->
+  refreshHighlight: (scroll=false) ->
     if @highlightedIndex != null
       itemView = @itemViews[@highlightedIndex]
 
       if @hasFocus()
         itemView.highlight(true);
-        itemView.scrollIntoViewIfNeeded(true)
+
+        if scroll
+          itemView.scrollIntoViewIfNeeded(true)
       else
         itemView.highlight(false);
 
