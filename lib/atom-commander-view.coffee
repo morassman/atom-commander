@@ -42,7 +42,7 @@ class AtomCommanderView extends View
         @button 'F4 New File', {class: 'btn', style: 'width: 14.28%', click: 'newFileButton'}
         @button 'F5 Copy', {class: 'btn disabled', style: 'width: 14.28%'}
         @button 'F6 Move', {class: 'btn disabled', style: 'width: 14.28%'}
-        @button 'F7 Make Dir', {class: 'btn', style: 'width: 14.28%', click: 'newDirectoryButton'}
+        @button 'F7 New Folder', {class: 'btn', style: 'width: 14.28%', click: 'newDirectoryButton'}
         @button 'F8 Delete', {class: 'btn disabled', style: 'width: 14.28%'}
         @button 'F9 Hide', {class: 'btn', style: 'width: 14.28%', click: 'hideButton'}
 
@@ -51,7 +51,7 @@ class AtomCommanderView extends View
       'atom-commander:focus-other-view': => @focusOtherView()
       'atom-commander:add-project': => @addProjectButton();
       'atom-commander:new-file': => @newFileButton();
-      'atom-commander:new-directory': => @newDirectoryButton();
+      'atom-commander:new-folder': => @newDirectoryButton();
       'atom-commander:hide': => @hideButton();
 
   destroy: ->

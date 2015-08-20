@@ -13,13 +13,13 @@
 '.atom-commander':
   'f3': 'atom-commander:add-project'
   'f4': 'atom-commander:new-file'
-  'f7': 'atom-commander:new-directory'
+  'f7': 'atom-commander:new-folder'
   'f9': 'atom-commander:hide'
   'tab': 'atom-commander:focus-other-view'
 
 '.container-view':
   'enter': 'atom-commander:open-highlighted-item'
-  'backspace': 'atom-commander:open-parent-directory'
+  'backspace': 'atom-commander:open-parent-folder'
   'left': 'atom-commander:highlight-first-item'
   'right': 'atom-commander:highlight-last-item'
   'home': 'atom-commander:highlight-first-item'

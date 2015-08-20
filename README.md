@@ -11,11 +11,11 @@ After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle` f
 ## Buttons
 Button|Action
 ---|---
-F3 Add Project|Adds the directory of the selected pane as a project folder to the workspace.
-F4 New File|Creates a new file in the selected pane's directory and opens it for editing.
+F3 Add Project|Adds the folder of the selected pane as a project folder to the workspace.
+F4 New File|Creates a new file in the selected pane's folder and opens it for editing.
 F5 Copy|Copy the selected files to the other pane.
 F6 Move|Move the selected files to the other pane.
-F7 Make Dir|Creates a new directory in the current pane.
+F7 New Folder|Creates a new folder in the current pane.
 F8 Delete|Deletes the selected files in the current pane.
 F9 Hide|Hides and shows the panel.
 
@@ -27,7 +27,7 @@ The following are special keys:
 Key|Action
 ---|---
 Enter|Open highlighted item. If it's a file then it will be opened in the editor.
-Backspace|Navigate to the parent directory.
+Backspace|Navigate to the parent folder.
 Left|Highlight the first item.
 Right|Highlight the last item.
 Tab|Switch to the other pane.

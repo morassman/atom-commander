@@ -50,7 +50,7 @@ class ContainerView extends View
      'core:move-to-top': => @scrollToTop()
      'core:move-to-bottom': => @scrollToBottom()
      'atom-commander:open-highlighted-item': => @openHighlightedItem()
-     'atom-commander:open-parent-directory': => @openParentDirectory()
+     'atom-commander:open-parent-folder': => @openParentDirectory()
      'atom-commander:highlight-first-item': => @highlightFirstItem()
      'atom-commander:highlight-last-item': => @highlightLastItem()
      'atom-commander:page-up': => @pageUp()

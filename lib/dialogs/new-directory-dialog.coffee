@@ -5,7 +5,7 @@ module.exports =
 class NewDirectoryDialog extends InputDialog
 
   constructor: (@containerView, @directory) ->
-    super({prompt:'Enter a name for the new directory:'});
+    super({prompt:'Enter a name for the new folder:'});
 
   initialize: () ->
     options = {};
@@ -22,12 +22,12 @@ class NewDirectoryDialog extends InputDialog
       name = text.trim();
 
       if name.length == 0
-        return 'The directory name may not be empty.'
+        return 'The folder name may not be empty.'
 
       sub = @directory.getSubdirectory(name);
 
       if fs.isDirectorySync(sub.getRealPathSync())
-        return "A directory with this name already exists."
+        return "A folder with this name already exists."
 
       return null;
 
