@@ -29,6 +29,9 @@ class ListDirectoryView extends ListItemView
 
     return @itemController.getName();
 
+  getPath: ->
+    @itemController.getPath();
+
   isSelectable: ->
     return !@parentDirectory;
 

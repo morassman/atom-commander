@@ -13,9 +13,13 @@
 '.atom-commander':
   'f3': 'atom-commander:add-project'
   'f4': 'atom-commander:new-file'
+  'f5': 'atom-commander:copy'
+  'f6': 'atom-commander:move'
   'f7': 'atom-commander:new-folder'
+  'f8': 'atom-commander:delete'
   'f9': 'atom-commander:hide'
   'tab': 'atom-commander:focus-other-view'
+  'ctrl-tab': 'atom-commander:mirror'
 
 '.container-view':
   'enter': 'atom-commander:open-highlighted-item'

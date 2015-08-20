@@ -31,12 +31,11 @@ Backspace|Navigate to the parent folder.
 Left|Highlight the first item.
 Right|Highlight the last item.
 Tab|Switch to the other pane.
+Ctrl-Tab|Show the same folder in the other pane.
 
 ## Next Up
 - Make the panel resizable.
 - Load directories asynchronously.
+- Add ability to rename files and folders.
+- Provide feedback for copy, move and delete.
 - Add proper error handling for file system errors.
-- Implement the rest of the buttons:
- - Copy
- - Move
- - Delete

@@ -12,5 +12,8 @@ class DirectoryController extends ItemController
   getName: ->
     return @item.getBaseName();
 
+  getPath: ->
+    return @item.getRealPathSync();
+
   performOpenAction: ->
     @getContainerView().openDirectory(@getDirectory());

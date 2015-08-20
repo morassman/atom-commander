@@ -57,6 +57,25 @@ class ContainerView extends View
      'atom-commander:page-down': => @pageDown()
      'atom-commander:select-item': => @selectItem();
 
+  getPath: ->
+    return @directory.getRealPathSync();
+
+  # includeHighlightIfEmpty : true if the highlighted name should be included if nothing is selected.
+  getSelectedNames: (includeHighlightIfEmpty=false)->
+    paths = [];
+
+    for itemView in @itemViews
+      if itemView.selected
+        paths.push(itemView.getName());
+
+    if includeHighlightIfEmpty and (paths.length == 0) and (@highlightedIndex != null)
+      itemView = @itemViews[@highlightedIndex];
+
+      if itemView.isSelectable()
+        paths.push(itemView.getName());
+
+    return paths;
+
   requestFocus: ->
     @mainView.focusView(@);
 
@@ -229,15 +248,6 @@ class ContainerView extends View
 
     @directoryDisposable = @directory.onDidChange =>
       @refreshDirectory();
-
-  getSelectedNames: ->
-    selectedNames = [];
-
-    for itemView in @itemViews
-      if itemView.selected
-        selectedNames.push(itemView.getName());
-
-    return selectedNames;
 
   selectNames: (names) ->
     for itemView in @itemViews

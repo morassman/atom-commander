@@ -19,6 +19,9 @@ class BaseItemView extends HTMLElement
   # Override to return the name of this item.
   getName: ->
 
+  # Override to return the path of this item.
+  getPath: ->
+
   # Override to return whether this item is selectable.
   isSelectable: ->
 

@@ -27,6 +27,9 @@ class ListFileView extends ListItemView
   getName: ->
     return @itemController.getName();
 
+  getPath: ->
+    return @itemController.getPath();
+
   isSelectable: ->
     return true;
 
