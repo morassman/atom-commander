@@ -76,6 +76,21 @@ class ContainerView extends View
 
     return paths;
 
+  getSelectedItemViews: (includeHighlightIfEmpty=false)->
+    paths = [];
+
+    for itemView in @itemViews
+      if itemView.selected
+        paths.push(itemView);
+
+    if includeHighlightIfEmpty and (paths.length == 0) and (@highlightedIndex != null)
+      itemView = @itemViews[@highlightedIndex];
+
+      if itemView.isSelectable()
+        paths.push(itemView);
+
+    return paths;
+
   requestFocus: ->
     @mainView.focusView(@);
 
@@ -281,8 +296,21 @@ class ContainerView extends View
     @directoryEditor.setText(@directory.getPath());
 
   addProject: ->
-    if @directory != null
+    if @directory == null
+      return;
+
+    selectedItemViews = @getSelectedItemViews(true);
+    directories = [];
+
+    for selectedItemView in selectedItemViews
+      if selectedItemView.isSelectable() and (selectedItemView.itemController instanceof DirectoryController)
+        directories.push(selectedItemView.itemController.getDirectory());
+
+    if directories.length == 0
       atom.project.addPath(@directory.getPath());
+    else
+      for directory in directories
+        atom.project.addPath(directory.getPath());
 
   dispose: ->
     @disposables.dispose();

@@ -120,14 +120,24 @@ class AtomCommanderView extends View
     if srcPath == dstPath
       return;
 
-    srcNames = srcView.getSelectedNames(true);
+    srcItemViews = srcView.getSelectedItemViews(true);
 
-    if srcNames.length > 0
-      Task.once require.resolve('./tasks/copy-task'), srcPath, srcNames, dstPath, move, ->
-        if move
-          srcView.refreshDirectory();
+    if srcItemViews.length == 0
+      return;
 
-        dstView.refreshDirectory();
+    srcNames = [];
+
+    for srcItemView in srcItemViews
+      srcNames.push(srcItemView.getName());
+
+    task = Task.once require.resolve('./tasks/copy-task'), srcPath, srcNames, dstPath, move, ->
+      if move
+        srcView.refreshDirectory();
+
+      dstView.refreshDirectory();
+
+    task.on 'success', (data) =>
+      srcItemViews[data.index].select(false);
 
   deleteButton: ->
     if @focusedView == null

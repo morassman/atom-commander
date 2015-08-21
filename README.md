@@ -11,7 +11,7 @@ After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle` f
 ## Buttons
 Button|Action
 ---|---
-F3 Add Project|Adds the folder of the selected pane as a project folder to the workspace.
+F3 Add Project|Adds the highlighted or selected folders as project folders to the workspace. If a folder isn't highlighted nor any folders selected then the folder currently being shown will be added.
 F4 New File|Creates a new file in the selected pane's folder and opens it for editing.
 F5 Copy|Copy the selected files to the other pane.
 F6 Move|Move the selected files to the other pane.

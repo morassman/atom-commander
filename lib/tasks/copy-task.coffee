@@ -8,6 +8,8 @@ module.exports = (srcFolderPath, srcNames, dstFolderPath, move=false) ->
   dstDirectory = new Directory(dstFolderPath);
 
   try
+    index = 0;
+    
     for srcName in srcNames
       srcPath = path.join(srcFolderPath, srcName);
       dstPath = path.join(dstFolderPath, srcName);
@@ -28,6 +30,9 @@ module.exports = (srcFolderPath, srcNames, dstFolderPath, move=false) ->
           if move
             fse.removeSync(srcPath);
 
+          emit("success", {index});
+
+      index++;
   catch error
     console.log("Error copying.");
 
