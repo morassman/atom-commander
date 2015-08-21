@@ -8,7 +8,7 @@ NewDirectoryDialog = require './dialogs/new-directory-dialog'
 module.exports =
 class AtomCommanderView extends View
 
-  constructor: (@main)->
+  constructor: (@main, state)->
     super(@main);
 
     @focusedView = null;
@@ -19,12 +19,18 @@ class AtomCommanderView extends View
     @leftView.addClass('left');
     @rightView.addClass('right');
 
-    directory = @getInitialDirectory();
+    @leftView.openDirectory(@getInitialDirectory(state.leftPath));
+    @rightView.openDirectory(@getInitialDirectory(state.rightPath));
 
-    @leftView.openDirectory(directory);
-    @rightView.openDirectory(directory);
+    if state.height
+      @leftView.setContentHeight(state.height);
+      @rightView.setContentHeight(state.height);
 
-  getInitialDirectory: ->
+
+  getInitialDirectory: (suggestedPath) ->
+    if suggestedPath and fs.isDirectorySync(suggestedPath)
+      return new Directory(suggestedPath);
+
     directories = atom.project.getDirectories();
 
     if directories.length > 0
@@ -81,8 +87,8 @@ class AtomCommanderView extends View
     return @resizeStopped() unless which is 1
 
     change = @offset().top - pageY;
-    @leftView.adjustHeight(change);
-    @rightView.adjustHeight(change);
+    @leftView.adjustContentHeight(change);
+    @rightView.adjustContentHeight(change);
 
   getOtherView: (view) ->
     if view == @leftView
@@ -199,3 +205,12 @@ class AtomCommanderView extends View
       @focusView(@focusedView);
     else
       @focusView(@leftView);
+
+  serialize: ->
+    state = {};
+
+    state.leftPath = @leftView.getPath();
+    state.rightPath = @rightView.getPath();
+    state.height = @leftView.getContentHeight();
+
+    return state;

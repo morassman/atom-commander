@@ -58,6 +58,9 @@ class ContainerView extends View
      'atom-commander:select-item': => @selectItem();
 
   getPath: ->
+    if @directory == null
+      return null;
+
     return @directory.getRealPathSync();
 
   # includeHighlightIfEmpty : true if the highlighted name should be included if nothing is selected.
@@ -119,7 +122,13 @@ class ContainerView extends View
   addItemView: (itemView) ->
 
   # Override to adjust the height of the content.
-  adjustHeight: (change) ->
+  adjustContentHeight: (change) ->
+
+  # Override to return the height of the content.
+  getContentHeight: ->
+
+  # Override to set the height of the content.
+  setContentHeight: (contentHeight) ->
 
   moveUp: (event) ->
     if @highlightedIndex != null

@@ -75,5 +75,11 @@ class ListView extends ContainerView
     else
       @highlightIndex(@highlightedIndex + itemsPerPage);
 
-  adjustHeight: (change) ->
+  adjustContentHeight: (change) ->
     @listViewResizer.height(@listViewResizer.outerHeight() + change);
+
+  getContentHeight: ->
+    return @listViewResizer.height();
+
+  setContentHeight: (contentHeight) ->
+    @listViewResizer.height(contentHeight);

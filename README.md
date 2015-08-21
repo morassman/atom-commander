@@ -34,7 +34,6 @@ Tab|Switch to the other pane.
 Ctrl-Tab|Show the same folder in the other pane.
 
 ## Next Up
-- Make the panel resizable.
 - Load directories asynchronously.
 - Add ability to rename files and folders.
 - Provide feedback for copy, move and delete.
