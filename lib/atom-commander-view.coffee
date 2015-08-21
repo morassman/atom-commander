@@ -1,6 +1,6 @@
 fs = require 'fs-plus'
 {Directory, Task} = require 'atom'
-{View} = require 'atom-space-pen-views'
+{$, View} = require 'atom-space-pen-views'
 ListView = require './views/list-view'
 NewFileDialog = require './dialogs/new-file-dialog'
 NewDirectoryDialog = require './dialogs/new-directory-dialog'
@@ -33,10 +33,11 @@ class AtomCommanderView extends View
     return new Directory(fs.getHomeDirectory());
 
   @content: ->
-    @div {class: 'atom-commander'}, =>
+    @div {class: 'atom-commander atom-commander-resizer'}, =>
+      @div class: 'atom-commander-resize-handle', outlet: 'resizeHandle'
       @div {class: 'content'}, =>
         @subview 'leftView', new ListView()
-        @subview 'rightView', new ListView();
+        @subview 'rightView', new ListView()
       @div {class: 'btn-group-xs'}, =>
         @button 'F3 Add Project', {class: 'btn', style: 'width: 14.28%', click: 'addProjectButton'}
         @button 'F4 New File', {class: 'btn', style: 'width: 14.28%', click: 'newFileButton'}
@@ -58,6 +59,8 @@ class AtomCommanderView extends View
       'atom-commander:hide': => @hideButton();
       'atom-commander:mirror': => @mirror();
 
+    @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);
+
   destroy: ->
     @leftView.dispose();
     @rightView.dispose();
@@ -65,6 +68,21 @@ class AtomCommanderView extends View
 
   getElement: ->
     @element
+
+  resizeStarted: =>
+    $(document).on('mousemove', @resizeView)
+    $(document).on('mouseup', @resizeStopped)
+
+  resizeStopped: =>
+    $(document).off('mousemove', @resizeView)
+    $(document).off('mouseup', @resizeStopped)
+
+  resizeView: ({pageY, which}) =>
+    return @resizeStopped() unless which is 1
+
+    change = @offset().top - pageY;
+    @leftView.adjustHeight(change);
+    @rightView.adjustHeight(change);
 
   getOtherView: (view) ->
     if view == @leftView

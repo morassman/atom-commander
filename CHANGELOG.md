@@ -1,3 +1,7 @@
+## 0.2.7 - 21 Aug. 2015
+* Added callback to unselect items that have finished copying.
+* Changed the 'F3 Add Project' behavior to add folders that are selected.
+
 ## 0.2.6 - 20 Aug. 2015
 * Implemented copy, move and delete functionality.
 * Fixed unwanted scrolling when selecting an item.

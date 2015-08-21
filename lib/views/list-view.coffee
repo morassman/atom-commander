@@ -10,8 +10,8 @@ class ListView extends ContainerView
     super();
 
   @container: ->
-    @div {class: 'list-view-resizer tool-panel', click:'requestFocus'}, =>
-      @div {class: 'list-view-scroller', outlet:'scroller'}, =>
+    @div {class: 'list-view-resizer tool-panel', click:'requestFocus', outlet: 'listViewResizer'}, =>
+      @div {class: 'list-view-scroller', outlet:'scroller', click:'requestFocus'}, =>
         @table {class: 'list-view-table'}, =>
           @tbody {class: 'list-view list', tabindex: -1, outlet: 'tableBody'}
 
@@ -74,3 +74,6 @@ class ListView extends ContainerView
       @highlightIndex(@highlightedIndex - itemsPerPage);
     else
       @highlightIndex(@highlightedIndex + itemsPerPage);
+
+  adjustHeight: (change) ->
+    @listViewResizer.height(@listViewResizer.outerHeight() + change);

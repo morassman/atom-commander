@@ -118,6 +118,9 @@ class ContainerView extends View
   # Override to add the given item view.
   addItemView: (itemView) ->
 
+  # Override to adjust the height of the content.
+  adjustHeight: (change) ->
+
   moveUp: (event) ->
     if @highlightedIndex != null
       @highlightIndex(@highlightedIndex-1);
