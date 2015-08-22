@@ -2,6 +2,7 @@ fs = require 'fs-plus'
 {Directory, Task} = require 'atom'
 {$, View} = require 'atom-space-pen-views'
 ListView = require './views/list-view'
+MenuBarView = require './views/menu/menu-bar-view'
 NewFileDialog = require './dialogs/new-file-dialog'
 NewDirectoryDialog = require './dialogs/new-directory-dialog'
 
@@ -13,6 +14,7 @@ class AtomCommanderView extends View
 
     @focusedView = null;
 
+    @menuBar.setMainView(@);
     @leftView.setMainView(@);
     @rightView.setMainView(@);
 
@@ -25,7 +27,6 @@ class AtomCommanderView extends View
     if state.height
       @leftView.setContentHeight(state.height);
       @rightView.setContentHeight(state.height);
-
 
   getInitialDirectory: (suggestedPath) ->
     if suggestedPath and fs.isDirectorySync(suggestedPath)
@@ -41,6 +42,7 @@ class AtomCommanderView extends View
   @content: ->
     @div {class: 'atom-commander atom-commander-resizer'}, =>
       @div class: 'atom-commander-resize-handle', outlet: 'resizeHandle'
+      @subview 'menuBar', new MenuBarView(@);
       @div {class: 'content'}, =>
         @subview 'leftView', new ListView()
         @subview 'rightView', new ListView()
@@ -54,6 +56,8 @@ class AtomCommanderView extends View
         @button 'F9 Hide', {class: 'btn', style: 'width: 14.28%', click: 'hideButton'}
 
   initialize: ->
+    @menuBar.hide();
+
     atom.commands.add @element,
       'atom-commander:focus-other-view': => @focusOtherView()
       'atom-commander:add-project': => @addProjectButton();
@@ -67,6 +71,9 @@ class AtomCommanderView extends View
 
     @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);
 
+    @keyup (e) => @handleKeyUp(e);
+    @keydown (e) => @handleKeyDown(e);
+
   destroy: ->
     @leftView.dispose();
     @rightView.dispose();
@@ -74,6 +81,21 @@ class AtomCommanderView extends View
 
   getElement: ->
     @element
+
+  handleKeyDown: (e) ->
+    if e.altKey and @menuBar.isHidden()
+      @menuBar.reset();
+      @menuBar.show();
+    else if @menuBar.isVisible()
+      @menuBar.handleKeyDown(e);
+
+  handleKeyUp: (e) ->
+    if e.altKey
+      @menuBar.handleKeyUp(e);
+    else if @menuBar.isVisible()
+      @menuBar.hide();
+      @menuBar.reset();
+      @refocusLastView();
 
   resizeStarted: =>
     $(document).on('mousemove', @resizeView)

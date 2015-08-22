@@ -324,5 +324,20 @@ class ContainerView extends View
       for directory in directories
         atom.project.addPath(directory.getPath());
 
+  selectAll: ->
+    for itemView in @itemViews
+      if itemView.isSelectable()
+        itemView.select(true);
+
+  selectNone: ->
+    for itemView in @itemViews
+      if itemView.isSelectable()
+        itemView.select(false);
+
+  selectInvert: ->
+    for itemView in @itemViews
+      if itemView.isSelectable()
+        itemView.toggleSelect();
+
   dispose: ->
     @disposables.dispose();

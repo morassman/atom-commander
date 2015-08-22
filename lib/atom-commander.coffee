@@ -1,21 +1,26 @@
+Actions = require './actions'
 ListView = require './views/list-view'
 AtomCommanderView = require './atom-commander-view'
 {CompositeDisposable, Directory} = require 'atom'
 
 module.exports = AtomCommander =
-  atomCommanderView: null
+  mainView: null
   bottomPanel: null
   subscriptions: null
 
   activate: (@state) ->
-    @atomCommanderView = new AtomCommanderView(@, @state);
-    @bottomPanel = atom.workspace.addBottomPanel(item: @atomCommanderView.getElement(), visible: false)
+    @actions = new Actions(@);
+    @mainView = new AtomCommanderView(@, @state);
+    @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false)
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle': => @toggle()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-all': => @actions.selectAll();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-none': => @actions.selectNone();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-invert': => @actions.selectInvert();
 
     if state.visible
       @show();
@@ -23,11 +28,11 @@ module.exports = AtomCommander =
   deactivate: ->
     @bottomPanel.destroy()
     @subscriptions.dispose()
-    @atomCommanderView.destroy()
+    @mainView.destroy()
 
   serialize: ->
-    if @atomCommanderView != null
-      state = @atomCommanderView.serialize();
+    if @mainView != null
+      state = @mainView.serialize();
       state.visible = @bottomPanel.isVisible();
       return state;
 
@@ -41,7 +46,7 @@ module.exports = AtomCommander =
 
   show: ->
     @bottomPanel.show()
-    @atomCommanderView.refocusLastView();
+    @mainView.refocusLastView();
 
   hide: ->
     @bottomPanel.hide();

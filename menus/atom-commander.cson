@@ -1,11 +1,24 @@
 # See https://atom.io/docs/latest/hacking-atom-package-word-count#menus for more details
-# 'context-menu':
-#   'atom-text-editor': [
-#     {
-#       'label': 'Toggle atom-commander'
-#       'command': 'atom-commander:toggle'
-#     }
-#   ]
+'context-menu':
+  '.atom-commander': [
+    {
+      'label': 'Select'
+      'submenu': [
+        {
+          'label': 'All'
+          'command': 'atom-commander:select-all'
+        }
+        {
+          'label': 'None'
+          'command': 'atom-commander:select-none'
+        }
+        {
+          'label': 'Invert'
+          'command': 'atom-commander:select-invert'
+        }
+      ]
+    }
+  ]
 'menu': [
   {
     'label': 'Packages'
