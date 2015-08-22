@@ -32,6 +32,30 @@ Left|Highlight the first item.
 Right|Highlight the last item.
 Tab|Switch to the other pane.
 Ctrl-Tab|Show the same folder in the other pane.
+Alt|Opens the quick menu.
+
+## Menus
+There are two types of menus available: A context menu and a quick menu.
+
+### Context Menu
+The context menu can be opened from anywhere on the panel.
+
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/context_menu.png?raw=true)
+
+### Quick Menu
+This is still experimental. The purpose is to quickly navigate the menus without using the mouse.
+
+The menu is opened by holding down the `Alt` key. Releasing the key will close the menu again.
+
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/quick_menu_1.png?raw=true)
+
+The menus are shown at the top of the panel in the form of buttons. Each button is numbered. Pressing the corresponding number will open that menu. Since these are buttons they can be clicked on as well.
+
+Entering a menu will show its items and potential sub menus. These are also numbered. There will also be an extra button on the left to return to the parent menu. The keys `0`, `Escape` and `Shift` are all valid keys for returning to the parent menu.
+
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/quick_menu_2.png?raw=true)
+
+When the menu is closed and opened again it will start on the root menu.
 
 ## Next Up
 - Load directories asynchronously.
