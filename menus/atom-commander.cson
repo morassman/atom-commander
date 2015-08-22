@@ -18,6 +18,15 @@
         }
       ]
     }
+    {
+      'label': 'Compare'
+      'submenu': [
+        {
+          'label': 'Folders'
+          'command': 'atom-commander:compare-folders'
+        }
+      ]
+    }
   ]
 'menu': [
   {
