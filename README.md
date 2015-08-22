@@ -30,6 +30,7 @@ Enter|Open highlighted item. If it's a file then it will be opened in the editor
 Backspace|Navigate to the parent folder.
 Left|Highlight the first item.
 Right|Highlight the last item.
+Space|Select the highlighted item.
 Tab|Switch to the other pane.
 Ctrl-Tab|Show the same folder in the other pane.
 Alt|Opens the quick menu.

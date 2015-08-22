@@ -224,7 +224,7 @@ class ContainerView extends View
     catch error
       # If the directory couldn't be opened and one hasn't been opened yet then
       # revert to opening the home folder and finally the PWD.
-      if @directory == null
+      if (@directory == null) or !fs.isDirectorySync(@directory.getRealPathSync())
         try
           @tryOpenDirectory(new Directory(fs.getHomeDirectory()));
         catch error2
