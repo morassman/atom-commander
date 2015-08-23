@@ -25,6 +25,10 @@
           'label': 'Folders'
           'command': 'atom-commander:compare-folders'
         }
+        {
+          'label': 'Files'
+          'command': 'atom-commander:compare-files'
+        }
       ]
     }
   ]

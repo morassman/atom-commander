@@ -1,7 +1,8 @@
 Actions = require './actions'
 ListView = require './views/list-view'
+DiffView = require './views/diff/diff-view'
 AtomCommanderView = require './atom-commander-view'
-{CompositeDisposable, Directory} = require 'atom'
+{CompositeDisposable, File, Directory} = require 'atom'
 
 module.exports = AtomCommander =
   mainView: null
@@ -22,9 +23,23 @@ module.exports = AtomCommander =
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-none': => @actions.selectNone();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-invert': => @actions.selectInvert();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:compare-folders': => @actions.compareFolders();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:compare-files': => @actions.compareFiles();
+
+    @openTestDiff();
 
     if state.visible
       @show();
+
+  openTestDiff: ->
+    # console.log("openTestDiff");
+
+    # leftFile = new File("/Users/henkmarais/Temp/left.txt");
+    # rightFile = new File("/Users/henkmarais/Temp/right.txt");
+    #
+    # view = new DiffView(leftFile, rightFile);
+    # pane = atom.workspace.getActivePane();
+    # item = pane.addItem view, 0
+    # pane.activateItem item
 
   deactivate: ->
     @bottomPanel.destroy()

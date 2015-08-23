@@ -1,3 +1,6 @@
+Utils = require './utils'
+DiffView = require './views/diff/diff-view'
+
 module.exports =
 class Actions
 
@@ -32,3 +35,26 @@ class Actions
     for itemView in rightView.itemViews
       if leftView.getItemViewWithName(itemView.getName()) == null
         itemView.select(true);
+
+  compareFiles: =>
+    leftView = @main.mainView.leftView;
+    rightView = @main.mainView.rightView;
+
+    leftViewItem = Utils.getFirstFileViewItem(leftView.getSelectedItemViews(true));
+
+    if (leftViewItem == null)
+      return;
+
+    rightViewItem = Utils.getFirstFileViewItem(rightView.getSelectedItemViews(true));
+
+    if (rightViewItem == null)
+      return;
+
+    leftFile = leftViewItem.itemController.getFile();
+    rightFile = rightViewItem.itemController.getFile();
+    title = "Diff - "+leftFile.getBaseName()+" | "+rightFile.getBaseName();
+
+    view = new DiffView(title, leftFile, rightFile);
+    pane = atom.workspace.getActivePane();
+    item = pane.addItem(view, 0);
+    pane.activateItem(item);

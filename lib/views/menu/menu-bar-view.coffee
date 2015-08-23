@@ -46,6 +46,7 @@ class MenuBarView extends View
 
     compare = root.addMenuItem("2", "Compare");
     compare.addMenuItem("1", "Folders", actions.compareFolders);
+    compare.addMenuItem("2", "Files", actions.compareFiles);
 
     return root;
 
