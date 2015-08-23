@@ -5,6 +5,9 @@ ListView = require './views/list-view'
 MenuBarView = require './views/menu/menu-bar-view'
 NewFileDialog = require './dialogs/new-file-dialog'
 NewDirectoryDialog = require './dialogs/new-directory-dialog'
+RenameDialog = require './dialogs/rename-dialog'
+FileController = require './controllers/file-controller'
+DirectoryController = require './controllers/directory-controller'
 
 module.exports =
 class AtomCommanderView extends View
@@ -47,19 +50,21 @@ class AtomCommanderView extends View
         @subview 'leftView', new ListView()
         @subview 'rightView', new ListView()
       @div {class: 'btn-group-xs'}, =>
-        @button 'F3 Add Project', {class: 'btn', style: 'width: 14.28%', click: 'addProjectButton'}
-        @button 'F4 New File', {class: 'btn', style: 'width: 14.28%', click: 'newFileButton'}
-        @button 'F5 Copy', {class: 'btn', style: 'width: 14.28%', click: 'copyButton'}
-        @button 'F6 Move', {class: 'btn', style: 'width: 14.28%', click: 'moveButton'}
-        @button 'F7 New Folder', {class: 'btn', style: 'width: 14.28%', click: 'newDirectoryButton'}
-        @button 'F8 Delete', {class: 'btn', style: 'width: 14.28%', click: 'deleteButton'}
-        @button 'F9 Hide', {class: 'btn', style: 'width: 14.28%', click: 'hideButton'}
+        @button 'F2 Rename', {class: 'btn', style: 'width: 12.5%', click: 'renameButton'}
+        @button 'F3 Add Project', {class: 'btn', style: 'width: 12.5%', click: 'addProjectButton'}
+        @button 'F4 New File', {class: 'btn', style: 'width: 12.5%', click: 'newFileButton'}
+        @button 'F5 Copy', {class: 'btn', style: 'width: 12.5%', click: 'copyButton'}
+        @button 'F6 Move', {class: 'btn', style: 'width: 12.5%', click: 'moveButton'}
+        @button 'F7 New Folder', {class: 'btn', style: 'width: 12.5%', click: 'newDirectoryButton'}
+        @button 'F8 Delete', {class: 'btn', style: 'width: 12.5%', click: 'deleteButton'}
+        @button 'F9 Hide', {class: 'btn', style: 'width: 12.5%', click: 'hideButton'}
 
   initialize: ->
     @menuBar.hide();
 
     atom.commands.add @element,
       'atom-commander:focus-other-view': => @focusOtherView()
+      'atom-commander:rename': => @renameButton();
       'atom-commander:add-project': => @addProjectButton();
       'atom-commander:new-file': => @newFileButton();
       'atom-commander:copy': => @copyButton();
@@ -141,6 +146,22 @@ class AtomCommanderView extends View
       return null;
 
     return @focusedView.directory;
+
+  renameButton: ->
+    if @focusedView == null
+      return;
+
+    itemView = @focusedView.getHighlightedItem();
+
+    if ((itemView == null) or !itemView.canRename())
+      return;
+
+    if itemView.itemController instanceof FileController
+      dialog = new RenameDialog(@focusedView, itemView.itemController.getFile());
+      dialog.attach();
+    else if itemView.itemController instanceof DirectoryController
+      dialog = new RenameDialog(@focusedView, itemView.itemController.getDirectory());
+      dialog.attach();
 
   newFileButton: ->
     directory = @getFocusedViewDirectory();

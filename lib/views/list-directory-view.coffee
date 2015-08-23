@@ -29,6 +29,12 @@ class ListDirectoryView extends ListItemView
 
     return @itemController.getName();
 
+  canRename: ->
+    if @parentDirectory
+      return false;
+
+    return super();
+
   getPath: ->
     @itemController.getPath();
 

@@ -1,4 +1,8 @@
-## 0.2.8 - 23 August 2015
+## 0.2.11 - 23 August 2015
+* Added ability to rename files and folders.
+* Changed highlight to indicate whether the pane has focus.
+
+## 0.2.8 - 22 August 2015
 * Added compare folders function.
 * Added select all, none and invert function.
 * Added menu bar and context menu.

@@ -26,6 +26,9 @@ class BaseItemView extends HTMLElement
   # Override to return whether this item is selectable.
   isSelectable: ->
 
+  canRename: ->
+    return @itemController.canRename();
+
   highlight: (@highlighted, @focused) ->
     @refreshClassList();
 

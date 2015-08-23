@@ -197,6 +197,12 @@ class ContainerView extends View
 
     return null;
 
+  getHighlightedItem: ->
+    if @highlightedIndex == null
+      return null;
+
+    return @itemViews[@highlightedIndex];
+
   getHighlightedItemName: ->
     if @highlightedIndex == null
       return null;

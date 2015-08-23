@@ -9,7 +9,7 @@ module.exports = (srcFolderPath, srcNames, dstFolderPath, move=false) ->
 
   try
     index = 0;
-    
+
     for srcName in srcNames
       srcPath = path.join(srcFolderPath, srcName);
       dstPath = path.join(dstFolderPath, srcName);
@@ -25,11 +25,7 @@ module.exports = (srcFolderPath, srcNames, dstFolderPath, move=false) ->
         # - src is a folder
         # - src is a file and dst isn't a file
         if srcIsDir or !fsp.isFileSync(dstPath)
-          fse.copySync(srcPath, dstPath);
-
-          if move
-            fse.removeSync(srcPath);
-
+          fsp.moveSync(srcPath, dstPath);
           emit("success", {index});
 
       index++;

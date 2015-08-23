@@ -14,5 +14,9 @@ class ItemController
   getContainerView: ->
     return @itemView.getContainerView();
 
+  # Override to indicate if this item can be renamed.
+  canRename: ->
+    return false;
+
   # Override this to implement the open behavior of this item.
   performOpenAction: ->

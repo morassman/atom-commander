@@ -11,9 +11,12 @@ class FileController extends ItemController
 
   getName: ->
     return @item.getBaseName();
-  
+
   getPath: ->
     return @item.getRealPathSync();
+
+  canRename: ->
+    return true;
 
   getNameExtension: ->
     baseName = @item.getBaseName();

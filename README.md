@@ -11,6 +11,7 @@ After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle` f
 ## Buttons
 Button|Action
 ---|---
+F2 Rename|Rename the highlighted file or folder.
 F3 Add Project|Adds the highlighted or selected folders as project folders to the workspace. If a folder isn't highlighted nor any folders selected then the folder currently being shown will be added.
 F4 New File|Creates a new file in the selected pane's folder and opens it for editing.
 F5 Copy|Copy the selected files to the other pane.
@@ -60,6 +61,5 @@ When the menu is closed and opened again it will start on the root menu.
 
 ## Next Up
 - Load directories asynchronously.
-- Add ability to rename files and folders.
 - Provide feedback for copy, move and delete.
 - Add proper error handling for file system errors.
