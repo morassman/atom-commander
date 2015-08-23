@@ -25,7 +25,11 @@ module.exports = (srcFolderPath, srcNames, dstFolderPath, move=false) ->
         # - src is a folder
         # - src is a file and dst isn't a file
         if srcIsDir or !fsp.isFileSync(dstPath)
-          fsp.moveSync(srcPath, dstPath);
+          if move
+            fsp.moveSync(srcPath, dstPath);
+          else
+            fse.copySync(srcPath, dstPath);
+
           emit("success", {index});
 
       index++;
