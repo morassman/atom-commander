@@ -95,7 +95,8 @@ class ContainerView extends View
     return paths;
 
   requestFocus: ->
-    @mainView.focusView(@);
+    if !@hasFocus()
+      @mainView.focusView(@);
 
   focus: ->
     @refreshHighlight();
@@ -162,7 +163,7 @@ class ContainerView extends View
 
   highlightIndex: (index, scroll=true) ->
     if @highlightedIndex != null
-      @itemViews[@highlightedIndex].highlight(false);
+      @itemViews[@highlightedIndex].highlight(false, @hasFocus());
 
     if @itemViews.length == 0
       index = null;
@@ -176,15 +177,12 @@ class ContainerView extends View
 
   refreshHighlight: (scroll=false) ->
     if @highlightedIndex != null
+      focused = @hasFocus();
       itemView = @itemViews[@highlightedIndex]
+      itemView.highlight(true, focused);
 
-      if @hasFocus()
-        itemView.highlight(true);
-
-        if scroll
-          itemView.scrollIntoViewIfNeeded(true)
-      else
-        itemView.highlight(false);
+      if focused and scroll
+        itemView.scrollIntoViewIfNeeded(true)
 
   highlightIndexWithName: (name) ->
     itemView = @getItemViewWithName(name);

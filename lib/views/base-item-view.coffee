@@ -5,6 +5,7 @@ class BaseItemView extends HTMLElement
     super();
     @selected = false;
     @highlighted = false;
+    @focused = false;
 
   initialize: (@containerView, @itemController) ->
     @itemController.initialize(@);
@@ -25,7 +26,7 @@ class BaseItemView extends HTMLElement
   # Override to return whether this item is selectable.
   isSelectable: ->
 
-  highlight: (@highlighted) ->
+  highlight: (@highlighted, @focused) ->
     @refreshClassList();
 
   toggleSelect: ->
@@ -38,10 +39,14 @@ class BaseItemView extends HTMLElement
 
   refreshClassList: ->
     @.classList.remove('selected');
-    @.classList.remove('highlighted');
+    @.classList.remove('highlighted-focused');
+    @.classList.remove('highlighted-unfocused');
 
     if @highlighted
-      @.classList.add('highlighted');
+      if @focused
+        @.classList.add('highlighted-focused');
+      else
+        @.classList.add('highlighted-unfocused');
 
     if @selected
       @.classList.add('selected');

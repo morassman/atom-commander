@@ -93,9 +93,12 @@ class AtomCommanderView extends View
     if e.altKey
       @menuBar.handleKeyUp(e);
     else if @menuBar.isVisible()
-      @menuBar.hide();
-      @menuBar.reset();
-      @refocusLastView();
+      @hideMenuBar();
+
+  hideMenuBar: ->
+    @menuBar.hide();
+    @menuBar.reset();
+    @refocusLastView();
 
   resizeStarted: =>
     $(document).on('mousemove', @resizeView)

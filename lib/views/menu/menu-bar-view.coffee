@@ -27,7 +27,10 @@ class MenuBarView extends View
       @handleMenuItem(@currentMenuItem.getMenuItemWithTitle(title));
 
   showParentMenuItem: ->
-    @handleMenuItem(@currentMenuItem.parent);
+    if @currentMenuItem.parent == null
+      @mainView.hideMenuBar();
+    else
+      @handleMenuItem(@currentMenuItem.parent);
 
   reset: ->
     @showMenuItem(@rootMenuItem);
@@ -49,9 +52,8 @@ class MenuBarView extends View
   showMenuItem: (@currentMenuItem) ->
     @content.empty();
 
-    if @currentMenuItem != @rootMenuItem
-      @content.append $$ ->
-        @button {class: 'btn icon-arrow-up inline-block'}
+    @content.append $$ ->
+      @button {class: 'btn icon-arrow-up inline-block'}
 
     for id in @currentMenuItem.ids
       subMenuItem = @currentMenuItem.getMenuItem(id);
