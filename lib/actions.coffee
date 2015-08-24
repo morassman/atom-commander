@@ -1,4 +1,6 @@
 Utils = require './utils'
+FileController = require './controllers/file-controller'
+DirectoryController = require './controllers/directory-controller'
 DiffView = require './views/diff/diff-view'
 
 module.exports =
@@ -20,6 +22,20 @@ class Actions
   selectInvert: =>
     view = @getFocusedView();
     view?.selectInvert();
+
+  selectFolders: =>
+    view = @getFocusedView();
+
+    for itemView in view.itemViews
+      if itemView.isSelectable() and itemView.itemController instanceof DirectoryController
+        itemView.select(true);
+
+  selectFiles: =>
+    view = @getFocusedView();
+
+    for itemView in view.itemViews
+      if itemView.isSelectable() and itemView.itemController instanceof FileController
+        itemView.select(true);
 
   compareFolders: =>
     leftView = @main.mainView.leftView;

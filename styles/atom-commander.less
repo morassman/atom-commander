@@ -136,13 +136,17 @@
 
 }
 
-.diff-view {
+.atom-commander-diff-view {
+  width: 100%;
+  height: 100%;
+  background-color: @input-background-color;
+
   .pane {
+    width: 50%;
+    height: 100%;
   }
 
   .left-pane {
-    width: 50%;
-    height: 100%;
     float: left;
 
     border-right-color: @tool-panel-border-color;
@@ -151,22 +155,56 @@
   }
 
   .right-pane {
-    width: 50%;
-    height: 100%;
     float: right;
+  }
+
+  .heading {
+    width: 100%;
+    // height: 5%;
+    // min-height: 5%;
+    max-height: 1em;
+    display: block;
+    background-color: @tool-panel-background-color;
+
+    // display: inline-block;
+  }
+
+  .title {
+    // vertical-align: middle;
+    // width: 100%;
+  }
+
+  .body {
+    width: 100%;
+    height: 95%;
+    min-height: -webkit-min-content;
+    display: inline-block;
+    background-color: @input-background-color;
   }
 
   .text-pane-scroller {
     width: 100%;
     height: 100%;
     overflow: auto;
+    display: inline-block;
+    min-height: -webkit-min-content;
     background-color: @input-background-color;
   }
 
-  .text-pane {
-    position: relative;
-    min-width: -webkit-min-content;
-    min-height: -webkit-min-content;
+  .line-added {
+    color: @text-color-success;
+    background-color: fade(@text-color-success, 15%);
   }
+
+  .line-removed {
+    color: @text-color-error;
+    background-color: fade(@text-color-error, 15%);
+  }
+
+  // .text-pane {
+  //   position: relative;
+  //   min-width: -webkit-min-content;
+  //   min-height: -webkit-min-content;
+  // }
 
 }

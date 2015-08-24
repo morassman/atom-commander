@@ -43,6 +43,8 @@ class MenuBarView extends View
     select.addMenuItem("1", "All", actions.selectAll);
     select.addMenuItem("2", "None", actions.selectNone);
     select.addMenuItem("3", "Invert", actions.selectInvert);
+    select.addMenuItem("4", "Folders", actions.selectFolders);
+    select.addMenuItem("5", "Files", actions.selectFiles);
 
     compare = root.addMenuItem("2", "Compare");
     compare.addMenuItem("1", "Folders", actions.compareFolders);

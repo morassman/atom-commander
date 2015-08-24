@@ -16,6 +16,14 @@
           'label': 'Invert'
           'command': 'atom-commander:select-invert'
         }
+        {
+          'label': 'Folders'
+          'command': 'atom-commander:select-folders'
+        }
+        {
+          'label': 'Files'
+          'command': 'atom-commander:select-files'
+        }
       ]
     }
     {

@@ -7,7 +7,7 @@ DirectoryController = require '../controllers/directory-controller'
 module.exports =
 class ContainerView extends View
 
-  constructor: ->
+  constructor: (@left) ->
     super();
     @itemViews = [];
     @directory = null;
@@ -342,6 +342,33 @@ class ContainerView extends View
     for itemView in @itemViews
       if itemView.isSelectable()
         itemView.toggleSelect();
+
+  getInitialDirectory: (suggestedPath) ->
+    if suggestedPath and fs.isDirectorySync(suggestedPath)
+      return new Directory(suggestedPath);
+
+    directories = atom.project.getDirectories();
+
+    if directories.length > 0
+      return directories[0];
+
+    return new Directory(fs.getHomeDirectory());
+
+  deserialize: (state) ->
+    if (state == null) or (state == undefined)
+      @openDirectory(@getInitialDirectory(null));
+      return;
+
+    @openDirectory(@getInitialDirectory(state.path));
+    @highlightIndexWithName(state.highlight);
+
+  serialize: ->
+    state = {}
+
+    state.path = @getPath();
+    state.highlight = @getHighlightedItemName();
+
+    return state;
 
   dispose: ->
     @disposables.dispose();

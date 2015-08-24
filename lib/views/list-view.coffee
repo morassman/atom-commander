@@ -6,8 +6,8 @@ ContainerView = require './container-view'
 module.exports =
 class ListView extends ContainerView
 
-  constructor: ->
-    super();
+  constructor: (left) ->
+    super(left);
 
   @container: ->
     @div {class: 'list-view-resizer', click:'requestFocus', outlet: 'listViewResizer'}, =>

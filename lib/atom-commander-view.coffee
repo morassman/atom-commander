@@ -24,31 +24,20 @@ class AtomCommanderView extends View
     @leftView.addClass('left');
     @rightView.addClass('right');
 
-    @leftView.openDirectory(@getInitialDirectory(state.leftPath));
-    @rightView.openDirectory(@getInitialDirectory(state.rightPath));
+    @leftView.deserialize(state.left);
+    @rightView.deserialize(state.right);
 
     if state.height
       @leftView.setContentHeight(state.height);
       @rightView.setContentHeight(state.height);
-
-  getInitialDirectory: (suggestedPath) ->
-    if suggestedPath and fs.isDirectorySync(suggestedPath)
-      return new Directory(suggestedPath);
-
-    directories = atom.project.getDirectories();
-
-    if directories.length > 0
-      return directories[0];
-
-    return new Directory(fs.getHomeDirectory());
 
   @content: ->
     @div {class: 'atom-commander atom-commander-resizer'}, =>
       @div class: 'atom-commander-resize-handle', outlet: 'resizeHandle'
       @subview 'menuBar', new MenuBarView(@);
       @div {class: 'content'}, =>
-        @subview 'leftView', new ListView()
-        @subview 'rightView', new ListView()
+        @subview 'leftView', new ListView(true)
+        @subview 'rightView', new ListView(false)
       @div {class: 'btn-group-xs'}, =>
         @button 'F2 Rename', {class: 'btn', style: 'width: 12.5%', click: 'renameButton'}
         @button 'F3 Add Project', {class: 'btn', style: 'width: 12.5%', click: 'addProjectButton'}
@@ -255,8 +244,8 @@ class AtomCommanderView extends View
   serialize: ->
     state = {};
 
-    state.leftPath = @leftView.getPath();
-    state.rightPath = @rightView.getPath();
+    state.left = @leftView.serialize();
+    state.right = @rightView.serialize();
     state.height = @leftView.getContentHeight();
 
     return state;
