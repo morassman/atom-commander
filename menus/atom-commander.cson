@@ -13,6 +13,14 @@
           'command': 'atom-commander:select-none'
         }
         {
+          'label': 'Add'
+          'command': 'atom-commander:select-add'
+        }
+        {
+          'label': 'Remove'
+          'command': 'atom-commander:select-remove'
+        }
+        {
           'label': 'Invert'
           'command': 'atom-commander:select-invert'
         }
@@ -27,15 +35,37 @@
       ]
     }
     {
+      'label': 'Go'
+      'submenu': [
+        {
+          'label': 'Root'
+          'command': 'atom-commander:go-root'
+        }
+        {
+          'label': 'Home'
+          'command': 'atom-commander:go-home'
+        }
+      ]
+    }
+    {
+      'label': 'View'
+      'submenu': [
+        {
+          'label': 'Mirror'
+          'command': 'atom-commander:view-mirror'
+        }
+        {
+          'label': 'Swap'
+          'command': 'atom-commander:view-swap'
+        }
+      ]
+    }
+    {
       'label': 'Compare'
       'submenu': [
         {
           'label': 'Folders'
           'command': 'atom-commander:compare-folders'
-        }
-        {
-          'label': 'Files'
-          'command': 'atom-commander:compare-files'
         }
       ]
     }

@@ -4,7 +4,7 @@ Dual-pane file manager for Atom.
 
 This is not meant to replace the tree view nor to be a full featured file manager. More features will be added in time, but the primary focus is to provide a way to browse the file system in a way that's familiar to many people.
 
-After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle` from the Command Palette to open the panel.
+After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle Focus` from the Command Palette to show the panel and focus it. The panel can be hidden with `F10` or `Atom Commander: Toggle Visible`.
 
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/panel.png?raw=true)
 
@@ -12,13 +12,14 @@ After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle` f
 Button|Action
 ---|---
 F2 Rename|Rename the highlighted file or folder.
-F3 Add Project|Adds the highlighted or selected folders as project folders to the workspace. If a folder isn't highlighted nor any folders selected then the folder currently being shown will be added.
-F4 New File|Creates a new file in the selected pane's folder and opens it for editing.
+F3 Add Project|Add the highlighted or selected folders as project folders to the workspace. If a folder isn't highlighted nor any folders selected then the folder currently being shown will be added.
+F4 New File|Create a new file in the selected pane's folder and opens it for editing.
 F5 Copy|Copy the selected files to the other pane.
 F6 Move|Move the selected files to the other pane.
-F7 New Folder|Creates a new folder in the current pane.
-F8 Delete|Deletes the selected files in the current pane.
-F9 Hide|Hides and shows the panel.
+F7 New Folder|Create a new folder in the current pane.
+F8 Delete|Delete the selected files in the current pane.
+F9 Focus|Toggle focus between the panel and the editor.
+F10 Hide|Toggle visibility.
 
 ## Keys
 Use the arrow keys, page-up, page-down, home and end to navigate.
@@ -34,7 +35,7 @@ Right|Highlight the last item.
 Space|Select the highlighted item.
 Tab|Switch to the other pane.
 Ctrl-Tab|Show the same folder in the other pane.
-Alt|Opens the quick menu.
+Alt|Open the quick menu.
 
 ## Menus
 There are two types of menus available: A context menu and a quick menu.
@@ -58,6 +59,19 @@ Entering a menu will show its items and potential sub menus. These are also numb
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/quick_menu_2.png?raw=true)
 
 When the menu is closed and opened again it will start on the root menu.
+
+### Available Menus
+- Select
+  - All : Select everything.
+  - None : Deselect everything.
+- Go
+  - Root : Go to the root folder in the focused pane.
+  - Home : Go to your user folder in the focused pane.
+- View
+  - Mirror : Show the same folder in the other pane as the focused one.
+  - Swap : Swap the two folders.
+- Compare
+  - Folders : Select the differences between the two folders.
 
 ## Next Up
 - Load directories asynchronously.

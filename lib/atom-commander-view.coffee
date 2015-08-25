@@ -24,8 +24,8 @@ class AtomCommanderView extends View
     @leftView.addClass('left');
     @rightView.addClass('right');
 
-    @leftView.deserialize(state.left);
-    @rightView.deserialize(state.right);
+    @leftView.deserialize(state.leftPath, state.left);
+    @rightView.deserialize(state.rightPath, state.right);
 
     if state.height
       @leftView.setContentHeight(state.height);
@@ -242,6 +242,31 @@ class AtomCommanderView extends View
   mirror: ->
     if @focusedView != null
       @getOtherView(@focusedView).openDirectory(@focusedView.directory);
+
+  swap: ->
+    if @focusedView == null
+      return;
+
+    otherView = @getOtherView(@focusedView);
+
+    directory = @focusedView.directory;
+    otherDirectory = otherView.directory;
+
+    highlightedIndex = @focusedView.highlightedIndex;
+    otherHighlightedIndex = otherView.highlightedIndex;
+
+    selectedNames = @focusedView.getSelectedNames();
+    otherSelectedNames = otherView.getSelectedNames();
+
+    @focusedView.openDirectory(otherDirectory);
+    @focusedView.selectNames(otherSelectedNames);
+    @focusedView.highlightIndex(otherHighlightedIndex, true);
+
+    otherView.openDirectory(directory);
+    otherView.selectNames(selectedNames);
+    otherView.highlightIndex(highlightedIndex, true);
+
+    otherView.requestFocus();
 
   refocusLastView: ->
     if @focusedView != null

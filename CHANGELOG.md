@@ -1,3 +1,11 @@
+## 0.3.0 - 25 August 2015
+* Added more select options: Add, Remove, Folders, Files.
+* Added 'Go' menu with options: Root, Home
+* Added 'View' menu with options: Mirror, Swap
+* Changed F9 shortcut to toggle focus.
+* Added F10 shortcut to toggle visibility.
+* Fixed a bug that incorrectly made it look like the pane has focus.
+
 ## 0.2.11 - 23 August 2015
 * Added ability to rename files and folders.
 * Changed highlight to indicate whether the pane has focus.

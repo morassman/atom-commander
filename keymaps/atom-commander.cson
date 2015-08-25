@@ -19,8 +19,6 @@
   'f6': 'atom-commander:move'
   'f7': 'atom-commander:new-folder'
   'f8': 'atom-commander:delete'
-  'f9': 'atom-commander:toggle-focus'
-  'f10': 'atom-commander:toggle-visible'
   'tab': 'atom-commander:focus-other-view'
   'ctrl-tab': 'atom-commander:mirror'
 

@@ -1,4 +1,5 @@
 fs = require 'fs-plus'
+minimatch = require 'minimatch'
 {View, TextEditorView} = require 'atom-space-pen-views'
 {CompositeDisposable, Directory, File} = require 'atom'
 FileController = require '../controllers/file-controller'
@@ -38,7 +39,7 @@ class ContainerView extends View
       @highlightIndex(e.currentTarget.index, false);
       @openHighlightedItem();
 
-    @on 'click', '.item', (e) =>
+    @on 'mousedown', '.item', (e) =>
       @requestFocus();
       @highlightIndex(e.currentTarget.index, false);
 
@@ -94,9 +95,17 @@ class ContainerView extends View
 
     return paths;
 
+  getItemViewsWithPattern: (pattern) ->
+    result = [];
+
+    for itemView in @itemViews
+      if minimatch(itemView.getName(), pattern, { dot: true, nocase: true})
+        result.push(itemView);
+
+    return result;
+
   requestFocus: ->
-    if !@hasFocus()
-      @mainView.focusView(@);
+    @mainView.focusView(@);
 
   focus: ->
     @refreshHighlight();
@@ -344,7 +353,7 @@ class ContainerView extends View
         itemView.toggleSelect();
 
   getInitialDirectory: (suggestedPath) ->
-    if suggestedPath and fs.isDirectorySync(suggestedPath)
+    if suggestedPath? and fs.isDirectorySync(suggestedPath)
       return new Directory(suggestedPath);
 
     directories = atom.project.getDirectories();
@@ -354,9 +363,9 @@ class ContainerView extends View
 
     return new Directory(fs.getHomeDirectory());
 
-  deserialize: (state) ->
+  deserialize: (path, state) ->
     if (state == null) or (state == undefined)
-      @openDirectory(@getInitialDirectory(null));
+      @openDirectory(@getInitialDirectory(path));
       return;
 
     @openDirectory(@getInitialDirectory(state.path));

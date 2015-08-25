@@ -19,29 +19,26 @@ module.exports = AtomCommander =
 
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-visible': => @toggleVisible();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-focus': => @toggleFocus();
+
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-all': => @actions.selectAll();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-none': => @actions.selectNone();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-add': => @actions.selectAdd();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-remove': => @actions.selectRemove();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-invert': => @actions.selectInvert();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-folders': => @actions.selectFolders();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-files': => @actions.selectFiles();
-    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:compare-folders': => @actions.compareFolders();
-    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:compare-files': => @actions.compareFiles();
 
-    @openTestDiff();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:view-mirror': => @actions.viewMirror();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:view-swap': => @actions.viewSwap();
+
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:compare-folders': => @actions.compareFolders();
+    # @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:compare-files': => @actions.compareFiles();
+
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:go-root': => @actions.goRoot();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:go-home': => @actions.goHome();
 
     if state.visible
-      @show();
-
-  openTestDiff: ->
-    # console.log("openTestDiff");
-
-    # leftFile = new File("/Users/henkmarais/Temp/left.txt");
-    # rightFile = new File("/Users/henkmarais/Temp/right.txt");
-    #
-    # view = new DiffView(leftFile, rightFile);
-    # pane = atom.workspace.getActivePane();
-    # item = pane.addItem view, 0
-    # pane.activateItem item
+      @bottomPanel.show();
 
   deactivate: ->
     @bottomPanel.destroy()
@@ -58,9 +55,12 @@ module.exports = AtomCommander =
 
   toggleVisible: ->
     if @bottomPanel.isVisible()
-      @hide()
+      if (@mainView.focusedView != null) and @mainView.focusedView.hasFocus()
+        @mainView.focusedView.unfocus();
+
+      @bottomPanel.hide();
     else
-      @show();
+      @bottomPanel.show();
 
   toggleFocus: ->
     if @bottomPanel.isVisible()
@@ -69,12 +69,5 @@ module.exports = AtomCommander =
       else
         @mainView.refocusLastView();
     else
-      @show();
-
-  show: ->
-    @bottomPanel.show()
-    @mainView.refocusLastView();
-
-  hide: ->
-    @mainView.focusedView.unfocus();
-    @bottomPanel.hide();
+      @bottomPanel.show()
+      @mainView.refocusLastView();

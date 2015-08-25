@@ -42,13 +42,23 @@ class MenuBarView extends View
     select = root.addMenuItem("1", "Select");
     select.addMenuItem("1", "All", actions.selectAll);
     select.addMenuItem("2", "None", actions.selectNone);
-    select.addMenuItem("3", "Invert", actions.selectInvert);
-    select.addMenuItem("4", "Folders", actions.selectFolders);
-    select.addMenuItem("5", "Files", actions.selectFiles);
+    select.addMenuItem("3", "Add", actions.selectAdd);
+    select.addMenuItem("4", "Remove", actions.selectRemove);
+    select.addMenuItem("5", "Invert", actions.selectInvert);
+    select.addMenuItem("6", "Folders", actions.selectFolders);
+    select.addMenuItem("7", "Files", actions.selectFiles);
 
-    compare = root.addMenuItem("2", "Compare");
+    go = root.addMenuItem("2", "Go");
+    go.addMenuItem("1", "Root", actions.goRoot);
+    go.addMenuItem("2", "Home", actions.goHome);
+
+    view = root.addMenuItem("3", "View");
+    view.addMenuItem("1", "Mirror", actions.viewMirror);
+    view.addMenuItem("2", "Swap", actions.viewSwap);
+
+    compare = root.addMenuItem("4", "Compare");
     compare.addMenuItem("1", "Folders", actions.compareFolders);
-    compare.addMenuItem("2", "Files", actions.compareFiles);
+    # compare.addMenuItem("2", "Files", actions.compareFiles);
 
     return root;
 
