@@ -32,6 +32,8 @@ class AtomCommanderView extends View
       @rightView.setContentHeight(state.height);
 
   @content: ->
+    buttonStyle = 'width: 11.1%';
+
     @div {class: 'atom-commander atom-commander-resizer'}, =>
       @div class: 'atom-commander-resize-handle', outlet: 'resizeHandle'
       @subview 'menuBar', new MenuBarView(@);
@@ -39,14 +41,15 @@ class AtomCommanderView extends View
         @subview 'leftView', new ListView(true)
         @subview 'rightView', new ListView(false)
       @div {class: 'btn-group-xs'}, =>
-        @button 'F2 Rename', {class: 'btn', style: 'width: 12.5%', click: 'renameButton'}
-        @button 'F3 Add Project', {class: 'btn', style: 'width: 12.5%', click: 'addProjectButton'}
-        @button 'F4 New File', {class: 'btn', style: 'width: 12.5%', click: 'newFileButton'}
-        @button 'F5 Copy', {class: 'btn', style: 'width: 12.5%', click: 'copyButton'}
-        @button 'F6 Move', {class: 'btn', style: 'width: 12.5%', click: 'moveButton'}
-        @button 'F7 New Folder', {class: 'btn', style: 'width: 12.5%', click: 'newDirectoryButton'}
-        @button 'F8 Delete', {class: 'btn', style: 'width: 12.5%', click: 'deleteButton'}
-        @button 'F9 Hide', {class: 'btn', style: 'width: 12.5%', click: 'hideButton'}
+        @button 'F2 Rename', {class: 'btn', style: buttonStyle, click: 'renameButton'}
+        @button 'F3 Add Project', {class: 'btn', style: buttonStyle, click: 'addProjectButton'}
+        @button 'F4 New File', {class: 'btn', style: buttonStyle, click: 'newFileButton'}
+        @button 'F5 Copy', {class: 'btn', style: buttonStyle, click: 'copyButton'}
+        @button 'F6 Move', {class: 'btn', style: buttonStyle, click: 'moveButton'}
+        @button 'F7 New Folder', {class: 'btn', style: buttonStyle, click: 'newDirectoryButton'}
+        @button 'F8 Delete', {class: 'btn', style: buttonStyle, click: 'deleteButton'}
+        @button 'F9 Focus', {class: 'btn', style: buttonStyle, click: 'focusButton'}
+        @button 'F10 Hide', {class: 'btn', style: buttonStyle, click: 'hideButton'}
 
   initialize: ->
     @menuBar.hide();
@@ -60,6 +63,7 @@ class AtomCommanderView extends View
       'atom-commander:move': => @moveButton();
       'atom-commander:new-folder': => @newDirectoryButton();
       'atom-commander:delete': => @deleteButton();
+      'atom-commander:focus': => @focusButton();
       'atom-commander:hide': => @hideButton();
       'atom-commander:mirror': => @mirror();
 
@@ -227,6 +231,10 @@ class AtomCommanderView extends View
 
     dialog = new NewDirectoryDialog(@focusedView, directory);
     dialog.attach();
+
+  focusButton: ->
+    @main.toggleFocus();
+    # if @focusedView ==
 
   hideButton: ->
     @main.hide();

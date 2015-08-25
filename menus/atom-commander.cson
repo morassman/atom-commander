@@ -47,8 +47,12 @@
       'label': 'Atom Commander'
       'submenu': [
         {
-          'label': 'Toggle'
-          'command': 'atom-commander:toggle'
+          'label': 'Toggle Focus'
+          'command': 'atom-commander:toggle-focus'
+        }
+        {
+          'label': 'Toggle Visible'
+          'command': 'atom-commander:toggle-visible'
         }
       ]
     ]

@@ -17,8 +17,8 @@ module.exports = AtomCommander =
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
-    # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle': => @toggle()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-visible': => @toggleVisible();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-focus': => @toggleFocus();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-all': => @actions.selectAll();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-none': => @actions.selectNone();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-invert': => @actions.selectInvert();
@@ -56,9 +56,18 @@ module.exports = AtomCommander =
 
     return @state;
 
-  toggle: ->
+  toggleVisible: ->
     if @bottomPanel.isVisible()
-      @bottomPanel.hide()
+      @hide()
+    else
+      @show();
+
+  toggleFocus: ->
+    if @bottomPanel.isVisible()
+      if (@mainView.focusedView != null) and @mainView.focusedView.hasFocus()
+        @mainView.focusedView.unfocus();
+      else
+        @mainView.refocusLastView();
     else
       @show();
 
@@ -67,4 +76,5 @@ module.exports = AtomCommander =
     @mainView.refocusLastView();
 
   hide: ->
+    @mainView.focusedView.unfocus();
     @bottomPanel.hide();
