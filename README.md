@@ -36,9 +36,14 @@ Space|Select the highlighted item.
 Tab|Switch to the other pane.
 Ctrl-Tab|Show the same folder in the other pane.
 Alt|Open the quick menu.
-`+`|Opens dialog to add items to selection.
-`-`|Opens dialog to remove items from selection.
+`+`|Open dialog to add items to selection.
+`-`|Open dialog to remove items from selection.
 `*`|Invert selection.
+
+## Search
+A file or folder can be quickly found by simply starting to type parts of its name. The one that matches the input the best will be highlighted.
+
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/search.png?raw=true)
 
 ## Menus
 There are two types of menus available: A context menu and a quick menu.
@@ -79,5 +84,4 @@ When the menu is closed and opened again it will start on the root menu.
 
 ## Next Up
 - Load directories asynchronously.
-- Provide feedback for copy, move and delete.
-- Add proper error handling for file system errors.
+- Give visual feedback for file system operations.
