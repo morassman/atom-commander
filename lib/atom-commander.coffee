@@ -10,6 +10,8 @@ module.exports = AtomCommander =
   subscriptions: null
 
   activate: (@state) ->
+    @bookmarks = [];
+
     @actions = new Actions(@);
     @mainView = new AtomCommanderView(@, @state);
     @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false)
@@ -28,8 +30,8 @@ module.exports = AtomCommander =
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-folders': => @actions.selectFolders();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-files': => @actions.selectFiles();
 
-    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:view-mirror': => @actions.viewMirror();
-    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:view-swap': => @actions.viewSwap();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:mirror-view': => @actions.viewMirror();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:swap-view': => @actions.viewSwap();
 
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:compare-folders': => @actions.compareFolders();
     # @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:compare-files': => @actions.compareFiles();
@@ -38,8 +40,15 @@ module.exports = AtomCommander =
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:go-home': => @actions.goHome();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:go-editor': => @actions.goEditor();
 
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:add-bookmark': => @actions.bookmarksAdd(false);
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:remove-bookmark': => @actions.bookmarksRemove(false);
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:open-bookmark': => @actions.bookmarksOpen(false);
+
     if @state.visible
       @bottomPanel.show();
+
+    if @state.bookmarks?
+      @bookmarks = @state.bookmarks;
 
   deactivate: ->
     @bottomPanel.destroy()
@@ -50,6 +59,7 @@ module.exports = AtomCommander =
     if @mainView != null
       state = @mainView.serialize();
       state.visible = @bottomPanel.isVisible();
+      state.bookmarks = @bookmarks;
       return state;
 
     return @state;
@@ -72,3 +82,12 @@ module.exports = AtomCommander =
     else
       @bottomPanel.show()
       @mainView.refocusLastView();
+
+  addBookmark: (name, path) ->
+    @bookmarks.push([name, path]);
+
+  removeBookmark: (bookmark) ->
+    index = @bookmarks.indexOf(bookmark);
+
+    if (index >= 0)
+      @bookmarks.splice(index, 1);

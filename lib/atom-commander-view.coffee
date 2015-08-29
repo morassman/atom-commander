@@ -15,7 +15,7 @@ class AtomCommanderView extends View
   constructor: (@main, state)->
     super(@main);
 
-    @focusedView = null;
+    @focusedView = @leftView;
 
     @menuBar.setMainView(@);
     @leftView.setMainView(@);

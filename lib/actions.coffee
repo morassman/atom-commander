@@ -2,6 +2,8 @@ Utils = require './utils'
 FileController = require './controllers/file-controller'
 DirectoryController = require './controllers/directory-controller'
 DiffView = require './views/diff/diff-view'
+BookmarksView = require './views/bookmarks-view'
+AddBookmarkDialog = require './dialogs/add-bookmark-dialog'
 SelectDialog = require './dialogs/select-dialog'
 {File, Directory, TextEditor} = require 'atom'
 fsp = require 'fs-plus'
@@ -110,6 +112,26 @@ class Actions
       if editor.getPath()?
         @goFile(new File(editor.getPath()));
 
+  goPath: (path, openIfFile) =>
+    if fsp.isDirectorySync(path)
+      @goDirectory(new Directory(path));
+      return;
+
+    file = new File(path);
+
+    if fsp.isFileSync(path)
+      @goFile(file);
+
+      if openIfFile
+        atom.workspace.open(file.getPath());
+
+      return;
+
+    directory = file.getParent();
+
+    if fsp.isDirectorySync(directory.getPath())
+      @goDirectory(directory);
+
   goFile: (file) =>
     view = @getFocusedView();
 
@@ -168,3 +190,33 @@ class Actions
     pane = atom.workspace.getActivePane();
     item = pane.addItem(view, 0);
     pane.activateItem(item);
+
+  bookmarksAdd: (fromView=true) =>
+    view = @getFocusedView();
+
+    if (view == null)
+      return;
+
+    item = view.getHighlightedItem();
+
+    if (item == null)
+      return;
+
+    if item.isSelectable()
+      name = item.getName();
+      path = item.getPath();
+    else
+      name = view.directory.getBaseName();
+      path = view.directory.getRealPathSync();
+
+    @main.mainView.hideMenuBar();
+    dialog = new AddBookmarkDialog(@main, name, path, fromView);
+    dialog.attach();
+
+  bookmarksRemove: (fromView=true) =>
+    @main.mainView.hideMenuBar();
+    view = new BookmarksView(@, false, fromView);
+
+  bookmarksOpen: (fromView=true) =>
+    @main.mainView.hideMenuBar();
+    view = new BookmarksView(@, true, fromView);

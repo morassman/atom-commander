@@ -52,15 +52,32 @@
       ]
     }
     {
+      'label': 'Bookmarks'
+      'submenu': [
+        {
+          'label': 'Add'
+          'command': 'atom-commander:add-bookmark'
+        }
+        {
+          'label': 'Remove'
+          'command': 'atom-commander:remove-bookmark'
+        }
+        {
+          'label': 'Open'
+          'command': 'atom-commander:open-bookmark'
+        }
+      ]
+    }
+    {
       'label': 'View'
       'submenu': [
         {
           'label': 'Mirror'
-          'command': 'atom-commander:view-mirror'
+          'command': 'atom-commander:mirror-view'
         }
         {
           'label': 'Swap'
-          'command': 'atom-commander:view-swap'
+          'command': 'atom-commander:swap-view'
         }
       ]
     }
