@@ -12,15 +12,26 @@ class Actions
   constructor: (@main) ->
 
   getFocusedView: ->
-    return @main.mainView.focusedView;
+    focusedView = @main.mainView.focusedView;
+
+    if focusedView == null
+      focusedView = @main.mainView.leftView;
+
+    return focusedView;
 
   selectAll: =>
     view = @getFocusedView();
-    view?.selectAll();
+
+    if view != null
+      view.selectAll();
+      view.requestFocus();
 
   selectNone: =>
     view = @getFocusedView();
-    view?.selectNone();
+
+    if view != null
+      view.selectNone();
+      view.requestFocus();
 
   selectAdd: =>
     @selectAddRemove(true);
@@ -31,18 +42,25 @@ class Actions
   selectAddRemove: (add) ->
     view = @getFocusedView();
 
-    if (view == null)
-      return;
-
-    dialog = new SelectDialog(@, view, add);
-    dialog.attach();
+    if (view != null)
+      view.requestFocus();
+      dialog = new SelectDialog(@, view, add);
+      dialog.attach();
 
   selectInvert: =>
     view = @getFocusedView();
-    view?.selectInvert();
+
+    if (view != null)
+      view.selectInvert();
+      view.requestFocus();
 
   selectFolders: =>
     view = @getFocusedView();
+
+    if (view == null)
+      return;
+
+    view.requestFocus();
 
     for itemView in view.itemViews
       if itemView.isSelectable() and itemView.itemController instanceof DirectoryController
@@ -50,6 +68,11 @@ class Actions
 
   selectFiles: =>
     view = @getFocusedView();
+
+    if (view == null)
+      return;
+
+    view.requestFocus();
 
     for itemView in view.itemViews
       if itemView.isSelectable() and itemView.itemController instanceof FileController
@@ -93,12 +116,14 @@ class Actions
     if (view != null)
       view.openDirectory(file.getParent());
       view.highlightIndexWithName(file.getBaseName());
+      view.requestFocus();
 
   goDirectory: (directory) =>
     view = @getFocusedView();
 
     if (view != null)
       view.openDirectory(directory);
+      view.requestFocus();
 
   viewMirror: =>
     @main.mainView.mirror();
