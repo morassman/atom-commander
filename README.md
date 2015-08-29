@@ -36,6 +36,9 @@ Space|Select the highlighted item.
 Tab|Switch to the other pane.
 Ctrl-Tab|Show the same folder in the other pane.
 Alt|Open the quick menu.
+`+`|Opens dialog to add items to selection.
+`-`|Opens dialog to remove items from selection.
+`*`|Invert selection.
 
 ## Menus
 There are two types of menus available: A context menu and a quick menu.
@@ -67,6 +70,7 @@ When the menu is closed and opened again it will start on the root menu.
 - Go
   - Root : Go to the root folder in the focused pane.
   - Home : Go to your user folder in the focused pane.
+  - Editor : Go to the file that is active in the editor.
 - View
   - Mirror : Show the same folder in the other pane as the focused one.
   - Swap : Swap the two folders.

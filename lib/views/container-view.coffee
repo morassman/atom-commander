@@ -75,6 +75,7 @@ class ContainerView extends View
 
   backspacePressed: ->
     if @searchPanel.isVisible()
+      @timeKeyPressed = Date.now();
       @searchPanel.text(@searchPanel.text().slice(0, -1));
       @search(@searchPanel.text());
     else
@@ -82,6 +83,7 @@ class ContainerView extends View
 
   spacePressed: ->
     if @searchPanel.isVisible()
+      @timeKeyPressed = Date.now();
       @searchPanel.text(@searchPanel.text()+" ");
       @search(@searchPanel.text());
     else
@@ -94,10 +96,19 @@ class ContainerView extends View
 
     charCode = e.which | e.keyCode;
     sCode = String.fromCharCode(charCode);
-    # console.log("handleKeyPress : "+e.which+" "+e.keyCode+" "+charCode+" "+sCode+" "+sCode.length);
 
     if @searchPanel.isHidden()
-      @showSearchPanel();
+      if sCode == "+"
+        @mainView.main.actions.selectAdd();
+        return;
+      else if sCode == "-"
+        @mainView.main.actions.selectRemove();
+        return;
+      else if sCode == "*"
+        @mainView.main.actions.selectInvert();
+        return;
+      else
+        @showSearchPanel();
     else
       @timeKeyPressed = Date.now();
 
