@@ -22,7 +22,7 @@
   'tab': 'atom-commander:focus-other-view'
   'ctrl-tab': 'atom-commander:mirror'
 
-'.container-view':
+'.atom-commander-container-view':
   'enter': 'atom-commander:open-highlighted-item'
   'backspace': 'atom-commander:open-parent-folder'
   'left': 'atom-commander:highlight-first-item'

@@ -45,6 +45,10 @@
           'label': 'Home'
           'command': 'atom-commander:go-home'
         }
+        {
+          'label': 'Editor'
+          'command': 'atom-commander:go-editor'
+        }
       ]
     }
     {

@@ -23,6 +23,8 @@
     "atom-space-pen-views": "^2.0.5",
     "@aki77/atom-input-dialog": "0.1.3",
     "diff": "2.0.2",
-    "minimatch": "^2.0.10"
+    "minimatch": "^2.0.10",
+    "nschedule": "0.3.0",
+    "fuzzaldrin": "2.1.0"
   }
 }

@@ -6,10 +6,12 @@ class BaseItemView extends HTMLElement
     @selected = false;
     @highlighted = false;
     @focused = false;
+    @itemName = '';
 
   initialize: (@containerView, @itemController) ->
     @itemController.initialize(@);
     @.classList.add('item');
+    @itemName = @getName();
 
   getContainerView: ->
     return @containerView;

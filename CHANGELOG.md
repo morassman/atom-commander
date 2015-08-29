@@ -1,3 +1,7 @@
+## 0.3.1 - 29 August 2015
+* Added search functionality. Start typing and the best match will be highlighted.
+* Added 'Editor' option to 'Go' menu. This will go to the file that is currently being edited.
+
 ## 0.3.0 - 25 August 2015
 * Added more select options: Add, Remove, Folders, Files.
 * Added 'Go' menu with options: Root, Home

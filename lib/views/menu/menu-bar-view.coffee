@@ -51,6 +51,7 @@ class MenuBarView extends View
     go = root.addMenuItem("2", "Go");
     go.addMenuItem("1", "Root", actions.goRoot);
     go.addMenuItem("2", "Home", actions.goHome);
+    go.addMenuItem("3", "Editor", actions.goEditor);
 
     view = root.addMenuItem("3", "View");
     view.addMenuItem("1", "Mirror", actions.viewMirror);

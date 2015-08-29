@@ -1,6 +1,6 @@
 jsdiff = require 'diff';
-{$, $$, View} = require 'atom-space-pen-views'
-{CompositeDisposable} = require 'atom'
+{$, $$, View, TextEditorView} = require 'atom-space-pen-views'
+{CompositeDisposable, Range} = require 'atom'
 
 module.exports =
 class DiffView extends View
@@ -9,42 +9,22 @@ class DiffView extends View
     super(@title, @leftFile, @rightFile);
 
   @content: ->
-    @div {class: 'atom-commander-diff-view', outlet:'topView'}, =>
-      @div {class: 'heading'}, =>
-        @div {class: 'pane left-pane'}, =>
-          @div {class: 'title', outlet: 'leftHeader'}
-        @div {class: 'pane right-pane'}, =>
-          @div {class: 'title', outlet: 'rightHeader'}
-      @div {class: 'body'}, =>
-        @div {class: 'pane left-pane', outlet:'leftPane'}, =>
-          @div {class: 'text-pane-scroller', outlet: 'leftTextPane'}
-            # @div {class: 'text-pane', tabindex: -1, outlet: 'leftTextPane'}
-
-        @div {class: 'pane right-pane', outlet:'rightPane'}, =>
-          @div {class: 'text-pane-scroller', outlet: 'rightTextPane'}
-            # @div {class: 'text-pane', tabindex: -1, outlet: 'rightTextPane'}
-
-      # @div {class: 'pane left-pane', outlet:'leftPane'}, =>
-      #   @div {class: 'panel-heading heading', outlet: 'leftHeader'}
-      #   @div {class: 'text-pane-scroller', outlet: 'leftTextPane'}
-      #     # @div {class: 'text-pane', tabindex: -1, outlet: 'leftTextPane'}
-      # @div {class: 'pane right-pane'}, =>
-      #   @div {class: 'panel-heading', outlet: 'rightHeader'}
-      #   @div {class: 'text-pane-scroller', outlet: 'rightTextPane'}
-      #     # @div {class: 'text-pane', tabindex: -1, outlet: 'rightTextPane'}
+    @div {class: 'atom-commander-diff-view'}, =>
+      @div {class: 'left-pane'}, =>
+        @subview 'leftTextEditor', new TextEditorView();
+      @div {class: 'right-pane'}, =>
+        @subview 'rightTextEditor', new TextEditorView();
 
   initialize: ->
-    fontFamily = atom.config.get("editor.fontFamily");
-    @fontSize = atom.config.get("editor.fontSize");
-    @lineHeight = atom.config.get("editor.lineHeight");
-
     @disposables = new CompositeDisposable();
 
-    @leftTextPane.css("font-family", fontFamily);
-    @leftTextPane.css("font-size", @fontSize);
+    @markers = [];
 
-    @rightTextPane.css("font-family", fontFamily);
-    @rightTextPane.css("font-size", @fontSize);
+    @leftBuffer = @leftTextEditor.model.buffer;
+    @rightBuffer = @rightTextEditor.model.buffer;
+
+    @leftTextEditor.css("height", "100%");
+    @rightTextEditor.css("height", "100%");
 
     @refreshFileNames();
     @readFiles();
@@ -55,12 +35,16 @@ class DiffView extends View
     @disposables.add(@rightFile.onDidRename(@refreshFileNames));
 
   refreshFileNames: =>
-    @leftHeader.text(@leftFile.getRealPathSync());
-    @rightHeader.text(@rightFile.getRealPathSync());
+    # @leftHeader.text(@leftFile.getRealPathSync());
+    # @rightHeader.text(@rightFile.getRealPathSync());
 
   readFiles: =>
-    @leftTextPane.empty();
-    @rightTextPane.empty();
+    for marker in @markers
+      marker.destroy();
+
+    @markers = [];
+    @leftBuffer.setText("");
+    @rightBuffer.setText("");
 
     @leftContent = null;
     @rightContent = null;
@@ -77,23 +61,22 @@ class DiffView extends View
     if (@leftContent == null) or (@rightContent == null)
       return;
 
-    @leftTextPane.empty();
-    @rightTextPane.empty();
+    @leftBuffer.setText("");
+    @rightBuffer.setText("");
 
     diff = jsdiff.diffLines(@rightContent, @leftContent);
 
     diff.forEach (part) =>
-      # console.log(part);
-
       if part.added
-        @appendPart(@leftTextPane, part, true);
+        @appendPart(@leftTextEditor, @leftBuffer, part, true);
       else if part.removed
-        @appendPart(@rightTextPane, part, false);
+        @appendPart(@rightTextEditor, @rightBuffer, part, false);
       else
-        @appendPart(@leftTextPane, part);
-        @appendPart(@rightTextPane, part);
+        @appendPart(@leftTextEditor, @leftBuffer, part);
+        @appendPart(@rightTextEditor, @rightBuffer, part);
 
-  appendPart: (pane, part, added=null) =>
+  appendPart: (editor, buffer, part, added=null) =>
+    cls = null;
     lines = part.value.split("\n")
     count = lines.length;
 
@@ -102,43 +85,28 @@ class DiffView extends View
 
     if added != null
       if (added)
-        cls = "line-added";
+        cls = "git-line-added";
+        # cls = "atom-commander-diff-line-added";
       else
-        cls = "line-removed";
+        cls = "git-line-removed";
+        # cls = "atom-commander-diff-line-removed";
 
-    # if part.value.trim().length == 0
-    #     cls += "-empty";
-
-    div = $$ ->
-      @div {class:cls}
+    options = {};
+    options.normalizeLineEndings = true;
+    options.undo = "skip"
+    startPoint = buffer.getEndPosition();
 
     for i in [1..Math.min(lines.length, count)]
       line = lines[i-1];
-      cls = "";
-      setHeight = false;
+      buffer.append(line, options);
+      endPoint = buffer.getEndPosition();
+      buffer.append("\n", options);
 
-      # if added != null
-      #   if (added)
-      #     cls = "line-added";
-      #   else
-      #     cls = "line-removed";
-      #
-      #   if line.trim().length == 0
-      #     cls += "-empty";
-      #     setHeight = true;
-
-      # span = $$ ->
-        # @span lines[i-1], {class:cls}
-
-      # if setHeight
-        # span.height(@fontSize);
-
-      div.append(line);
-      div.append("<br>");
-      # pane.append(span);
-      # pane.append("<br>")
-
-    pane.append(div);
+    if (cls != null)
+      range = new Range(startPoint, endPoint);
+      marker = editor.model.markBufferRange(range);
+      @markers.push[marker];
+      decoration = editor.model.decorateMarker(marker, {type: 'line-number', class: cls})
 
   getTitle: ->
     return @title;

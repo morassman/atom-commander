@@ -10,10 +10,10 @@ class ListView extends ContainerView
     super(left);
 
   @container: ->
-    @div {class: 'list-view-resizer', click:'requestFocus', outlet: 'listViewResizer'}, =>
-      @div {class: 'list-view-scroller', outlet:'scroller', click:'requestFocus'}, =>
-        @table {class: 'list-view-table'}, =>
-          @tbody {class: 'list-view list', tabindex: -1, outlet: 'tableBody'}
+    @div {class: 'atom-commander-list-view-resizer', click:'requestFocus', outlet: 'listViewResizer'}, =>
+      @div {class: 'atom-commander-list-view-scroller', outlet:'scroller', click:'requestFocus'}, =>
+        @table {class: 'atom-commander-list-view-table'}, =>
+          @tbody {class: 'atom-commander-list-view list', tabindex: -1, outlet: 'tableBody'}
 
   initialize: (state)->
     super(state);

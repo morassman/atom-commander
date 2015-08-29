@@ -1,5 +1,7 @@
 fs = require 'fs-plus'
 minimatch = require 'minimatch'
+Scheduler = require 'nschedule';
+{filter} = require 'fuzzaldrin'
 {View, TextEditorView} = require 'atom-space-pen-views'
 {CompositeDisposable, Directory, File} = require 'atom'
 FileController = require '../controllers/file-controller'
@@ -14,6 +16,9 @@ class ContainerView extends View
     @directory = null;
     @directoryDisposable = null;
     @highlightedIndex = null;
+    @timeSearchStarted = null;
+    @timeKeyPressed = null;
+    @scheduler = new Scheduler(1);
     @disposables = new CompositeDisposable();
 
     @directoryEditor.addClass('directory-editor');
@@ -30,10 +35,13 @@ class ContainerView extends View
   @content: ->
     @div {class: 'tool-panel'}, =>
       @subview 'directoryEditor', new TextEditorView(mini: true)
-      @div {class: 'container-view'}, =>
+      @div {class: 'atom-commander-container-view'}, =>
         @container();
+      @div {class: 'search-panel', outlet: 'searchPanel'}
 
   initialize: (state) ->
+    @searchPanel.hide();
+
     @on 'dblclick', '.item', (e) =>
       @requestFocus();
       @highlightIndex(e.currentTarget.index, false);
@@ -43,6 +51,8 @@ class ContainerView extends View
       @requestFocus();
       @highlightIndex(e.currentTarget.index, false);
 
+    @keypress (e) => @handleKeyPress(e);
+
     atom.commands.add @element,
      'core:move-up': @moveUp.bind(this)
      'core:move-down': @moveDown.bind(this)
@@ -50,13 +60,79 @@ class ContainerView extends View
      'core:page-down': => @pageDown()
      'core:move-to-top': => @scrollToTop()
      'core:move-to-bottom': => @scrollToBottom()
+     'core:cancel': => @escapePressed();
      'atom-commander:open-highlighted-item': => @openHighlightedItem()
-     'atom-commander:open-parent-folder': => @openParentDirectory()
+     'atom-commander:open-parent-folder': => @backspacePressed();
      'atom-commander:highlight-first-item': => @highlightFirstItem()
      'atom-commander:highlight-last-item': => @highlightLastItem()
      'atom-commander:page-up': => @pageUp()
      'atom-commander:page-down': => @pageDown()
-     'atom-commander:select-item': => @selectItem();
+     'atom-commander:select-item': => @spacePressed()
+
+  escapePressed: ->
+    if @searchPanel.isVisible()
+      @searchPanel.hide();
+
+  backspacePressed: ->
+    if @searchPanel.isVisible()
+      @searchPanel.text(@searchPanel.text().slice(0, -1));
+      @search(@searchPanel.text());
+    else
+      @openParentDirectory();
+
+  spacePressed: ->
+    if @searchPanel.isVisible()
+      @searchPanel.text(@searchPanel.text()+" ");
+      @search(@searchPanel.text());
+    else
+      @selectItem();
+
+  handleKeyPress: (e) ->
+    # When Alt is down the menu is being shown.
+    if e.altKey
+      return;
+
+    charCode = e.which | e.keyCode;
+    sCode = String.fromCharCode(charCode);
+    # console.log("handleKeyPress : "+e.which+" "+e.keyCode+" "+charCode+" "+sCode+" "+sCode.length);
+
+    if @searchPanel.isHidden()
+      @showSearchPanel();
+    else
+      @timeKeyPressed = Date.now();
+
+    @searchPanel.append(sCode);
+    @search(@searchPanel.text());
+
+  showSearchPanel: ->
+    @timeSearchStarted = Date.now();
+    @timeKeyPressed = @timeSearchStarted;
+    @searchPanel.text("");
+    @searchPanel.show();
+
+    @scheduleTimer();
+
+  scheduleTimer: ->
+    @scheduler.add 1000, (done) =>
+      currentTime = Date.now();
+      hide = false;
+
+      if @timeSearchStarted == @timeKeyPressed
+        hide = true;
+      else if ((currentTime - @timeKeyPressed) >= 1000)
+        hide = true;
+
+      done(@scheduler.STOP);
+
+      if hide
+        @searchPanel.hide();
+      else
+        @scheduleTimer();
+
+  search: (text) ->
+    results = filter(@itemViews, text, {key: 'itemName', maxResults: 1});
+    if results.length > 0
+      @highlightIndexWithName(results[0].itemName);
 
   getPath: ->
     if @directory == null
@@ -232,6 +308,12 @@ class ContainerView extends View
       @highlightIndexWithName(name);
 
   openDirectory: (directory) ->
+    if @searchPanel.isVisible()
+      @searchPanel.hide();
+
+    # if (@directory != null) and @directory.getPath() == directory.getPath()
+    #   return;
+
     try
       @tryOpenDirectory(directory);
     catch error

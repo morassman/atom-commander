@@ -55,15 +55,21 @@
     width: 50%;
     float: right;
   }
-}
 
-.container-view {
-  .directory-editor {
-    // font-size: smaller;
+  .search-panel {
+    width: 100%;
+    height: 1.5em;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    color: @text-color-warning;
+    background-color: @input-background-color;
+    opacity: 0.8;
+    z-index: 5;
   }
 }
 
-.list-view-resizer {
+.atom-commander-list-view-resizer {
   position: relative;
   width: 100%;
   overflow: hidden;
@@ -74,13 +80,13 @@
   z-index: 2;
 }
 
-.list-view-scroller {
+.atom-commander-list-view-scroller {
   height: 100%;
   width: 100%;
   overflow: auto;
 }
 
-.list-view {
+.atom-commander-list-view {
   min-height: -webkit-min-content;
   min-width: 100%;
   position: relative;
@@ -90,7 +96,7 @@
   }
 }
 
-.list-view-table {
+.atom-commander-list-view-table {
   width: 100%;
 
   th {
@@ -141,7 +147,7 @@
   height: 100%;
   background-color: @input-background-color;
 
-  .pane {
+  .left-pane, .right-pane {
     width: 50%;
     height: 100%;
   }
@@ -158,53 +164,16 @@
     float: right;
   }
 
-  .heading {
-    width: 100%;
-    // height: 5%;
-    // min-height: 5%;
-    max-height: 1em;
-    display: block;
-    background-color: @tool-panel-background-color;
-
-    // display: inline-block;
-  }
-
-  .title {
-    // vertical-align: middle;
-    // width: 100%;
-  }
-
-  .body {
-    width: 100%;
-    height: 95%;
-    min-height: -webkit-min-content;
-    display: inline-block;
-    background-color: @input-background-color;
-  }
-
-  .text-pane-scroller {
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    display: inline-block;
-    min-height: -webkit-min-content;
-    background-color: @input-background-color;
-  }
-
-  .line-added {
-    color: @text-color-success;
-    background-color: fade(@text-color-success, 15%);
-  }
-
-  .line-removed {
-    color: @text-color-error;
-    background-color: fade(@text-color-error, 15%);
-  }
-
-  // .text-pane {
-  //   position: relative;
-  //   min-width: -webkit-min-content;
-  //   min-height: -webkit-min-content;
+  // .line-added {
+  //   color: @text-color-success;
+  //   background-color: fade(@text-color-success, 15%);
+  //   border: 1px solid;
+  // }
+  //
+  // .line-removed {
+  //   color: @text-color-error;
+  //   background-color: fade(@text-color-error, 15%);
+  //   border: 1px solid;
   // }
 
 }

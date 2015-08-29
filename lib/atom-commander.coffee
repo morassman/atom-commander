@@ -36,8 +36,9 @@ module.exports = AtomCommander =
 
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:go-root': => @actions.goRoot();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:go-home': => @actions.goHome();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:go-editor': => @actions.goEditor();
 
-    if state.visible
+    if @state.visible
       @bottomPanel.show();
 
   deactivate: ->

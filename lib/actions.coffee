@@ -3,7 +3,7 @@ FileController = require './controllers/file-controller'
 DirectoryController = require './controllers/directory-controller'
 DiffView = require './views/diff/diff-view'
 SelectDialog = require './dialogs/select-dialog'
-{Directory} = require 'atom'
+{File, Directory, TextEditor} = require 'atom'
 fsp = require 'fs-plus'
 
 module.exports =
@@ -79,6 +79,20 @@ class Actions
         break;
 
     @goDirectory(directory);
+
+  goEditor: =>
+    editor = atom.workspace.getActiveTextEditor();
+
+    if editor instanceof TextEditor
+      if editor.getPath()?
+        @goFile(new File(editor.getPath()));
+
+  goFile: (file) =>
+    view = @getFocusedView();
+
+    if (view != null)
+      view.openDirectory(file.getParent());
+      view.highlightIndexWithName(file.getBaseName());
 
   goDirectory: (directory) =>
     view = @getFocusedView();
