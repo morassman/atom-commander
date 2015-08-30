@@ -49,9 +49,11 @@ class MenuBarView extends View
     select.addMenuItem("7", "Files", actions.selectFiles);
 
     go = root.addMenuItem("2", "Go");
-    go.addMenuItem("1", "Root", actions.goRoot);
-    go.addMenuItem("2", "Home", actions.goHome);
-    go.addMenuItem("3", "Editor", actions.goEditor);
+    go.addMenuItem("1", "Project", actions.goProject);
+    go.addMenuItem("2", "Editor", actions.goEditor);
+    go.addMenuItem("3", "Drive", actions.goDrive);
+    go.addMenuItem("4", "Root", actions.goRoot);
+    go.addMenuItem("5", "Home", actions.goHome);
 
     bookmarks = root.addMenuItem("3", "Bookmarks");
     bookmarks.addMenuItem("1", "Add", actions.bookmarksAdd);

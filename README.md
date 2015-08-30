@@ -54,33 +54,54 @@ The context menu can be opened from anywhere on the panel.
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/context_menu.png?raw=true)
 
 ### Quick Menu
-This is still experimental. The purpose is to quickly navigate the menus without using the mouse.
-
 The menu is opened by holding down the `Alt` key. Releasing the key will close the menu again.
 
-![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/quick_menu_1.png?raw=true)
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/quick_menu.png?raw=true)
 
 The menus are shown at the top of the panel in the form of buttons. Each button is numbered. Pressing the corresponding number will open that menu. Since these are buttons they can be clicked on as well.
 
-Entering a menu will show its items and potential sub menus. These are also numbered. There will also be an extra button on the left to return to the parent menu. The keys `0`, `Escape` and `Shift` are all valid keys for returning to the parent menu.
-
-![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/quick_menu_2.png?raw=true)
+Entering a menu will show its items and potential sub menus. These are also numbered. There is also an extra button on the left to return to the parent menu. The keys `0`, `Escape` and `Shift` are all valid keys for returning to the parent menu.
 
 When the menu is closed and opened again it will start on the root menu.
 
 ### Available Menus
-- Select
-  - All : Select everything.
-  - None : Deselect everything.
-- Go
-  - Root : Go to the root folder in the focused pane.
-  - Home : Go to your user folder in the focused pane.
-  - Editor : Go to the file that is active in the editor.
-- View
-  - Mirror : Show the same folder in the other pane as the focused one.
-  - Swap : Swap the two folders.
-- Compare
-  - Folders : Select the differences between the two folders.
+1. **Select**
+  1. **All** : Select everything.
+  2. **None** : Deselect everything.
+  3. **Add** : Select items with a pattern.
+  4. **Remove** : Deselect items with a pattern.
+  5. **Invert** : Invert the selection.
+  6. **Folders** : Add folders to selection.
+  7. **Files** : Add files to selection.
+2. **Go**
+  1. **Project** : Go to the project folder.
+  2. **Editor** : Go to the file that is active in the editor.
+  3. **Drive** : Go to a specific drive.
+  4. **Root** : Go to the root folder.
+  5. **Home** : Go to your user folder.
+3. **Bookmarks**
+  1. **Add** : Add a bookmark.
+  2. **Remove** : Remove bookmarks.
+  3. **Open** : Open a bookmark.
+4. **View**
+  1. **Mirror** : Show the same folder in the other pane as the focused one.
+  2. **Swap** : Swap the two folders.
+5. **Compare**
+  1. **Folders** : Select the differences between the two folders.
+
+## Bookmarks
+Bookmarks allow for quick navigation to both files and folders.
+
+### Adding Bookmarks
+Bookmarks can be added from either the menu in Atom Commander or by choosing `Atom Commander: Add Bookmark` from the Command Palette. If the menu is used then the a bookmark will be added for the item that is currently highlighted. If the Command Palette is used and the editor has focus then a bookmark will be added for the file currently being edited.
+
+When a bookmark is added a name for it can be entered. This is optional and may be left empty.
+
+### Opening Bookmarks
+The list of bookmarks can be opened from either the menu in Atom Commander or by choosing `Atom Commander: Open Bookmark` from the Command Palette. The list can be filtered on both the name and path. When a bookmark for a file is opened the file will be opened in the editor and it will be shown in Atom Commander. If the bookmark is for a folder then the folder will be shown.
+
+### Removing Bookmarks
+The list of bookmarks can be opened from either the menu in Atom Commander or by choosing `Atom Commander: Remove Bookmark` from the Command Palette. Each bookmark that is selected will be removed. The list will remain open until it is cancelled by pressing the `Escape` key.
 
 ## Next Up
 - Load directories asynchronously.

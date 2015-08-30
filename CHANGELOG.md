@@ -1,3 +1,8 @@
+## 0.3.2 - 30 August 2015
+* Added support for bookmarks.
+* Added option to navigate to drives.
+* Added option to navigate to project folders.
+
 ## 0.3.1 - 29 August 2015
 * Added `+`, `-` and `*` selection shortcut keys.
 * Added search functionality. Start typing and the best match will be highlighted.

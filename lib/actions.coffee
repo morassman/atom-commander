@@ -3,6 +3,8 @@ FileController = require './controllers/file-controller'
 DirectoryController = require './controllers/directory-controller'
 DiffView = require './views/diff/diff-view'
 BookmarksView = require './views/bookmarks-view'
+DriveListView = require './views/drive-list-view'
+ProjectListView = require './views/project-list-view'
 AddBookmarkDialog = require './dialogs/add-bookmark-dialog'
 SelectDialog = require './dialogs/select-dialog'
 {File, Directory, TextEditor} = require 'atom'
@@ -147,6 +149,22 @@ class Actions
       view.openDirectory(directory);
       view.requestFocus();
 
+  goDrive: (fromView=true) =>
+    @main.mainView.hideMenuBar();
+    view = new DriveListView(@, fromView);
+
+  goProject: (fromView=true) =>
+    projects = atom.project.getDirectories();
+
+    if projects.length == 0
+      return;
+
+    if projects.length == 1
+      @goDirectory(projects[0]);
+    else
+      @main.mainView.hideMenuBar();
+      view = new ProjectListView(@, fromView);
+
   viewMirror: =>
     @main.mainView.mirror();
 
@@ -190,6 +208,15 @@ class Actions
     pane = atom.workspace.getActivePane();
     item = pane.addItem(view, 0);
     pane.activateItem(item);
+
+  bookmarksAddEditor: =>
+    editor = atom.workspace.getActiveTextEditor();
+
+    if editor instanceof TextEditor
+      if editor.getPath()?
+        file = new File(editor.getPath());
+        dialog = new AddBookmarkDialog(@main, file.getBaseName(), file.getPath(), false);
+        dialog.attach();
 
   bookmarksAdd: (fromView=true) =>
     view = @getFocusedView();

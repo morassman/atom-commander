@@ -38,16 +38,24 @@
       'label': 'Go'
       'submenu': [
         {
+          'label': 'Project'
+          'command': 'atom-commander:go-project'
+        }
+        {
+          'label': 'Editor'
+          'command': 'atom-commander:go-editor'
+        }
+        {
+          'label': 'Drive'
+          'command': 'atom-commander:go-drive'
+        }
+        {
           'label': 'Root'
           'command': 'atom-commander:go-root'
         }
         {
           'label': 'Home'
           'command': 'atom-commander:go-home'
-        }
-        {
-          'label': 'Editor'
-          'command': 'atom-commander:go-editor'
         }
       ]
     }

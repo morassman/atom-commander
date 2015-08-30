@@ -71,6 +71,7 @@ class AtomCommanderView extends View
 
     @keyup (e) => @handleKeyUp(e);
     @keydown (e) => @handleKeyDown(e);
+    @keypress (e) => @handleKeyPress(e);
 
   destroy: ->
     @leftView.dispose();
@@ -92,6 +93,10 @@ class AtomCommanderView extends View
       @menuBar.handleKeyUp(e);
     else if @menuBar.isVisible()
       @hideMenuBar();
+
+  handleKeyPress: (e) ->
+    if @menuBar.isVisible()
+      @menuBar.handleKeyUp(e);
 
   hideMenuBar: ->
     @menuBar.hide();
