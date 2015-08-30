@@ -103,6 +103,6 @@ The list of bookmarks can be opened from either the menu in Atom Commander or by
 ### Removing Bookmarks
 The list of bookmarks can be opened from either the menu in Atom Commander or by choosing `Atom Commander: Remove Bookmark` from the Command Palette. Each bookmark that is selected will be removed. The list will remain open until it is cancelled by pressing the `Escape` key.
 
-## Next Up
+## Todo
 - Load directories asynchronously.
 - Give visual feedback for file system operations.
