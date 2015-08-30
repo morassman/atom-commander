@@ -1,0 +1,30 @@
+@import "ui-variables";
+
+.line {
+  &.line-normal {
+  }
+
+  &.line-added {
+    color: @text-color-success;
+    background-color: fade(@background-color-success, 5%);
+  }
+
+  &.line-removed {
+    color: @text-color-error;
+    background-color: fade(@text-color-error, 5%);
+  }
+
+  &.line-normal-highlight {
+    background-color: fade(@background-color-info, 25%);
+  }
+
+  &.line-added-highlight {
+    color: @text-color-success;
+    background-color: fade(@background-color-success, 25%);
+  }
+
+  &.line-removed-highlight {
+    color: @text-color-error;
+    background-color: fade(@text-color-error, 25%);
+  }
+}

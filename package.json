@@ -8,7 +8,10 @@
     "directory",
     "folder",
     "manager",
-    "commander"
+    "commander",
+    "diff",
+    "compare",
+    "bookmark"
   ],
   "activationCommands": {},
   "repository": "https://github.com/morassman/atom-commander",

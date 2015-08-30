@@ -88,6 +88,7 @@ When the menu is closed and opened again it will start on the root menu.
   2. **Swap** : Swap the two folders.
 5. **Compare**
   1. **Folders** : Select the differences between the two folders.
+  2. **Files** : Show the difference between the left and right highlighted files.
 
 ## Bookmarks
 Bookmarks allow for quick navigation to both files and folders.
@@ -102,6 +103,18 @@ The list of bookmarks can be opened from either the menu in Atom Commander or by
 
 ### Removing Bookmarks
 The list of bookmarks can be opened from either the menu in Atom Commander or by choosing `Atom Commander: Remove Bookmark` from the Command Palette. Each bookmark that is selected will be removed. The list will remain open until it is cancelled by pressing the `Escape` key.
+
+## Compare
+### Folders
+When the left and right folders are compared then everything that is in the one, but not in the other will be selected. This will replace the current selection.
+### Files
+This is still experimental. Performing this action will open a side-by-side view that will compare the file highlighted on the left with the one highlighted on the right.
+
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/diff.png?raw=true)
+
+Lines that have been added are highlighted on the left whereas lines that have been removed are highlighted on the right. The remaining lines are those that the files have in common. Clicking on a common section will highlight it and its counterpart on the other side.
+
+The files are currently not being monitored for changes. If either of the files change then the comparison will have to be done again.
 
 ## Todo
 - Load directories asynchronously.

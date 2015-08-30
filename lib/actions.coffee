@@ -190,15 +190,31 @@ class Actions
     leftView = @main.mainView.leftView;
     rightView = @main.mainView.rightView;
 
-    leftViewItem = Utils.getFirstFileViewItem(leftView.getSelectedItemViews(true));
+    leftViewItem = leftView.getHighlightedItem();
 
     if (leftViewItem == null)
       return;
 
-    rightViewItem = Utils.getFirstFileViewItem(rightView.getSelectedItemViews(true));
+    rightViewItem = rightView.getHighlightedItem();
 
     if (rightViewItem == null)
       return;
+
+    if !(leftViewItem.itemController instanceof FileController)
+      return;
+
+    if !(rightViewItem.itemController instanceof FileController)
+      return;
+
+    # leftViewItem = Utils.getFirstFileViewItem(leftView.getSelectedItemViews(true));
+    #
+    # if (leftViewItem == null)
+    #   return;
+    #
+    # rightViewItem = Utils.getFirstFileViewItem(rightView.getSelectedItemViews(true));
+    #
+    # if (rightViewItem == null)
+    #   return;
 
     leftFile = leftViewItem.itemController.getFile();
     rightFile = rightViewItem.itemController.getFile();

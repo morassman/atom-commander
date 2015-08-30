@@ -11,6 +11,7 @@ class DiffView extends View
   @content: ->
     @div {class: 'atom-commander-diff-view'}, =>
       @div {class: 'left-pane'}, =>
+        # @div {class: 'panel-heading', outlet:'leftHeader'}
         @subview 'leftTextEditor', new TextEditorView();
       @div {class: 'right-pane'}, =>
         @subview 'rightTextEditor', new TextEditorView();
@@ -19,30 +20,134 @@ class DiffView extends View
     @disposables = new CompositeDisposable();
 
     @markers = [];
+    @leftDecorations = [];
+    @rightDecorations = [];
+    @selection = null;
 
-    @leftBuffer = @leftTextEditor.model.buffer;
-    @rightBuffer = @rightTextEditor.model.buffer;
+    @leftTextEditor[0].removeAttribute('tabindex');
+    @leftTextEditor.getModel().getDecorations({class: 'cursor-line', type: 'line'})[0].destroy();
+    @rightTextEditor[0].removeAttribute('tabindex');
+    @rightTextEditor.getModel().getDecorations({class: 'cursor-line', type: 'line'})[0].destroy();
+
+    @leftBuffer = @leftTextEditor.getModel().getBuffer();
+    @rightBuffer = @rightTextEditor.getModel().getBuffer();
 
     @leftTextEditor.css("height", "100%");
     @rightTextEditor.css("height", "100%");
 
+    @leftTextEditor.on 'contextmenu', false
+    @rightTextEditor.on 'contextmenu', false
+
+    @leftTextEditor.mousedown (e) =>
+      @handleMouseDown(e, @leftTextEditor);
+
+    @rightTextEditor.mousedown (e) =>
+      @handleMouseDown(e, @rightTextEditor);
+
     @refreshFileNames();
     @readFiles();
 
-    @disposables.add(@leftFile.onDidChange(@readFiles));
-    @disposables.add(@rightFile.onDidChange(@readFiles));
-    @disposables.add(@leftFile.onDidRename(@refreshFileNames));
-    @disposables.add(@rightFile.onDidRename(@refreshFileNames));
+    # @disposables.add(@leftFile.onDidChange(@readFiles));
+    # @disposables.add(@rightFile.onDidChange(@readFiles));
+    # @disposables.add(@leftFile.onDidRename(@refreshFileNames));
+    # @disposables.add(@rightFile.onDidRename(@refreshFileNames));    
+
+  resetSelections: ->
+    if @selection == null
+      return;
+
+    @resetSelection(@selection);
+    @resetSelection(@selection.otherDecoration);
+
+    @selection = null;
+
+  resetSelection: (selection) ->
+    if !selection?
+      return;
+
+    properties = selection.getProperties();
+
+    newProperties = {};
+    newProperties.type = properties.type;
+    newProperties.class = properties.class.replace("-highlight", "");
+
+    selection.setProperties(newProperties);
+
+  handleMouseDown: (e, textEditor) ->
+    @resetSelections();
+    y = e.offsetY + textEditor.getModel().getScrollTop();
+    @selection = @getDecorationAtPixelY(y, textEditor);
+
+    if (@selection == null)
+      return;
+
+    @highlightDecoration(@selection);
+    @highlightDecoration(@selection.otherDecoration);
+
+    if textEditor == @leftTextEditor
+      @scrollToDecoration(@rightTextEditor, @selection.otherDecoration);
+    else
+      @scrollToDecoration(@leftTextEditor, @selection.otherDecoration);
+
+  scrollToDecoration: (textEditor, decoration) ->
+    if !decoration?
+      return;
+
+    textEditor.getModel().scrollToBufferPosition(decoration.getMarker().getStartBufferPosition());
+
+  highlightDecoration: (decoration) ->
+    if (!decoration?)
+      return;
+
+    properties = decoration.getProperties();
+
+    if properties.class.search("highlight") != -1
+      return;
+
+    newProperties = {};
+    newProperties.type = properties.type;
+    newProperties.class = properties.class+"-highlight";
+
+    decoration.setProperties(newProperties);
+
+  getDecorationAtPixelY: (y, textEditor) ->
+    if textEditor == @leftTextEditor
+      decorations = @leftDecorations;
+    else
+      decorations = @rightDecorations;
+
+    lineHeight = textEditor.getModel().getLineHeightInPixels();
+
+    for decoration in decorations
+      pixelRange = decoration.getMarker().getPixelRange();
+
+      if ((y >= pixelRange.start.top) and (y <= (pixelRange.end.top + lineHeight)))
+        return decoration;
+
+    return null;
 
   refreshFileNames: =>
     # @leftHeader.text(@leftFile.getRealPathSync());
     # @rightHeader.text(@rightFile.getRealPathSync());
 
   readFiles: =>
+    @resetSelections();
+
+    for decoration in @leftDecorations
+      decoration.destroy();
+
+    for decoration in @rightDecorations
+      decoration.destroy();
+
     for marker in @markers
       marker.destroy();
 
     @markers = [];
+    @leftDecorations = [];
+    @rightDecorations = [];
+    @leftSelection = null;
+    @rightSelection = null;
+
     @leftBuffer.setText("");
     @rightBuffer.setText("");
 
@@ -68,15 +173,17 @@ class DiffView extends View
 
     diff.forEach (part) =>
       if part.added
-        @appendPart(@leftTextEditor, @leftBuffer, part, true);
+        @appendPart(@leftTextEditor, @leftBuffer, @leftDecorations, part, true);
       else if part.removed
-        @appendPart(@rightTextEditor, @rightBuffer, part, false);
+        @appendPart(@rightTextEditor, @rightBuffer, @rightDecorations, part, false);
       else
-        @appendPart(@leftTextEditor, @leftBuffer, part);
-        @appendPart(@rightTextEditor, @rightBuffer, part);
+        leftDecoration = @appendPart(@leftTextEditor, @leftBuffer, @leftDecorations, part);
+        rightDecoration = @appendPart(@rightTextEditor, @rightBuffer, @rightDecorations, part);
+        leftDecoration['otherDecoration'] = rightDecoration;
+        rightDecoration['otherDecoration'] = leftDecoration;
 
-  appendPart: (editor, buffer, part, added=null) =>
-    cls = null;
+  appendPart: (editor, buffer, decorations, part, added=null) =>
+    cls = 'line-normal';
     lines = part.value.split("\n")
     count = lines.length;
 
@@ -85,11 +192,9 @@ class DiffView extends View
 
     if added != null
       if (added)
-        cls = "git-line-added";
-        # cls = "atom-commander-diff-line-added";
+        cls = "line-added";
       else
-        cls = "git-line-removed";
-        # cls = "atom-commander-diff-line-removed";
+        cls = "line-removed";
 
     options = {};
     options.normalizeLineEndings = true;
@@ -102,11 +207,14 @@ class DiffView extends View
       endPoint = buffer.getEndPosition();
       buffer.append("\n", options);
 
-    if (cls != null)
-      range = new Range(startPoint, endPoint);
-      marker = editor.model.markBufferRange(range);
-      @markers.push[marker];
-      decoration = editor.model.decorateMarker(marker, {type: 'line-number', class: cls})
+    range = new Range(startPoint, endPoint);
+    marker = editor.getModel().markBufferRange(range, invalidate: 'never');
+    @markers.push[marker];
+    decoration = editor.getModel().decorateMarker(marker, {type: 'line', class: cls})
+
+    decorations.push(decoration);
+
+    return decoration;
 
   getTitle: ->
     return @title;

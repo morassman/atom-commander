@@ -1,3 +1,6 @@
+## 0.3.3 - 30 August 2015
+* Added 'Files' option to 'Compare' menu.
+
 ## 0.3.2 - 30 August 2015
 * Added support for bookmarks.
 * Added option to navigate to drives.
