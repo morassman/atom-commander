@@ -2,11 +2,18 @@
 
 Dual-pane file manager for Atom.
 
-This is not meant to replace the tree view nor to be a full featured file manager. More features will be added in time, but the primary focus is to provide a way to browse the file system in a way that's familiar to many people.
+Highlights:
+- Navigate the whole file system from within Atom.
+- Perform all actions with only the keyboard.
+- Bookmark files and folders for quick access.
+- Compare files side-by-side.
+- Easily toggle focus between Atom Commander and the editor.
 
 After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle Focus` from the Command Palette to show the panel and focus it. The panel can be hidden with `F10` or `Atom Commander: Toggle Visible`.
 
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/panel.png?raw=true)
+
+Keep in mind that this is not meant to be a full featured file manager. More features will be added in time, but the primary focus is to provide a way to browse the file system in a way that's familiar to many people.
 
 ## Buttons
 Button|Action

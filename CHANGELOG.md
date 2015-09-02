@@ -1,3 +1,6 @@
+## 0.3.4 - 2 September 2015
+* Changed persistence of state to be stored to a file.
+
 ## 0.3.3 - 30 August 2015
 * Added 'Files' option to 'Compare' menu.
 

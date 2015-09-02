@@ -1,3 +1,4 @@
+fsp = require 'fs-plus'
 Actions = require './actions'
 ListView = require './views/list-view'
 DiffView = require './views/diff/diff-view'
@@ -10,14 +11,14 @@ module.exports = AtomCommander =
   subscriptions: null
 
   activate: (@state) ->
+    @loadState();
     @bookmarks = [];
 
     @actions = new Actions(@);
     @mainView = new AtomCommanderView(@, @state);
-    @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false)
+    @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false);
 
-    # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
-    @subscriptions = new CompositeDisposable
+    @subscriptions = new CompositeDisposable();
 
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-visible': => @toggleVisible();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-focus': => @toggleFocus();
@@ -57,10 +58,43 @@ module.exports = AtomCommander =
     if @state.bookmarks?
       @bookmarks = @state.bookmarks;
 
+  getSaveFile: ->
+    configFile = new File(atom.config.getUserConfigPath());
+    directory = configFile.getParent();
+    return directory.getFile("atom-commander.json");
+
+  loadState: ->
+    if !@state?
+      @state = {};
+      @state.bookmarks = [];
+      @state.visible = false;
+
+    file = @getSaveFile();
+
+    if !file.existsSync()
+      return;
+
+    try
+      @state = JSON.parse(fsp.readFileSync(file.getPath()));
+    catch error
+      console.log("Error loading Atom Commander state.");
+      console.log(error);
+
+  saveState: ->
+    state = @serialize();
+    file = @getSaveFile();
+
+    try
+      fsp.writeFileSync(file.getPath(), JSON.stringify(state));
+    catch error
+      console.log("Error saving Atom Commander state.");
+      console.log(error);
+
   deactivate: ->
-    @bottomPanel.destroy()
-    @subscriptions.dispose()
-    @mainView.destroy()
+    @saveState();
+    @bottomPanel.destroy();
+    @subscriptions.dispose();
+    @mainView.destroy();
 
   serialize: ->
     if @mainView != null
@@ -80,6 +114,8 @@ module.exports = AtomCommander =
     else
       @bottomPanel.show();
 
+    @saveState();
+
   toggleFocus: ->
     if @bottomPanel.isVisible()
       if (@mainView.focusedView != null) and @mainView.focusedView.hasFocus()
@@ -89,12 +125,16 @@ module.exports = AtomCommander =
     else
       @bottomPanel.show()
       @mainView.refocusLastView();
+      @saveState();
 
   addBookmark: (name, path) ->
     @bookmarks.push([name, path]);
+    @saveState();
 
   removeBookmark: (bookmark) ->
     index = @bookmarks.indexOf(bookmark);
 
     if (index >= 0)
       @bookmarks.splice(index, 1);
+
+    @saveState();
