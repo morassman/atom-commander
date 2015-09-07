@@ -1,3 +1,7 @@
+## 0.3.5 - 7 September 2015
+* Fixed bug that prevented panel from hiding.
+* Improved event handling on Linux when showing menu.
+
 ## 0.3.4 - 2 September 2015
 * Changed persistence of state to be stored to a file.
 

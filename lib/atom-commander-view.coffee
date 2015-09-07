@@ -85,18 +85,28 @@ class AtomCommanderView extends View
     if e.altKey and @menuBar.isHidden()
       @menuBar.reset();
       @menuBar.show();
+      e.preventDefault();
+      e.stopPropagation();
     else if @menuBar.isVisible()
       @menuBar.handleKeyDown(e);
+      e.preventDefault();
+      e.stopPropagation();
 
   handleKeyUp: (e) ->
     if e.altKey
       @menuBar.handleKeyUp(e);
+      e.preventDefault();
+      e.stopPropagation();
     else if @menuBar.isVisible()
       @hideMenuBar();
+      e.preventDefault();
+      e.stopPropagation();
 
   handleKeyPress: (e) ->
     if @menuBar.isVisible()
       @menuBar.handleKeyUp(e);
+      e.preventDefault();
+      e.stopPropagation();
 
   hideMenuBar: ->
     @menuBar.hide();
@@ -242,7 +252,7 @@ class AtomCommanderView extends View
     # if @focusedView ==
 
   hideButton: ->
-    @main.hide();
+    @main.hidePanel();
 
   mirror: ->
     if @focusedView != null
