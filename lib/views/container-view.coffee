@@ -337,9 +337,6 @@ class ContainerView extends View
           @tryOpenDirectory(new Directory(process.env['PWD']));
 
   tryOpenDirectory: (newDirectory) ->
-    if !fs.isDirectorySync(newDirectory.getRealPathSync())
-      throw new Error("Invalid path.");
-
     # The following will throw an error if the entries could not be read. It
     # is done here in order to prevent the rest from happening if the directory
     # cannot be read.
@@ -379,8 +376,9 @@ class ContainerView extends View
     if @itemViews.length > 0
       @highlightIndex(0);
 
-    @directoryDisposable = @directory.onDidChange =>
-      @refreshDirectory();
+    try
+      @directoryDisposable = @directory.onDidChange =>
+        @refreshDirectory();
 
   selectNames: (names) ->
     for itemView in @itemViews
