@@ -8,6 +8,7 @@ NewDirectoryDialog = require './dialogs/new-directory-dialog'
 RenameDialog = require './dialogs/rename-dialog'
 FileController = require './controllers/file-controller'
 DirectoryController = require './controllers/directory-controller'
+FTPFileSystem = require './fs/ftp/ftp-filesystem'
 
 module.exports =
 class AtomCommanderView extends View
@@ -30,6 +31,18 @@ class AtomCommanderView extends View
     if state.height
       @leftView.setContentHeight(state.height);
       @rightView.setContentHeight(state.height);
+
+    config = {};
+    config.host = "localhost";
+    # config.host = "ftp.is.co.za";
+    @ftpFileSystem = new FTPFileSystem(config);
+
+    # @ftpFileSystem.onConnected =>
+      # console.log("connected");
+    @leftView.openDirectory(@ftpFileSystem.getDirectory("/"));
+
+    # @ftpFileSystem.connect();
+    # ftpFileSystem.disconnect();
 
   @content: ->
     buttonStyle = 'width: 11.1%';
@@ -77,6 +90,7 @@ class AtomCommanderView extends View
     @leftView.dispose();
     @rightView.dispose();
     @element.remove();
+    @ftpFileSystem?.disconnect();
 
   getElement: ->
     @element

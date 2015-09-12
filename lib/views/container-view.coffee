@@ -3,9 +3,11 @@ minimatch = require 'minimatch'
 Scheduler = require 'nschedule';
 {filter} = require 'fuzzaldrin'
 {View, TextEditorView} = require 'atom-space-pen-views'
-{CompositeDisposable, Directory, File} = require 'atom'
+{CompositeDisposable, Directory} = require 'atom'
 FileController = require '../controllers/file-controller'
 DirectoryController = require '../controllers/directory-controller'
+LocalFileSystem = require '../fs/local/local-filesystem'
+VFile = require '../fs/vfile'
 
 module.exports =
 class ContainerView extends View
@@ -20,6 +22,7 @@ class ContainerView extends View
     @timeKeyPressed = null;
     @scheduler = new Scheduler(1);
     @disposables = new CompositeDisposable();
+    @localFileSystem = new LocalFileSystem();
 
     @directoryEditor.addClass('directory-editor');
 
@@ -314,38 +317,36 @@ class ContainerView extends View
 
   openParentDirectory: ->
     if !@directory.isRoot()
-      name = @directory.getBaseName();
-      @openDirectory(@directory.getParent());
-      @highlightIndexWithName(name);
+      snapShot = {};
+      snapShot.name = @directory.getBaseName();
+      @openDirectory(@directory.getParent(), snapShot);
 
-  openDirectory: (directory) ->
+  openDirectory: (directory, snapShot = null) ->
     if @searchPanel.isVisible()
       @searchPanel.hide();
+
+    if directory instanceof Directory
+      directory = @localFileSystem.getDirectory(directory.getRealPathSync());
 
     # if (@directory != null) and @directory.getPath() == directory.getPath()
     #   return;
 
     try
-      @tryOpenDirectory(directory);
+      @tryOpenDirectory(directory, snapShot);
     catch error
       # If the directory couldn't be opened and one hasn't been opened yet then
       # revert to opening the home folder and finally the PWD.
       if (@directory == null) or !fs.isDirectorySync(@directory.getRealPathSync())
         try
-          @tryOpenDirectory(new Directory(fs.getHomeDirectory()));
+          @tryOpenDirectory(@localFileSystem.getDirectory(fs.getHomeDirectory()));
         catch error2
-          @tryOpenDirectory(new Directory(process.env['PWD']));
+          @tryOpenDirectory(@localFileSystem.getDirectory(process.env['PWD']));
 
-  tryOpenDirectory: (newDirectory) ->
-    # The following will throw an error if the entries could not be read. It
-    # is done here in order to prevent the rest from happening if the directory
-    # cannot be read.
-    entries = newDirectory.getEntriesSync();
-
+  tryOpenDirectory: (newDirectory, snapShot = null) ->
     #If the directory could be read then update the field.
     @directory = newDirectory;
 
-    if @directoryDisposable
+    if @directoryDisposable != null
       @directoryDisposable.dispose();
       @directoryDisposable = null;
 
@@ -353,18 +354,39 @@ class ContainerView extends View
 
     @itemViews = [];
     @highlightedIndex = null;
-    index = 0;
 
-    @directoryEditor.setText(@directory.getPath());
+    @directoryEditor.setText(@directory.getURI());
 
     if !@directory.isRoot()
-      itemView = @createParentView(index, new DirectoryController(@directory.getParent()));
+      itemView = @createParentView(0, new DirectoryController(@directory.getParent()));
       @itemViews.push(itemView);
       @addItemView(itemView);
-      index++;
+
+    if snapShot == null
+      @highlightIndex(0);
+
+    if @directory.fileSystem.isConnected()
+      @getEntries(newDirectory, snapShot);
+      return;
+
+    @directory.fileSystem.onConnected =>
+      @getEntries(newDirectory, snapShot);
+
+    @directory.fileSystem.connect();
+
+  getEntries: (newDirectory, snapShot) ->
+    newDirectory.getEntries (newDirectory, entries) =>
+      @entriesCallback(newDirectory, entries, snapShot);
+
+  entriesCallback: (newDirectory, entries, snapShot) ->
+    if (@directory != null) and (@directory.getURI() != newDirectory.getURI())
+      return;
+
+    # TODO : Compare newDirectory with @directory. If they are different then return.
+    index = @itemViews.length;
 
     for entry in entries
-      if entry instanceof File
+      if entry instanceof VFile
         itemView = @createFileView(index, new FileController(entry));
       else
         itemView = @createDirectoryView(index, new DirectoryController(entry));
@@ -376,6 +398,8 @@ class ContainerView extends View
     if @itemViews.length > 0
       @highlightIndex(0);
 
+    @restoreSnapShot(snapShot);
+
     try
       @directoryDisposable = @directory.onDidChange =>
         @refreshDirectory();
@@ -386,30 +410,47 @@ class ContainerView extends View
         itemView.select(true);
 
   refreshDirectory: ->
-    # Remember both the index and the name.
-    index = @highlightedIndex;
-    name = @getHighlightedItemName();
-    selectedNames = @getSelectedNames();
+    snapShot = @captureSnapShot();
+    @openDirectory(@directory, snapShot);
+    @restoreSnapShot(snapShot);
 
-    @openDirectory(@directory);
+  captureSnapShot: ->
+    snapShot = {};
 
-    # If the item with the name still exists then highlight it, otherwise highlight the index.
-    itemView = @getItemViewWithName(name);
+    snapShot.index = @highlightedIndex;
+    snapShot.name = @getHighlightedItemName();
+    snapShot.selectedNames = @getSelectedNames();
 
-    if itemView != null
-      index = itemView.index;
+    return snapShot;
 
-    @highlightIndex(index);
-    @selectNames(selectedNames);
+  restoreSnapShot: (snapShot) ->
+    if !snapShot?
+      return;
+
+    index = snapShot.index;
+
+    if snapShot.name?
+      # If the item with the name still exists then highlight it, otherwise highlight the index.
+      itemView = @getItemViewWithName(snapShot.name);
+
+      if itemView != null
+        index = itemView.index;
+
+    if index?
+      @highlightIndex(index);
+
+    if snapShot.selectedNames?
+      @selectNames(snapShot.selectedNames);
 
   directoryEditorConfirm: ->
-    directory = new Directory(@directoryEditor.getText().trim());
+    # TODO : The file system may change.
+    directory = @directory.fileSystem.getDirectory(@directoryEditor.getText().trim());
 
     if directory.existsSync() and directory.isDirectory()
       @openDirectory(directory);
 
   directoryEditorCancel: ->
-    @directoryEditor.setText(@directory.getPath());
+    @directoryEditor.setText(@directory.getRealPathSync());
 
   addProject: ->
     if @directory == null
@@ -445,14 +486,14 @@ class ContainerView extends View
 
   getInitialDirectory: (suggestedPath) ->
     if suggestedPath? and fs.isDirectorySync(suggestedPath)
-      return new Directory(suggestedPath);
+      return @localFileSystem.getDirectory(suggestedPath);
 
     directories = atom.project.getDirectories();
 
     if directories.length > 0
-      return directories[0];
+      return @localFileSystem.getDirectory(directories[0].getRealPathSync());
 
-    return new Directory(fs.getHomeDirectory());
+    return @localFileSystem.getDirectory(fs.getHomeDirectory());
 
   deserialize: (path, state) ->
     if (state == null) or (state == undefined)

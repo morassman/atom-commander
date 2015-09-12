@@ -12,9 +12,6 @@ class DirectoryController extends ItemController
   getName: ->
     return @item.getBaseName();
 
-  canRename: ->
-    return true;
-
   getPath: ->
     return @item.getRealPathSync();
 

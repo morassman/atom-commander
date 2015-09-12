@@ -1,10 +1,10 @@
-VItem = require 'vitem'
+VItem = require './vitem'
 
 module.exports =
 class VDirectory extends VItem
 
-  constructor: (filesystem) ->
-    super(filesystem);
+  constructor: (fileSystem) ->
+    super(fileSystem);
 
   isFile: ->
     return false;
@@ -15,3 +15,10 @@ class VDirectory extends VItem
   isRoot: ->
 
   getEntriesSync: ->
+
+  # The callback received two arguments :
+  # 1.) This directory.
+  # 2.) The list of entries containing VFile and VDirectory instances.
+  getEntries: (callback) ->
+
+  onDidChange: (callback) ->

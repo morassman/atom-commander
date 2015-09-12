@@ -1,10 +1,11 @@
 VDirectory = require '../vdirectory'
+LocalFile = require './local-file'
 
 module.exports =
 class LocalDirectory extends VDirectory
 
-  constructor: (filesystem, @directory) ->
-    super(filesystem);
+  constructor: (fileSystem, @directory) ->
+    super(fileSystem);
 
   existsSync: ->
     return @directory.existsSync();
@@ -16,18 +17,31 @@ class LocalDirectory extends VDirectory
     return @directory.getBaseName();
 
   getParent: ->
-    return new LocalDirectory(@filesystem, @directory.getParent());
+    return new LocalDirectory(@fileSystem, @directory.getParent());
 
   isRoot: ->
     return @directory.isRoot();
 
+  isWritable: ->
+    return true;
+
   getEntriesSync: ->
-    entries = [];
+    return @wrapEntries(@directory.getEntriesSync());
 
-    for entry in @directory.getEntriesSync()
+  getEntries: (callback) ->
+    @directory.getEntries (err, entries) =>
+      callback(@, @wrapEntries(entries));
+
+  wrapEntries: (entries) ->
+    result = [];
+
+    for entry in entries
       if entry.isDirectory()
-        entries.push(new LocalDirectory(@filesystem, entry));
+        result.push(new LocalDirectory(@fileSystem, entry));
       else
-        entries.push(new LocalFile(@filesystem, entry));
+        result.push(new LocalFile(@fileSystem, entry));
 
-    return entries;
+    return result;
+
+  onDidChange: (callback) ->
+    return @directory.onDidChange(callback);

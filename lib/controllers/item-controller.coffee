@@ -16,7 +16,7 @@ class ItemController
 
   # Override to indicate if this item can be renamed.
   canRename: ->
-    return false;
+    return @item.isWritable();
 
   # Override this to implement the open behavior of this item.
   performOpenAction: ->

@@ -15,9 +15,6 @@ class FileController extends ItemController
   getPath: ->
     return @item.getRealPathSync();
 
-  canRename: ->
-    return true;
-
   getNameExtension: ->
     baseName = @item.getBaseName();
 
@@ -30,4 +27,4 @@ class FileController extends ItemController
     return [baseName.slice(0, index), baseName.slice(index + 1)];
 
   performOpenAction: ->
-    atom.workspace.open(@getFile().getPath());
+    atom.workspace.open(@getFile().getRealPathSync());

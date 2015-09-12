@@ -3,7 +3,8 @@ VFile = require '../vfile'
 module.exports =
 class LocalFile extends VFile
 
-  constructor: (@file) ->
+  constructor: (fileSystem, @file) ->
+    super(fileSystem);
 
   existsSync: ->
     return @file.existsSync();
@@ -15,4 +16,7 @@ class LocalFile extends VFile
     return @file.getBaseName();
 
   getParent: ->
-    return new LocalDirectory(@file.getParent());
+    return @fileSystem.getDirectory(@file.getParent().getRealPathSync());
+
+  isWritable: ->
+    return true;

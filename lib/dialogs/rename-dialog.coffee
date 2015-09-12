@@ -1,4 +1,3 @@
-fs = require 'fs-plus'
 path = require 'path'
 InputDialog = require '@aki77/atom-input-dialog'
 
@@ -21,23 +20,43 @@ class RenameDialog extends InputDialog
       name = text.trim();
       newPath = path.join(@directoryPath, name);
 
-      if @oldPath != newPath
-        fs.moveSync(@oldPath, newPath);
-        @containerView.requestFocus();
+      if @oldPath == newPath
+        return;
+
+      @item.fileSystem.rename @oldPath, newPath, (err) =>
+        if err?
+          atom.notifications.addWarning(err);
+        else
+          # TODO : It's not necessary to refresh the whole directory. Just update the item.
+          @containerView.refreshDirectory();
+
+      @containerView.requestFocus();
 
     options.validate = (text) ->
       name = text.trim();
 
+      if name == @itemName
+        return null;
+
       if name.length == 0
-        return 'The name may not be empty.'
+        return "The name may not be empty.";
 
-      if name != @itemName
-        newPath = path.join(@directoryPath, name);
+      parsed = path.parse(name);
 
-        if fs.isFileSync(newPath)
-          return "A file with this name already exists."
-        else if fs.isDirectorySync(newPath)
-          return "A folder with this name already exists."
+      if parsed.dir != ""
+        return "The name should not contain a parent.";
+
+      existingItemView = @containerView.getItemViewWithName(name);
+
+      if existingItemView == null
+        return null;
+
+      existingItem = existingItemView.getItem();
+
+      if existingItem.isFile()
+        return "A file with this name already exists.";
+      else if existingItem.isDirectory()
+        return "A folder with this name already exists.";
 
       return null;
 
