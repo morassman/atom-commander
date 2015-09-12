@@ -1,33 +1,36 @@
 fs = require 'fs-plus'
+PathUtil = require 'path'
 InputDialog = require '@aki77/atom-input-dialog'
 
 module.exports =
 class NewDirectoryDialog extends InputDialog
 
   constructor: (@containerView, @directory) ->
-    super({prompt:'Enter a name for the new folder:'});
+    super({prompt:"Enter a name for the new folder:"});
 
   initialize: () ->
     options = {};
     options.callback = (text) =>
       name = text.trim();
-      sub = @directory.getSubdirectory(name);
+      path = PathUtil.join(@directory.getPath(), name);
 
-      sub.create().then (created) =>
-        if created
-          @containerView.refreshDirectory();
-          @containerView.highlightIndexWithName(sub.getBaseName());
+      @directory.fileSystem.makeDirectory path, (err) =>
+        if err?
+          atom.notifications.addWarning(err);
+        else
+          snapShot = {};
+          snapShot.name = name;
+          @containerView.refreshDirectoryWithSnapShot(snapShot);
 
     options.validate = (text) ->
       name = text.trim();
 
       if name.length == 0
-        return 'The folder name may not be empty.'
+        return "The folder name may not be empty.";
 
-      sub = @directory.getSubdirectory(name);
-
-      if fs.isDirectorySync(sub.getRealPathSync())
-        return "A folder with this name already exists."
+      if @directory.fileSystem.isLocal()
+        if fs.isDirectorySync(PathUtil.join(@directory.getPath(), name))
+          return "A folder with this name already exists."
 
       return null;
 

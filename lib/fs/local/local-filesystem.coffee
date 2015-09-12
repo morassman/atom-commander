@@ -9,6 +9,9 @@ class LocalFileSystem extends VFileSystem
   constructor: ->
     super();
 
+  isLocal: ->
+    return true;
+
   isConnected: ->
     return true;
 
@@ -22,3 +25,15 @@ class LocalFileSystem extends VFileSystem
     fs.moveSync(oldPath, newPath);
     if callback != null
       callback(null);
+
+  makeDirectory: (path, callback) ->
+    directory = new Directory(path);
+
+    directory.create().then (created) =>
+      if !callback?
+        return;
+
+      if created
+        callback(null);
+      else
+        callback("Error creating folder.");

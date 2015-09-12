@@ -410,7 +410,9 @@ class ContainerView extends View
         itemView.select(true);
 
   refreshDirectory: ->
-    snapShot = @captureSnapShot();
+    @refreshDirectoryWithSnapShot(@captureSnapShot());
+
+  refreshDirectoryWithSnapShot: (snapShot) ->
     @openDirectory(@directory, snapShot);
     @restoreSnapShot(snapShot);
 
@@ -454,6 +456,10 @@ class ContainerView extends View
 
   addProject: ->
     if @directory == null
+      return;
+
+    if !@directory.fileSystem.isLocal()
+      atom.notifications.addWarning("Remote project folders are not supported.");
       return;
 
     selectedItemViews = @getSelectedItemViews(true);

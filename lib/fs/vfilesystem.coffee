@@ -21,6 +21,8 @@ class VFileSystem
   emitDisconnected: ->
     @emitter.emit("disconnected");
 
+  isLocal: ->
+
   connect: ->
 
   disconnect: ->
@@ -31,5 +33,8 @@ class VFileSystem
 
   getURI: (item) ->
 
-  # Callback receives a single argument called err.
+  # Callback receives a single string argument with error message. null if no error.
   rename: (oldPath, newPath, callback) ->
+
+  # Callback receives a single string argument with error message. null if no error.
+  makeDirectory: (path, callback) ->

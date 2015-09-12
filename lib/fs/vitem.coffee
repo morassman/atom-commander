@@ -6,6 +6,9 @@ class VItem
   getURI: ->
     return @fileSystem.getURI(@);
 
+  getPath: ->
+    return @getRealPathSync();
+
   isFile: ->
 
   isDirectory: ->
@@ -13,9 +16,6 @@ class VItem
   isWritable: ->
 
   existsSync: ->
-
-  getPath: ->
-    return @getRealPathSync();
 
   getRealPathSync: ->
 

@@ -10,6 +10,9 @@ class FTPFileSystem extends VFileSystem
     super();
     @connected = false;
 
+  isLocal: ->
+    return false;
+
   connect: ->
     @client = new Client();
 
@@ -56,8 +59,20 @@ class FTPFileSystem extends VFileSystem
 
   rename: (oldPath, newPath, callback) ->
     @client.rename oldPath, newPath, (err) =>
-      if callback?
-        if err?
-          callback(err.message);
-        else
-          callback(null);
+      if !callback?
+        return;
+
+      if err?
+        callback(err.message);
+      else
+        callback(null);
+
+  makeDirectory: (path, callback) ->
+    @client.mkdir path, true, (err) =>
+      if !callback?
+        return;
+
+      if err?
+        callback(err.message);
+      else
+        callback(null);
