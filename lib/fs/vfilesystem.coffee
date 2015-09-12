@@ -38,3 +38,9 @@ class VFileSystem
 
   # Callback receives a single string argument with error message. null if no error.
   makeDirectory: (path, callback) ->
+
+  # Callback receives a single string argument with error message. null if no error.
+  deleteFile: (path, callback) ->
+    
+  # Callback receives a single string argument with error message. null if no error.
+  deleteDirectory: (path, callback) ->

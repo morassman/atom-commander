@@ -9,6 +9,12 @@ class VItem
   getPath: ->
     return @getRealPathSync();
 
+  delete: (callback) ->
+    if @isFile()
+      @fileSystem.deleteFile(@getPath(), callback);
+    else if @isDirectory()
+      @fileSystem.deleteDirectory(@getPath(), callback);
+
   isFile: ->
 
   isDirectory: ->

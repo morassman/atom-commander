@@ -237,10 +237,9 @@ class AtomCommanderView extends View
 
     # Create a local variable of the focused view in case the focus changes while deleting.
     view = @focusedView;
-    srcPath = view.getPath();
-    srcNames = view.getSelectedNames(true);
+    itemViews = view.getSelectedItemViews(true);
 
-    if srcNames.length == 0
+    if itemViews.length == 0
       return;
 
     option = atom.confirm
@@ -248,9 +247,13 @@ class AtomCommanderView extends View
       detailedMessage: 'Delete the selected files?'
       buttons: ["No", "Yes"]
 
-    if option == 1
-      Task.once require.resolve('./tasks/delete-task'), srcPath, srcNames, ->
-        view.refreshDirectory();
+    if option == 0
+      return;
+
+    for itemView in itemViews
+      itemView.getItem().delete();
+
+    @focusedView.refreshDirectory();
 
   newDirectoryButton: ->
     directory = @getFocusedViewDirectory();
@@ -263,7 +266,6 @@ class AtomCommanderView extends View
 
   focusButton: ->
     @main.toggleFocus();
-    # if @focusedView ==
 
   hideButton: ->
     @main.hidePanel();

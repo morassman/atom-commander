@@ -1,4 +1,5 @@
 fs = require 'fs-plus'
+fse = require 'fs-extra'
 VFileSystem = require '../vfilesystem'
 LocalDirectory = require './local-directory'
 {Directory} = require 'atom'
@@ -37,3 +38,15 @@ class LocalFileSystem extends VFileSystem
         callback(null);
       else
         callback("Error creating folder.");
+
+  deleteFile: (path, callback) ->
+    fse.removeSync(path);
+
+    if callback?
+      callback(null);
+
+  deleteDirectory: (path, callback) ->
+    fse.removeSync(path);
+
+    if callback?
+      callback(null);

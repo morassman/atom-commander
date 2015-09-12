@@ -34,8 +34,9 @@ class FTPFileSystem extends VFileSystem
 
   disconnect: ->
     if @isConnected()
-      @client.end();
-      @client = null;
+      @client.logout =>
+        @client.end();
+        @client = null;
 
   isConnected: ->
     return @connected and (@client != null);
@@ -69,6 +70,26 @@ class FTPFileSystem extends VFileSystem
 
   makeDirectory: (path, callback) ->
     @client.mkdir path, true, (err) =>
+      if !callback?
+        return;
+
+      if err?
+        callback(err.message);
+      else
+        callback(null);
+
+  deleteFile: (path, callback) ->
+    @client.delete path, (err) =>
+      if !callback?
+        return;
+
+      if err?
+        callback(err.message);
+      else
+        callback(null);
+
+  deleteDirectory: (path, callback) ->
+    @client.rmdir path, (err) =>
       if !callback?
         return;
 
