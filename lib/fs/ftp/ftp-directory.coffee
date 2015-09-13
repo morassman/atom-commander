@@ -1,6 +1,7 @@
 path = require 'path'
 VDirectory = require '../vdirectory'
 FTPFile = require './ftp-file'
+Utils = require '../../utils'
 
 module.exports =
 class FTPDirectory extends VDirectory
@@ -46,15 +47,22 @@ class FTPDirectory extends VDirectory
         callback(@, @wrapEntries(entries));
 
   wrapEntries: (entries) ->
-    result = [];
+    directories = [];
+    files = [];
 
     for entry in entries
       wrappedEntry = @wrapEntry(entry);
 
       if wrappedEntry != null
-        result.push(wrappedEntry);
+        if wrappedEntry.isFile()
+          files.push(wrappedEntry);
+        else
+          directories.push(wrappedEntry);
 
-    return result;
+    Utils.sortItems(files);
+    Utils.sortItems(directories);
+
+    return directories.concat(files);
 
   wrapEntry: (entry) ->
     if (entry.name == ".") or (entry.name == "..")

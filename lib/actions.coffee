@@ -7,6 +7,7 @@ DriveListView = require './views/drive-list-view'
 ProjectListView = require './views/project-list-view'
 AddBookmarkDialog = require './dialogs/add-bookmark-dialog'
 SelectDialog = require './dialogs/select-dialog'
+FTPDialog = require './dialogs/ftp-dialog'
 {File, Directory, TextEditor} = require 'atom'
 fsp = require 'fs-plus'
 
@@ -263,3 +264,18 @@ class Actions
   bookmarksOpen: (fromView=true) =>
     @main.mainView.hideMenuBar();
     view = new BookmarksView(@, true, fromView);
+
+  serverConnectFTP: =>
+    view = @getFocusedView();
+
+    if view == null
+      return;
+
+    console.log("connectFTP");
+    @main.mainView.hideMenuBar();
+    dialog = new FTPDialog(view);
+    dialog.attach();
+
+  serverDisconnect: =>
+
+  serverOpen: =>

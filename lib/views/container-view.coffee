@@ -154,6 +154,12 @@ class ContainerView extends View
 
     return @directory.getRealPathSync();
 
+  getURI: ->
+    if @directory == null
+      return null;
+
+    return @directory.getURI();
+
   # includeHighlightIfEmpty : true if the highlighted name should be included if nothing is selected.
   getSelectedNames: (includeHighlightIfEmpty=false)->
     paths = [];

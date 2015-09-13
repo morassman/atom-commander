@@ -68,6 +68,12 @@ class MenuBarView extends View
     compare.addMenuItem("1", "Folders", actions.compareFolders);
     compare.addMenuItem("2", "Files", actions.compareFiles);
 
+    server = root.addMenuItem("6", "Server");
+    serverAdd = server.addMenuItem("1", "Connect");
+    serverAdd.addMenuItem("1", "FTP", actions.serverConnectFTP);
+    server.addMenuItem("2", "Disconnect", actions.serverDisconnect);
+    server.addMenuItem("3", "Open", actions.serverOpen);
+
     return root;
 
   showMenuItem: (@currentMenuItem) ->

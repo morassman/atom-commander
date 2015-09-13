@@ -21,6 +21,9 @@ class VFileSystem
   emitDisconnected: ->
     @emitter.emit("disconnected");
 
+  isRemote: ->
+    return !@isLocal();
+
   isLocal: ->
 
   connect: ->
@@ -41,6 +44,6 @@ class VFileSystem
 
   # Callback receives a single string argument with error message. null if no error.
   deleteFile: (path, callback) ->
-    
+
   # Callback receives a single string argument with error message. null if no error.
   deleteDirectory: (path, callback) ->

@@ -32,18 +32,6 @@ class AtomCommanderView extends View
       @leftView.setContentHeight(state.height);
       @rightView.setContentHeight(state.height);
 
-    config = {};
-    config.host = "localhost";
-    # config.host = "ftp.is.co.za";
-    @ftpFileSystem = new FTPFileSystem(config);
-
-    # @ftpFileSystem.onConnected =>
-      # console.log("connected");
-    @leftView.openDirectory(@ftpFileSystem.getDirectory("/"));
-
-    # @ftpFileSystem.connect();
-    # ftpFileSystem.disconnect();
-
   @content: ->
     buttonStyle = 'width: 11.1%';
 
@@ -206,11 +194,22 @@ class AtomCommanderView extends View
 
     srcView = @focusedView;
     dstView = @getOtherView(srcView);
+
+    srcFileSystem = srcView.directory.fileSystem;
+    dstFileSystem = dstView.directory.fileSystem;
+
+    if srcFileSystem.isRemote() or dstFileSystem.isRemote()
+      if move
+        atom.notifications.addWarning("Move to/from remote file systems not yet supported.");
+      else
+        atom.notifications.addWarning("Copy to/from remote file systems not yet supported.");
+      return;
+
+    if srcView.getURI() == dstView.getURI()
+      return;
+
     srcPath = srcView.getPath();
     dstPath = dstView.getPath();
-
-    if srcPath == dstPath
-      return;
 
     srcItemViews = srcView.getSelectedItemViews(true);
 
