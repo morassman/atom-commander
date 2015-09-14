@@ -3,6 +3,7 @@ Actions = require './actions'
 ListView = require './views/list-view'
 DiffView = require './views/diff/diff-view'
 AtomCommanderView = require './atom-commander-view'
+RemoteFileManager = require './remote-file-manager'
 {CompositeDisposable, File, Directory} = require 'atom'
 
 module.exports = AtomCommander =
@@ -15,6 +16,7 @@ module.exports = AtomCommander =
     @bookmarks = [];
 
     @actions = new Actions(@);
+    @remoteFileManager = new RemoteFileManager();
     @mainView = new AtomCommanderView(@, @state);
     @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false);
 
@@ -58,6 +60,9 @@ module.exports = AtomCommander =
     if @state.bookmarks?
       @bookmarks = @state.bookmarks;
 
+  getRemoteFileManager: ->
+    return @remoteFileManager;
+
   getSaveFile: ->
     configFile = new File(atom.config.getUserConfigPath());
     directory = configFile.getParent();
@@ -94,6 +99,7 @@ module.exports = AtomCommander =
     @saveState();
     @bottomPanel.destroy();
     @subscriptions.dispose();
+    @remoteFileManager.destroy();
     @mainView.destroy();
 
   serialize: ->

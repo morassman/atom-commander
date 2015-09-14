@@ -1,4 +1,4 @@
-fs = require 'fs-plus'
+fsp = require 'fs-plus'
 fse = require 'fs-extra'
 VFileSystem = require '../vfilesystem'
 LocalDirectory = require './local-directory'
@@ -16,6 +16,9 @@ class LocalFileSystem extends VFileSystem
   isConnected: ->
     return true;
 
+  getSafeConfig: ->
+    return {};
+
   getDirectory: (path) ->
     return new LocalDirectory(@, new Directory(path));
 
@@ -23,7 +26,7 @@ class LocalFileSystem extends VFileSystem
     return item.getRealPathSync();
 
   rename: (oldPath, newPath, callback) ->
-    fs.moveSync(oldPath, newPath);
+    fsp.moveSync(oldPath, newPath);
     if callback != null
       callback(null);
 
@@ -50,3 +53,9 @@ class LocalFileSystem extends VFileSystem
 
     if callback?
       callback(null);
+
+  download: (path, localPath, callback) ->
+    fse.copy(path, localPath, callback);
+
+  upload: (localPath, path, callback) ->
+    fse.copy(localPath, path, callback);

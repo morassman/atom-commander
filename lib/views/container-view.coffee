@@ -35,6 +35,9 @@ class ContainerView extends View
 
   setMainView: (@mainView) ->
 
+  getMainView: ->
+    return @mainView;
+
   @content: ->
     @div {class: 'tool-panel'}, =>
       @subview 'directoryEditor', new TextEditorView(mini: true)

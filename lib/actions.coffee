@@ -271,7 +271,6 @@ class Actions
     if view == null
       return;
 
-    console.log("connectFTP");
     @main.mainView.hideMenuBar();
     dialog = new FTPDialog(view);
     dialog.attach();

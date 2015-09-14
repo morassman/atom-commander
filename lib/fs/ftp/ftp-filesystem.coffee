@@ -1,3 +1,4 @@
+fs = require 'fs'
 path = require 'path'
 Client = require 'ftp'
 VFileSystem = require '../vfilesystem'
@@ -52,6 +53,9 @@ class FTPFileSystem extends VFileSystem
     else
       @emitDisconnected();
 
+  getSafeConfig: ->
+    return @config;
+
   getDirectory: (path) ->
     return new FTPDirectory(@, path);
 
@@ -97,3 +101,15 @@ class FTPFileSystem extends VFileSystem
         callback(err.message);
       else
         callback(null);
+
+  getLocalDirectoryName: ->
+    return @config.host;
+
+  download: (path, localPath, callback) ->
+    @client.get path, (err, stream) =>
+      if !err?
+        stream.pipe(fs.createWriteStream(localPath));
+      callback(err);
+
+  upload: (localPath, path, callback) ->
+    @client.put(localPath, path, false, callback);

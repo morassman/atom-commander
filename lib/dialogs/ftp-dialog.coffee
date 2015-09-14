@@ -37,7 +37,7 @@ class FTPDialog extends View
               @subview "usernameEditor", new TextEditorView(mini: true)
           @tr =>
             @td "Password", {class: "text-highlight"}
-            @td =>
+            @td {class: "password"}, =>
               @subview "passwordEditor", new TextEditorView(mini: true)
       @div {class: "test-button-panel"}, =>
         @button "Test", {class: "btn", click: "test"}
@@ -51,6 +51,7 @@ class FTPDialog extends View
   initialize: ->
     @spinner.hide();
     @portEditor.getModel().setText("21");
+    # @passwordEditor.addClass("password");
 
     @serverEditor.getModel().onDidChange =>
       @refreshURL();

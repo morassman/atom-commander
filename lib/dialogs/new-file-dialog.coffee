@@ -25,10 +25,10 @@ class NewFileDialog extends InputDialog
       if name.length == 0
         return 'The file name may not be empty.'
 
-      file = @directory.getFile(name);
+      # file = @directory.getFile(name);
 
-      if fs.isFileSync(file.getRealPathSync())
-        return "A file with this name already exists."
+      # if fs.isFileSync(file.getRealPathSync())
+      #   return "A file with this name already exists."
 
       return null;
 

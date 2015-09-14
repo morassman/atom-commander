@@ -11,3 +11,9 @@ class VFile extends VItem
 
   isDirectory: ->
     return false;
+
+  download: (localPath, callback) ->
+    @fileSystem.download(@getPath(), localPath, callback);
+
+  upload: (localPath, callback) ->
+    @fileSystem.upload(localPath, @getPath(), callback);

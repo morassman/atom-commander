@@ -47,3 +47,7 @@ class VFileSystem
 
   # Callback receives a single string argument with error message. null if no error.
   deleteDirectory: (path, callback) ->
+
+  getSafeConfig: ->
+
+  download: (path, localPath, callback) ->

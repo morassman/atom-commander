@@ -81,7 +81,7 @@ class AtomCommanderView extends View
     @ftpFileSystem?.disconnect();
 
   getElement: ->
-    @element
+    return @element;
 
   handleKeyDown: (e) ->
     if e.altKey and @menuBar.isHidden()
@@ -129,6 +129,9 @@ class AtomCommanderView extends View
     change = @offset().top - pageY;
     @leftView.adjustContentHeight(change);
     @rightView.adjustContentHeight(change);
+
+  getMain: ->
+    return @main;
 
   getOtherView: (view) ->
     if view == @leftView
