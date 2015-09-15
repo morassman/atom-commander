@@ -18,5 +18,8 @@ class ItemController
   canRename: ->
     return @item.isWritable();
 
+  isLink: ->
+    return @item.isLink();
+
   # Override this to implement the open behavior of this item.
   performOpenAction: ->

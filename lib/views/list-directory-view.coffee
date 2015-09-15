@@ -17,6 +17,8 @@ class ListDirectoryView extends ListItemView
 
     if @parentDirectory
       @name.classList.add('icon', 'icon-arrow-up');
+    else if directoryController.isLink()
+      @name.classList.add('icon', 'icon-file-symlink-directory');
     else
       @name.classList.add('icon', 'icon-file-directory');
 

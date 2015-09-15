@@ -1,4 +1,4 @@
-path = require 'path'
+PathUtil = require 'path'
 VDirectory = require '../vdirectory'
 FTPFile = require './ftp-file'
 Utils = require '../../utils'
@@ -6,7 +6,7 @@ Utils = require '../../utils'
 module.exports =
 class FTPDirectory extends VDirectory
 
-  constructor: (fileSystem, @path) ->
+  constructor: (fileSystem, @link, @path) ->
     super(fileSystem);
     @writable = true;
 
@@ -17,16 +17,19 @@ class FTPDirectory extends VDirectory
     return @path;
 
   getBaseName: ->
-    return path.basename(@path);
+    return PathUtil.basename(@path);
 
   getParent: ->
-    return new FTPDirectory(@fileSystem, path.dirname(@path));
+    return new FTPDirectory(@fileSystem, false, PathUtil.dirname(@path));
 
   isRoot: ->
-    return path.dirname(@path) == @path;
+    return PathUtil.dirname(@path) == @path;
 
   isWritable: ->
     return @writable;
+
+  isLink: ->
+    return @link;
 
   getEntriesSync: ->
     entries = [];
@@ -68,10 +71,15 @@ class FTPDirectory extends VDirectory
     if (entry.name == ".") or (entry.name == "..")
       return null;
 
-    if (entry.type == "d") or (entry.type == "l")
-      return new FTPDirectory(@fileSystem, path.join(@path, entry.name));
+    if (entry.type == "d")
+      return new FTPDirectory(@fileSystem, false, PathUtil.join(@path, entry.name));
     else if entry.type == "-"
-      return new FTPFile(@fileSystem, path.join(@path, entry.name));
+      return new FTPFile(@fileSystem, false, PathUtil.join(@path, entry.name));
+    else if (entry.type == "l")
+      if entry.target.length >= 1 && entry.target[entry.target.length - 1] == '/'
+        return new FTPDirectory(@fileSystem, true, PathUtil.join(@path, entry.name));
+      else
+        return new FTPFile(@fileSystem, true, PathUtil.resolve(@path, entry.target), entry.name);
 
     return null;
 

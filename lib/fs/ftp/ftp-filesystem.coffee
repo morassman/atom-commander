@@ -18,14 +18,12 @@ class FTPFileSystem extends VFileSystem
     @client = new Client();
 
     @client.on "ready", =>
-      console.log("ready");
       @setConnected(true);
 
     @client.on "close", =>
       @setConnected(false);
 
     @client.on "error", (err) =>
-      console.log("Error");
       console.log(err);
 
     @client.on "end", =>
@@ -57,7 +55,7 @@ class FTPFileSystem extends VFileSystem
     return @config;
 
   getDirectory: (path) ->
-    return new FTPDirectory(@, path);
+    return new FTPDirectory(@, false, path);
 
   getURI: (item) ->
     return "ftp://" + path.join(@config.host, item.path);

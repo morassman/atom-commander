@@ -1,11 +1,15 @@
-path = require 'path'
+PathUtil = require 'path'
 VFile = require '../vfile'
 
 module.exports =
 class FTPFile extends VFile
 
-  constructor: (fileSystem, @path, @writable = true) ->
+  constructor: (fileSystem, @link, @path, @baseName = null) ->
     super(fileSystem);
+    @writable = true;
+
+    if @baseName == null
+      @baseName = PathUtil.basename(@path);
 
   isFile: ->
     return true;
@@ -20,10 +24,13 @@ class FTPFile extends VFile
     return @path;
 
   getBaseName: ->
-    return path.basename(@path);
+    return @baseName;
 
   getParent: ->
-    return @fileSystem.getDirectory(path.dirname(@path));
+    return @fileSystem.getDirectory(PathUtil.dirname(@path));
 
   isWritable: ->
     return @writable;
+    
+  isLink: ->
+    return @link;

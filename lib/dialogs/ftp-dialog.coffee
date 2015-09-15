@@ -51,7 +51,6 @@ class FTPDialog extends View
   initialize: ->
     @spinner.hide();
     @portEditor.getModel().setText("21");
-    # @passwordEditor.addClass("password");
 
     @serverEditor.getModel().onDidChange =>
       @refreshURL();
@@ -192,7 +191,6 @@ class FTPDialog extends View
     @containerView.openDirectory(directory);
 
   cancel: ->
-    console.log("cancel");
     @close();
 
   hasError: ->

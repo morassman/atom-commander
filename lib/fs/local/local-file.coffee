@@ -1,3 +1,4 @@
+fsp = require 'fs-plus'
 VFile = require '../vfile'
 
 module.exports =
@@ -20,3 +21,6 @@ class LocalFile extends VFile
 
   isWritable: ->
     return true;
+
+  isLink: ->
+    return fsp.isSymbolicLinkSync(@getRealPathSync());

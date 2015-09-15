@@ -19,6 +19,8 @@ class VItem
 
   isDirectory: ->
 
+  isLink: ->
+
   isWritable: ->
 
   existsSync: ->

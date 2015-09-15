@@ -16,7 +16,11 @@ class ListFileView extends ListItemView
     nameExtension = fileController.getNameExtension();
 
     @name.textContent = nameExtension[0];
-    @name.classList.add('icon', 'icon-file-text');
+
+    if fileController.isLink()
+      @name.classList.add('icon', 'icon-file-symlink-file');
+    else
+      @name.classList.add('icon', 'icon-file-text');
 
     @extension.textContent = nameExtension[1];
     @extension.classList.add('extension');

@@ -1,3 +1,4 @@
+fsp = require 'fs-plus'
 VDirectory = require '../vdirectory'
 LocalFile = require './local-file'
 
@@ -25,12 +26,18 @@ class LocalDirectory extends VDirectory
   isWritable: ->
     return true;
 
+  isLink: ->
+    return fsp.isSymbolicLinkSync(@getRealPathSync());
+
   getEntriesSync: ->
     return @wrapEntries(@directory.getEntriesSync());
 
   getEntries: (callback) ->
     @directory.getEntries (err, entries) =>
-      callback(@, @wrapEntries(entries));
+      if err?
+        console.log(err);
+      else
+        callback(@, @wrapEntries(entries));
 
   wrapEntries: (entries) ->
     result = [];
