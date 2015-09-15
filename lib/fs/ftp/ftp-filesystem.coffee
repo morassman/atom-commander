@@ -101,7 +101,7 @@ class FTPFileSystem extends VFileSystem
         callback(null);
 
   getLocalDirectoryName: ->
-    return @config.host;
+    return @config.host + @config.port;
 
   download: (path, localPath, callback) ->
     @client.get path, (err, stream) =>

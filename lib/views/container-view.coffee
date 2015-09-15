@@ -20,6 +20,7 @@ class ContainerView extends View
     @highlightedIndex = null;
     @timeSearchStarted = null;
     @timeKeyPressed = null;
+    @showSpinnerCount = 0;
     @scheduler = new Scheduler(1);
     @disposables = new CompositeDisposable();
     @localFileSystem = new LocalFileSystem();
@@ -44,9 +45,11 @@ class ContainerView extends View
       @div {class: 'atom-commander-container-view'}, =>
         @container();
       @div {class: 'search-panel', outlet: 'searchPanel'}
+      @div "Loading...", {class: 'loading-panel', outlet: 'spinnerPanel'}
 
   initialize: (state) ->
     @searchPanel.hide();
+    @spinnerPanel.hide();
 
     @on 'dblclick', '.item', (e) =>
       @requestFocus();
@@ -74,6 +77,16 @@ class ContainerView extends View
      'atom-commander:page-up': => @pageUp()
      'atom-commander:page-down': => @pageDown()
      'atom-commander:select-item': => @spacePressed()
+
+  showSpinner: ->
+    @showSpinnerCount++;
+    @spinnerPanel.fadeIn(1000);
+
+  hideSpinner: ->
+    @showSpinnerCount--;
+
+    if @showSpinnerCount == 0
+      @spinnerPanel.hide();
 
   escapePressed: ->
     if @searchPanel.isVisible()
@@ -372,8 +385,8 @@ class ContainerView extends View
       @itemViews.push(itemView);
       @addItemView(itemView);
 
-    if snapShot == null
-      @highlightIndex(0);
+    # if snapShot == null
+    @highlightIndex(0);
 
     if @directory.fileSystem.isConnected()
       @getEntries(newDirectory, snapShot);
@@ -385,8 +398,11 @@ class ContainerView extends View
     @directory.fileSystem.connect();
 
   getEntries: (newDirectory, snapShot) ->
-    newDirectory.getEntries (newDirectory, entries) =>
-      @entriesCallback(newDirectory, entries, snapShot);
+    @showSpinner();
+    newDirectory.getEntries (newDirectory, err, entries) =>
+      if err == null
+        @entriesCallback(newDirectory, entries, snapShot);
+      @hideSpinner();
 
   entriesCallback: (newDirectory, entries, snapShot) ->
     if (@directory != null) and (@directory.getURI() != newDirectory.getURI())

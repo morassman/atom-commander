@@ -44,10 +44,11 @@ class FTPDirectory extends VDirectory
 
   getEntries: (callback) ->
     @fileSystem.client.list @path, (err, entries) =>
-      if err
+      if err?
         console.log(err);
+        callback(@, err, []);
       else
-        callback(@, @wrapEntries(entries));
+        callback(@, null, @wrapEntries(entries));
 
   wrapEntries: (entries) ->
     directories = [];

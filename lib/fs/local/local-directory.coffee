@@ -36,8 +36,9 @@ class LocalDirectory extends VDirectory
     @directory.getEntries (err, entries) =>
       if err?
         console.log(err);
+        callback(@, err, []);
       else
-        callback(@, @wrapEntries(entries));
+        callback(@, null, @wrapEntries(entries));
 
   wrapEntries: (entries) ->
     result = [];
