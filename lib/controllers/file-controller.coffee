@@ -27,17 +27,4 @@ class FileController extends ItemController
     return [baseName.slice(0, index), baseName.slice(index + 1)];
 
   performOpenAction: ->
-    file = @getFile();
-
-    if file.fileSystem.isLocal()
-      atom.workspace.open(file.getRealPathSync());
-    else
-      @performRemoteOpenAction();
-
-  performRemoteOpenAction: ->
-    file = @getFile();
-    containerView = @getContainerView();
-    main = containerView.getMainView().getMain();
-    remoteFileManager = main.getRemoteFileManager();
-
-    remoteFileManager.openFile(file);
+    @getFile().open();

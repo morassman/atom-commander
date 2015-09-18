@@ -50,6 +50,7 @@ class FTPDialog extends View
 
   initialize: ->
     @spinner.hide();
+    @serverEditor.getModel().setText("ftp.is.co.za");
     @portEditor.getModel().setText("21");
 
     @serverEditor.getModel().onDidChange =>
@@ -74,9 +75,6 @@ class FTPDialog extends View
     atom.commands.add @element,
       "core:confirm": => @confirm()
       "core:cancel": => @cancel()
-    # @miniEditor.on 'blur', => @close()a
-    # @miniEditor.getModel().onDidChange => @showError()
-    # @miniEditor.getModel().setText(initialPath)
 
     @refreshError();
 
@@ -156,22 +154,25 @@ class FTPDialog extends View
   getFTPConfig: ->
     config = {};
 
+    config.protocol = "ftp";
     config.host = @serverEditor.getModel().getText().trim();
     config.port = @getPort();
 
     if @isAnonymousSelected()
+      config.anonymous = true;
       config.user = "anonymous";
       config.password = "anonymous@";
     else
+      config.anonymous = false;
       config.user = @username;
       config.password = @passwordEditor.getModel().getText().trim();
 
     return config;
 
   attach: ->
-    @panel = atom.workspace.addModalPanel(item: this.element)
-    @serverEditor.focus()
-    @serverEditor.getModel().scrollToCursorPosition()
+    @panel = atom.workspace.addModalPanel(item: this.element);
+    @serverEditor.focus();
+    @serverEditor.getModel().scrollToCursorPosition();
 
   close: ->
     panelToDestroy = @panel;
@@ -185,8 +186,9 @@ class FTPDialog extends View
 
     @close();
 
-    ftpFileSystem = new FTPFileSystem(@getFTPConfig());
-    directory = ftpFileSystem.getDirectory("/");
+    serverManager = @containerView.getMain().getServerManager();
+    server = serverManager.addServer(@getFTPConfig());
+    directory = server.getFileSystem().getDirectory("/");
 
     @containerView.openDirectory(directory);
 

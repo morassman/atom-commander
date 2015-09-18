@@ -51,3 +51,5 @@ class VFileSystem
   getSafeConfig: ->
 
   download: (path, localPath, callback) ->
+
+  openFile: (file) ->

@@ -59,3 +59,6 @@ class LocalFileSystem extends VFileSystem
 
   upload: (localPath, path, callback) ->
     fse.copy(localPath, path, callback);
+
+  openFile: (file) ->
+    atom.workspace.open(file.getRealPathSync());

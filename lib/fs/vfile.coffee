@@ -17,3 +17,6 @@ class VFile extends VItem
 
   upload: (localPath, callback) ->
     @fileSystem.upload(localPath, @getPath(), callback);
+
+  open: ->
+    @fileSystem.openFile(@);

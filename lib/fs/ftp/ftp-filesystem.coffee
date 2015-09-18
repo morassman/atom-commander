@@ -7,7 +7,7 @@ FTPDirectory = require './ftp-directory'
 module.exports =
 class FTPFileSystem extends VFileSystem
 
-  constructor: (@config) ->
+  constructor: (@server, @config) ->
     super();
     @connected = false;
 
@@ -111,3 +111,9 @@ class FTPFileSystem extends VFileSystem
 
   upload: (localPath, path, callback) ->
     @client.put(localPath, path, false, callback);
+
+  openFile: (file) ->
+    @server.getRemoteFileManager().openFile(file);
+
+  getDescription: ->
+    return "ftp://"+@config.host+":"+@config.port;

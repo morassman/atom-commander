@@ -5,6 +5,7 @@ DiffView = require './views/diff/diff-view'
 BookmarksView = require './views/bookmarks-view'
 DriveListView = require './views/drive-list-view'
 ProjectListView = require './views/project-list-view'
+ServersView = require './views/servers-view'
 AddBookmarkDialog = require './dialogs/add-bookmark-dialog'
 SelectDialog = require './dialogs/select-dialog'
 FTPDialog = require './dialogs/ftp-dialog'
@@ -265,7 +266,7 @@ class Actions
     @main.mainView.hideMenuBar();
     view = new BookmarksView(@, true, fromView);
 
-  serverConnectFTP: =>
+  serversAddFTP: =>
     view = @getFocusedView();
 
     if view == null
@@ -275,6 +276,10 @@ class Actions
     dialog = new FTPDialog(view);
     dialog.attach();
 
-  serverDisconnect: =>
+  serversRemove: (fromView=true) =>
+    @main.mainView.hideMenuBar();
+    view = new ServersView(@, false, fromView);
 
-  serverOpen: =>
+  serversOpen: (fromView=true) =>
+    @main.mainView.hideMenuBar();
+    view = new ServersView(@, true, fromView);

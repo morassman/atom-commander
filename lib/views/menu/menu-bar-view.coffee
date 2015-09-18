@@ -60,19 +60,19 @@ class MenuBarView extends View
     bookmarks.addMenuItem("2", "Remove", actions.bookmarksRemove);
     bookmarks.addMenuItem("3", "Open", actions.bookmarksOpen);
 
-    view = root.addMenuItem("4", "View");
+    server = root.addMenuItem("4", "Servers");
+    serverAdd = server.addMenuItem("1", "Add");
+    serverAdd.addMenuItem("1", "FTP", actions.serversAddFTP);
+    server.addMenuItem("2", "Remove", actions.serversRemove);
+    server.addMenuItem("3", "Open", actions.serversOpen);
+
+    view = root.addMenuItem("5", "View");
     view.addMenuItem("1", "Mirror", actions.viewMirror);
     view.addMenuItem("2", "Swap", actions.viewSwap);
 
-    compare = root.addMenuItem("5", "Compare");
+    compare = root.addMenuItem("6", "Compare");
     compare.addMenuItem("1", "Folders", actions.compareFolders);
     compare.addMenuItem("2", "Files", actions.compareFiles);
-
-    server = root.addMenuItem("6", "Server");
-    serverAdd = server.addMenuItem("1", "Connect");
-    serverAdd.addMenuItem("1", "FTP", actions.serverConnectFTP);
-    server.addMenuItem("2", "Disconnect", actions.serverDisconnect);
-    server.addMenuItem("3", "Open", actions.serverOpen);
 
     return root;
 
