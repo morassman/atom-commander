@@ -11,7 +11,9 @@
     "commander",
     "diff",
     "compare",
-    "bookmark"
+    "bookmark",
+    "ftp",
+    "sftp"
   ],
   "activationCommands": {},
   "repository": "https://github.com/morassman/atom-commander",

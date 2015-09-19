@@ -62,6 +62,14 @@ class FTPFileSystem extends VFileSystem
   getURI: (item) ->
     return @config.protocol+"://" + PathUtil.join(@config.host, item.path);
 
+  getPathFromURI: (uri) ->
+    root = @config.protocol+"://"+@config.host;
+
+    if uri.substring(0, root.length) == root
+      return uri.substring(root.length);
+
+    return null;
+
   rename: (oldPath, newPath, callback) ->
     @client.rename oldPath, newPath, (err) =>
       if !callback?
@@ -121,19 +129,19 @@ class FTPFileSystem extends VFileSystem
     return @config.protocol+"://"+@config.host+":"+@config.port;
 
   list: (path, callback) ->
-    @client.list @path, (err, entries) =>
+    @client.list path, (err, entries) =>
       if err?
         console.log(err);
         callback(err, []);
       else
-        callback(null, @wrapEntries(entries));
+        callback(null, @wrapEntries(path, entries));
 
-  wrapEntries: (entries) ->
+  wrapEntries: (path, entries) ->
     directories = [];
     files = [];
 
     for entry in entries
-      wrappedEntry = @wrapEntry(entry);
+      wrappedEntry = @wrapEntry(path, entry);
 
       if wrappedEntry != null
         if wrappedEntry.isFile()
@@ -146,18 +154,18 @@ class FTPFileSystem extends VFileSystem
 
     return directories.concat(files);
 
-  wrapEntry: (entry) ->
+  wrapEntry: (path, entry) ->
     if (entry.name == ".") or (entry.name == "..")
       return null;
 
     if (entry.type == "d")
-      return new FTPDirectory(@, false, PathUtil.join(@path, entry.name));
+      return new FTPDirectory(@, false, PathUtil.join(path, entry.name));
     else if entry.type == "-"
-      return new FTPFile(@, false, PathUtil.join(@path, entry.name));
+      return new FTPFile(@, false, PathUtil.join(path, entry.name));
     else if (entry.type == "l")
       if entry.target.length >= 1 && entry.target[entry.target.length - 1] == '/'
-        return new FTPDirectory(@, true, PathUtil.join(@path, entry.name));
+        return new FTPDirectory(@, true, PathUtil.join(path, entry.name));
       else
-        return new FTPFile(@, true, PathUtil.resolve(@path, entry.target), entry.name);
+        return new FTPFile(@, true, PathUtil.resolve(path, entry.target), entry.name);
 
     return null;

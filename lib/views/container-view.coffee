@@ -490,14 +490,30 @@ class ContainerView extends View
       @selectNames(snapShot.selectedNames);
 
   directoryEditorConfirm: ->
-    # TODO : The file system may change.
-    directory = @directory.fileSystem.getDirectory(@directoryEditor.getText().trim());
+    uri = @directoryEditor.getText().trim();
 
-    if directory.existsSync() and directory.isDirectory()
-      @openDirectory(directory);
+    if fs.isDirectorySync(uri)
+      @openDirectory(@localFileSystem.getDirectory(uri));
+      return;
+
+    fileSystem = @directory.getFileSystem();
+
+    if fileSystem.isLocal()
+      return;
+
+    path = fileSystem.getPathFromURI(uri);
+
+    if path != null
+      @openDirectory(fileSystem.getDirectory(path));
+
+    # # TODO : The file system may change.
+    # directory = @directory.fileSystem.getDirectory(@directoryEditor.getText().trim());
+    #
+    # if directory.existsSync() and directory.isDirectory()
+    #   @openDirectory(directory);
 
   directoryEditorCancel: ->
-    @directoryEditor.setText(@directory.getRealPathSync());
+    @directoryEditor.setText(@directory.getURI());
 
   addProject: ->
     if @directory == null

@@ -1,4 +1,3 @@
-urlUtil = require 'url'
 SSH2 = require 'ssh2'
 FTPFileSystem = require '../fs/ftp/ftp-filesystem'
 {View, TextEditorView} = require 'atom-space-pen-views'

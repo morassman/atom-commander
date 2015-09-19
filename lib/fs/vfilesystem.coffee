@@ -24,6 +24,12 @@ class VFileSystem
   isRemote: ->
     return !@isLocal();
 
+  # Returns the path part of the URI relative to this file system. null if this
+  # URI doesn't match this file system.
+  # Example : "sftp://localhost/Test/Path" => "/Test/Path"
+  getPathFromURI: (uri) ->
+    return uri;
+
   isLocal: ->
 
   connect: ->

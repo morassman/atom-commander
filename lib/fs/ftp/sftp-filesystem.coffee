@@ -92,6 +92,14 @@ class SFTPFileSystem extends VFileSystem
   getURI: (item) ->
     return @config.protocol+"://" + PathUtil.join(@config.host, item.path);
 
+  getPathFromURI: (uri) ->
+    root = @config.protocol+"://"+@config.host;
+
+    if uri.substring(0, root.length) == root
+      return uri.substring(root.length);
+
+    return null;
+
   rename: (oldPath, newPath, callback) ->
     @client.rename oldPath, newPath, (err) =>
       if !callback?
