@@ -11,10 +11,8 @@ class NewFileDialog extends InputDialog
     options = {};
     options.callback = (text) =>
       name = text.trim();
-      file = @directory.getFile(name);
-
-      file.create().then (created) =>
-        if created
+      @directory.newFile name, (file) =>
+        if file != null
           @containerView.refreshDirectory();
           @containerView.highlightIndexWithName(file.getBaseName());
           atom.workspace.open(file.getPath());

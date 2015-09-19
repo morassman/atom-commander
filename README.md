@@ -115,7 +115,7 @@ The list of bookmarks can be opened from either the menu in Atom Commander or by
 ### Folders
 When the left and right folders are compared then everything that is in the one, but not in the other will be selected. This will replace the current selection.
 ### Files
-This is still experimental. Performing this action will open a side-by-side view that will compare the file highlighted on the left with the one highlighted on the right.
+Performing this action will open a side-by-side view that will compare the file highlighted on the left with the one highlighted on the right.
 
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/diff.png?raw=true)
 

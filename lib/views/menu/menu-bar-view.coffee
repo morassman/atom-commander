@@ -63,6 +63,7 @@ class MenuBarView extends View
     server = root.addMenuItem("4", "Servers");
     serverAdd = server.addMenuItem("1", "Add");
     serverAdd.addMenuItem("1", "FTP", actions.serversAddFTP);
+    serverAdd.addMenuItem("2", "SFTP", actions.serversAddSFTP);
     server.addMenuItem("2", "Remove", actions.serversRemove);
     server.addMenuItem("3", "Open", actions.serversOpen);
 

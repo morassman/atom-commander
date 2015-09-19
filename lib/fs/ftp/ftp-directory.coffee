@@ -1,7 +1,5 @@
 PathUtil = require 'path'
 VDirectory = require '../vdirectory'
-FTPFile = require './ftp-file'
-Utils = require '../../utils'
 
 module.exports =
 class FTPDirectory extends VDirectory
@@ -43,46 +41,9 @@ class FTPDirectory extends VDirectory
     return entries;
 
   getEntries: (callback) ->
-    @fileSystem.client.list @path, (err, entries) =>
-      if err?
-        console.log(err);
-        callback(@, err, []);
-      else
-        callback(@, null, @wrapEntries(entries));
-
-  wrapEntries: (entries) ->
-    directories = [];
-    files = [];
-
-    for entry in entries
-      wrappedEntry = @wrapEntry(entry);
-
-      if wrappedEntry != null
-        if wrappedEntry.isFile()
-          files.push(wrappedEntry);
-        else
-          directories.push(wrappedEntry);
-
-    Utils.sortItems(files);
-    Utils.sortItems(directories);
-
-    return directories.concat(files);
-
-  wrapEntry: (entry) ->
-    if (entry.name == ".") or (entry.name == "..")
-      return null;
-
-    if (entry.type == "d")
-      return new FTPDirectory(@fileSystem, false, PathUtil.join(@path, entry.name));
-    else if entry.type == "-"
-      return new FTPFile(@fileSystem, false, PathUtil.join(@path, entry.name));
-    else if (entry.type == "l")
-      if entry.target.length >= 1 && entry.target[entry.target.length - 1] == '/'
-        return new FTPDirectory(@fileSystem, true, PathUtil.join(@path, entry.name));
-      else
-        return new FTPFile(@fileSystem, true, PathUtil.resolve(@path, entry.target), entry.name);
-
-    return null;
+    console.log("FTPDirectory.getEntries");
+    @fileSystem.list @path, (err, entries) =>
+      callback(@, err, entries);
 
   onDidChange: (callback) ->
     return null;

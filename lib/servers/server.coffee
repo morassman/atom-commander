@@ -1,4 +1,5 @@
 FTPFileSystem = require '../fs/ftp/ftp-filesystem'
+SFTPFileSystem = require '../fs/ftp/sftp-filesystem'
 LocalFileSystem = require '../fs/local/local-filesystem'
 RemoteFileManager = require './remote-file-manager'
 
@@ -25,6 +26,8 @@ class Server
   createFileSystem: ->
     if @config.protocol == "ftp"
       return new FTPFileSystem(@, @config);
+    else if @config.protocol == "sftp"
+      return new SFTPFileSystem(@, @config);
 
     return new LocalFileSystem();
 

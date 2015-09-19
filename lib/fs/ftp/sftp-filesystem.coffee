@@ -1,13 +1,14 @@
 fs = require 'fs'
-FTPClient = require 'ftp'
 PathUtil = require 'path'
+FTPClient = require 'ftp'
+SSH2 = require 'ssh2'
 VFileSystem = require '../vfilesystem'
 FTPFile = require './ftp-file'
 FTPDirectory = require './ftp-directory'
 Utils = require '../../utils'
 
 module.exports =
-class FTPFileSystem extends VFileSystem
+class SFTPFileSystem extends VFileSystem
 
   constructor: (@server, @config) ->
     super();
@@ -17,21 +18,34 @@ class FTPFileSystem extends VFileSystem
     return false;
 
   connect: ->
-    @client = new FTPClient();
+    @ssh2 = new SSH2();
 
-    @client.on "ready", =>
-      @setConnected(true);
+    @ssh2.on "ready", =>
+      @ssh2.sftp (err, sftp) =>
+        if err?
+          @setConnected(false);
+          return;
 
-    @client.on "close", =>
+        @client = sftp;
+
+        @client.on "end", =>
+          @setConnected(false);
+
+        @setConnected(true);
+
+    @ssh2.on "close", =>
       @setConnected(false);
 
-    @client.on "error", (err) =>
+    @ssh2.on "error", (err) =>
       console.log(err);
 
-    @client.on "end", =>
+    @ssh2.on "end", =>
       @setConnected(false);
 
-    @client.connect(@config);
+    @ssh2.on "keyboard-interactive", (name, instructions, instructionsLang, prompt, finish) =>
+      finish([@config.password]);
+
+    @ssh2.connect(@config);
 
   disconnect: ->
     if @isConnected()
@@ -73,7 +87,7 @@ class FTPFileSystem extends VFileSystem
         callback(null);
 
   makeDirectory: (path, callback) ->
-    @client.mkdir path, true, (err) =>
+    @client.mkdir path, [], (err) =>
       if !callback?
         return;
 
@@ -83,7 +97,7 @@ class FTPFileSystem extends VFileSystem
         callback(null);
 
   deleteFile: (path, callback) ->
-    @client.delete path, (err) =>
+    @client.unlink path, (err) =>
       if !callback?
         return;
 
@@ -106,13 +120,10 @@ class FTPFileSystem extends VFileSystem
     return @config.host + @config.port;
 
   download: (path, localPath, callback) ->
-    @client.get path, (err, stream) =>
-      if !err?
-        stream.pipe(fs.createWriteStream(localPath));
-      callback(err);
+    @client.fastGet(path, localPath, {}, callback);
 
   upload: (localPath, path, callback) ->
-    @client.put(localPath, path, false, callback);
+    @client.fastPut(localPath, path, {}, callback);
 
   openFile: (file) ->
     @server.getRemoteFileManager().openFile(file);
@@ -121,22 +132,19 @@ class FTPFileSystem extends VFileSystem
     return @config.protocol+"://"+@config.host+":"+@config.port;
 
   list: (path, callback) ->
-    console.log("FTPFileSystem.list");
-    @client.list @path, (err, entries) =>
-      console.log("listed");
-      console.log(entries);
+    @client.readdir path, (err, entries) =>
       if err?
         console.log(err);
         callback(err, []);
       else
-        callback(null, @wrapEntries(entries));
+        callback(null, @wrapEntries(path, entries));
 
-  wrapEntries: (entries) ->
+  wrapEntries: (path, entries) ->
     directories = [];
     files = [];
 
     for entry in entries
-      wrappedEntry = @wrapEntry(entry);
+      wrappedEntry = @wrapEntry(path, entry);
 
       if wrappedEntry != null
         if wrappedEntry.isFile()
@@ -149,19 +157,18 @@ class FTPFileSystem extends VFileSystem
 
     return directories.concat(files);
 
-  wrapEntry: (entry) ->
-    console.log("wrapEntry");
-    if (entry.name == ".") or (entry.name == "..")
-      return null;
-
-    if (entry.type == "d")
-      return new FTPDirectory(@, false, PathUtil.join(@path, entry.name));
-    else if entry.type == "-"
-      return new FTPFile(@, false, PathUtil.join(@path, entry.name));
-    else if (entry.type == "l")
-      if entry.target.length >= 1 && entry.target[entry.target.length - 1] == '/'
-        return new FTPDirectory(@, true, PathUtil.join(@path, entry.name));
+  wrapEntry: (path, entry) ->
+    if entry.attrs.isDirectory()
+      if entry.attrs.isSymbolicLink()
+        return new FTPDirectory(@, true, PathUtil.join(path, entry.filename));
       else
-        return new FTPFile(@, true, PathUtil.resolve(@path, entry.target), entry.name);
+        return new FTPDirectory(@, false, PathUtil.join(path, entry.filename));
+    else if entry.attrs.isFile()
+      if entry.attrs.isSymbolicLink()
+        console.log("Symbolic link!");
+        console.log(entry);
+        # return new FTPFile(@, true, PathUtil.resolve(path, entry.target), entry.name);
+      else
+        return new FTPFile(@, false, PathUtil.join(path, entry.filename));
 
     return null;

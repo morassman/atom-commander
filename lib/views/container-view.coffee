@@ -195,7 +195,7 @@ class ContainerView extends View
 
     return paths;
 
-  getSelectedItemViews: (includeHighlightIfEmpty=false)->
+  getSelectedItemViews: (includeHighlightIfEmpty=false) ->
     paths = [];
 
     for itemView in @itemViews
@@ -371,11 +371,21 @@ class ContainerView extends View
   tryOpenDirectory: (newDirectory, snapShot = null) ->
     #If the directory could be read then update the field.
     @directory = newDirectory;
+    @disableAutoRefresh();
 
-    if @directoryDisposable != null
-      @directoryDisposable.dispose();
-      @directoryDisposable = null;
+    @resetItemViews();
+    @highlightIndex(0);
 
+    if @directory.fileSystem.isConnected()
+      @getEntries(newDirectory, snapShot);
+      return;
+
+    @directory.fileSystem.onConnected =>
+      @getEntries(newDirectory, snapShot);
+
+    @directory.fileSystem.connect();
+
+  resetItemViews: ->
     @clearItemViews();
 
     @itemViews = [];
@@ -388,18 +398,6 @@ class ContainerView extends View
       @itemViews.push(itemView);
       @addItemView(itemView);
 
-    # if snapShot == null
-    @highlightIndex(0);
-
-    if @directory.fileSystem.isConnected()
-      @getEntries(newDirectory, snapShot);
-      return;
-
-    @directory.fileSystem.onConnected =>
-      @getEntries(newDirectory, snapShot);
-
-    @directory.fileSystem.connect();
-
   getEntries: (newDirectory, snapShot) ->
     @showSpinner();
     newDirectory.getEntries (newDirectory, err, entries) =>
@@ -411,7 +409,13 @@ class ContainerView extends View
     if (@directory != null) and (@directory.getURI() != newDirectory.getURI())
       return;
 
-    # TODO : Compare newDirectory with @directory. If they are different then return.
+    highlightIndex = 0;
+
+    if @highlightedIndex != null
+      highlightIndex = @highlightedIndex;
+
+    @resetItemViews();
+
     index = @itemViews.length;
 
     for entry in entries
@@ -425,9 +429,19 @@ class ContainerView extends View
       index++;
 
     if @itemViews.length > 0
-      @highlightIndex(0);
+      @highlightIndex(highlightIndex);
 
     @restoreSnapShot(snapShot);
+    @enableAutoRefresh();
+
+  disableAutoRefresh: ->
+    if @directoryDisposable != null
+      @directoryDisposable.dispose();
+      @directoryDisposable = null;
+
+  enableAutoRefresh: ->
+    if @directoryDisposable != null
+      return;
 
     try
       @directoryDisposable = @directory.onDidChange =>
@@ -443,7 +457,6 @@ class ContainerView extends View
 
   refreshDirectoryWithSnapShot: (snapShot) ->
     @openDirectory(@directory, snapShot);
-    @restoreSnapShot(snapShot);
 
   captureSnapShot: ->
     snapShot = {};

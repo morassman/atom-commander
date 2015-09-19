@@ -1,8 +1,9 @@
 fsp = require 'fs-plus'
 fse = require 'fs-extra'
 VFileSystem = require '../vfilesystem'
+LocalFile = require './local-file'
 LocalDirectory = require './local-directory'
-{Directory} = require 'atom'
+{Directory, File} = require 'atom'
 
 module.exports =
 class LocalFileSystem extends VFileSystem
@@ -18,6 +19,9 @@ class LocalFileSystem extends VFileSystem
 
   getSafeConfig: ->
     return {};
+
+  getFile: (path) ->
+    return new LocalFile(@, new File(path));
 
   getDirectory: (path) ->
     return new LocalDirectory(@, new Directory(path));
@@ -62,3 +66,12 @@ class LocalFileSystem extends VFileSystem
 
   openFile: (file) ->
     atom.workspace.open(file.getRealPathSync());
+
+  newFile: (path, callback) ->
+    file = new File(path);
+
+    file.create().then (created) =>
+      if created
+        callback(@getFile(path));
+      else
+        callback(null);

@@ -1,23 +1,23 @@
-Client = require 'ftp'
+SSH2 = require 'ssh2'
 FTPFileSystem = require '../fs/ftp/ftp-filesystem'
 {View, TextEditorView} = require 'atom-space-pen-views'
 
 module.exports =
-class FTPDialog extends View
+class SFTPDialog extends View
 
   constructor: (@containerView) ->
     super();
     @username = "";
-    @client = null;
+    @ssh2 = null;
 
   @content: ->
     @div class: "atom-commander-ftp-dialog", =>
-      @div "New FTP Connection", {class: "heading"}
+      @div "New SFTP Connection", {class: "heading"}
       @table =>
         @tbody =>
           @tr =>
             @td "URL", {class: "text-highlight"}
-            @td "ftp://", {outlet: "url"}
+            @td "sftp://", {outlet: "url"}
           @tr =>
             @td "Server", {class: "text-highlight"}
             @td =>
@@ -26,10 +26,6 @@ class FTPDialog extends View
             @td "Port", {class: "text-highlight"}
             @td =>
               @subview "portEditor", new TextEditorView(mini: true)
-          @tr =>
-            @td "Anonymous", {class: "text-highlight"}
-            @td =>
-              @input {type: "checkbox", outlet: "anonymous"}
           @tr =>
             @td "Username", {class: "text-highlight"}
             @td =>
@@ -49,7 +45,7 @@ class FTPDialog extends View
 
   initialize: ->
     @spinner.hide();
-    @portEditor.getModel().setText("21");
+    @portEditor.getModel().setText("22");
 
     @serverEditor.getModel().onDidChange =>
       @refreshURL();
@@ -60,15 +56,11 @@ class FTPDialog extends View
       @refreshError();
 
     @usernameEditor.getModel().onDidChange =>
-      if !@isAnonymousSelected()
-        @username = @usernameEditor.getModel().getText().trim();
+      @username = @usernameEditor.getModel().getText().trim();
       @refreshError();
 
     @passwordEditor.getModel().onDidChange =>
       @refreshError();
-
-    @anonymous.change =>
-      @anonymousChanged();
 
     atom.commands.add @element,
       "core:confirm": => @confirm()
@@ -80,7 +72,7 @@ class FTPDialog extends View
     port = @portEditor.getModel().getText().trim();
 
     if port.length == 0
-      return 21;
+      return 22;
 
     port = parseInt(port);
 
@@ -89,29 +81,16 @@ class FTPDialog extends View
 
     return port;
 
-  anonymousChanged: ->
-    selected = @isAnonymousSelected();
-
-    if selected
-      @usernameEditor.getModel().setText("anonymous");
-    else
-      @usernameEditor.getModel().setText(@username);
-
-    @refreshError();
-
-  isAnonymousSelected: ->
-    return @anonymous.is(":checked");
-
   refreshURL: ->
     server = @serverEditor.getModel().getText().trim();
     port = @portEditor.getModel().getText().trim();
 
-    url = "ftp://" + server;
+    url = "sftp://" + server;
 
     if (server.length > 0)
       port = @getPort();
 
-      if (port != null) and (port != 21)
+      if (port != null) and (port != 22)
         url += ":" + port;
 
     @url.text(url);
@@ -125,8 +104,14 @@ class FTPDialog extends View
       @showMessage(message, 2);
 
   getErrorMessage: ->
-    if @serverEditor.getModel().getText().trim().length == 0
+    if @getServer().length == 0
       return "Server must be specified."
+
+    if @getUsername().length == 0
+      return "Username must be specified."
+
+    if @getPassword().length == 0
+      return "Password must be specified."
 
     if @getPort() == null
       return "Invalid port number.";
@@ -149,21 +134,24 @@ class FTPDialog extends View
 
     @message.text(text);
 
-  getFTPConfig: ->
+  getServer: ->
+    return @serverEditor.getModel().getText().trim();
+
+  getUsername: ->
+    return @username;
+
+  getPassword: ->
+    return @passwordEditor.getModel().getText().trim();
+
+  getSFTPConfig: ->
     config = {};
 
-    config.protocol = "ftp";
-    config.host = @serverEditor.getModel().getText().trim();
+    config.protocol = "sftp";
+    config.host = @getServer();
     config.port = @getPort();
-
-    if @isAnonymousSelected()
-      config.anonymous = true;
-      config.user = "anonymous";
-      config.password = "anonymous@";
-    else
-      config.anonymous = false;
-      config.user = @username;
-      config.password = @passwordEditor.getModel().getText().trim();
+    config.username = @username;
+    config.password = @getPassword();
+    config.tryKeyboard = true;
 
     return config;
 
@@ -185,7 +173,7 @@ class FTPDialog extends View
     @close();
 
     serverManager = @containerView.getMain().getServerManager();
-    server = serverManager.addServer(@getFTPConfig());
+    server = serverManager.addServer(@getSFTPConfig());
     directory = server.getFileSystem().getDirectory("/");
 
     @containerView.openDirectory(directory);
@@ -197,22 +185,40 @@ class FTPDialog extends View
     return @messageType == 2;
 
   test: ->
-    if @hasError() or (@client != null)
+    if @hasError() or (@ssh2 != null)
       return;
 
-    @client = new Client();
+    @ssh2 = new SSH2();
+    config = @getSFTPConfig();
 
-    @client.on "ready", =>
-      @spinner.hide();
-      @showMessage("Connection successful", 0);
-      @client.end();
-      @client = null;
+    @ssh2.on "ready", =>
+      @ssh2.sftp (err, sftp) =>
+        @spinner.hide();
 
-    @client.on "error", (err) =>
+        if err?
+          if err.message?
+            @showMessage("Connection failed. "+err.message, 1);
+          else
+            @showMessage("Connection failed", 1);
+        else
+          @showMessage("Connection successful", 0);
+
+        @ssh2.end();
+        @ssh2 = null;
+
+    @ssh2.on "error", (err) =>
       @spinner.hide();
-      @showMessage("Connection failed", 1);
-      @client.end();
-      @client = null;
+
+      if err.message?
+        @showMessage("Connection failed. "+err.message, 1);
+      else
+        @showMessage("Connection failed", 1);
+
+      @ssh2.end();
+      @ssh2 = null;
+
+    @ssh2.on "keyboard-interactive", (name, instructions, instructionsLang, prompt, finish) =>
+      finish([config.password]);
 
     @spinner.show();
-    @client.connect(@getFTPConfig());
+    @ssh2.connect(config);

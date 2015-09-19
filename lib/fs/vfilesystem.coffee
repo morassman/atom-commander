@@ -32,6 +32,8 @@ class VFileSystem
 
   isConnected: ->
 
+  getFile: (path) ->
+
   getDirectory: (path) ->
 
   getURI: (item) ->
@@ -53,3 +55,5 @@ class VFileSystem
   download: (path, localPath, callback) ->
 
   openFile: (file) ->
+
+  newFile: (path, callback) ->
