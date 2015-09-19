@@ -112,6 +112,9 @@ class ContainerView extends View
       @selectItem();
 
   handleKeyPress: (e) ->
+    if !@hasFocus()
+      return;
+
     # When Alt is down the menu is being shown.
     if e.altKey
       return;
