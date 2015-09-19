@@ -1,3 +1,6 @@
+fsp = require 'fs-plus'
+fse = require 'fs-extra'
+PathUtil = require 'path'
 FTPFileSystem = require '../fs/ftp/ftp-filesystem'
 SFTPFileSystem = require '../fs/ftp/sftp-filesystem'
 LocalFileSystem = require '../fs/local/local-filesystem'
@@ -6,12 +9,19 @@ RemoteFileManager = require './remote-file-manager'
 module.exports =
 class Server
 
-  constructor: (@config) ->
-    @remoteFileManager = new RemoteFileManager();
+  constructor: (@main, @config) ->
     @fileSystem = @createFileSystem();
+    @localDirectoryName = @fileSystem.getLocalDirectoryName();
+    @remoteFileManager = new RemoteFileManager(@);
 
   serialize: ->
     return @config;
+
+  getLocalDirectoryPath: ->
+    return PathUtil.join(@getServersPath(), @localDirectoryName);
+
+  getLocalDirectoryName: ->
+    return @localDirectoryName;
 
   getRemoteFileManager: ->
     return @remoteFileManager;
@@ -37,3 +47,15 @@ class Server
 
   getRootDirectory: ->
     return @fileSystem.getDirectory("/");
+
+  deleteLocalDirectory: ->
+    fse.removeSync(@getLocalDirectoryPath());
+
+  openFile: (file) ->
+    @remoteFileManager.openFile(file);
+
+  getOpenFileCount: ->
+    return @remoteFileManager.getOpenFileCount();
+
+  getServersPath: ->
+    return PathUtil.join(fsp.getHomeDirectory(), ".atom-commander", "servers");

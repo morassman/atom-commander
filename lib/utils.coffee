@@ -1,3 +1,4 @@
+PathUtil = require 'path'
 FileController = require './controllers/file-controller'
 
 module.exports =
@@ -24,3 +25,6 @@ class Actions
         return 1;
 
       return 0;
+
+  @getServersPath: ->
+    return PathUtil.join(fsp.getHomeDirectory(), ".atom-commander", "servers");

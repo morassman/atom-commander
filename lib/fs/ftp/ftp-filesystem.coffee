@@ -115,16 +115,13 @@ class FTPFileSystem extends VFileSystem
     @client.put(localPath, path, false, callback);
 
   openFile: (file) ->
-    @server.getRemoteFileManager().openFile(file);
+    @server.openFile(file);
 
   getDescription: ->
     return @config.protocol+"://"+@config.host+":"+@config.port;
 
   list: (path, callback) ->
-    console.log("FTPFileSystem.list");
     @client.list @path, (err, entries) =>
-      console.log("listed");
-      console.log(entries);
       if err?
         console.log(err);
         callback(err, []);
@@ -150,7 +147,6 @@ class FTPFileSystem extends VFileSystem
     return directories.concat(files);
 
   wrapEntry: (entry) ->
-    console.log("wrapEntry");
     if (entry.name == ".") or (entry.name == "..")
       return null;
 

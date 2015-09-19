@@ -13,11 +13,13 @@ class SFTPFileSystem extends VFileSystem
   constructor: (@server, @config) ->
     super();
     @connected = false;
+    @client = null;
 
   isLocal: ->
     return false;
 
   connect: ->
+    @client = null;
     @ssh2 = new SSH2();
 
     @ssh2.on "ready", =>
@@ -29,18 +31,24 @@ class SFTPFileSystem extends VFileSystem
         @client = sftp;
 
         @client.on "end", =>
-          @setConnected(false);
+          @disconnect();
 
         @setConnected(true);
 
     @ssh2.on "close", =>
       @setConnected(false);
+      @client = null;
+      @ssh2 = null;
 
     @ssh2.on "error", (err) =>
       console.log(err);
+      @client = null;
+      @ssh2 = null;
 
     @ssh2.on "end", =>
       @setConnected(false);
+      @client = null;
+      @ssh2 = null;
 
     @ssh2.on "keyboard-interactive", (name, instructions, instructionsLang, prompt, finish) =>
       finish([@config.password]);
@@ -48,10 +56,15 @@ class SFTPFileSystem extends VFileSystem
     @ssh2.connect(@config);
 
   disconnect: ->
-    if @isConnected()
-      @client.logout =>
-        @client.end();
-        @client = null;
+    if @client != null
+      @client.end();
+      @client = null;
+
+    if @ssh2 != null
+      @ssh2.end();
+      @ssh2 = null;
+
+    @setConnected(false);
 
   isConnected: ->
     return @connected and (@client != null);
@@ -117,7 +130,7 @@ class SFTPFileSystem extends VFileSystem
         callback(null);
 
   getLocalDirectoryName: ->
-    return @config.host + @config.port;
+    return @config.host + "_" + @config.port + "_" + @config.username;
 
   download: (path, localPath, callback) ->
     @client.fastGet(path, localPath, {}, callback);

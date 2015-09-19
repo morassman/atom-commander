@@ -1,4 +1,3 @@
-fsp = require 'fs-plus'
 fse = require 'fs-extra'
 PathUtil = require 'path'
 {File} = require 'atom'
@@ -7,14 +6,11 @@ Watcher = require './watcher'
 module.exports =
 class RemoteFileManager
 
-  constructor: ->
+  constructor: (@server) ->
     @watchers = [];
 
   openFile: (file) ->
-    fileSystem = file.fileSystem;
-    serversPath = @getServersPath();
-
-    serverPath = PathUtil.join(serversPath, fileSystem.getLocalDirectoryName());
+    serverPath = @server.getLocalDirectoryPath();
     cachePath = PathUtil.join(serverPath, "cache");
     localFilePath = PathUtil.join(cachePath, file.getPath());
 
@@ -54,8 +50,8 @@ class RemoteFileManager
     if (index >= 0)
       @watchers.splice(index, 1);
 
-  getServersPath: ->
-    return PathUtil.join(fsp.getHomeDirectory(), ".atom-commander", "servers");
+  getOpenFileCount: ->
+    return @watchers.length;
 
   destroy: ->
     for watcher in @watchers

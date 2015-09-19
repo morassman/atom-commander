@@ -307,6 +307,10 @@ class AtomCommanderView extends View
     else
       @focusView(@leftView);
 
+  fileSystemRemoved: (fileSystem) ->
+    @leftView.fileSystemRemoved(fileSystem);
+    @rightView.fileSystemRemoved(fileSystem);
+
   serialize: ->
     state = {};
 

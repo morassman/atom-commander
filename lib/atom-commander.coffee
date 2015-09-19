@@ -16,7 +16,7 @@ module.exports = AtomCommander =
     @bookmarks = [];
 
     @actions = new Actions(@);
-    @serverManager = new ServerManager(@state.servers);
+    @serverManager = new ServerManager(@, @state.servers);
     @mainView = new AtomCommanderView(@, @state);
     @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false);
 
@@ -149,3 +149,6 @@ module.exports = AtomCommander =
       @bookmarks.splice(index, 1);
 
     @saveState();
+
+  fileSystemRemoved: (fileSystem) ->
+    @mainView.fileSystemRemoved(fileSystem);

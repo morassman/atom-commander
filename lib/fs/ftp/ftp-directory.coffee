@@ -41,7 +41,6 @@ class FTPDirectory extends VDirectory
     return entries;
 
   getEntries: (callback) ->
-    console.log("FTPDirectory.getEntries");
     @fileSystem.list @path, (err, entries) =>
       callback(@, err, entries);
 

@@ -51,8 +51,14 @@ class BookmarksView extends SelectListView
       @actions.goDirectory(item.server.getRootDirectory());
       @cancel();
     else
-      @serverManager.removeServer(item.server);
-      @refreshItems();
+      if item.server.getOpenFileCount() == 0
+        @serverManager.removeServer(item.server);
+        if @serverManager.getServerCount() == 0
+          @cancel();
+        else
+          @refreshItems();
+      else
+        atom.notifications.addWarning("A server cannot be removed while its files are being edited.");
 
   cancelled: ->
     @hide();

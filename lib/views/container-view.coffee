@@ -543,6 +543,10 @@ class ContainerView extends View
 
     return @localFileSystem.getDirectory(fs.getHomeDirectory());
 
+  fileSystemRemoved: (fileSystem) ->
+    if @directory.getFileSystem() == fileSystem
+      @openDirectory(@getInitialDirectory(fs.getHomeDirectory()));
+
   deserialize: (path, state) ->
     if (state == null) or (state == undefined)
       @openDirectory(@getInitialDirectory(path));

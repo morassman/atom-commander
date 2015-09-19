@@ -3,6 +3,9 @@ class VItem
 
   constructor: (@fileSystem) ->
 
+  getFileSystem: ->
+    return @fileSystem;
+
   getURI: ->
     return @fileSystem.getURI(@);
 
