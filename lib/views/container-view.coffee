@@ -83,7 +83,7 @@ class ContainerView extends View
 
   showSpinner: ->
     @showSpinnerCount++;
-    @spinnerPanel.fadeIn(1000);
+    @spinnerPanel.show();
 
   hideSpinner: ->
     @showSpinnerCount--;
@@ -383,8 +383,9 @@ class ContainerView extends View
       @getEntries(newDirectory, snapShot);
       return;
 
-    @directory.fileSystem.onConnected =>
+    disposable = @directory.fileSystem.onConnected =>
       @getEntries(newDirectory, snapShot);
+      disposable.dispose();
 
     @directory.fileSystem.connect();
 
