@@ -68,8 +68,9 @@ class MenuBarView extends View
     server.addMenuItem("3", "Open", actions.serversOpen);
 
     view = root.addMenuItem("5", "View");
-    view.addMenuItem("1", "Mirror", actions.viewMirror);
-    view.addMenuItem("2", "Swap", actions.viewSwap);
+    view.addMenuItem("1", "Refresh", actions.viewRefresh);
+    view.addMenuItem("2", "Mirror", actions.viewMirror);
+    view.addMenuItem("3", "Swap", actions.viewSwap);
 
     compare = root.addMenuItem("6", "Compare");
     compare.addMenuItem("1", "Folders", actions.compareFolders);

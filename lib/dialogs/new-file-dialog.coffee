@@ -15,7 +15,9 @@ class NewFileDialog extends InputDialog
         if file != null
           @containerView.refreshDirectory();
           @containerView.highlightIndexWithName(file.getBaseName());
-          atom.workspace.open(file.getPath());
+          file.open();
+        else
+          atom.notifications.addWarning("Unable to create file "+name);
 
     options.validate = (text) ->
       name = text.trim();

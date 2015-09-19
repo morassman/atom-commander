@@ -56,11 +56,11 @@ class SFTPFileSystem extends VFileSystem
     @ssh2.connect(@config);
 
   disconnect: ->
-    if @client != null
+    if @client?
       @client.end();
       @client = null;
 
-    if @ssh2 != null
+    if @ssh2?
       @ssh2.end();
       @ssh2 = null;
 
@@ -82,6 +82,9 @@ class SFTPFileSystem extends VFileSystem
 
   getSafeConfig: ->
     return @config;
+
+  getFile: (path) ->
+    return new FTPFile(@, false, path);
 
   getDirectory: (path) ->
     return new FTPDirectory(@, false, path);
@@ -185,3 +188,16 @@ class SFTPFileSystem extends VFileSystem
         return new FTPFile(@, false, PathUtil.join(path, entry.filename));
 
     return null;
+
+  newFile: (path, callback) ->
+    @client.open path, "w", {}, (err, handle) =>
+      if err?
+        callback(null);
+        return;
+
+      @client.close handle, (err) =>
+        if err?
+          callback(null);
+          return;
+
+        callback(@getFile(path));

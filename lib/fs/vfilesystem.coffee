@@ -56,4 +56,6 @@ class VFileSystem
 
   openFile: (file) ->
 
+  # The callback receives one parameter :
+  # 1.) file : The file that was created. null if it could not be created.
   newFile: (path, callback) ->

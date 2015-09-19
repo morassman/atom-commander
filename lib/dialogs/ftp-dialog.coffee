@@ -27,6 +27,10 @@ class FTPDialog extends View
             @td =>
               @subview "portEditor", new TextEditorView(mini: true)
           @tr =>
+            @td "Folder", {class: "text-highlight"}
+            @td =>
+              @subview "folderEditor", new TextEditorView(mini: true)
+          @tr =>
             @td "Anonymous", {class: "text-highlight"}
             @td =>
               @input {type: "checkbox", outlet: "anonymous"}
@@ -39,15 +43,25 @@ class FTPDialog extends View
             @td {class: "password"}, =>
               @subview "passwordEditor", new TextEditorView(mini: true)
       @div {class: "test-button-panel"}, =>
-        @button "Test", {class: "btn", click: "test"}
+        @button "Test", {class: "btn", click: "test", outlet: "testButton"}
       @div {class: "bottom-button-panel"}, =>
-        @button "Cancel", {class: "btn", click: "cancel"}
-        @button "OK", {class: "btn", click: "confirm"}
+        @button "Cancel", {class: "btn", click: "cancel", outlet: "cancelButton"}
+        @button "OK", {class: "btn", click: "confirm", outlet: "okButton"}
       @div =>
         @span {class: "loading loading-spinner-tiny inline-block", outlet: "spinner"}
         @span {class: "message", outlet: "message"}
 
   initialize: ->
+    @serverEditor.attr("tabindex", 1);
+    @portEditor.attr("tabindex", 2);
+    @folderEditor.attr("tabindex", 3);
+    @anonymous.attr("tabindex", 4);
+    @usernameEditor.attr("tabindex", 5);
+    @passwordEditor.attr("tabindex", 6);
+    @testButton.attr("tabindex", 7);
+    @okButton.attr("tabindex", 8);
+    @cancelButton.attr("tabindex", 9);
+
     @spinner.hide();
     @portEditor.getModel().setText("21");
 
@@ -58,6 +72,9 @@ class FTPDialog extends View
     @portEditor.getModel().onDidChange =>
       @refreshURL();
       @refreshError();
+
+    @folderEditor.getModel().onDidChange =>
+      @refreshURL();
 
     @usernameEditor.getModel().onDidChange =>
       if !@isAnonymousSelected()
@@ -102,6 +119,17 @@ class FTPDialog extends View
   isAnonymousSelected: ->
     return @anonymous.is(":checked");
 
+  getFolder: ->
+    folder = @folderEditor.getModel().getText().trim();
+
+    if (folder.length > 0)
+      if folder[0] != "/"
+        folder = "/"+folder;
+    else
+      folder = "/";
+
+    return folder;
+
   refreshURL: ->
     server = @serverEditor.getModel().getText().trim();
     port = @portEditor.getModel().getText().trim();
@@ -114,6 +142,7 @@ class FTPDialog extends View
       if (port != null) and (port != 21)
         url += ":" + port;
 
+    url += @getFolder();
     @url.text(url);
 
   refreshError: ->
@@ -155,6 +184,7 @@ class FTPDialog extends View
     config.protocol = "ftp";
     config.host = @serverEditor.getModel().getText().trim();
     config.port = @getPort();
+    config.folder = @getFolder();
 
     if @isAnonymousSelected()
       config.anonymous = true;
@@ -186,8 +216,7 @@ class FTPDialog extends View
 
     serverManager = @containerView.getMain().getServerManager();
     server = serverManager.addServer(@getFTPConfig());
-    directory = server.getFileSystem().getDirectory("/");
-
+    directory = server.getFileSystem().getDirectory(@getFolder());
     @containerView.openDirectory(directory);
 
   cancel: ->

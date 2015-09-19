@@ -168,6 +168,12 @@ class Actions
       @main.mainView.hideMenuBar();
       view = new ProjectListView(@, fromView);
 
+  viewRefresh: =>
+    view = @getFocusedView();
+
+    if (view != null)
+      view.refreshDirectory();
+
   viewMirror: =>
     @main.mainView.mirror();
 

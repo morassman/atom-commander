@@ -1,3 +1,4 @@
+urlUtil = require 'url'
 SSH2 = require 'ssh2'
 FTPFileSystem = require '../fs/ftp/ftp-filesystem'
 {View, TextEditorView} = require 'atom-space-pen-views'
@@ -27,6 +28,10 @@ class SFTPDialog extends View
             @td =>
               @subview "portEditor", new TextEditorView(mini: true)
           @tr =>
+            @td "Folder", {class: "text-highlight"}
+            @td =>
+              @subview "folderEditor", new TextEditorView(mini: true)
+          @tr =>
             @td "Username", {class: "text-highlight"}
             @td =>
               @subview "usernameEditor", new TextEditorView(mini: true)
@@ -35,15 +40,24 @@ class SFTPDialog extends View
             @td {class: "password"}, =>
               @subview "passwordEditor", new TextEditorView(mini: true)
       @div {class: "test-button-panel"}, =>
-        @button "Test", {class: "btn", click: "test"}
+        @button "Test", {class: "btn", click: "test", outlet: "testButton"}
       @div {class: "bottom-button-panel"}, =>
-        @button "Cancel", {class: "btn", click: "cancel"}
-        @button "OK", {class: "btn", click: "confirm"}
+        @button "Cancel", {class: "btn", click: "cancel", outlet: "cancelButton"}
+        @button "OK", {class: "btn", click: "confirm", outlet: "okButton"}
       @div =>
         @span {class: "loading loading-spinner-tiny inline-block", outlet: "spinner"}
         @span {class: "message", outlet: "message"}
 
   initialize: ->
+    @serverEditor.attr("tabindex", 1);
+    @portEditor.attr("tabindex", 2);
+    @folderEditor.attr("tabindex", 3);
+    @usernameEditor.attr("tabindex", 4);
+    @passwordEditor.attr("tabindex", 5);
+    @testButton.attr("tabindex", 6);
+    @okButton.attr("tabindex", 7);
+    @cancelButton.attr("tabindex", 8);
+
     @spinner.hide();
     @portEditor.getModel().setText("22");
 
@@ -52,6 +66,10 @@ class SFTPDialog extends View
       @refreshError();
 
     @portEditor.getModel().onDidChange =>
+      @refreshURL();
+      @refreshError();
+
+    @folderEditor.getModel().onDidChange =>
       @refreshURL();
       @refreshError();
 
@@ -82,7 +100,7 @@ class SFTPDialog extends View
     return port;
 
   refreshURL: ->
-    server = @serverEditor.getModel().getText().trim();
+    server = @getServer();
     port = @portEditor.getModel().getText().trim();
 
     url = "sftp://" + server;
@@ -93,6 +111,7 @@ class SFTPDialog extends View
       if (port != null) and (port != 22)
         url += ":" + port;
 
+    url += @getFolder();
     @url.text(url);
 
   refreshError: ->
@@ -137,6 +156,17 @@ class SFTPDialog extends View
   getServer: ->
     return @serverEditor.getModel().getText().trim();
 
+  getFolder: ->
+    folder = @folderEditor.getModel().getText().trim();
+
+    if (folder.length > 0)
+      if folder[0] != "/"
+        folder = "/"+folder;
+    else
+      folder = "/";
+
+    return folder;
+
   getUsername: ->
     return @username;
 
@@ -149,6 +179,7 @@ class SFTPDialog extends View
     config.protocol = "sftp";
     config.host = @getServer();
     config.port = @getPort();
+    config.folder = @getFolder();
     config.username = @username;
     config.password = @getPassword();
     config.tryKeyboard = true;
@@ -174,8 +205,7 @@ class SFTPDialog extends View
 
     serverManager = @containerView.getMain().getServerManager();
     server = serverManager.addServer(@getSFTPConfig());
-    directory = server.getFileSystem().getDirectory("/");
-
+    directory = server.getFileSystem().getDirectory(@getFolder());
     @containerView.openDirectory(directory);
 
   cancel: ->
