@@ -42,6 +42,12 @@ class FTPDialog extends View
             @td "Password", {class: "text-highlight"}
             @td {class: "password"}, =>
               @subview "passwordEditor", new TextEditorView(mini: true)
+          @tr =>
+            @td "Remember Password", {class: "text-highlight"}
+            @td =>
+              @span =>
+                @input {type: "checkbox", outlet: "storeCheckBox"}
+                @span "Passwords are encrypted", {class: "encrypted"}
       @div {class: "test-button-panel"}, =>
         @button "Test", {class: "btn", click: "test", outlet: "testButton"}
       @div {class: "bottom-button-panel"}, =>
@@ -58,12 +64,14 @@ class FTPDialog extends View
     @anonymous.attr("tabindex", 4);
     @usernameEditor.attr("tabindex", 5);
     @passwordEditor.attr("tabindex", 6);
-    @testButton.attr("tabindex", 7);
-    @okButton.attr("tabindex", 8);
-    @cancelButton.attr("tabindex", 9);
+    @storeCheckBox.attr("tabindex", 7);
+    @testButton.attr("tabindex", 8);
+    @okButton.attr("tabindex", 9);
+    @cancelButton.attr("tabindex", 10);
 
     @spinner.hide();
     @portEditor.getModel().setText("21");
+    @storeCheckBox.prop("checked", true);
 
     @serverEditor.getModel().onDidChange =>
       @refreshURL();
@@ -118,6 +126,9 @@ class FTPDialog extends View
 
   isAnonymousSelected: ->
     return @anonymous.is(":checked");
+
+  isStoreCheckBoxSelected: ->
+    return @storeCheckBox.is(":checked");
 
   getFolder: ->
     folder = @folderEditor.getModel().getText().trim();
@@ -185,15 +196,18 @@ class FTPDialog extends View
     config.host = @serverEditor.getModel().getText().trim();
     config.port = @getPort();
     config.folder = @getFolder();
+    config.passwordDecrypted = true;
 
     if @isAnonymousSelected()
       config.anonymous = true;
       config.user = "anonymous";
       config.password = "anonymous@";
+      config.storePassword = true;
     else
       config.anonymous = false;
       config.user = @username;
       config.password = @passwordEditor.getModel().getText().trim();
+      config.storePassword = @isStoreCheckBoxSelected();
 
     return config;
 
@@ -216,8 +230,7 @@ class FTPDialog extends View
 
     serverManager = @containerView.getMain().getServerManager();
     server = serverManager.addServer(@getFTPConfig());
-    directory = server.getFileSystem().getDirectory(@getFolder());
-    @containerView.openDirectory(directory);
+    @containerView.openDirectory(server.getInitialDirectory());
 
   cancel: ->
     @close();

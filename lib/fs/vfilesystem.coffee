@@ -30,6 +30,9 @@ class VFileSystem
   getPathFromURI: (uri) ->
     return uri;
 
+  getInitialDirectory: ->
+    return @getDirectory("/");
+
   isLocal: ->
 
   connect: ->

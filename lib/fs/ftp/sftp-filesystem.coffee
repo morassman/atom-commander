@@ -15,17 +15,31 @@ class SFTPFileSystem extends VFileSystem
     @connected = false;
     @client = null;
 
+    if @config.password? and !@config.passwordDecrypted?
+      @config.password = Utils.decrypt(@config.password, @getDescription());
+      @config.passwordDecrypted = true;
+
+    @clientConfig = @getClientConfig();
+
   isLocal: ->
     return false;
 
   connect: ->
+    if @clientConfig.password?
+      @connectWithPassword(@clientConfig.password);
+    else
+      Utils.promptForPassword "Enter password:", (password) =>
+        if password?
+          @connectWithPassword(password);
+
+  connectWithPassword: (password) ->
     @client = null;
     @ssh2 = new SSH2();
 
     @ssh2.on "ready", =>
       @ssh2.sftp (err, sftp) =>
         if err?
-          @setConnected(false);
+          @disconnect();
           return;
 
         @client = sftp;
@@ -33,27 +47,37 @@ class SFTPFileSystem extends VFileSystem
         @client.on "end", =>
           @disconnect();
 
+        # If the connection was successful then remember the password for
+        # the rest of the session.
+        @clientConfig.password = password;
         @setConnected(true);
 
     @ssh2.on "close", =>
-      @setConnected(false);
-      @client = null;
-      @ssh2 = null;
+      @disconnect();
 
     @ssh2.on "error", (err) =>
+      message = "Error connecting to "+@getDescription()+".";
+      if err.message?
+        message += "\n"+err.message;
+
+      atom.notifications.addWarning(message);
       console.log(err);
-      @client = null;
-      @ssh2 = null;
+      @disconnect();
 
     @ssh2.on "end", =>
-      @setConnected(false);
-      @client = null;
-      @ssh2 = null;
+      @disconnect();
 
     @ssh2.on "keyboard-interactive", (name, instructions, instructionsLang, prompt, finish) =>
-      finish([@config.password]);
+      finish([password]);
 
-    @ssh2.connect(@config);
+    connectConfig = {};
+
+    for key, val of @clientConfig
+      connectConfig[key] = val;
+
+    connectConfig.password = password;
+
+    @ssh2.connect(connectConfig);
 
   disconnect: ->
     if @client?
@@ -80,14 +104,40 @@ class SFTPFileSystem extends VFileSystem
     else
       @emitDisconnected();
 
+  getClientConfig: ->
+    result = {};
+
+    result.host = @config.host;
+    result.port = @config.port;
+    result.username = @config.username;
+    result.password = @config.password;
+    result.tryKeyboard = true;
+
+    return result;
+
   getSafeConfig: ->
-    return @config;
+    result = {};
+
+    for key, val of @config
+      result[key] = val;
+
+    if @config.storePassword
+      result.password = Utils.encrypt(result.password, @getDescription());
+    else
+      delete result.password;
+
+    delete result.passwordDecrypted;
+
+    return result;
 
   getFile: (path) ->
     return new FTPFile(@, false, path);
 
   getDirectory: (path) ->
     return new FTPDirectory(@, false, path);
+
+  getInitialDirectory: ->
+    return @getDirectory(@config.folder);
 
   getURI: (item) ->
     return @config.protocol+"://" + PathUtil.join(@config.host, item.path);
@@ -189,8 +239,7 @@ class SFTPFileSystem extends VFileSystem
         return new FTPDirectory(@, false, PathUtil.join(path, entry.filename));
     else if entry.attrs.isFile()
       if entry.attrs.isSymbolicLink()
-        console.log("Symbolic link!");
-        console.log(entry);
+        # TODO : Support symbolic links to files.
         # return new FTPFile(@, true, PathUtil.resolve(path, entry.target), entry.name);
       else
         return new FTPFile(@, false, PathUtil.join(path, entry.filename));

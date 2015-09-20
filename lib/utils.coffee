@@ -1,4 +1,6 @@
 PathUtil = require 'path'
+SimpleEncryptor = require 'simple-encryptor'
+PasswordDialog = require './dialogs/password-dialog'
 FileController = require './controllers/file-controller'
 
 module.exports =
@@ -28,3 +30,19 @@ class Actions
 
   @getServersPath: ->
     return PathUtil.join(fsp.getHomeDirectory(), ".atom-commander", "servers");
+
+  @promptForPassword: (prompt, callback) ->
+    dialog = new PasswordDialog(prompt, callback);
+    dialog.attach();
+
+  @encrypt: (text, key) ->
+    return SimpleEncryptor(@padKey(key)).encrypt(text);
+
+  @decrypt: (text, key) ->
+    return SimpleEncryptor(@padKey(key)).decrypt(text);
+
+  @padKey: (key) ->
+    while key.length < 16
+      key += key;
+
+    return key;

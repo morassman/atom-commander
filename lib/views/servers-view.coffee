@@ -48,8 +48,8 @@ class BookmarksView extends SelectListView
 
   confirmed: (item) ->
     if @open
-      @actions.goDirectory(item.server.getRootDirectory());
       @cancel();
+      @actions.goDirectory(item.server.getInitialDirectory());
     else
       if item.server.getOpenFileCount() == 0
         @serverManager.removeServer(item.server);

@@ -141,16 +141,18 @@ class Actions
     view = @getFocusedView();
 
     if (view != null)
-      view.openDirectory(file.getParent());
-      view.highlightIndexWithName(file.getBaseName());
+      snapShot = {};
+      snapShot.name = file.getBaseName();
+
       view.requestFocus();
+      view.openDirectory(file.getParent(), snapShot);
 
   goDirectory: (directory) =>
     view = @getFocusedView();
 
     if (view != null)
-      view.openDirectory(directory);
       view.requestFocus();
+      view.openDirectory(directory);
 
   goDrive: (fromView=true) =>
     @main.mainView.hideMenuBar();

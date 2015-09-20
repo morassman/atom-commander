@@ -38,6 +38,12 @@ class SFTPDialog extends View
             @td "Password", {class: "text-highlight"}
             @td {class: "password"}, =>
               @subview "passwordEditor", new TextEditorView(mini: true)
+          @tr =>
+            @td "Remember Password", {class: "text-highlight"}
+            @td =>
+              @span =>
+                @input {type: "checkbox", outlet: "storeCheckBox"}
+                @span "Passwords are encrypted", {class: "encrypted"}
       @div {class: "test-button-panel"}, =>
         @button "Test", {class: "btn", click: "test", outlet: "testButton"}
       @div {class: "bottom-button-panel"}, =>
@@ -53,12 +59,14 @@ class SFTPDialog extends View
     @folderEditor.attr("tabindex", 3);
     @usernameEditor.attr("tabindex", 4);
     @passwordEditor.attr("tabindex", 5);
-    @testButton.attr("tabindex", 6);
-    @okButton.attr("tabindex", 7);
-    @cancelButton.attr("tabindex", 8);
+    @storeCheckBox.attr("tabindex", 6);
+    @testButton.attr("tabindex", 7);
+    @okButton.attr("tabindex", 8);
+    @cancelButton.attr("tabindex", 9);
 
     @spinner.hide();
     @portEditor.getModel().setText("22");
+    @storeCheckBox.prop("checked", true);
 
     @serverEditor.getModel().onDidChange =>
       @refreshURL();
@@ -172,6 +180,9 @@ class SFTPDialog extends View
   getPassword: ->
     return @passwordEditor.getModel().getText().trim();
 
+  isStoreCheckBoxSelected: ->
+    return @storeCheckBox.is(":checked");
+
   getSFTPConfig: ->
     config = {};
 
@@ -181,7 +192,8 @@ class SFTPDialog extends View
     config.folder = @getFolder();
     config.username = @username;
     config.password = @getPassword();
-    config.tryKeyboard = true;
+    config.passwordDecrypted = true;
+    config.storePassword = @isStoreCheckBoxSelected();
 
     return config;
 
@@ -204,8 +216,7 @@ class SFTPDialog extends View
 
     serverManager = @containerView.getMain().getServerManager();
     server = serverManager.addServer(@getSFTPConfig());
-    directory = server.getFileSystem().getDirectory(@getFolder());
-    @containerView.openDirectory(directory);
+    @containerView.openDirectory(server.getInitialDirectory());
 
   cancel: ->
     @close();
@@ -219,6 +230,7 @@ class SFTPDialog extends View
 
     @ssh2 = new SSH2();
     config = @getSFTPConfig();
+    config.tryKeyboard = true;
 
     @ssh2.on "ready", =>
       @ssh2.sftp (err, sftp) =>

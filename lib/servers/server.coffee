@@ -15,7 +15,7 @@ class Server
     @remoteFileManager = new RemoteFileManager(@);
 
   serialize: ->
-    return @config;
+    return @fileSystem.getSafeConfig();
 
   getLocalDirectoryPath: ->
     return PathUtil.join(@getServersPath(), @localDirectoryName);
@@ -47,6 +47,9 @@ class Server
 
   getRootDirectory: ->
     return @fileSystem.getDirectory("/");
+
+  getInitialDirectory: ->
+    return @fileSystem.getInitialDirectory();
 
   deleteLocalDirectory: ->
     fse.removeSync(@getLocalDirectoryPath());

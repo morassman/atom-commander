@@ -12,26 +12,54 @@ class FTPFileSystem extends VFileSystem
   constructor: (@server, @config) ->
     super();
     @connected = false;
+    @client = null;
+
+    if @config.password? and !@config.passwordDecrypted?
+      @config.password = Utils.decrypt(@config.password, @getDescription());
+      @config.passwordDecrypted = true;
+
+    @clientConfig = @getClientConfig();
 
   isLocal: ->
     return false;
 
   connect: ->
+    if @clientConfig.password?
+      @connectWithPassword(@clientConfig.password);
+    else
+      Utils.promptForPassword "Enter password:", (password) =>
+        if password?
+          @connectWithPassword(password);
+
+  connectWithPassword: (password) ->
     @client = new FTPClient();
 
     @client.on "ready", =>
+      @clientConfig.password = password;
       @setConnected(true);
 
     @client.on "close", =>
       @setConnected(false);
 
     @client.on "error", (err) =>
+      message = "Error connecting to "+@getDescription()+".";
+      if err.message?
+        message += "\n"+err.message;
+
+      atom.notifications.addWarning(message);
       console.log(err);
 
     @client.on "end", =>
       @setConnected(false);
 
-    @client.connect(@config);
+    connectConfig = {};
+
+    for key, val of @clientConfig
+      connectConfig[key] = val;
+
+    connectConfig.password = password;
+
+    @client.connect(connectConfig);
 
   disconnect: ->
     if @isConnected()
@@ -53,11 +81,36 @@ class FTPFileSystem extends VFileSystem
     else
       @emitDisconnected();
 
+  getClientConfig: ->
+    result = {};
+
+    result.host = @config.host;
+    result.port = @config.port;
+    result.user = @config.user;
+    result.password = @config.password;
+
+    return result;
+
   getSafeConfig: ->
-    return @config;
+    result = {};
+
+    for key, val of @config
+      result[key] = val;
+
+    if @config.storePassword
+      result.password = Utils.encrypt(result.password, @getDescription());
+    else
+      delete result.password;
+
+    delete result.passwordDecrypted;
+
+    return result;
 
   getDirectory: (path) ->
     return new FTPDirectory(@, false, path);
+
+  getInitialDirectory: ->
+    return @getDirectory(@config.folder);
 
   getURI: (item) ->
     return @config.protocol+"://" + PathUtil.join(@config.host, item.path);
