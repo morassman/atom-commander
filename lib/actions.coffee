@@ -8,8 +8,7 @@ ProjectListView = require './views/project-list-view'
 ServersView = require './views/servers-view'
 AddBookmarkDialog = require './dialogs/add-bookmark-dialog'
 SelectDialog = require './dialogs/select-dialog'
-FTPDialog = require './dialogs/ftp-dialog'
-SFTPDialog = require './dialogs/sftp-dialog'
+NewServerDialog = require './dialogs/new-server-dialog'
 {File, Directory, TextEditor} = require 'atom'
 fsp = require 'fs-plus'
 
@@ -275,25 +274,25 @@ class Actions
     @main.mainView.hideMenuBar();
     view = new BookmarksView(@, true, fromView);
 
-  serversAddFTP: =>
+  serversAdd: =>
     view = @getFocusedView();
 
     if view == null
       return;
 
     @main.mainView.hideMenuBar();
-    dialog = new FTPDialog(view);
+    dialog = new NewServerDialog(view);
     dialog.attach();
 
-  serversAddSFTP: =>
-    view = @getFocusedView();
-
-    if view == null
-      return;
-
-    @main.mainView.hideMenuBar();
-    dialog = new SFTPDialog(view);
-    dialog.attach();
+  # serversAddSFTP: =>
+  #   view = @getFocusedView();
+  #
+  #   if view == null
+  #     return;
+  #
+  #   @main.mainView.hideMenuBar();
+  #   dialog = new SFTPDialog(view);
+  #   dialog.attach();
 
   serversRemove: (fromView=true) =>
     @main.mainView.hideMenuBar();

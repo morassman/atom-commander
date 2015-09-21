@@ -5,14 +5,16 @@ FTPFileSystem = require '../fs/ftp/ftp-filesystem'
 module.exports =
 class SFTPDialog extends View
 
-  constructor: (@containerView) ->
+  constructor: () ->
     super();
     @username = "";
     @ssh2 = null;
 
+  setParentDialog: (@parentDialog) ->
+
   @content: ->
     @div class: "atom-commander-ftp-dialog", =>
-      @div "New SFTP Connection", {class: "heading"}
+      # @div "New SFTP Connection", {class: "heading"}
       @table =>
         @tbody =>
           @tr =>
@@ -197,29 +199,28 @@ class SFTPDialog extends View
 
     return config;
 
-  attach: ->
-    @panel = atom.workspace.addModalPanel(item: this.element);
+  selected: ->
     @serverEditor.focus();
-    @serverEditor.getModel().scrollToCursorPosition();
+  # attach: ->
+  #   @panel = atom.workspace.addModalPanel(item: this.element);
+  #   @serverEditor.focus();
+  #   @serverEditor.getModel().scrollToCursorPosition();
 
   close: ->
-    panelToDestroy = @panel;
-    @panel = null;
-    panelToDestroy?.destroy();
-    @containerView.requestFocus();
+    @parentDialog.close();
+    # panelToDestroy = @panel;
+    # @panel = null;
+    # panelToDestroy?.destroy();
+    # @containerView.requestFocus();
 
   confirm: ->
     if @hasError()
       return;
 
-    @close();
-
-    serverManager = @containerView.getMain().getServerManager();
-    server = serverManager.addServer(@getSFTPConfig());
-    @containerView.openDirectory(server.getInitialDirectory());
+    @parentDialog.addServer(@getSFTPConfig());
 
   cancel: ->
-    @close();
+    @parentDialog.close();
 
   hasError: ->
     return @messageType == 2;

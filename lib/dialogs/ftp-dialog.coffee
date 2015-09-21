@@ -5,14 +5,16 @@ FTPFileSystem = require '../fs/ftp/ftp-filesystem'
 module.exports =
 class FTPDialog extends View
 
-  constructor: (@containerView) ->
+  constructor: ->
     super();
     @username = "";
     @client = null;
 
+  setParentDialog: (@parentDialog) ->
+
   @content: ->
     @div class: "atom-commander-ftp-dialog", =>
-      @div "New FTP Connection", {class: "heading"}
+      # @div "New FTP Connection", {class: "heading"}
       @table =>
         @tbody =>
           @tr =>
@@ -211,29 +213,29 @@ class FTPDialog extends View
 
     return config;
 
-  attach: ->
-    @panel = atom.workspace.addModalPanel(item: this.element);
+  selected: ->
     @serverEditor.focus();
-    @serverEditor.getModel().scrollToCursorPosition();
+
+  # attach: ->
+  #   @panel = atom.workspace.addModalPanel(item: this.element);
+  #   @serverEditor.focus();
+  #   @serverEditor.getModel().scrollToCursorPosition();
 
   close: ->
-    panelToDestroy = @panel;
-    @panel = null;
-    panelToDestroy?.destroy();
-    @containerView.requestFocus();
+    @parentDialog.close();
+    # panelToDestroy = @panel;
+    # @panel = null;
+    # panelToDestroy?.destroy();
+    # @containerView.requestFocus();
 
   confirm: ->
     if @hasError()
       return;
 
-    @close();
-
-    serverManager = @containerView.getMain().getServerManager();
-    server = serverManager.addServer(@getFTPConfig());
-    @containerView.openDirectory(server.getInitialDirectory());
+    @parentDialog.addServer(@getFTPConfig());
 
   cancel: ->
-    @close();
+    @parentDialog.close();
 
   hasError: ->
     return @messageType == 2;

@@ -236,7 +236,7 @@ class SFTPFileSystem extends VFileSystem
       return new FTPDirectory(@, false, PathUtil.join(path, entry.filename));
     else if entry.attrs.isFile()
       return new FTPFile(@, false, PathUtil.join(path, entry.filename));
-    else if entry.attrs.isSymbolicLink()
+    # else if entry.attrs.isSymbolicLink()
       # TODO : Support symbolic links.
 
     return null;
