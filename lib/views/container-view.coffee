@@ -6,7 +6,6 @@ Scheduler = require 'nschedule';
 {CompositeDisposable, Directory} = require 'atom'
 FileController = require '../controllers/file-controller'
 DirectoryController = require '../controllers/directory-controller'
-LocalFileSystem = require '../fs/local/local-filesystem'
 VFile = require '../fs/vfile'
 
 module.exports =
@@ -23,7 +22,6 @@ class ContainerView extends View
     @showSpinnerCount = 0;
     @scheduler = new Scheduler(1);
     @disposables = new CompositeDisposable();
-    @localFileSystem = new LocalFileSystem();
 
     @directoryEditor.addClass('directory-editor');
 
@@ -35,6 +33,7 @@ class ContainerView extends View
       'core:cancel': => @directoryEditorCancel()
 
   setMainView: (@mainView) ->
+    @localFileSystem = @mainView.getMain().getLocalFileSystem();
 
   getMainView: ->
     return @mainView;

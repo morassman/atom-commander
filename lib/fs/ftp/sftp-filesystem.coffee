@@ -191,7 +191,7 @@ class SFTPFileSystem extends VFileSystem
         callback(null);
 
   getLocalDirectoryName: ->
-    return @config.host + "_" + @config.port + "_" + @config.username;
+    return @config.protocol+"_"+@config.host+"_"+@config.port+"_"+@config.username;
 
   download: (path, localPath, callback) ->
     @client.fastGet(path, localPath, {}, callback);
@@ -233,16 +233,11 @@ class SFTPFileSystem extends VFileSystem
 
   wrapEntry: (path, entry) ->
     if entry.attrs.isDirectory()
-      if entry.attrs.isSymbolicLink()
-        return new FTPDirectory(@, true, PathUtil.join(path, entry.filename));
-      else
-        return new FTPDirectory(@, false, PathUtil.join(path, entry.filename));
+      return new FTPDirectory(@, false, PathUtil.join(path, entry.filename));
     else if entry.attrs.isFile()
-      if entry.attrs.isSymbolicLink()
-        # TODO : Support symbolic links to files.
-        # return new FTPFile(@, true, PathUtil.resolve(path, entry.target), entry.name);
-      else
-        return new FTPFile(@, false, PathUtil.join(path, entry.filename));
+      return new FTPFile(@, false, PathUtil.join(path, entry.filename));
+    else if entry.attrs.isSymbolicLink()
+      # TODO : Support symbolic links.
 
     return null;
 

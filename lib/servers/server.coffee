@@ -3,7 +3,6 @@ fse = require 'fs-extra'
 PathUtil = require 'path'
 FTPFileSystem = require '../fs/ftp/ftp-filesystem'
 SFTPFileSystem = require '../fs/ftp/sftp-filesystem'
-LocalFileSystem = require '../fs/local/local-filesystem'
 RemoteFileManager = require './remote-file-manager'
 
 module.exports =
@@ -39,7 +38,7 @@ class Server
     else if @config.protocol == "sftp"
       return new SFTPFileSystem(@, @config);
 
-    return new LocalFileSystem();
+    return @main.getLocalFileSystem();
 
   # Return a string that will be used when selecting a server from a list.
   getDescription: ->

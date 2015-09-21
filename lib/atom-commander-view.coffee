@@ -37,7 +37,7 @@ class AtomCommanderView extends View
 
     @div {class: 'atom-commander atom-commander-resizer'}, =>
       @div class: 'atom-commander-resize-handle', outlet: 'resizeHandle'
-      @subview 'menuBar', new MenuBarView(@);
+      @subview 'menuBar', new MenuBarView();
       @div {class: 'content'}, =>
         @subview 'leftView', new ListView(true)
         @subview 'rightView', new ListView(false)

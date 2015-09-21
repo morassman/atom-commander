@@ -4,6 +4,7 @@ ListView = require './views/list-view'
 DiffView = require './views/diff/diff-view'
 AtomCommanderView = require './atom-commander-view'
 ServerManager = require './servers/server-manager'
+LocalFileSystem = require './fs/local/local-filesystem'
 {CompositeDisposable, File, Directory} = require 'atom'
 
 module.exports = AtomCommander =
@@ -15,6 +16,7 @@ module.exports = AtomCommander =
     @loadState();
     @bookmarks = [];
 
+    @localFileSystem = new LocalFileSystem();
     @actions = new Actions(@);
     @serverManager = new ServerManager(@, @state.servers);
     @mainView = new AtomCommanderView(@, @state);
@@ -45,7 +47,6 @@ module.exports = AtomCommander =
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:go-root': => @actions.goRoot();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:go-home': => @actions.goHome();
 
-
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:add-bookmark': => @actions.bookmarksAdd(false);
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:remove-bookmark': => @actions.bookmarksRemove(false);
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:open-bookmark': => @actions.bookmarksOpen(false);
@@ -59,6 +60,9 @@ module.exports = AtomCommander =
 
     if @state.bookmarks?
       @bookmarks = @state.bookmarks;
+
+  getLocalFileSystem: ->
+    return @localFileSystem;
 
   getServerManager: ->
     return @serverManager;
