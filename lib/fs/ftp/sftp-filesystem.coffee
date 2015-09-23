@@ -136,6 +136,12 @@ class SFTPFileSystem extends VFileSystem
   getDirectory: (path) ->
     return new FTPDirectory(@, false, path);
 
+  getItemWithPathDescription: (pathDescription) ->
+    if pathDescription.isFile
+      return new FTPFile(@, pathDescription.isLink, pathDescription.path, pathDescription.name);
+
+    return new FTPDirectory(@, pathDescription.isLink, pathDescription.path);
+
   getInitialDirectory: ->
     return @getDirectory(@config.folder);
 
@@ -189,6 +195,9 @@ class SFTPFileSystem extends VFileSystem
         callback(err.message);
       else
         callback(null);
+
+  getID: ->
+    return @getLocalDirectoryName();
 
   getLocalDirectoryName: ->
     return @config.protocol+"_"+@config.host+"_"+@config.port+"_"+@config.username;

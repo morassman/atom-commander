@@ -20,14 +20,16 @@ class BookmarksView extends SelectListView
   refreshItems: ->
     items = [];
 
-    for bookmark in @actions.main.bookmarks
+    bookmarkManager = @actions.main.getBookmarkManager();
+
+    for bookmark in bookmarkManager.bookmarks
       item = {};
       item.bookmark = bookmark;
 
-      if bookmark[0].length == 0
-        item.text = bookmark[1];
+      if bookmark.name.length == 0
+        item.text = bookmark.pathDescription.uri;
       else
-        item.text = bookmark[0]+": "+bookmark[1];
+        item.text = bookmark.name+": "+bookmark.pathDescription.uri;
 
       items.push(item);
 
@@ -37,23 +39,23 @@ class BookmarksView extends SelectListView
     return "text";
 
   viewForItem: (item) ->
-    if item.bookmark[0].length == 0
+    if item.bookmark.name.length == 0
       return "<li>#{item.text}</li>";
 
     return """
     <li class='two-lines'>
-    <div class='primary-line'>#{item.bookmark[0]}</div>
-    <div class='secondary-line'>#{item.bookmark[1]}</div>
+    <div class='primary-line'>#{item.bookmark.name}</div>
+    <div class='secondary-line'>#{item.bookmark.pathDescription.uri}</div>
     </li>"""
 
-    return "<li><span class='badge badge-info'>#{item.bookmark[0]}</span> #{item.bookmark[1]}</li>";
+    # return "<li><span class='badge badge-info'>#{item.bookmark.name}</span> #{item.bookmark.path}</li>";
 
   confirmed: (item) ->
     if @open
-      @actions.goPath(item.bookmark[1], true);
+      @actions.goBookmark(item.bookmark);
       @cancel();
     else
-      @actions.main.removeBookmark(item.bookmark);
+      @actions.main.getBookmarkManager().removeBookmark(item.bookmark);
       @refreshItems();
 
   cancelled: ->

@@ -23,12 +23,6 @@ class NewServerDialog extends View
         @subview "ftpDialog", new FTPDialog()
         @subview "sftpDialog", new SFTPDialog()
 
-  addServer: (config) ->
-    @close();
-    serverManager = @containerView.getMain().getServerManager();
-    server = serverManager.addServer(config);
-    @containerView.openDirectory(server.getInitialDirectory());
-
   ftpClicked: ->
     @setSelected(@ftpButton, @ftpDialog);
 
@@ -48,24 +42,15 @@ class NewServerDialog extends View
   attach: ->
     @panel = atom.workspace.addModalPanel(item: this.element);
     @currentDialog.selected();
-    # @serverEditor.focus();
-    # @serverEditor.getModel().scrollToCursorPosition();
+
+  addServer: (config) ->
+    @close();
+    serverManager = @containerView.getMain().getServerManager();
+    server = serverManager.addServer(config);
+    @containerView.openDirectory(server.getInitialDirectory());
 
   close: ->
     panelToDestroy = @panel;
     @panel = null;
     panelToDestroy?.destroy();
     @containerView.requestFocus();
-
-  confirm: ->
-    # if @hasError()
-    #   return;
-
-    @close();
-
-    # serverManager = @containerView.getMain().getServerManager();
-    # server = serverManager.addServer(@getFTPConfig());
-    # @containerView.openDirectory(server.getInitialDirectory());
-
-  cancel: ->
-    @close();

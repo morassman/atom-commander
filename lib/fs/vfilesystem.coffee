@@ -45,7 +45,12 @@ class VFileSystem
 
   getDirectory: (path) ->
 
+  getItemWithPathDescription: (pathDescription) ->
+
   getURI: (item) ->
+
+  # Returns an string that uniquely IDs this file system.
+  getID: ->
 
   # Callback receives a single string argument with error message. null if no error.
   rename: (oldPath, newPath, callback) ->

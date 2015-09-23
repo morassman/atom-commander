@@ -39,6 +39,15 @@ class ServerManager
 
     return null;
 
+  getFileSystemWithID: (fileSystemId) ->
+    for server in @servers
+      fileSystem = server.getFileSystem();
+
+      if fileSystem.getID() == fileSystemId
+        return fileSystem;
+
+    return null;
+
   serialize: ->
     state = [];
 

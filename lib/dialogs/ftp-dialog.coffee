@@ -47,9 +47,10 @@ class FTPDialog extends View
           @tr =>
             @td "Remember Password", {class: "text-highlight"}
             @td =>
-              @span =>
-                @input {type: "checkbox", outlet: "storeCheckBox"}
-                @span "Passwords are encrypted", {class: "encrypted"}
+              @input {type: "checkbox", outlet: "storeCheckBox"}
+          @tr =>
+            @td =>
+              @span "Passwords are encrypted", {class: "encrypted"}
       @div {class: "test-button-panel"}, =>
         @button "Test", {class: "btn", click: "test", outlet: "testButton"}
       @div {class: "bottom-button-panel"}, =>

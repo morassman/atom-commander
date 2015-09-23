@@ -169,6 +169,20 @@ class Actions
       @main.mainView.hideMenuBar();
       view = new ProjectListView(@, fromView);
 
+  goBookmark: (bookmark) =>
+    fileSystem = @main.getFileSystemWithID(bookmark.pathDescription.fileSystemId);
+
+    if fileSystem == null
+      return;
+
+    item = fileSystem.getItemWithPathDescription(bookmark.pathDescription);
+
+    if item.isFile()
+      @goFile(item);
+      item.open();
+    else
+      @goDirectory(item);
+
   viewRefresh: =>
     view = @getFocusedView();
 
@@ -240,8 +254,8 @@ class Actions
 
     if editor instanceof TextEditor
       if editor.getPath()?
-        file = new File(editor.getPath());
-        dialog = new AddBookmarkDialog(@main, file.getBaseName(), file.getPath(), false);
+        file = @main.getLocalFileSystem().getFile(editor.getPath());
+        dialog = new AddBookmarkDialog(@main, file.getBaseName(), file, false);
         dialog.attach();
 
   bookmarksAdd: (fromView=true) =>
@@ -250,20 +264,18 @@ class Actions
     if (view == null)
       return;
 
-    item = view.getHighlightedItem();
+    itemView = view.getHighlightedItem();
 
-    if (item == null)
+    if (itemView == null)
       return;
 
-    if item.isSelectable()
-      name = item.getName();
-      path = item.getPath();
-    else
-      name = view.directory.getBaseName();
-      path = view.directory.getRealPathSync();
+    item = itemView.getItem();
+
+    if !itemView.isSelectable()
+      item = view.directory;
 
     @main.mainView.hideMenuBar();
-    dialog = new AddBookmarkDialog(@main, name, path, fromView);
+    dialog = new AddBookmarkDialog(@main, item.getBaseName(), item, fromView);
     dialog.attach();
 
   bookmarksRemove: (fromView=true) =>

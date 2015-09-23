@@ -18,6 +18,19 @@ class VItem
     else if @isDirectory()
       @fileSystem.deleteDirectory(@getPath(), callback);
 
+  getPathDescription: ->
+    result = {};
+
+    result.isLink = @isLink();
+    result.isFile = @isFile();
+    result.path = @getPath();
+    result.name = @getBaseName();
+    result.isLocal = @fileSystem.isLocal();
+    result.fileSystemId = @fileSystem.getID();
+    result.uri = @getURI();
+
+    return result;
+
   isFile: ->
 
   isDirectory: ->

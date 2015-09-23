@@ -3,6 +3,7 @@ Actions = require './actions'
 ListView = require './views/list-view'
 DiffView = require './views/diff/diff-view'
 AtomCommanderView = require './atom-commander-view'
+BookmarkManager = require './bookmark-manager'
 ServerManager = require './servers/server-manager'
 LocalFileSystem = require './fs/local/local-filesystem'
 {CompositeDisposable, File, Directory} = require 'atom'
@@ -18,6 +19,7 @@ module.exports = AtomCommander =
 
     @localFileSystem = new LocalFileSystem();
     @actions = new Actions(@);
+    @bookmarkManager = new BookmarkManager(@, @state.bookmarks);
     @serverManager = new ServerManager(@, @state.servers);
     @mainView = new AtomCommanderView(@, @state);
     @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false);
@@ -58,11 +60,11 @@ module.exports = AtomCommander =
     if @state.visible
       @bottomPanel.show();
 
-    if @state.bookmarks?
-      @bookmarks = @state.bookmarks;
-
   getLocalFileSystem: ->
     return @localFileSystem;
+
+  getBookmarkManager: ->
+    return @bookmarkManager;
 
   getServerManager: ->
     return @serverManager;
@@ -110,7 +112,7 @@ module.exports = AtomCommander =
     if @mainView != null
       state = @mainView.serialize();
       state.visible = @bottomPanel.isVisible();
-      state.bookmarks = @bookmarks;
+      state.bookmarks = @bookmarkManager.serialize();
       state.servers = @serverManager.serialize();
       return state;
 
@@ -142,17 +144,12 @@ module.exports = AtomCommander =
       @mainView.refocusLastView();
       @saveState();
 
-  addBookmark: (name, path) ->
-    @bookmarks.push([name, path]);
-    @saveState();
-
-  removeBookmark: (bookmark) ->
-    index = @bookmarks.indexOf(bookmark);
-
-    if (index >= 0)
-      @bookmarks.splice(index, 1);
-
-    @saveState();
-
   fileSystemRemoved: (fileSystem) ->
+    @bookmarkManager.fileSystemRemoved(fileSystem);
     @mainView.fileSystemRemoved(fileSystem);
+
+  getFileSystemWithID: (fileSystemId) ->
+    if @localFileSystem.getID() == fileSystemId
+      return @localFileSystem;
+
+    return @serverManager.getFileSystemWithID(fileSystemId);

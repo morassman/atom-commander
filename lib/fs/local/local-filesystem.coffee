@@ -26,8 +26,17 @@ class LocalFileSystem extends VFileSystem
   getDirectory: (path) ->
     return new LocalDirectory(@, new Directory(path));
 
+  getItemWithPathDescription: (pathDescription) ->
+    if pathDescription.isFile
+      return @getFile(pathDescription.path);
+
+    return @getDirectory(pathDescription.path);
+
   getURI: (item) ->
     return item.getRealPathSync();
+
+  getID: ->
+    return "local";
 
   rename: (oldPath, newPath, callback) ->
     fsp.moveSync(oldPath, newPath);
