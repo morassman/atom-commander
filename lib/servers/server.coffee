@@ -19,6 +19,9 @@ class Server
   getLocalDirectoryPath: ->
     return PathUtil.join(@getServersPath(), @localDirectoryName);
 
+  getCachePath: ->
+    return PathUtil.join(@getLocalDirectoryPath(), "cache");
+
   getLocalDirectoryName: ->
     return @localDirectoryName;
 
@@ -61,3 +64,15 @@ class Server
 
   getServersPath: ->
     return PathUtil.join(fsp.getHomeDirectory(), ".atom-commander", "servers");
+
+  getCachedFilePaths: ->
+    result = [];
+
+    onFile = (filePath) =>
+      result.push(filePath)
+    onDirectory = (directoryPath) =>
+      return true;
+
+    fsp.traverseTreeSync(@getCachePath(), onFile, onDirectory);
+
+    return result;

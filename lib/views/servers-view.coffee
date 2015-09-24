@@ -1,10 +1,11 @@
+SyncView = require './sync/sync-view'
 {Directory} = require 'atom'
 {SelectListView} = require 'atom-space-pen-views'
 
 module.exports =
 class BookmarksView extends SelectListView
 
-  constructor: (@actions, @open, @fromView) ->
+  constructor: (@actions, @mode, @fromView) ->
     super();
 
   initialize: ->
@@ -35,30 +36,37 @@ class BookmarksView extends SelectListView
 
   viewForItem: (item) ->
     return "<li>#{item.text}</li>";
-    # if item.bookmark[0].length == 0
-    #   return "<li>#{item.text}</li>";
-    #
-    # return """
-    # <li class='two-lines'>
-    # <div class='primary-line'>#{item.bookmark[0]}</div>
-    # <div class='secondary-line'>#{item.bookmark[1]}</div>
-    # </li>"""
-    #
-    # return "<li><span class='badge badge-info'>#{item.bookmark[0]}</span> #{item.bookmark[1]}</li>";
 
   confirmed: (item) ->
-    if @open
-      @cancel();
-      @actions.goDirectory(item.server.getInitialDirectory());
-    else
-      if item.server.getOpenFileCount() == 0
-        @serverManager.removeServer(item.server);
-        if @serverManager.getServerCount() == 0
-          @cancel();
-        else
-          @refreshItems();
+    if @mode == "open"
+      @confirmOpen(item);
+    else if @mode == "remove"
+      @confirmRemove(item);
+    else if @mode == "sync"
+      @confirmSync(item);
+
+  confirmOpen: (item) ->
+    @cancel();
+    @actions.goDirectory(item.server.getInitialDirectory());
+
+  confirmRemove: (item) ->
+    if item.server.getOpenFileCount() == 0
+      @serverManager.removeServer(item.server);
+      if @serverManager.getServerCount() == 0
+        @cancel();
       else
-        atom.notifications.addWarning("A server cannot be removed while its files are being edited.");
+        @refreshItems();
+    else
+      atom.notifications.addWarning("A server cannot be removed while its files are being edited.");
+
+  confirmSync: (item) ->
+    @cancel();
+
+    view = new SyncView(item.server);
+
+    pane = atom.workspace.getActivePane()
+    item = pane.addItem(view, 0)
+    pane.activateItem(item);
 
   cancelled: ->
     @hide();

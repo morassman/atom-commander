@@ -10,8 +10,7 @@ class RemoteFileManager
     @watchers = [];
 
   openFile: (file) ->
-    serverPath = @server.getLocalDirectoryPath();
-    cachePath = PathUtil.join(serverPath, "cache");
+    cachePath = @server.getCachePath();
     localFilePath = PathUtil.join(cachePath, file.getPath());
 
     pane = atom.workspace.paneForURI(localFilePath);

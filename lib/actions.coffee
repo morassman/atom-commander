@@ -296,20 +296,14 @@ class Actions
     dialog = new NewServerDialog(view);
     dialog.attach();
 
-  # serversAddSFTP: =>
-  #   view = @getFocusedView();
-  #
-  #   if view == null
-  #     return;
-  #
-  #   @main.mainView.hideMenuBar();
-  #   dialog = new SFTPDialog(view);
-  #   dialog.attach();
-
   serversRemove: (fromView=true) =>
     @main.mainView.hideMenuBar();
-    view = new ServersView(@, false, fromView);
+    view = new ServersView(@, "remove", fromView);
 
   serversOpen: (fromView=true) =>
     @main.mainView.hideMenuBar();
-    view = new ServersView(@, true, fromView);
+    view = new ServersView(@, "open", fromView);
+
+  serversSync: (fromView=true) =>
+    @main.mainView.hideMenuBar();
+    view = new ServersView(@, "sync", fromView);

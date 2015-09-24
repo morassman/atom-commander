@@ -50,7 +50,7 @@ class DiffView extends View
     # @disposables.add(@leftFile.onDidChange(@readFiles));
     # @disposables.add(@rightFile.onDidChange(@readFiles));
     # @disposables.add(@leftFile.onDidRename(@refreshFileNames));
-    # @disposables.add(@rightFile.onDidRename(@refreshFileNames));    
+    # @disposables.add(@rightFile.onDidRename(@refreshFileNames));
 
   resetSelections: ->
     if @selection == null
@@ -156,13 +156,13 @@ class DiffView extends View
 
     @leftFile.read(true).then (content) =>
       @leftContent = content;
-      @fileRead(true);
+      @fileRead();
 
     @rightFile.read(true).then (content) =>
       @rightContent = content;
-      @fileRead(false);
+      @fileRead();
 
-  fileRead: (left) =>
+  fileRead: =>
     if (@leftContent == null) or (@rightContent == null)
       return;
 
