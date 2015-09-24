@@ -1,6 +1,6 @@
 PathUtil = require 'path'
 SyncItemView = require './sync-item-view'
-{View} = require 'atom-space-pen-views'
+{$, View} = require 'atom-space-pen-views'
 
 module.exports =
 class SyncView extends View
@@ -10,29 +10,114 @@ class SyncView extends View
 
   @content: ->
     @div {class: "atom-commander-sync"}, =>
-      @table =>
-        @tbody {outlet: "tableBody", tabindex: -1}
+      @div {class: "title-panel"}, =>
+        @span {class: "title", outlet: "titlePanel"}
+        @button "Refresh", {class: "button btn btn-sm", outlet: "refreshButton", click: "refresh"}
+      @div {class: "table-panel"}, =>
+        @table =>
+          @tbody {outlet: "tableBody", tabindex: -1}
+      @div {class: "empty-panel", outlet: "emptyPanel"}, =>
+        @ul {class: "background-message centered"}, =>
+          @li "The cache is empty"
 
   getTitle: ->
     return "Sync: "+@server.getDescription();
+
+  getLocalFileSystem: ->
+    return @server.getMain().getLocalFileSystem();
 
   getFileSystem: ->
     return @server.getFileSystem();
 
   initialize: ->
-    cachePath = @server.getCachePath();
-    filePaths = @server.getCachedFilePaths();
+    @syncItems = [];
+    @titlePanel.text("Local cache for "+@server.getDescription());
 
-    header = new SyncItemView();
-    header.initializeHeader(@);
-    @tableBody[0].appendChild(header);
+    @refreshButton.on 'mousedown', (e) -> e.preventDefault();
 
-    for filePath in filePaths
-      item = new SyncItemView();
-      item.initializeRow(@, filePath, filePath.substring(cachePath.length));
-      @tableBody[0].appendChild(item);
+    @header = new SyncItemView();
+    @header.initializeHeader(@);
+    @jHeader = $(@header);
+    @jHeader.addClass("table-header");
+    @tableBody[0].appendChild(@header);
 
     fileSystem = @server.getFileSystem();
 
     if !fileSystem.isConnected()
       fileSystem.connect();
+
+    @refresh();
+
+  refresh: ->
+    for syncItem in @syncItems
+      syncItem.remove();
+
+    @header.setChecked(false);
+
+    @syncItems = [];
+    cachePath = @server.getCachePath();
+    filePaths = @server.getCachedFilePaths();
+
+    for filePath in filePaths
+      item = new SyncItemView();
+      item.initializeRow(@, filePath, filePath.substring(cachePath.length));
+      @syncItems.push(item);
+      @tableBody[0].appendChild(item);
+
+    @refreshEmptyPanel();
+
+  setAllChecked: (checked) ->
+    for syncItem in @syncItems
+      syncItem.setChecked(checked);
+
+  countChecked: ->
+    result = 0;
+
+    for syncItem in @syncItems
+      if syncItem.isChecked()
+        result++;
+
+    return result;
+
+  uploadChecked: ->
+    for syncItem in @syncItems
+      if syncItem.isChecked()
+        syncItem.upload();
+
+  downloadChecked: ->
+    for syncItem in @syncItems
+      if syncItem.isChecked()
+        syncItem.download();
+
+  deleteChecked: ->
+    if @countChecked() == 0
+      return;
+
+    option = atom.confirm
+      message: 'Delete'
+      detailedMessage: 'Delete the selected files from the cache?'
+      buttons: ["No", "Yes"]
+
+    if option == 0
+      return;
+
+    for syncItem in @syncItems.slice()
+      if syncItem.isChecked()
+        syncItem.delete();
+
+  removeItem: (item) ->
+    item.remove();
+    index = @syncItems.indexOf(item);
+
+    if (index >= 0)
+      @syncItems.splice(index, 1);
+
+    @refreshEmptyPanel();
+
+  refreshEmptyPanel: ->
+    if @syncItems.length == 0
+      @emptyPanel.show();
+      @jHeader.hide();
+    else
+      @emptyPanel.hide();
+      @jHeader.show();

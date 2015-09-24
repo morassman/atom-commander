@@ -1,6 +1,8 @@
 fsp = require 'fs-plus'
 fse = require 'fs-extra'
 {$, $$} = require 'atom-space-pen-views'
+Utils = require '../../utils'
+Buffer = require '../../buffer'
 
 module.exports =
 class SyncItemView extends HTMLElement
@@ -16,6 +18,7 @@ class SyncItemView extends HTMLElement
   initialize: (@isHeader) ->
     @checkElement = document.createElement("td");
     @pathElement = document.createElement("td");
+    @openElement = document.createElement("td");
     @compareElement = document.createElement("td");
     @uploadElement = document.createElement("td");
     @downloadElement = document.createElement("td");
@@ -29,6 +32,8 @@ class SyncItemView extends HTMLElement
     @jdelete = $(@deleteElement);
     @jstatus = $(@statusElement);
 
+    @jpath.css("padding-right", "32px");
+
     @check = $$ ->
       @input {type: "checkbox"}
     @uploadButton = $$ ->
@@ -38,9 +43,11 @@ class SyncItemView extends HTMLElement
     @deleteButton = $$ ->
       @button "Delete", {class: "btn btn-sm"}
 
+    @check.change => @checkChanged();
+    @jpath.click => @open();
     @uploadButton.click => @upload();
     @downloadButton.click => @download();
-    @deleteButton.click => @delete();
+    @deleteButton.click => @promptDelete();
 
     @uploadButton.on 'mousedown', (e) -> e.preventDefault();
     @downloadButton.on 'mousedown', (e) -> e.preventDefault();
@@ -52,47 +59,147 @@ class SyncItemView extends HTMLElement
     @jdelete.append(@deleteButton);
 
     if !@isHeader
-      @jcompare = $(@compareElement);
+      @jopen = $(@openElement);
+      @openButton = $$ ->
+        @button "Open", {class: "btn btn-sm"}
+      @openButton.click => @open();
+      @openButton.on 'mousedown', (e) -> e.preventDefault();
+      @jopen.append(@openButton);
 
+      @jcompare = $(@compareElement);
       @compareButton = $$ ->
         @button "Compare", {class: "btn btn-sm"}
-
-      @compareButton.click(@compare);
+      @compareButton.click => @compare();
       @compareButton.on 'mousedown', (e) -> e.preventDefault();
       @jcompare.append(@compareButton);
 
     @appendChild(@checkElement);
     @appendChild(@pathElement);
+    @appendChild(@openElement);
     @appendChild(@compareElement);
     @appendChild(@uploadElement);
     @appendChild(@downloadElement);
     @appendChild(@deleteElement);
     @appendChild(@statusElement);
 
+  setChecked: (checked) ->
+    if checked != @isChecked()
+      @check.trigger("click");
+
+  checkChanged: ->
+    if @isHeader
+      @syncView.setAllChecked(@check.is(":checked"));
+
+  isChecked: ->
+    return @check.is(":checked");
+
+  open: ->
+    atom.workspace.open(@fullPath);
+
   upload: ->
-    @jstatus.text("Uploading...");
+    if @isHeader
+      @syncView.uploadChecked();
+      return;
+
+    if !fsp.isFileSync(@fullPath)
+      @showStatus("Cached file could not be found.", 2);
+      return;
+
+    @showStatus("Uploading...", 0);
     fileSystem = @syncView.getFileSystem();
-    fileSystem.download @fullPath, @path, (err) =>
+    fileSystem.upload @fullPath, @path, (err) =>
       if err?
-        @jstatus.text("Upload failed: "+err);
+        @showStatus("Upload failed: "+err, 2);
       else
-        @jstatus.text("Uploaded");
+        @showStatus("Uploaded", 1);
 
   download: ->
-    @jstatus.text("Downloading...");
+    if @isHeader
+      @syncView.downloadChecked();
+      return;
+
+    @showStatus("Downloading...", 0);
     fileSystem = @syncView.getFileSystem();
     fileSystem.download @path, @fullPath, (err) =>
       if err?
-        @jstatus.text("Download failed: "+err);
+        @showStatus("Download failed: "+err, 2);
       else
-        @jstatus.text("Downloaded");
+        @showStatus("Downloaded", 1);
 
   compare: ->
     if !fsp.isFileSync(@fullPath)
+      @showStatus("Cached file could not be found.", 2);
       return;
 
+    @showStatus("Downloading for comparison...", 0);
+
+    remoteFileSystem = @syncView.getFileSystem();
+    remoteFile = remoteFileSystem.getFile(@path);
+
+    remoteFile.createReadStream (err, stream) =>
+      @remoteStreamCreated(err, stream);
+
+  remoteStreamCreated: (err, stream) ->
+    if err?
+      message = "Error reading remote file. "
+      if err.message?
+        message += err.message;
+      @showStatus(message, 2);
+      return;
+
+    buffer = new Buffer();
+
+    stream.on "data", (data) =>
+      buffer.push(data);
+
+    stream.on "end", =>
+      @remoteStreamRead(buffer.toString());
+      buffer = null;
+      @showStatus("", 0);
+
+    stream.on "error", (err) =>
+      buffer = null;
+      message = "Error reading remote file. "
+      if err.message?
+        message += err.message;
+      @showStatus(message, 2);
+
+  remoteStreamRead: (text) ->
+    localFileSystem = @syncView.getLocalFileSystem();
+    localFile = localFileSystem.getFile(@fullPath);
+    title = "Diff "+localFile.getBaseName()+" | remote";
+
+    Utils.compareFiles(title, localFile, text);
+
+  promptDelete: ->
+    option = atom.confirm
+      message: "Delete"
+      detailedMessage: "Delete #{@path} from the cache?"
+      buttons: ["No", "Yes"]
+
+    if option == 1
+      @delete();
+
   delete: ->
+    if @isHeader
+      @syncView.deleteChecked();
+      return;
+
     fse.removeSync(@fullPath);
-    @remove();
+    @syncView.removeItem(@);
+
+  showStatus: (text, code) ->
+    @jstatus.removeClass("text");
+    @jstatus.removeClass("text-error");
+    @jstatus.removeClass("text-success");
+
+    @jstatus.text(text);
+
+    if code == 0
+      @jstatus.addClass("text");
+    else if code == 1
+      @jstatus.addClass("text-success");
+    else
+      @jstatus.addClass("text-error");
 
 module.exports = document.registerElement("sync-item-view", prototype: SyncItemView.prototype, extends: "tr")

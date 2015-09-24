@@ -1,7 +1,6 @@
 Utils = require './utils'
 FileController = require './controllers/file-controller'
 DirectoryController = require './controllers/directory-controller'
-DiffView = require './views/diff/diff-view'
 BookmarksView = require './views/bookmarks-view'
 DriveListView = require './views/drive-list-view'
 ProjectListView = require './views/project-list-view'
@@ -244,10 +243,7 @@ class Actions
     rightFile = rightViewItem.itemController.getFile();
     title = "Diff - "+leftFile.getBaseName()+" | "+rightFile.getBaseName();
 
-    view = new DiffView(title, leftFile, rightFile);
-    pane = atom.workspace.getActivePane();
-    item = pane.addItem(view, 0);
-    pane.activateItem(item);
+    Utils.compareFiles(title, leftFile, rightFile);
 
   bookmarksAddEditor: =>
     editor = atom.workspace.getActiveTextEditor();

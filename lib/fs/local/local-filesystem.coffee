@@ -76,6 +76,9 @@ class LocalFileSystem extends VFileSystem
   openFile: (file) ->
     atom.workspace.open(file.getRealPathSync());
 
+  createReadStream: (path, callback) ->
+    callback(null, fse.createReadStream(path));
+
   newFile: (path, callback) ->
     file = new File(path);
 

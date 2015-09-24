@@ -16,6 +16,9 @@ class Server
   serialize: ->
     return @fileSystem.getSafeConfig();
 
+  getMain: ->
+    return @main;
+
   getLocalDirectoryPath: ->
     return PathUtil.join(@getServersPath(), @localDirectoryName);
 

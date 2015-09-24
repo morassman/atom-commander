@@ -2,9 +2,18 @@ PathUtil = require 'path'
 SimpleEncryptor = require 'simple-encryptor'
 PasswordDialog = require './dialogs/password-dialog'
 FileController = require './controllers/file-controller'
+DiffView = require './views/diff/diff-view'
 
 module.exports =
 class Actions
+
+  # Opens a DiffView with the given title. left and right can either
+  # be a file or a string.
+  @compareFiles: (title, left, right) ->
+    view = new DiffView(title, left, right);
+    pane = atom.workspace.getActivePane();
+    item = pane.addItem(view, 0);
+    pane.activateItem(item);
 
   @getFirstFileViewItem: (viewItems) ->
     if viewItems == null

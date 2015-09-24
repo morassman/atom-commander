@@ -106,6 +106,9 @@ class FTPFileSystem extends VFileSystem
 
     return result;
 
+  getFile: (path) ->
+    return new FTPFile(@, false, path);
+
   getDirectory: (path) ->
     return new FTPDirectory(@, false, path);
 
@@ -186,6 +189,9 @@ class FTPFileSystem extends VFileSystem
 
   openFile: (file) ->
     @server.openFile(file);
+
+  createReadStream: (path, callback) ->
+    @client.get(path, callback);
 
   getDescription: ->
     return @config.protocol+"://"+@config.host+":"+@config.port;

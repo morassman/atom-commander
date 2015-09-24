@@ -20,3 +20,9 @@ class VFile extends VItem
 
   open: ->
     @fileSystem.openFile(@);
+
+  # Callback receives two arguments:
+  # 1.) err : String with error message. null if no error.
+  # 2.) stream : A ReadableStream.
+  createReadStream: (callback) ->
+    @fileSystem.createReadStream(@getPath(), callback);

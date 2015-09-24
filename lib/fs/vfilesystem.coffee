@@ -70,6 +70,11 @@ class VFileSystem
 
   openFile: (file) ->
 
+  # Callback receives two arguments:
+  # 1.) err : String with error message. null if no error.
+  # 2.) stream : A ReadableStream.
+  createReadStream: (path, callback) ->
+
   # The callback receives one parameter :
   # 1.) file : The file that was created. null if it could not be created.
   newFile: (path, callback) ->

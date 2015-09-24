@@ -1,4 +1,5 @@
 jsdiff = require 'diff';
+Buffer = require '../../buffer'
 {$, $$, View, TextEditorView} = require 'atom-space-pen-views'
 {CompositeDisposable, Range} = require 'atom'
 
@@ -29,8 +30,8 @@ class DiffView extends View
     @rightTextEditor[0].removeAttribute('tabindex');
     @rightTextEditor.getModel().getDecorations({class: 'cursor-line', type: 'line'})[0].destroy();
 
-    @leftBuffer = @leftTextEditor.getModel().getBuffer();
-    @rightBuffer = @rightTextEditor.getModel().getBuffer();
+    @leftEditorBuffer = @leftTextEditor.getModel().getBuffer();
+    @rightEditorBuffer = @rightTextEditor.getModel().getBuffer();
 
     @leftTextEditor.css("height", "100%");
     @rightTextEditor.css("height", "100%");
@@ -43,6 +44,9 @@ class DiffView extends View
 
     @rightTextEditor.mousedown (e) =>
       @handleMouseDown(e, @rightTextEditor);
+
+    @leftBuffer = new Buffer();
+    @rightBuffer = new Buffer();
 
     @refreshFileNames();
     @readFiles();
@@ -148,37 +152,64 @@ class DiffView extends View
     @leftSelection = null;
     @rightSelection = null;
 
-    @leftBuffer.setText("");
-    @rightBuffer.setText("");
+    @leftEditorBuffer.setText("");
+    @rightEditorBuffer.setText("");
 
     @leftContent = null;
     @rightContent = null;
 
-    @leftFile.read(true).then (content) =>
-      @leftContent = content;
+    if typeof @leftFile == "string"
+      @leftContent = @leftFile;
+    else
+      @leftFile.createReadStream (err, stream) =>
+        @readStreamCallback(true, @leftBuffer, err, stream);
+
+    if typeof @rightFile == "string"
+      @rightContent = @rightFile;
+    else
+      @rightFile.createReadStream (err, stream) =>
+        @readStreamCallback(false, @rightBuffer, err, stream);
+
+    @fileRead();
+
+  readStreamCallback: (left, buffer, err, stream) ->
+    if err?
+      console.log(err);
+      return;
+
+    stream.on "data", (data) =>
+      buffer.push(data);
+
+    stream.on "end", =>
+      if left
+        @leftContent = buffer.toString();
+        buffer.clear();
+      else
+        @rightContent = buffer.toString();
+        buffer.clear();
       @fileRead();
 
-    @rightFile.read(true).then (content) =>
-      @rightContent = content;
-      @fileRead();
+    stream.on "error", (err) =>
+      console.log("error : "+err.message);
+      console.log(err);
 
   fileRead: =>
     if (@leftContent == null) or (@rightContent == null)
       return;
 
-    @leftBuffer.setText("");
-    @rightBuffer.setText("");
+    @leftEditorBuffer.setText("");
+    @rightEditorBuffer.setText("");
 
     diff = jsdiff.diffLines(@rightContent, @leftContent);
 
     diff.forEach (part) =>
       if part.added
-        @appendPart(@leftTextEditor, @leftBuffer, @leftDecorations, part, true);
+        @appendPart(@leftTextEditor, @leftEditorBuffer, @leftDecorations, part, true);
       else if part.removed
-        @appendPart(@rightTextEditor, @rightBuffer, @rightDecorations, part, false);
+        @appendPart(@rightTextEditor, @rightEditorBuffer, @rightDecorations, part, false);
       else
-        leftDecoration = @appendPart(@leftTextEditor, @leftBuffer, @leftDecorations, part);
-        rightDecoration = @appendPart(@rightTextEditor, @rightBuffer, @rightDecorations, part);
+        leftDecoration = @appendPart(@leftTextEditor, @leftEditorBuffer, @leftDecorations, part);
+        rightDecoration = @appendPart(@rightTextEditor, @rightEditorBuffer, @rightDecorations, part);
         leftDecoration['otherDecoration'] = rightDecoration;
         rightDecoration['otherDecoration'] = leftDecoration;
 

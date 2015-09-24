@@ -211,6 +211,9 @@ class SFTPFileSystem extends VFileSystem
   openFile: (file) ->
     @server.getRemoteFileManager().openFile(file);
 
+  createReadStream: (path, callback) ->
+    callback(null, @client.createReadStream(path));
+
   getDescription: ->
     return @config.protocol+"://"+@config.host+":"+@config.port;
 

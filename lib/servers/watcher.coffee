@@ -30,8 +30,7 @@ class Watcher
       if err.message?
         message += "\nReason : "+err.message;
 
-      if @destroyed
-        message += "\nThe file has been cached and can be uploaded later.";
+      message += "\nThe file has been cached and can be uploaded later.";
 
       options = {};
       options["dismissable"] = true;
