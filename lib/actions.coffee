@@ -300,6 +300,6 @@ class Actions
     @main.mainView.hideMenuBar();
     view = new ServersView(@, "open", fromView);
 
-  serversSync: (fromView=true) =>
+  serversCache: (fromView=true) =>
     @main.mainView.hideMenuBar();
-    view = new ServersView(@, "sync", fromView);
+    view = new ServersView(@, "cache", fromView);

@@ -1,4 +1,4 @@
-SyncView = require './sync/sync-view'
+CacheView = require './cache/cache-view'
 {Directory} = require 'atom'
 {SelectListView} = require 'atom-space-pen-views'
 
@@ -42,8 +42,8 @@ class BookmarksView extends SelectListView
       @confirmOpen(item);
     else if @mode == "remove"
       @confirmRemove(item);
-    else if @mode == "sync"
-      @confirmSync(item);
+    else if @mode == "cache"
+      @confirmCache(item);
 
   confirmOpen: (item) ->
     @cancel();
@@ -59,11 +59,10 @@ class BookmarksView extends SelectListView
     else
       atom.notifications.addWarning("A server cannot be removed while its files are being edited.");
 
-  confirmSync: (item) ->
+  confirmCache: (item) ->
     @cancel();
 
-    view = new SyncView(item.server);
-
+    view = new CacheView(item.server);
     pane = atom.workspace.getActivePane()
     item = pane.addItem(view, 0)
     pane.activateItem(item);

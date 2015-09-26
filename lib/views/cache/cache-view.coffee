@@ -1,9 +1,9 @@
 PathUtil = require 'path'
-SyncItemView = require './sync-item-view'
+CacheItemView = require './cache-item-view'
 {$, View} = require 'atom-space-pen-views'
 
 module.exports =
-class SyncView extends View
+class CacheView extends View
 
   constructor: (@server) ->
     super(@server);
@@ -21,7 +21,7 @@ class SyncView extends View
           @li "The cache is empty"
 
   getTitle: ->
-    return "Sync: "+@server.getDescription();
+    return "Cache: "+@server.getDescription();
 
   getLocalFileSystem: ->
     return @server.getMain().getLocalFileSystem();
@@ -35,7 +35,7 @@ class SyncView extends View
 
     @refreshButton.on 'mousedown', (e) -> e.preventDefault();
 
-    @header = new SyncItemView();
+    @header = new CacheItemView();
     @header.initializeHeader(@);
     @jHeader = $(@header);
     @jHeader.addClass("table-header");
@@ -59,7 +59,7 @@ class SyncView extends View
     filePaths = @server.getCachedFilePaths();
 
     for filePath in filePaths
-      item = new SyncItemView();
+      item = new CacheItemView();
       item.initializeRow(@, filePath, filePath.substring(cachePath.length));
       @syncItems.push(item);
       @tableBody[0].appendChild(item);

@@ -274,7 +274,8 @@ class AtomCommanderView extends View
 
   mirror: ->
     if @focusedView != null
-      @getOtherView(@focusedView).openDirectory(@focusedView.directory);
+      snapShot = @focusedView.captureSnapShot();
+      @getOtherView(@focusedView).openDirectory(@focusedView.directory, snapShot);
 
   swap: ->
     if @focusedView == null
@@ -282,22 +283,14 @@ class AtomCommanderView extends View
 
     otherView = @getOtherView(@focusedView);
 
+    snapShot = @focusedView.captureSnapShot();
+    otherSnapShot = otherView.captureSnapShot();
+
     directory = @focusedView.directory;
     otherDirectory = otherView.directory;
 
-    highlightedIndex = @focusedView.highlightedIndex;
-    otherHighlightedIndex = otherView.highlightedIndex;
-
-    selectedNames = @focusedView.getSelectedNames();
-    otherSelectedNames = otherView.getSelectedNames();
-
-    @focusedView.openDirectory(otherDirectory);
-    @focusedView.selectNames(otherSelectedNames);
-    @focusedView.highlightIndex(otherHighlightedIndex, true);
-
-    otherView.openDirectory(directory);
-    otherView.selectNames(selectedNames);
-    otherView.highlightIndex(highlightedIndex, true);
+    @focusedView.openDirectory(otherDirectory, otherSnapShot);
+    otherView.openDirectory(directory, snapShot);
 
     otherView.requestFocus();
 

@@ -1,13 +1,28 @@
 fse = require 'fs-extra'
 PathUtil = require 'path'
-{File} = require 'atom'
 Watcher = require './watcher'
+{CompositeDisposable, Directory, File} = require 'atom'
 
 module.exports =
 class RemoteFileManager
 
   constructor: (@server) ->
     @watchers = [];
+    @disposables = new CompositeDisposable();
+    @disposables.add atom.workspace.observeTextEditors (textEditor) =>
+      @textEditorAdded(textEditor);
+
+  textEditorAdded: (textEditor) ->
+    cachePath = @server.getCachePath();
+    localFilePath = textEditor.getPath();
+    dir = new Directory(cachePath);
+
+    if !dir.contains(localFilePath)
+      return;
+
+    fileSystem = @server.getFileSystem();
+    file = fileSystem.getFile("/"+dir.relativize(localFilePath));
+    @addWatcher(cachePath, localFilePath, file, textEditor);
 
   openFile: (file) ->
     cachePath = @server.getCachePath();
@@ -25,8 +40,7 @@ class RemoteFileManager
       if err?
         @handleDownloadError(file, err);
       else
-        atom.workspace.open(localFilePath).then (textEditor) =>
-          @addWatcher(cachePath, localFilePath, file, textEditor);
+        atom.workspace.open(localFilePath);
 
   handleDownloadError: (file, err) ->
     message = "The file "+file.getPath()+" could not be downloaded."
@@ -53,5 +67,7 @@ class RemoteFileManager
     return @watchers.length;
 
   destroy: ->
+    @disposables.dispose();
+
     for watcher in @watchers
       watcher.destroy();

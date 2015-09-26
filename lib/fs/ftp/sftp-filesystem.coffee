@@ -37,6 +37,7 @@ class SFTPFileSystem extends VFileSystem
     @ssh2 = new SSH2();
 
     @ssh2.on "ready", =>
+      console.log("ssh2.ready");
       @ssh2.sftp (err, sftp) =>
         if err?
           @disconnect();
@@ -45,6 +46,7 @@ class SFTPFileSystem extends VFileSystem
         @client = sftp;
 
         @client.on "end", =>
+          console.log("client.end");
           @disconnect();
 
         # If the connection was successful then remember the password for
@@ -53,9 +55,11 @@ class SFTPFileSystem extends VFileSystem
         @setConnected(true);
 
     @ssh2.on "close", =>
+      console.log("ssh2.close");
       @disconnect();
 
     @ssh2.on "error", (err) =>
+      console.log("ssh2.error");
       message = "Error connecting to "+@getDescription()+".";
       if err.message?
         message += "\n"+err.message;
@@ -65,9 +69,14 @@ class SFTPFileSystem extends VFileSystem
       @disconnect();
 
     @ssh2.on "end", =>
+      console.log("ssh2.end");
       @disconnect();
 
     @ssh2.on "keyboard-interactive", (name, instructions, instructionsLang, prompt, finish) =>
+      console.log("ssh2.keyboard-interactive");
+      console.log(name);
+      console.log(instructions);
+      console.log(prompt);
       finish([password]);
 
     connectConfig = {};
@@ -112,6 +121,7 @@ class SFTPFileSystem extends VFileSystem
     result.username = @config.username;
     result.password = @config.password;
     result.tryKeyboard = true;
+    result.keepaliveInterval = 60000;
 
     return result;
 

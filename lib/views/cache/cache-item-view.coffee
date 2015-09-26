@@ -5,7 +5,7 @@ Utils = require '../../utils'
 Buffer = require '../../buffer'
 
 module.exports =
-class SyncItemView extends HTMLElement
+class CacheItemView extends HTMLElement
 
   initializeHeader: (@syncView) ->
     @initialize(true)
@@ -44,7 +44,6 @@ class SyncItemView extends HTMLElement
       @button "Delete", {class: "btn btn-sm"}
 
     @check.change => @checkChanged();
-    @jpath.click => @open();
     @uploadButton.click => @upload();
     @downloadButton.click => @download();
     @deleteButton.click => @promptDelete();
@@ -172,6 +171,10 @@ class SyncItemView extends HTMLElement
     Utils.compareFiles(title, localFile, text);
 
   promptDelete: ->
+    if @isHeader
+      @syncView.deleteChecked();
+      return;
+
     option = atom.confirm
       message: "Delete"
       detailedMessage: "Delete #{@path} from the cache?"
@@ -181,10 +184,6 @@ class SyncItemView extends HTMLElement
       @delete();
 
   delete: ->
-    if @isHeader
-      @syncView.deleteChecked();
-      return;
-
     fse.removeSync(@fullPath);
     @syncView.removeItem(@);
 
@@ -202,4 +201,4 @@ class SyncItemView extends HTMLElement
     else
       @jstatus.addClass("text-error");
 
-module.exports = document.registerElement("sync-item-view", prototype: SyncItemView.prototype, extends: "tr")
+module.exports = document.registerElement("cache-item-view", prototype: CacheItemView.prototype, extends: "tr")

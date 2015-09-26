@@ -190,7 +190,6 @@ class DiffView extends View
       @fileRead();
 
     stream.on "error", (err) =>
-      console.log("error : "+err.message);
       console.log(err);
 
   fileRead: =>

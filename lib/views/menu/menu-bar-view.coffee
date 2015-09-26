@@ -64,7 +64,7 @@ class MenuBarView extends View
     server.addMenuItem("1", "Add", actions.serversAdd);
     server.addMenuItem("2", "Remove", actions.serversRemove);
     server.addMenuItem("3", "Open", actions.serversOpen);
-    server.addMenuItem("4", "Sync", actions.serversSync);
+    server.addMenuItem("4", "Cache", actions.serversCache);
 
     view = root.addMenuItem("5", "View");
     view.addMenuItem("1", "Refresh", actions.viewRefresh);
