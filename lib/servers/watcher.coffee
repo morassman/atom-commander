@@ -1,3 +1,4 @@
+fs = require 'fs'
 fsp = require 'fs-plus'
 {CompositeDisposable} = require 'atom'
 
@@ -6,20 +7,45 @@ class Watcher
 
   constructor: (@remoteFileManager, @cachePath, @localFilePath, @file, @textEditor) ->
     @uploading = 0;
+    @changesSaved = false;
     @uploadFailed = false;
     @destroyed = false;
+    @openedRemotely = true;
+    @openTime = @getModifiedTime();
+    @saveTime = null;
+    @uploadTime = null;
     @disposables = new CompositeDisposable();
 
     @disposables.add @textEditor.onDidSave (event) =>
-      @uploading++;
-      @file.upload @localFilePath, (err) =>
-        @uploading--;
-        @uploadCallback(err);
+      @fileSaved();
 
     @disposables.add @textEditor.onDidDestroy =>
       @destroyed = true;
       if @uploading == 0
         @removeWatcher();
+
+  setOpenedRemotely: (@openedRemotely) ->
+
+  getFile: ->
+    return @file;
+
+  getLocalFilePath: ->
+    return @localFilePath;
+
+  getModifiedTime: ->
+    stat = fs.statSync(@localFilePath);
+    return stat.mtime.getTime();
+
+  fileSaved: ->
+    @saveTime = @getModifiedTime();
+
+    if !atom.config.get("atom-commander.uploadOnSave")
+      return;
+
+    @uploading++;
+    @file.upload @localFilePath, (err) =>
+      @uploading--;
+      @uploadCallback(err);
 
   uploadCallback: (err) ->
     @uploadFailed = err?;
@@ -36,15 +62,46 @@ class Watcher
       options["dismissable"] = true;
       options["detail"] = message;
       atom.notifications.addWarning("Unable to upload file.", options);
+    else
+      @uploadTime = @getModifiedTime();
 
     if @destroyed
       @removeWatcher();
 
   removeWatcher: ->
-    if !@uploadFailed
+    if @shouldDeleteFile()
       fsp.removeSync(@localFilePath);
 
     @remoteFileManager.removeWatcher(@);
+
+  shouldDeleteFile: ->
+    deleteOnClose = atom.config.get("atom-commander.deleteOnClose");
+
+    if !deleteOnClose
+      return false;
+
+    if @openedRemotely
+      return @shouldDeleteRemoteOpenedFile();
+
+    return @shouldDeleteLocalOpenedFile();
+
+  shouldDeleteRemoteOpenedFile: ->
+    if @saveTime == null
+      return true;
+
+    if @uploadTime == null
+      return false;
+
+    return @uploadTime == @saveTime;
+
+  shouldDeleteLocalOpenedFile: ->
+    if @uploadTime == null
+      return false;
+
+    if @saveTime == null
+      return @uploadTime == @openTime;
+
+    return @uploadTime == @saveTime;
 
   destroy: ->
     @disposables.dispose();

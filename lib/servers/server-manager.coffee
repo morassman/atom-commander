@@ -48,6 +48,15 @@ class ServerManager
 
     return null;
 
+  getWatcherWithLocalFilePath: (localFilePath) ->
+    for server in @servers
+      watcher = server.getWatcherWithLocalFilePath(localFilePath);
+
+      if watcher != null
+        return watcher;
+
+    return null;
+
   serialize: ->
     state = [];
 

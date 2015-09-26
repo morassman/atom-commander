@@ -166,9 +166,13 @@ class FTPFileSystem extends VFileSystem
 
   downloadImpl: (path, localPath, callback) ->
     @client.get path, (err, stream) =>
-      if !err?
-        stream.pipe(fs.createWriteStream(localPath));
-      callback(err);
+      if err?
+        callback(err);
+        return;
+
+      stream.on("error", callback);
+      stream.on("end", callback);
+      stream.pipe(fs.createWriteStream(localPath));
 
   uploadImpl: (localPath, path, callback) ->
     @client.put(localPath, path, false, callback);

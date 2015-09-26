@@ -11,6 +11,7 @@ class VFileSystem
 
   dispose: ->
     @emitter.dispose();
+    @emitter = null;
 
   connectPromise: ->
     deferred = q.defer();
@@ -37,23 +38,29 @@ class VFileSystem
     return deferred.promise;
 
   onConnected: (callback) ->
-    @emitter.on("connected", callback);
+    if @emitter != null
+      @emitter.on("connected", callback);
 
   onDisconnected: (callback) ->
-    @emitter.on("disconnected", callback);
+    if @emitter != null
+      @emitter.on("disconnected", callback);
 
   # Callback receives a single 'err' parameter.
   onError: (callback) ->
-    @emitter.on("error", callback);
+    if @emitter != null
+      @emitter.on("error", callback);
 
   emitConnected: ->
-    @emitter.emit("connected");
+    if @emitter != null
+      @emitter.emit("connected");
 
   emitDisconnected: ->
-    @emitter.emit("disconnected");
+    if @emitter != null
+      @emitter.emit("disconnected");
 
   emitError: (err) ->
-    @emitter.emit("error", err);
+    if @emitter != null
+      @emitter.emit("error", err);
 
   isRemote: ->
     return !@isLocal();

@@ -241,7 +241,7 @@ class Actions
 
     leftFile = leftViewItem.itemController.getFile();
     rightFile = rightViewItem.itemController.getFile();
-    title = "Diff - "+leftFile.getBaseName()+" | "+rightFile.getBaseName();
+    title = "Diff: "+leftFile.getBaseName()+" | "+rightFile.getBaseName();
 
     Utils.compareFiles(title, leftFile, rightFile);
 
@@ -250,9 +250,20 @@ class Actions
 
     if editor instanceof TextEditor
       if editor.getPath()?
-        file = @main.getLocalFileSystem().getFile(editor.getPath());
-        dialog = new AddBookmarkDialog(@main, file.getBaseName(), file, false);
-        dialog.attach();
+        @bookmarksAddLocalFilePath(editor.getPath());
+
+  bookmarksAddLocalFilePath: (path) =>
+    file = @main.getLocalFileSystem().getFile(path);
+
+    # If the file is being watched then add a remote bookmark instead.
+    serverManager = @main.getServerManager();
+    watcher = serverManager.getWatcherWithLocalFilePath(path);
+
+    if watcher != null
+      file = watcher.getFile();
+
+    dialog = new AddBookmarkDialog(@main, file.getBaseName(), file, false);
+    dialog.attach();
 
   bookmarksAdd: (fromView=true) =>
     view = @getFocusedView();

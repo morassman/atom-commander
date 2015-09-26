@@ -1,3 +1,4 @@
+fsp = require 'fs-plus'
 fse = require 'fs-extra'
 PathUtil = require 'path'
 Watcher = require './watcher'
@@ -20,9 +21,15 @@ class RemoteFileManager
     if !dir.contains(localFilePath)
       return;
 
+    # See if the file is already being watched. This will be the case if the
+    # file was opened directly from the remote file system instead of locally.
+    if @getWatcherWithLocalFilePath(localFilePath) != null
+      return;
+
     fileSystem = @server.getFileSystem();
     file = fileSystem.getFile("/"+dir.relativize(localFilePath));
-    @addWatcher(cachePath, localFilePath, file, textEditor);
+    watcher = @addWatcher(cachePath, localFilePath, file, textEditor);
+    watcher.setOpenedRemotely(false);
 
   openFile: (file) ->
     cachePath = @server.getCachePath();
@@ -34,13 +41,40 @@ class RemoteFileManager
       pane.activateItemForURI(localFilePath);
       return;
 
+    # See if the file is already in the cache.
+    if fsp.isFileSync(localFilePath)
+      message = "The file "+file.getPath()+" is already in the cache. ";
+      message += "Opening the remote file will replace the cached one.\n";
+      message += "Would you like to open the cached file instead?";
+
+      option = atom.confirm
+        message: "Open cached file"
+        detailedMessage: message
+        buttons: ["Cancel", "No", "Yes"]
+
+      if option == 0
+        return;
+      else if option == 2
+        atom.workspace.open(localFilePath);
+        return;
+
+    @downloadAndOpen(file, cachePath, localFilePath);
+
+  downloadAndOpen: (file, cachePath, localFilePath) ->
     fse.ensureDirSync(PathUtil.dirname(localFilePath));
 
     file.download localFilePath, (err) =>
       if err?
         @handleDownloadError(file, err);
-      else
-        atom.workspace.open(localFilePath);
+        return;
+
+      atom.workspace.open(localFilePath).then (textEditor) =>
+        watcher = @getWatcherWithLocalFilePath(localFilePath);
+
+        if watcher == null
+          watcher = @addWatcher(cachePath, localFilePath, file, textEditor);
+
+        watcher.setOpenedRemotely(true);
 
   handleDownloadError: (file, err) ->
     message = "The file "+file.getPath()+" could not be downloaded."
@@ -53,8 +87,17 @@ class RemoteFileManager
     options["detail"] = message;
     atom.notifications.addWarning("Unable to download file.", options);
 
+  getWatcherWithLocalFilePath: (localFilePath) ->
+    for watcher in @watchers
+      if watcher.getLocalFilePath() == localFilePath
+        return watcher;
+
+    return null;
+
   addWatcher: (cachePath, localFilePath, file, textEditor) ->
-    @watchers.push(new Watcher(@, cachePath, localFilePath, file, textEditor));
+    watcher = new Watcher(@, cachePath, localFilePath, file, textEditor);
+    @watchers.push(watcher);
+    return watcher;
 
   removeWatcher: (watcher) ->
     watcher.destroy();

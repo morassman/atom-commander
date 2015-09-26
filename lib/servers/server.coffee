@@ -79,3 +79,6 @@ class Server
     fsp.traverseTreeSync(@getCachePath(), onFile, onDirectory);
 
     return result;
+
+  getWatcherWithLocalFilePath: (localFilePath) ->
+    return @remoteFileManager.getWatcherWithLocalFilePath(localFilePath);

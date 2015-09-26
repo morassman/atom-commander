@@ -31,6 +31,12 @@ class VItem
 
     return result;
 
+  isLocal: ->
+    return @fileSystem.isLocal();
+
+  isRemote: ->
+    return @fileSystem.isRemote();
+
   isFile: ->
 
   isDirectory: ->

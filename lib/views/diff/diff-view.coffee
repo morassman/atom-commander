@@ -1,5 +1,6 @@
 jsdiff = require 'diff';
 Buffer = require '../../buffer'
+util = require 'util'
 {$, $$, View, TextEditorView} = require 'atom-space-pen-views'
 {CompositeDisposable, Range} = require 'atom'
 
@@ -158,13 +159,13 @@ class DiffView extends View
     @leftContent = null;
     @rightContent = null;
 
-    if typeof @leftFile == "string"
+    if util.isString(@leftFile)
       @leftContent = @leftFile;
     else
       @leftFile.createReadStream (err, stream) =>
         @readStreamCallback(true, @leftBuffer, err, stream);
 
-    if typeof @rightFile == "string"
+    if util.isString(@rightFile)
       @rightContent = @rightFile;
     else
       @rightFile.createReadStream (err, stream) =>
@@ -214,7 +215,7 @@ class DiffView extends View
 
   appendPart: (editor, buffer, decorations, part, added=null) =>
     cls = 'line-normal';
-    lines = part.value.split("\n")
+    lines = part.value.split(/\r?\n/);
     count = lines.length;
 
     if (part.count != null) and (part.count != undefined)

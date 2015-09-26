@@ -9,9 +9,16 @@ LocalFileSystem = require './fs/local/local-filesystem'
 {CompositeDisposable, File, Directory} = require 'atom'
 
 module.exports = AtomCommander =
-  mainView: null
-  bottomPanel: null
-  subscriptions: null
+
+  config:
+    uploadOnSave:
+      description: "Automatically upload cached files when saved."
+      type: "boolean"
+      default: true
+    deleteOnClose:
+      description: "Delete cached files when closed and were successfully uploaded."
+      type: "boolean"
+      default: true
 
   activate: (@state) ->
     @loadState();
