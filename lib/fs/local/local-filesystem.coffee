@@ -14,8 +14,8 @@ class LocalFileSystem extends VFileSystem
   isLocal: ->
     return true;
 
-  isConnected: ->
-    return true;
+  connectImpl: ->
+    @setConnected(true);
 
   getSafeConfig: ->
     return {};
@@ -38,12 +38,12 @@ class LocalFileSystem extends VFileSystem
   getID: ->
     return "local";
 
-  rename: (oldPath, newPath, callback) ->
+  renameImpl: (oldPath, newPath, callback) ->
     fsp.moveSync(oldPath, newPath);
     if callback != null
       callback(null);
 
-  makeDirectory: (path, callback) ->
+  makeDirectoryImpl: (path, callback) ->
     directory = new Directory(path);
 
     directory.create().then (created) =>
@@ -55,19 +55,19 @@ class LocalFileSystem extends VFileSystem
       else
         callback("Error creating folder.");
 
-  deleteFile: (path, callback) ->
+  deleteFileImpl: (path, callback) ->
     fse.removeSync(path);
 
     if callback?
       callback(null);
 
-  deleteDirectory: (path, callback) ->
+  deleteDirectoryImpl: (path, callback) ->
     fse.removeSync(path);
 
     if callback?
       callback(null);
 
-  download: (path, localPath, callback) ->
+  downloadImpl: (path, localPath, callback) ->
     fse.copy(path, localPath, callback);
 
   upload: (localPath, path, callback) ->
@@ -76,10 +76,10 @@ class LocalFileSystem extends VFileSystem
   openFile: (file) ->
     atom.workspace.open(file.getRealPathSync());
 
-  createReadStream: (path, callback) ->
+  createReadStreamImpl: (path, callback) ->
     callback(null, fse.createReadStream(path));
 
-  newFile: (path, callback) ->
+  newFileImpl: (path, callback) ->
     file = new File(path);
 
     file.create().then (created) =>
@@ -87,3 +87,21 @@ class LocalFileSystem extends VFileSystem
         callback(@getFile(path));
       else
         callback(null);
+
+  getEntriesImpl: (directory, callback) ->
+    directory.directory.getEntries (err, entries) =>
+      if err?
+        callback(directory, err, []);
+      else
+        callback(directory, null, @wrapEntries(entries));
+
+  wrapEntries: (entries) ->
+    result = [];
+
+    for entry in entries
+      if entry.isDirectory()
+        result.push(new LocalDirectory(@, entry));
+      else
+        result.push(new LocalFile(@, entry));
+
+    return result;

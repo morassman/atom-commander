@@ -7,6 +7,7 @@ Scheduler = require 'nschedule';
 FileController = require '../controllers/file-controller'
 DirectoryController = require '../controllers/directory-controller'
 VFile = require '../fs/vfile'
+Utils = require '../utils'
 
 module.exports =
 class ContainerView extends View
@@ -384,15 +385,7 @@ class ContainerView extends View
     @resetItemViews();
     @highlightIndex(0);
 
-    if @directory.fileSystem.isConnected()
-      @getEntries(newDirectory, snapShot);
-      return;
-
-    disposable = @directory.fileSystem.onConnected =>
-      @getEntries(newDirectory, snapShot);
-      disposable.dispose();
-
-    @directory.fileSystem.connect();
+    @getEntries(newDirectory, snapShot);
 
   resetItemViews: ->
     @clearItemViews();
@@ -412,6 +405,8 @@ class ContainerView extends View
     newDirectory.getEntries (newDirectory, err, entries) =>
       if err == null
         @entriesCallback(newDirectory, entries, snapShot);
+      else
+        Utils.showErrorWarning("Error reading folder", null, err, null, false);
       @hideSpinner();
 
   entriesCallback: (newDirectory, entries, snapShot) ->
@@ -526,7 +521,7 @@ class ContainerView extends View
       return;
 
     if !@directory.fileSystem.isLocal()
-      atom.notifications.addWarning("Remote project folders are not supported.");
+      atom.notifications.addWarning("Remote project folders are not yet supported.");
       return;
 
     selectedItemViews = @getSelectedItemViews(true);

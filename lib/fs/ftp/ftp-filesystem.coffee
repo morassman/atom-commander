@@ -11,7 +11,6 @@ class FTPFileSystem extends VFileSystem
 
   constructor: (@server, @config) ->
     super();
-    @connected = false;
     @client = null;
 
     if @config.password? and !@config.passwordDecrypted?
@@ -23,7 +22,7 @@ class FTPFileSystem extends VFileSystem
   isLocal: ->
     return false;
 
-  connect: ->
+  connectImpl: ->
     if @clientConfig.password?
       @connectWithPassword(@clientConfig.password);
     else
@@ -39,18 +38,17 @@ class FTPFileSystem extends VFileSystem
       @setConnected(true);
 
     @client.on "close", =>
-      @setConnected(false);
+      @disconnect();
 
     @client.on "error", (err) =>
       message = "Error connecting to "+@getDescription()+".";
       if err.message?
         message += "\n"+err.message;
 
-      atom.notifications.addWarning(message);
-      console.log(err);
+      @disconnect(err);
 
     @client.on "end", =>
-      @setConnected(false);
+      @disconnect();
 
     connectConfig = {};
 
@@ -61,25 +59,13 @@ class FTPFileSystem extends VFileSystem
 
     @client.connect(connectConfig);
 
-  disconnect: ->
-    if @isConnected()
+  disconnectImpl: ->
+    if @client?
       @client.logout =>
         @client.end();
         @client = null;
 
-  isConnected: ->
-    return @connected and (@client != null);
-
-  setConnected: (connected) ->
-    if @connected == connected
-      return;
-
-    @connected = connected;
-
-    if @connected
-      @emitConnected();
-    else
-      @emitDisconnected();
+    @setConnected(false);
 
   getClientConfig: ->
     result = {};
@@ -132,7 +118,7 @@ class FTPFileSystem extends VFileSystem
 
     return null;
 
-  rename: (oldPath, newPath, callback) ->
+  renameImpl: (oldPath, newPath, callback) ->
     @client.rename oldPath, newPath, (err) =>
       if !callback?
         return;
@@ -142,7 +128,7 @@ class FTPFileSystem extends VFileSystem
       else
         callback(null);
 
-  makeDirectory: (path, callback) ->
+  makeDirectoryImpl: (path, callback) ->
     @client.mkdir path, true, (err) =>
       if !callback?
         return;
@@ -152,7 +138,7 @@ class FTPFileSystem extends VFileSystem
       else
         callback(null);
 
-  deleteFile: (path, callback) ->
+  deleteFileImpl: (path, callback) ->
     @client.delete path, (err) =>
       if !callback?
         return;
@@ -162,7 +148,7 @@ class FTPFileSystem extends VFileSystem
       else
         callback(null);
 
-  deleteDirectory: (path, callback) ->
+  deleteDirectoryImpl: (path, callback) ->
     @client.rmdir path, (err) =>
       if !callback?
         return;
@@ -178,28 +164,39 @@ class FTPFileSystem extends VFileSystem
   getLocalDirectoryName: ->
     return @config.protocol+"_"+@config.host+"_"+@config.port+"_"+@config.user;
 
-  download: (path, localPath, callback) ->
+  downloadImpl: (path, localPath, callback) ->
     @client.get path, (err, stream) =>
       if !err?
         stream.pipe(fs.createWriteStream(localPath));
       callback(err);
 
-  upload: (localPath, path, callback) ->
+  uploadImpl: (localPath, path, callback) ->
     @client.put(localPath, path, false, callback);
+
+  newFileImpl: (path, callback) ->
+    buffer = new Buffer("", "utf8");
+    @client.put buffer, path, (err) =>
+      if err?
+        callback(null);
+      else
+        callback(@getFile(path));
 
   openFile: (file) ->
     @server.openFile(file);
 
-  createReadStream: (path, callback) ->
+  createReadStreamImpl: (path, callback) ->
     @client.get(path, callback);
 
   getDescription: ->
     return @config.protocol+"://"+@config.host+":"+@config.port;
 
+  getEntriesImpl: (directory, callback) ->
+    @list directory.getPath(), (err, entries) =>
+      callback(directory, err, entries);
+
   list: (path, callback) ->
     @client.list path, (err, entries) =>
       if err?
-        console.log(err);
         callback(err, []);
       else
         callback(null, @wrapEntries(path, entries));

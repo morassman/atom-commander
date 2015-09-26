@@ -29,21 +29,6 @@ class FTPDirectory extends VDirectory
   isLink: ->
     return @link;
 
-  getEntriesSync: ->
-    entries = [];
-
-    # for entry in @directory.getEntriesSync()
-    #   if entry.isDirectory()
-    #     entries.push(new LocalDirectory(@fileSystem, entry));
-    #   else
-    #     entries.push(new LocalFile(@fileSystem, entry));
-
-    return entries;
-
-  getEntries: (callback) ->
-    @fileSystem.list @path, (err, entries) =>
-      callback(@, err, entries);
-
   onDidChange: (callback) ->
     return null;
     # return @directory.onDidChange(callback);

@@ -15,12 +15,12 @@ class VDirectory extends VItem
 
   isRoot: ->
 
-  getEntriesSync: ->
-
-  # The callback received two parameters :
+  # The callback received three parameters :
   # 1.) This directory.
-  # 2.) The list of entries containing VFile and VDirectory instances.
+  # 2.) err. null if no error.
+  # 3.) The list of entries containing VFile and VDirectory instances.
   getEntries: (callback) ->
+    @fileSystem.getEntries(@, callback);
 
   onDidChange: (callback) ->
 

@@ -29,27 +29,5 @@ class LocalDirectory extends VDirectory
   isLink: ->
     return fsp.isSymbolicLinkSync(@getRealPathSync());
 
-  getEntriesSync: ->
-    return @wrapEntries(@directory.getEntriesSync());
-
-  getEntries: (callback) ->
-    @directory.getEntries (err, entries) =>
-      if err?
-        console.log(err);
-        callback(@, err, []);
-      else
-        callback(@, null, @wrapEntries(entries));
-
-  wrapEntries: (entries) ->
-    result = [];
-
-    for entry in entries
-      if entry.isDirectory()
-        result.push(new LocalDirectory(@fileSystem, entry));
-      else
-        result.push(new LocalFile(@fileSystem, entry));
-
-    return result;
-
   onDidChange: (callback) ->
     return @directory.onDidChange(callback);

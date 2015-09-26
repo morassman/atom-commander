@@ -12,7 +12,6 @@ class SFTPFileSystem extends VFileSystem
 
   constructor: (@server, @config) ->
     super();
-    @connected = false;
     @client = null;
 
     if @config.password? and !@config.passwordDecrypted?
@@ -24,7 +23,7 @@ class SFTPFileSystem extends VFileSystem
   isLocal: ->
     return false;
 
-  connect: ->
+  connectImpl: ->
     if @clientConfig.password?
       @connectWithPassword(@clientConfig.password);
     else
@@ -37,16 +36,14 @@ class SFTPFileSystem extends VFileSystem
     @ssh2 = new SSH2();
 
     @ssh2.on "ready", =>
-      console.log("ssh2.ready");
       @ssh2.sftp (err, sftp) =>
         if err?
-          @disconnect();
+          @disconnect(err);
           return;
 
         @client = sftp;
 
         @client.on "end", =>
-          console.log("client.end");
           @disconnect();
 
         # If the connection was successful then remember the password for
@@ -55,28 +52,19 @@ class SFTPFileSystem extends VFileSystem
         @setConnected(true);
 
     @ssh2.on "close", =>
-      console.log("ssh2.close");
       @disconnect();
 
     @ssh2.on "error", (err) =>
-      console.log("ssh2.error");
       message = "Error connecting to "+@getDescription()+".";
       if err.message?
         message += "\n"+err.message;
 
-      atom.notifications.addWarning(message);
-      console.log(err);
-      @disconnect();
+      @disconnect(err);
 
     @ssh2.on "end", =>
-      console.log("ssh2.end");
       @disconnect();
 
     @ssh2.on "keyboard-interactive", (name, instructions, instructionsLang, prompt, finish) =>
-      console.log("ssh2.keyboard-interactive");
-      console.log(name);
-      console.log(instructions);
-      console.log(prompt);
       finish([password]);
 
     connectConfig = {};
@@ -88,7 +76,7 @@ class SFTPFileSystem extends VFileSystem
 
     @ssh2.connect(connectConfig);
 
-  disconnect: ->
+  disconnectImpl: ->
     if @client?
       @client.end();
       @client = null;
@@ -98,20 +86,6 @@ class SFTPFileSystem extends VFileSystem
       @ssh2 = null;
 
     @setConnected(false);
-
-  isConnected: ->
-    return @connected and (@client != null);
-
-  setConnected: (connected) ->
-    if @connected == connected
-      return;
-
-    @connected = connected;
-
-    if @connected
-      @emitConnected();
-    else
-      @emitDisconnected();
 
   getClientConfig: ->
     result = {};
@@ -166,7 +140,7 @@ class SFTPFileSystem extends VFileSystem
 
     return null;
 
-  rename: (oldPath, newPath, callback) ->
+  renameImpl: (oldPath, newPath, callback) ->
     @client.rename oldPath, newPath, (err) =>
       if !callback?
         return;
@@ -176,7 +150,7 @@ class SFTPFileSystem extends VFileSystem
       else
         callback(null);
 
-  makeDirectory: (path, callback) ->
+  makeDirectoryImpl: (path, callback) ->
     @client.mkdir path, [], (err) =>
       if !callback?
         return;
@@ -186,7 +160,7 @@ class SFTPFileSystem extends VFileSystem
       else
         callback(null);
 
-  deleteFile: (path, callback) ->
+  deleteFileImpl: (path, callback) ->
     @client.unlink path, (err) =>
       if !callback?
         return;
@@ -196,7 +170,7 @@ class SFTPFileSystem extends VFileSystem
       else
         callback(null);
 
-  deleteDirectory: (path, callback) ->
+  deleteDirectoryImpl: (path, callback) ->
     @client.rmdir path, (err) =>
       if !callback?
         return;
@@ -212,25 +186,29 @@ class SFTPFileSystem extends VFileSystem
   getLocalDirectoryName: ->
     return @config.protocol+"_"+@config.host+"_"+@config.port+"_"+@config.username;
 
-  download: (path, localPath, callback) ->
+  downloadImpl: (path, localPath, callback) ->
     @client.fastGet(path, localPath, {}, callback);
 
-  upload: (localPath, path, callback) ->
+  uploadImpl: (localPath, path, callback) ->
     @client.fastPut(localPath, path, {}, callback);
 
   openFile: (file) ->
     @server.getRemoteFileManager().openFile(file);
 
-  createReadStream: (path, callback) ->
-    callback(null, @client.createReadStream(path));
+  createReadStreamImpl: (path, callback) ->
+    rs = @client.createReadStream(path);
+    callback(null, rs);
 
   getDescription: ->
     return @config.protocol+"://"+@config.host+":"+@config.port;
 
+  getEntriesImpl: (directory, callback) ->
+    @list directory.getPath(), (err, entries) =>
+      callback(directory, err, entries);
+
   list: (path, callback) ->
     @client.readdir path, (err, entries) =>
       if err?
-        console.log(err);
         callback(err, []);
       else
         callback(null, @wrapEntries(path, entries));
@@ -263,7 +241,7 @@ class SFTPFileSystem extends VFileSystem
 
     return null;
 
-  newFile: (path, callback) ->
+  newFileImpl: (path, callback) ->
     @client.open path, "w", {}, (err, handle) =>
       if err?
         callback(null);

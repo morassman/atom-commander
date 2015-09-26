@@ -55,3 +55,29 @@ class Actions
       key += key;
 
     return key;
+
+  @showWarning: (title, message, dismissable) ->
+    options = {};
+    options["dismissable"] = dismissable;
+
+    if message?
+      options["detail"] = message;
+
+    atom.notifications.addWarning(title, options);
+
+  @showErrorWarning: (title, pre, post, err, dismissable) ->
+    message = "";
+
+    if pre?
+      message = pre;
+
+    if err? and err.message?
+      if message.length > 0
+        message += "\n";
+
+      message += err.message;
+
+    if post?
+      message += "\n"+post;
+
+    @showWarning(title, message, dismissable);
