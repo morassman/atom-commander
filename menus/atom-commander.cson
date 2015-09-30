@@ -77,6 +77,27 @@
       ]
     }
     {
+      'label': 'Servers'
+      'submenu': [
+        {
+          'label': 'Add'
+          'command': 'atom-commander:add-server'
+        }
+        {
+          'label': 'Remove'
+          'command': 'atom-commander:remove-server'
+        }
+        {
+          'label': 'Open'
+          'command': 'atom-commander:open-server'
+        }
+        {
+          'label': 'Cache'
+          'command': 'atom-commander:view-cache'
+        }
+      ]
+    }
+    {
       'label': 'View'
       'submenu': [
         {

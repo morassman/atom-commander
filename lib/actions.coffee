@@ -293,7 +293,7 @@ class Actions
     @main.mainView.hideMenuBar();
     view = new BookmarksView(@, true, fromView);
 
-  serversAdd: =>
+  serversAdd: (fromView=true) =>
     view = @getFocusedView();
 
     if view == null
