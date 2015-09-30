@@ -4,6 +4,7 @@ Dual-pane file manager for Atom.
 
 Highlights:
 - Navigate the whole file system from within Atom.
+- Browse and edit remote files via FTP and SFTP.
 - Perform all actions with only the keyboard.
 - Bookmark files and folders for quick access.
 - Compare files side-by-side.
@@ -90,10 +91,15 @@ When the menu is closed and opened again it will start on the root menu.
   1. **Add** : Add a bookmark.
   2. **Remove** : Remove bookmarks.
   3. **Open** : Open a bookmark.
-4. **View**
+4. **Servers**
+  1. **Add** : Add an FTP or SFTP server.
+  2. **Remove** : Remove a server.
+  3. **Open** : Open the initial folder of a server.
+  4. **Cache** : View and sync the cache associated with a server.
+5. **View**
   1. **Mirror** : Show the same folder in the other pane as the focused one.
   2. **Swap** : Swap the two folders.
-5. **Compare**
+6. **Compare**
   1. **Folders** : Select the differences between the two folders.
   2. **Files** : Show the difference between the left and right highlighted files.
 
@@ -111,6 +117,15 @@ The list of bookmarks can be opened from either the menu in Atom Commander or by
 ### Removing Bookmarks
 The list of bookmarks can be opened from either the menu in Atom Commander or by choosing `Atom Commander: Remove Bookmark` from the Command Palette. Each bookmark that is selected will be removed. The list will remain open until it is cancelled by pressing the `Escape` key.
 
+## Servers
+Files can be accessed remotely via FTP and SFTP.
+
+### Adding Servers
+
+### Removing Servers
+
+### Browsing the Cache
+
 ## Compare
 ### Folders
 When the left and right folders are compared then everything that is in the one, but not in the other will be selected. This will replace the current selection.
@@ -124,5 +139,5 @@ Lines that have been added are highlighted on the left whereas lines that have b
 The files are currently not being monitored for changes. If either of the files change then the comparison will have to be done again.
 
 ## Todo
-- Load directories asynchronously.
-- Give visual feedback for file system operations.
+- Tabs for folders.
+- Visual feedback for file system operations.

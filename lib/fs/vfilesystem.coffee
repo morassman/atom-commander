@@ -1,13 +1,18 @@
 q = require 'q'
 {CompositeDisposable, Emitter} = require 'atom'
+TaskManager = require './task-manager'
 
 module.exports =
 class VFileSystem
 
   constructor: ->
     @emitter = new Emitter();
+    @taskManager = new TaskManager(@);
     @connecting = false;
     @connected = false;
+
+  getTaskManager: ->
+    return @taskManager;
 
   dispose: ->
     @emitter.dispose();

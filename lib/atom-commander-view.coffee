@@ -198,25 +198,46 @@ class AtomCommanderView extends View
     srcView = @focusedView;
     dstView = @getOtherView(srcView);
 
+    # Do nothing if the src and dst folders are the same.
+    if srcView.getURI() == dstView.getURI()
+      return;
+
+    # Do nothing if nothing is selected.
+    srcItemViews = srcView.getSelectedItemViews(true);
+
+    if srcItemViews.length == 0
+      return;
+
     srcFileSystem = srcView.directory.fileSystem;
     dstFileSystem = dstView.directory.fileSystem;
 
-    if srcFileSystem.isRemote() or dstFileSystem.isRemote()
-      if move
-        atom.notifications.addWarning("Move to/from remote file systems are not yet supported.");
-      else
-        atom.notifications.addWarning("Copy to/from remote file systems are not yet supported.");
-      return;
-
-    if srcView.getURI() == dstView.getURI()
-      return;
+    if move
+      if srcFileSystem.isRemote() or dstFileSystem.isRemote()
+        atom.notifications.addWarning("Move to/from remote file systems is not supported.");
+        return;
+    # else if srcFileSystem.isRemote() and dstFileSystem.isRemote()
+    #   atom.notifications.addWarning("Copy between remote file systems is not yet supported.");
+    #   return;
 
     srcPath = srcView.getPath();
     dstPath = dstView.getPath();
 
-    srcItemViews = srcView.getSelectedItemViews(true);
+    if srcFileSystem.isRemote()
+      items = [];
 
-    if srcItemViews.length == 0
+      for srcItemView in srcItemViews
+        items.push(srcItemView.getItem());
+
+      srcFileSystem.getTaskManager().downloadItems(dstPath, items);
+      return;
+
+    if dstFileSystem.isRemote()
+      items = [];
+
+      for srcItemView in srcItemViews
+        items.push(srcItemView.getItem());
+
+      dstFileSystem.getTaskManager().uploadItems(dstPath, items);
       return;
 
     srcNames = [];
@@ -245,8 +266,8 @@ class AtomCommanderView extends View
       return;
 
     option = atom.confirm
-      message: 'Delete'
-      detailedMessage: 'Delete the selected files?'
+      message: "Delete"
+      detailedMessage: "Delete the selected files?"
       buttons: ["No", "Yes"]
 
     if option == 0

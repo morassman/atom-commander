@@ -55,10 +55,7 @@ class SFTPFileSystem extends VFileSystem
       @disconnect();
 
     @ssh2.on "error", (err) =>
-      message = "Error connecting to "+@getDescription()+".";
-      if err.message?
-        message += "\n"+err.message;
-
+      console.log(err);
       @disconnect(err);
 
     @ssh2.on "end", =>

@@ -43,8 +43,8 @@ class RemoteFileManager
 
     # See if the file is already in the cache.
     if fsp.isFileSync(localFilePath)
-      message = "The file "+file.getPath()+" is already in the cache. ";
-      message += "Opening the remote file will replace the cached one.\n";
+      message = "The file "+file.getURI()+" is already in the cache. ";
+      message += "Opening the remote file will replace the one in the cache.\n";
       message += "Would you like to open the cached file instead?";
 
       option = atom.confirm
