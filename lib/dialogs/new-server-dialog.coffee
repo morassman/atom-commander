@@ -23,6 +23,12 @@ class NewServerDialog extends View
         @subview "ftpDialog", new FTPDialog()
         @subview "sftpDialog", new SFTPDialog()
 
+  getServerManager: ->
+    return @containerView.getMain().getServerManager();
+
+  serverExists: (id) ->
+    return @getServerManager().getFileSystemWithID(id) != null;
+
   ftpClicked: ->
     @setSelected(@ftpButton, @ftpDialog);
 
@@ -45,7 +51,7 @@ class NewServerDialog extends View
 
   addServer: (config) ->
     @close();
-    serverManager = @containerView.getMain().getServerManager();
+    serverManager = @getServerManager();
     server = serverManager.addServer(config);
     @containerView.openDirectory(server.getInitialDirectory());
 

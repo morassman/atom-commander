@@ -133,17 +133,23 @@ class SFTPDialog extends View
       @showMessage(message, 2);
 
   getErrorMessage: ->
-    if @getServer().length == 0
+    server = @getServer();
+    if server.length == 0
       return "Server must be specified."
 
-    if @getUsername().length == 0
+    username = @getUsername();
+    if username.length == 0
       return "Username must be specified."
+
+    port = @getPort();
+    if port == null
+      return "Invalid port number.";
+
+    if @serverExists(server, port, username)
+      return "This server has already been added.";
 
     if @getPassword().length == 0
       return "Password must be specified."
-
-    if @getPort() == null
-      return "Invalid port number.";
 
     return null;
 
@@ -162,6 +168,10 @@ class SFTPDialog extends View
       @message.addClass("text-error");
 
     @message.text(text);
+
+  serverExists: (server, port, username) ->
+    id = "sftp_"+server+"_"+port+"_"+username;
+    return @parentDialog.serverExists(id);
 
   getServer: ->
     return @serverEditor.getModel().getText().trim();

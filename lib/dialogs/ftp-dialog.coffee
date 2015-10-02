@@ -175,11 +175,16 @@ class FTPDialog extends View
     @showMessage("", 0);
 
   getErrorMessage: ->
-    if @serverEditor.getModel().getText().trim().length == 0
+    server = @getServer();
+    if server.length == 0
       return "Server must be specified."
 
-    if @getPort() == null
+    port = @getPort();
+    if port == null
       return "Invalid port number.";
+
+    if @serverExists(server, port, @getUsername())
+      return "This server has already been added.";
 
     return null;
 
@@ -206,23 +211,33 @@ class FTPDialog extends View
 
     @message.text(text);
 
+  serverExists: (server, port, username) ->
+    id = "ftp_"+server+"_"+port+"_"+username;
+    return @parentDialog.serverExists(id);
+
+  getServer: ->
+    return @serverEditor.getModel().getText().trim();
+
+  getUsername: ->
+    return @usernameEditor.getModel().getText().trim();
+
   getFTPConfig: ->
     config = {};
 
     config.protocol = "ftp";
-    config.host = @serverEditor.getModel().getText().trim();
+    config.host = @getServer();
     config.port = @getPort();
     config.folder = @getFolder();
     config.passwordDecrypted = true;
 
     if @isAnonymousSelected()
       config.anonymous = true;
-      config.user = "anonymous";
+      config.user = @getUsername();
       config.password = "anonymous@";
       config.storePassword = true;
     else
       config.anonymous = false;
-      config.user = @username;
+      config.user = @getUsername();
       config.password = @passwordEditor.getModel().getText().trim();
       config.storePassword = @isStoreCheckBoxSelected();
 
