@@ -13,6 +13,9 @@ class Server
     @localDirectoryName = @fileSystem.getLocalDirectoryName();
     @remoteFileManager = new RemoteFileManager(@);
 
+  getName: ->
+    return @fileSystem.getName();
+
   serialize: ->
     return @fileSystem.getSafeConfig();
 

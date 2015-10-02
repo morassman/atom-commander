@@ -35,6 +35,9 @@ class LocalFileSystem extends VFileSystem
   getURI: (item) ->
     return item.getRealPathSync();
 
+  getName: ->
+    return "local";
+
   getID: ->
     return "local";
 

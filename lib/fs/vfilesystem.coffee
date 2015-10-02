@@ -122,6 +122,8 @@ class VFileSystem
 
   getURI: (item) ->
 
+  getName: ->
+    
   # Returns an string that uniquely IDs this file system.
   getID: ->
 

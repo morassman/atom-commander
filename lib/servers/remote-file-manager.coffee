@@ -13,6 +13,9 @@ class RemoteFileManager
     @disposables.add atom.workspace.observeTextEditors (textEditor) =>
       @textEditorAdded(textEditor);
 
+  getServer: ->
+    return @server;
+
   textEditorAdded: (textEditor) ->
     cachePath = @server.getCachePath();
     localFilePath = textEditor.getPath();

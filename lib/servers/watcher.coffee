@@ -15,6 +15,7 @@ class Watcher
     @saveTime = null;
     @uploadTime = null;
     @disposables = new CompositeDisposable();
+    @serverName = @remoteFileManager.getServer().getName();
 
     @disposables.add @textEditor.onDidSave (event) =>
       @fileSaved();
@@ -51,7 +52,7 @@ class Watcher
     @uploadFailed = err?;
 
     if @uploadFailed
-      message = "The file "+@file.getPath()+" could not be uploaded."
+      message = @file.getPath()+" could not be uploaded to "+@serverName;
 
       if err.message?
         message += "\nReason : "+err.message;
@@ -63,6 +64,7 @@ class Watcher
       options["detail"] = message;
       atom.notifications.addWarning("Unable to upload file.", options);
     else
+      atom.notifications.addSuccess(@file.getPath()+" uploaded to "+@serverName);
       @uploadTime = @getModifiedTime();
 
     if @destroyed
@@ -71,6 +73,8 @@ class Watcher
   removeWatcher: ->
     if @shouldDeleteFile()
       fsp.removeSync(@localFilePath);
+    else
+      atom.notifications.addInfo(@file.getURI()+" has been cached.");
 
     @remoteFileManager.removeWatcher(@);
 
