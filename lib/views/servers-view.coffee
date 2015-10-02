@@ -22,12 +22,14 @@ class BookmarksView extends SelectListView
 
   refreshItems: ->
     items = [];
+    onlyOpen = @mode == "close";
 
     for server in @serverManager.getServers()
-      item = {};
-      item.server = server;
-      item.text = server.getDescription();
-      items.push(item);
+      if !onlyOpen or server.isOpen()
+        item = {};
+        item.server = server;
+        item.text = server.getDescription();
+        items.push(item);
 
     @setItems(items);
 
@@ -40,6 +42,8 @@ class BookmarksView extends SelectListView
   confirmed: (item) ->
     if @mode == "open"
       @confirmOpen(item);
+    else if @mode == "close"
+      @confirmClose(item);
     else if @mode == "remove"
       @confirmRemove(item);
     else if @mode == "cache"
@@ -48,6 +52,10 @@ class BookmarksView extends SelectListView
   confirmOpen: (item) ->
     @cancel();
     @actions.goDirectory(item.server.getInitialDirectory());
+
+  confirmClose: (item) ->
+    item.server.close();
+    @refreshItems();
 
   confirmRemove: (item) ->
     if item.server.getOpenFileCount() == 0

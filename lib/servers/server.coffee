@@ -82,3 +82,11 @@ class Server
 
   getWatcherWithLocalFilePath: (localFilePath) ->
     return @remoteFileManager.getWatcherWithLocalFilePath(localFilePath);
+
+  # Return true if the connection to the server is open.
+  isOpen: ->
+    return @fileSystem.isConnected();
+
+  # Closes the connection to the server.
+  close: ->
+    @fileSystem.disconnect();

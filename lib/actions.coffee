@@ -311,6 +311,10 @@ class Actions
     @main.mainView.hideMenuBar();
     view = new ServersView(@, "open", fromView);
 
+  serversClose: (fromView=true) =>
+    @main.mainView.hideMenuBar();
+    view = new ServersView(@, "close", fromView);
+
   serversCache: (fromView=true) =>
     @main.mainView.hideMenuBar();
     view = new ServersView(@, "cache", fromView);
