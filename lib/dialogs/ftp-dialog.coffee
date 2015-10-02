@@ -162,10 +162,17 @@ class FTPDialog extends View
   refreshError: ->
     message = @getErrorMessage();
 
-    if (message == null)
-      @showMessage("", 0);
-    else
+    if message != null
       @showMessage(message, 2);
+      return;
+
+    message = @getWarningMessage();
+
+    if message != null
+      @showMessage(message, 1);
+      return;
+
+    @showMessage("", 0);
 
   getErrorMessage: ->
     if @serverEditor.getModel().getText().trim().length == 0
@@ -173,6 +180,13 @@ class FTPDialog extends View
 
     if @getPort() == null
       return "Invalid port number.";
+
+    return null;
+
+  getWarningMessage: ->
+    if !@isAnonymousSelected()
+      if @passwordEditor.getModel().getText().trim().length == 0
+        return "Password not specified."
 
     return null;
 
@@ -233,7 +247,12 @@ class FTPDialog extends View
     if @hasError()
       return;
 
-    @parentDialog.addServer(@getFTPConfig());
+    config = @getFTPConfig();
+
+    if !config.storePassword and (config.password.length == 0)
+      delete config.password;
+
+    @parentDialog.addServer(config);
 
   cancel: ->
     @parentDialog.close();

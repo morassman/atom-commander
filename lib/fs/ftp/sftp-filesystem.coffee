@@ -27,9 +27,20 @@ class SFTPFileSystem extends VFileSystem
     if @clientConfig.password?
       @connectWithPassword(@clientConfig.password);
     else
-      Utils.promptForPassword "Enter password:", (password) =>
+      prompt = "Enter password for ";
+      prompt += @clientConfig.username;
+      prompt += "@";
+      prompt += @clientConfig.host;
+      prompt += ":"
+
+      Utils.promptForPassword prompt, (password) =>
         if password?
           @connectWithPassword(password);
+        else
+          err = {};
+          err.canceled = true;
+          err.message = "Incorrect credentials for "+@clientConfig.host;
+          @disconnect(err);
 
   connectWithPassword: (password) ->
     @client = null;
@@ -37,6 +48,8 @@ class SFTPFileSystem extends VFileSystem
 
     @ssh2.on "ready", =>
       @ssh2.sftp (err, sftp) =>
+        console.log(err);
+
         if err?
           @disconnect(err);
           return;
@@ -49,14 +62,23 @@ class SFTPFileSystem extends VFileSystem
         # If the connection was successful then remember the password for
         # the rest of the session.
         @clientConfig.password = password;
+
+        if @config.storePassword
+          @config.password = password;
+          @config.passwordDecrypted = true;
+
         @setConnected(true);
 
     @ssh2.on "close", =>
       @disconnect();
 
     @ssh2.on "error", (err) =>
-      console.log(err);
-      @disconnect(err);
+      if err.level == "client-authentication"
+        delete @clientConfig.password;
+        atom.notifications.addWarning("Incorrect credentials for "+@clientConfig.host);
+        @connectImpl();
+      else
+        @disconnect(err);
 
     @ssh2.on "end", =>
       @disconnect();

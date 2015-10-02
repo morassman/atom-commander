@@ -405,7 +405,7 @@ class ContainerView extends View
     newDirectory.getEntries (newDirectory, err, entries) =>
       if err == null
         @entriesCallback(newDirectory, entries, snapShot);
-      else
+      else if !err.canceled?
         Utils.showErrorWarning("Error reading folder", null, err, null, false);
       @hideSpinner();
 

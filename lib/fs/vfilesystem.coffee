@@ -37,7 +37,6 @@ class VFileSystem
       disposables = null;
       deferred.reject(err);
 
-    # Do not attemp to connect if it's already busy.
     @connect();
 
     return deferred.promise;

@@ -26,26 +26,43 @@ class FTPFileSystem extends VFileSystem
     if @clientConfig.password?
       @connectWithPassword(@clientConfig.password);
     else
-      Utils.promptForPassword "Enter password:", (password) =>
+      prompt = "Enter password for ";
+      prompt += @clientConfig.user;
+      prompt += "@";
+      prompt += @clientConfig.host;
+      prompt += ":"
+
+      Utils.promptForPassword prompt, (password) =>
         if password?
           @connectWithPassword(password);
+        else
+          err = {};
+          err.canceled = true;
+          err.message = "Incorrect credentials for "+@clientConfig.host;
+          @disconnect(err);
 
   connectWithPassword: (password) ->
     @client = new FTPClient();
 
     @client.on "ready", =>
       @clientConfig.password = password;
+
+      if @config.storePassword
+        @config.password = password;
+        @config.passwordDecrypted = true;
+
       @setConnected(true);
 
     @client.on "close", =>
       @disconnect();
 
     @client.on "error", (err) =>
-      message = "Error connecting to "+@getDescription()+".";
-      if err.message?
-        message += "\n"+err.message;
-
-      @disconnect(err);
+      if err.code == 530
+        delete @clientConfig.password;
+        atom.notifications.addWarning("Incorrect credentials for "+@clientConfig.host);
+        @connectImpl();
+      else
+        @disconnect(err);
 
     @client.on "end", =>
       @disconnect();

@@ -3,6 +3,7 @@ SimpleEncryptor = require 'simple-encryptor'
 PasswordDialog = require './dialogs/password-dialog'
 FileController = require './controllers/file-controller'
 DiffView = require './views/diff/diff-view'
+InputDialog = require './dialogs/input-dialog'
 
 module.exports =
 class Actions
@@ -41,7 +42,7 @@ class Actions
     return PathUtil.join(fsp.getHomeDirectory(), ".atom-commander", "servers");
 
   @promptForPassword: (prompt, callback) ->
-    dialog = new PasswordDialog(prompt, callback);
+    dialog = new InputDialog(prompt, null, true, callback);
     dialog.attach();
 
   @encrypt: (text, key) ->
