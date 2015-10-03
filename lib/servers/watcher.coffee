@@ -73,8 +73,6 @@ class Watcher
   removeWatcher: ->
     if @shouldDeleteFile()
       fsp.removeSync(@localFilePath);
-    else
-      atom.notifications.addInfo(@file.getURI()+" has been cached.");
 
     @remoteFileManager.removeWatcher(@);
 

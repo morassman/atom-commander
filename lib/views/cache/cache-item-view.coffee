@@ -1,6 +1,7 @@
 fsp = require 'fs-plus'
 fse = require 'fs-extra'
 {$, $$} = require 'atom-space-pen-views'
+PathUtil = require 'path';
 Utils = require '../../utils'
 Buffer = require '../../buffer'
 
@@ -81,6 +82,8 @@ class CacheItemView extends HTMLElement
     @appendChild(@deleteElement);
     @appendChild(@statusElement);
 
+    @setTransferInProgress(false);
+
   setChecked: (checked) ->
     if checked != @isChecked()
       @check.trigger("click");
@@ -100,13 +103,26 @@ class CacheItemView extends HTMLElement
       @syncView.uploadChecked();
       return;
 
+    if @transferInProgress
+      return;
+
+    @setTransferInProgress(true);
+
     if !fsp.isFileSync(@fullPath)
       @showStatus("Cached file could not be found.", 2);
+      @setTransferInProgress(false);
       return;
 
     @showStatus("Uploading...", 0);
+
+    localFileSystem = @syncView.getLocalFileSystem();
+    file = localFileSystem.getFile(@fullPath);
+    remoteParentPath = PathUtil.dirname(@path);
     fileSystem = @syncView.getFileSystem();
-    fileSystem.upload @fullPath, @path, (err) =>
+    taskManager = fileSystem.getTaskManager();
+
+    taskManager.uploadItem remoteParentPath, file, (err) =>
+      @setTransferInProgress(false);
       if err?
         @showStatus("Upload failed: "+err, 2);
       else
@@ -117,9 +133,21 @@ class CacheItemView extends HTMLElement
       @syncView.downloadChecked();
       return;
 
+    if @transferInProgress
+      return;
+
+    @setTransferInProgress(true);
+
     @showStatus("Downloading...", 0);
+
     fileSystem = @syncView.getFileSystem();
-    fileSystem.download @path, @fullPath, (err) =>
+    taskManager = fileSystem.getTaskManager();
+    file = fileSystem.getFile(@path);
+    localParentPath = PathUtil.dirname(@fullPath);
+
+    taskManager.downloadItem localParentPath, file, (err) =>
+      @setTransferInProgress(false);
+
       if err?
         @showStatus("Download failed: "+err, 2);
       else
@@ -129,6 +157,11 @@ class CacheItemView extends HTMLElement
     if !fsp.isFileSync(@fullPath)
       @showStatus("Cached file could not be found.", 2);
       return;
+
+    if @transferInProgress
+      return;
+
+    @setTransferInProgress(true);
 
     @showStatus("Downloading for comparison...", 0);
 
@@ -144,6 +177,7 @@ class CacheItemView extends HTMLElement
       if err.message?
         message += err.message;
       @showStatus(message, 2);
+      @setTransferInProgress(false);
       return;
 
     buffer = new Buffer();
@@ -155,6 +189,7 @@ class CacheItemView extends HTMLElement
       @remoteStreamRead(buffer.toString());
       buffer = null;
       @showStatus("", 0);
+      @setTransferInProgress(false);
 
     stream.on "error", (err) =>
       buffer = null;
@@ -162,6 +197,7 @@ class CacheItemView extends HTMLElement
       if err.message?
         message += err.message;
       @showStatus(message, 2);
+      @setTransferInProgress(false);
 
   remoteStreamRead: (text) ->
     localFileSystem = @syncView.getLocalFileSystem();
@@ -175,6 +211,9 @@ class CacheItemView extends HTMLElement
       @syncView.deleteChecked();
       return;
 
+    if @transferInProgress
+      return;
+
     option = atom.confirm
       message: "Delete"
       detailedMessage: "Delete #{@path} from the cache?"
@@ -184,6 +223,9 @@ class CacheItemView extends HTMLElement
       @delete();
 
   delete: ->
+    if @transferInProgress
+      return;
+
     fse.removeSync(@fullPath);
     @syncView.removeItem(@);
 
@@ -200,5 +242,11 @@ class CacheItemView extends HTMLElement
       @jstatus.addClass("text-success");
     else
       @jstatus.addClass("text-error");
+
+  setTransferInProgress: (@transferInProgress) ->
+    @uploadButton.attr("disabled", @transferInProgress);
+    @downloadButton.attr("disabled", @transferInProgress);
+    @deleteButton.attr("disabled", @transferInProgress);
+    @compareButton?.attr("disabled", @transferInProgress);
 
 module.exports = document.registerElement("cache-item-view", prototype: CacheItemView.prototype, extends: "tr")

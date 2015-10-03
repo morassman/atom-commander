@@ -7,128 +7,97 @@ module.exports =
 class TaskManager
 
   constructor: (@fileSystem) ->
-    @downloadQueue = queue();
-    @downloadQueue.concurrency = 1;
+    @taskQueue = queue();
+    @taskQueue.concurrency = 1;
 
-    @downloadQueue.on "error", (err, job) =>
-      console.log("error");
+    @taskQueue.on "error", (err, job) =>
       console.log(err);
-      @downloadQueue.end();
+      @taskQueue.end();
 
-    @downloadQueue.on "success", (result, job) =>
-      console.log("success");
-      console.log(result);
+  uploadItem: (remoteParentPath, item, callback) ->
+    @uploadItems(remoteParentPath, [item], callback);
 
-    @downloadQueue.on "end", =>
-      console.log("end");
+  uploadItems: (remoteParentPath, items, callback) ->
+    @uploadItemsWithQueue(remoteParentPath, items, callback);
+    @taskQueue.start();
 
-    @uploadQueue = queue();
-    @uploadQueue.concurrency = 1;
-
-    @uploadQueue.on "error", (err, job) =>
-      console.log("error");
-      console.log(err);
-      @uploadQueue.end();
-
-    @uploadQueue.on "success", (result, job) =>
-      console.log("success");
-      console.log(result);
-
-    @uploadQueue.on "end", =>
-      console.log("end");
-
-  uploadItems: (remoteParentPath, items) ->
-    @uploadItemsWithQueue(remoteParentPath, items);
-    @uploadQueue.start();
-
-  uploadItemsWithQueue: (remoteParentPath, items) ->
-    console.log("uploadItemsWithQueue : "+remoteParentPath);
-
+  uploadItemsWithQueue: (remoteParentPath, items, callback) ->
     for item in items
       if !item.isLink()
         if item.isFile()
-          @uploadFileWithQueue(remoteParentPath, item);
+          @uploadFileWithQueue(remoteParentPath, item, callback);
         else
-          @uploadDirectoryWithQueue(remoteParentPath, item);
+          @uploadDirectoryWithQueue(remoteParentPath, item, callback);
 
-  uploadFileWithQueue: (remoteParentPath, file) ->
+  uploadFileWithQueue: (remoteParentPath, file, callback) ->
     remoteFilePath = PathUtil.join(remoteParentPath, file.getBaseName());
-    console.log("uploadFileWithQueue : "+remoteFilePath);
 
-    @uploadQueue.push (cb) =>
-      console.log("file : "+file.getPath());
+    @taskQueue.push (cb) =>
       @fileSystem.upload file.getPath(), remoteFilePath, (err) =>
         if err?
-          console.log("upload error");
+          callback(err, file);
           cb(err);
         else
-          console.log("uploaded "+remoteFilePath);
+          callback(null, file);
           cb();
 
-  uploadDirectoryWithQueue: (remoteParentPath, directory) ->
+  uploadDirectoryWithQueue: (remoteParentPath, directory, callback) ->
     remoteFolderPath = PathUtil.join(remoteParentPath, directory.getBaseName());
-    console.log("uploadDirectoryWithQueue : "+remoteFolderPath);
 
-    @uploadQueue.push (cb) =>
+    @taskQueue.push (cb) =>
       @fileSystem.makeDirectory remoteFolderPath, (err) =>
-        console.log("upload makeDirectory");
-        console.log(err);
+        if err?
+          callback(err, directory);
         cb(err);
 
-    @uploadQueue.push (cb) =>
-      console.log("dir : "+directory.getPath());
+    @taskQueue.push (cb) =>
       directory.getEntries (dir, err, entries) =>
         if err?
-          console.log("dir error");
-          console.log(err);
+          callback(err, directory);
           cb(err);
         else
           @uploadItemsWithQueue(remoteFolderPath, entries);
           cb();
 
-  downloadItems: (localParentPath, items) ->
-    @downloadItemsWithQueue(localParentPath, items);
-    @downloadQueue.start();
+  downloadItem: (localParentPath, item, callback) ->
+    @downloadItems(localParentPath, [item], callback);
 
-  downloadItemsWithQueue: (localParentPath, items) ->
-    console.log("downloadItemsWithQueue : "+localParentPath);
+  downloadItems: (localParentPath, items, callback) ->
+    @downloadItemsWithQueue(localParentPath, items, callback);
+    @taskQueue.start();
 
+  downloadItemsWithQueue: (localParentPath, items, callback) ->
     for item in items
       if !item.isLink()
         if item.isFile()
-          @downloadFileWithQueue(localParentPath, item);
+          @downloadFileWithQueue(localParentPath, item, callback);
         else
-          @downloadDirectoryWithQueue(localParentPath, item);
+          @downloadDirectoryWithQueue(localParentPath, item, callback);
 
-  downloadFileWithQueue: (localParentPath, file) ->
+  downloadFileWithQueue: (localParentPath, file, callback) ->
     localFilePath = PathUtil.join(localParentPath, file.getBaseName());
-    console.log("downloadFileWithQueue : "+localFilePath);
 
-    @downloadQueue.push (cb) =>
-      console.log("file : "+file.getPath());
+    @taskQueue.push (cb) =>
       file.download localFilePath, (err) =>
         if err?
-          console.log("download error");
+          callback(err, file);
           cb(err);
         else
-          console.log("downloaded "+localFilePath);
+          callback(null, file);
           cb();
 
-  downloadDirectoryWithQueue: (localParentPath, directory) ->
+  downloadDirectoryWithQueue: (localParentPath, directory, callback) ->
     localFolderPath = PathUtil.join(localParentPath, directory.getBaseName());
-    console.log("downloadDirectoryWithQueue : "+localFolderPath);
 
-    @downloadQueue.push (cb) =>
+    @taskQueue.push (cb) =>
       fse.ensureDirSync(localFolderPath);
       cb();
 
-    @downloadQueue.push (cb) =>
-      console.log("dir : "+directory.getPath());
+    @taskQueue.push (cb) =>
       directory.getEntries (dir, err, entries) =>
         if err?
-          console.log("dir error");
-          console.log(err);
+          callback(err, directory);
           cb(err);
         else
-          @downloadItemsWithQueue(localFolderPath, entries);
+          @downloadItemsWithQueue(localFolderPath, entries, callback);
           cb();
