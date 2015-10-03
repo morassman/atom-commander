@@ -92,6 +92,10 @@
           'command': 'atom-commander:open-server'
         }
         {
+          'label': 'Close'
+          'command': 'atom-commander:close-server'
+        }
+        {
           'label': 'Cache'
           'command': 'atom-commander:view-cache'
         }

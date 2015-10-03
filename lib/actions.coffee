@@ -316,3 +316,53 @@ class Actions
   serversCache: (fromView=true) =>
     @main.mainView.hideMenuBar();
     view = new ServersView(@, "cache", fromView);
+
+  uploadFile: =>
+    editor = atom.workspace.getActiveTextEditor();
+
+    if !(editor instanceof TextEditor)
+      return;
+
+    if !editor.getPath()?
+      return;
+
+    serverManager = @main.getServerManager();
+    watcher = serverManager.getWatcherWithLocalFilePath(editor.getPath());
+
+    if watcher == null
+      atom.notifications.addInfo(editor.getPath()+" doesn't have a server associated with it.");
+      return;
+
+    editor.save();
+    watcher.upload();
+
+  downloadFile: =>
+    editor = atom.workspace.getActiveTextEditor();
+
+    if !(editor instanceof TextEditor)
+      return;
+
+    if !editor.getPath()?
+      return;
+
+    serverManager = @main.getServerManager();
+    watcher = serverManager.getWatcherWithLocalFilePath(editor.getPath());
+
+    if watcher == null
+      atom.notifications.addInfo(editor.getPath()+" doesn't have a server associated with it.");
+      return;
+
+    option = atom.confirm
+      message: "Download"
+      detailedMessage: "Replace the cached file with the remote one?"
+      buttons: ["No", "Yes"]
+
+    if option == 0
+      return;
+
+    file = watcher.getFile();
+    file.download editor.getPath(), (err) =>
+      if err?
+        Utils.showErrorWarning("Download failed", "Error downloading "+file.getURI(), null, err, true);
+      else
+        atom.notifications.addSuccess("Downloaded "+file.getURI());

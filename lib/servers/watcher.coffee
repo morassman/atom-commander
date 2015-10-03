@@ -40,9 +40,10 @@ class Watcher
   fileSaved: ->
     @saveTime = @getModifiedTime();
 
-    if !atom.config.get("atom-commander.uploadOnSave")
-      return;
+    if atom.config.get("atom-commander.uploadOnSave")
+      @upload();
 
+  upload: ->
     @uploading++;
     @file.upload @localFilePath, (err) =>
       @uploading--;

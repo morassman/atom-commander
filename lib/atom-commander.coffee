@@ -64,7 +64,16 @@ module.exports = AtomCommander =
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:add-server': => @actions.serversAdd(false);
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:remove-server': => @actions.serversRemove(false);
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:open-server': => @actions.serversOpen(false);
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:close-server': => @actions.serversClose(false);
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:view-cache': => @actions.serversCache(false);
+
+    @subscriptions.add atom.commands.add 'atom-text-editor', 'atom-commander:upload-file': (event) =>
+      event.stopPropagation();
+      @actions.uploadFile();
+
+    @subscriptions.add atom.commands.add 'atom-text-editor', 'atom-commander:download-file': (event) =>
+      event.stopPropagation();
+      @actions.downloadFile();
 
     @subscriptions.add atom.commands.add 'atom-text-editor', 'atom-commander:add-bookmark': (event) =>
       event.stopPropagation();
