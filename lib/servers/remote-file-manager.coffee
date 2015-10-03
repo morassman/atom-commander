@@ -21,7 +21,14 @@ class RemoteFileManager
     localFilePath = textEditor.getPath();
     dir = new Directory(cachePath);
 
+    # Check to see if the file is in the cache directory.
     if !dir.contains(localFilePath)
+      return;
+
+    # Ensure that the file exists. An editor can exist for a file path if Atom
+    # was closed with the file open, but then the file was deleted before Atom
+    # was launched again.
+    if !fsp.isFileSync(localFilePath)
       return;
 
     # See if the file is already being watched. This will be the case if the
