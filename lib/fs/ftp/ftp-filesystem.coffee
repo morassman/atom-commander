@@ -19,6 +19,11 @@ class FTPFileSystem extends VFileSystem
 
     @clientConfig = @getClientConfig();
 
+  clone: ->
+    cloneFS = new FTPFileSystem(@server, @config);
+    cloneFS.clientConfig = @clientConfig;
+    return cloneFS;
+
   isLocal: ->
     return false;
 

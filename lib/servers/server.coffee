@@ -38,7 +38,7 @@ class Server
     return @fileSystem;
 
   dispose: ->
-    @fileSystem.disconnect();
+    @close();
     @fileSystem.dispose();
 
   createFileSystem: ->
@@ -68,6 +68,9 @@ class Server
   getOpenFileCount: ->
     return @remoteFileManager.getOpenFileCount();
 
+  getTaskCount: ->
+    return @fileSystem.getTaskCount();
+
   getServersPath: ->
     return PathUtil.join(fsp.getHomeDirectory(), ".atom-commander", "servers");
 
@@ -93,3 +96,6 @@ class Server
   # Closes the connection to the server.
   close: ->
     @fileSystem.disconnect();
+
+    taskManager = @fileSystem.getTaskManager(false);
+    taskManager?.dispose();

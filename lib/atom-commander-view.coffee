@@ -78,7 +78,6 @@ class AtomCommanderView extends View
     @leftView.dispose();
     @rightView.dispose();
     @element.remove();
-    @ftpFileSystem?.disconnect();
 
   getElement: ->
     return @element;

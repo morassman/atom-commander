@@ -57,6 +57,10 @@ class ServerManager
 
     return null;
 
+  dispose: ->
+    for server in @servers
+      server.dispose();
+
   serialize: ->
     state = [];
 

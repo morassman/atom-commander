@@ -11,6 +11,9 @@ class LocalFileSystem extends VFileSystem
   constructor: ->
     super();
 
+  clone: ->
+    return new LocalFileSystem();
+
   isLocal: ->
     return true;
 

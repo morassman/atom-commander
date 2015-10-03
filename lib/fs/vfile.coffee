@@ -13,10 +13,12 @@ class VFile extends VItem
     return false;
 
   download: (localPath, callback) ->
-    @fileSystem.download(@getPath(), localPath, callback);
+    taskManager = @getFileSystem().getTaskManager();
+    taskManager.getFileSystem().download(@getPath(), localPath, callback);
 
   upload: (localPath, callback) ->
-    @fileSystem.upload(localPath, @getPath(), callback);
+    taskManager = @getFileSystem().getTaskManager();
+    taskManager.getFileSystem().upload(localPath, @getPath(), callback);
 
   open: ->
     @fileSystem.openFile(@);

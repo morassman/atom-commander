@@ -117,7 +117,7 @@ module.exports = AtomCommander =
     @saveState();
     @bottomPanel.destroy();
     @subscriptions.dispose();
-    @remoteFileManager.destroy();
+    @serverManager.dispose();
     @mainView.destroy();
 
   serialize: ->

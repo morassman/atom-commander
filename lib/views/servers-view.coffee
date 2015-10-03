@@ -32,6 +32,7 @@ class BookmarksView extends SelectListView
         items.push(item);
 
     @setItems(items);
+    return items;
 
   getFilterKey: ->
     return "text";
@@ -54,18 +55,39 @@ class BookmarksView extends SelectListView
     @actions.goDirectory(item.server.getInitialDirectory());
 
   confirmClose: (item) ->
+    if item.server.getTaskCount() > 0
+      option = atom.confirm
+        message: "Close"
+        detailedMessage: "Files on this server are still being accessed. Are you sure you want to close the connection?"
+        buttons: ["No", "Yes"]
+
+      if option == 0
+        return;
+
     item.server.close();
-    @refreshItems();
+    items = @refreshItems();
+    if items.length == 0
+      @cancel();
 
   confirmRemove: (item) ->
-    if item.server.getOpenFileCount() == 0
-      @serverManager.removeServer(item.server);
-      if @serverManager.getServerCount() == 0
-        @cancel();
-      else
-        @refreshItems();
-    else
+    if item.server.getOpenFileCount() > 0
       atom.notifications.addWarning("A server cannot be removed while its files are being edited.");
+      return;
+
+    if item.server.getTaskCount() > 0
+      option = atom.confirm
+        message: "Close"
+        detailedMessage: "Files on this server are still being accessed. Are you sure you want to close the connection?"
+        buttons: ["No", "Yes"]
+
+      if option == 0
+        return;
+
+    @serverManager.removeServer(item.server);
+    if @serverManager.getServerCount() == 0
+      @cancel();
+    else
+      @refreshItems();
 
   confirmCache: (item) ->
     @cancel();

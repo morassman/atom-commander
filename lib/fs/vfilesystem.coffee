@@ -7,12 +7,21 @@ class VFileSystem
 
   constructor: ->
     @emitter = new Emitter();
-    @taskManager = new TaskManager(@);
+    @taskManager = null;
     @connecting = false;
     @connected = false;
 
-  getTaskManager: ->
+  getTaskManager: (create=true) ->
+    if (@taskManager == null) and create
+      @taskManager = new TaskManager(@clone());
+
     return @taskManager;
+
+  getTaskCount: ->
+    if @taskManager == null
+      return 0;
+
+    return @taskManager.getTaskCount();
 
   dispose: ->
     @emitter.dispose();
@@ -99,6 +108,10 @@ class VFileSystem
     else
       @emitDisconnected();
 
+  # Returns a clone of this file system. This is used for the TaskManager so
+  # that transfers can be done while the file system can still be browsed.
+  clone: ->
+
   connectImpl: ->
 
   disconnectImpl: ->
@@ -123,7 +136,7 @@ class VFileSystem
   getURI: (item) ->
 
   getName: ->
-    
+
   # Returns an string that uniquely IDs this file system.
   getID: ->
 

@@ -87,6 +87,13 @@ class ContainerView extends View
      'atom-commander:page-down': => @pageDown()
      'atom-commander:select-item': => @spacePressed()
 
+  cancelSpinner: ->
+    if @showSpinnerCount == 0
+      return;
+
+    @showSpinnerCount = 0;
+    @spinnerPanel.hide();
+
   showSpinner: ->
     @showSpinnerCount++;
     @spinnerPanel.show();
@@ -380,6 +387,7 @@ class ContainerView extends View
   tryOpenDirectory: (newDirectory, snapShot = null) ->
     #If the directory could be read then update the field.
     @directory = newDirectory;
+    @cancelSpinner();
     @disableAutoRefresh();
 
     @resetItemViews();

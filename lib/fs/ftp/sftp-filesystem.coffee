@@ -20,6 +20,11 @@ class SFTPFileSystem extends VFileSystem
 
     @clientConfig = @getClientConfig();
 
+  clone: ->
+    cloneFS = new SFTPFileSystem(@server, @config);
+    cloneFS.clientConfig = @clientConfig;
+    return cloneFS;
+
   isLocal: ->
     return false;
 

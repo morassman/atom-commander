@@ -137,7 +137,6 @@ class CacheItemView extends HTMLElement
       return;
 
     @setTransferInProgress(true);
-
     @showStatus("Downloading...", 0);
 
     fileSystem = @syncView.getFileSystem();

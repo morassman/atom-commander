@@ -14,6 +14,16 @@ class TaskManager
       console.log(err);
       @taskQueue.end();
 
+  dispose: ->
+    @taskQueue.end();
+    @fileSystem.disconnect();
+
+  getFileSystem: ->
+    return @fileSystem;
+
+  getTaskCount: ->
+    return @taskQueue.length;
+
   uploadItem: (remoteParentPath, item, callback) ->
     @uploadItems(remoteParentPath, [item], callback);
 
@@ -35,10 +45,10 @@ class TaskManager
     @taskQueue.push (cb) =>
       @fileSystem.upload file.getPath(), remoteFilePath, (err) =>
         if err?
-          callback(err, file);
+          callback?(err, file);
           cb(err);
         else
-          callback(null, file);
+          callback?(null, file);
           cb();
 
   uploadDirectoryWithQueue: (remoteParentPath, directory, callback) ->
@@ -47,13 +57,13 @@ class TaskManager
     @taskQueue.push (cb) =>
       @fileSystem.makeDirectory remoteFolderPath, (err) =>
         if err?
-          callback(err, directory);
+          callback?(err, directory);
         cb(err);
 
     @taskQueue.push (cb) =>
       directory.getEntries (dir, err, entries) =>
         if err?
-          callback(err, directory);
+          callback?(err, directory);
           cb(err);
         else
           @uploadItemsWithQueue(remoteFolderPath, entries);
@@ -80,10 +90,10 @@ class TaskManager
     @taskQueue.push (cb) =>
       file.download localFilePath, (err) =>
         if err?
-          callback(err, file);
+          callback?(err, file);
           cb(err);
         else
-          callback(null, file);
+          callback?(null, file);
           cb();
 
   downloadDirectoryWithQueue: (localParentPath, directory, callback) ->
@@ -96,7 +106,7 @@ class TaskManager
     @taskQueue.push (cb) =>
       directory.getEntries (dir, err, entries) =>
         if err?
-          callback(err, directory);
+          callback?(err, directory);
           cb(err);
         else
           @downloadItemsWithQueue(localFolderPath, entries, callback);
