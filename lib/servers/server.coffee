@@ -78,6 +78,19 @@ class Server
   getOpenFileCount: ->
     return @remoteFileManager.getOpenFileCount();
 
+  # Return the number of files in the cache.
+  getCacheFileCount: ->
+    result = 0;
+
+    onFile = (filePath) =>
+      result++;
+    onDirectory = (directoryPath) =>
+      return true;
+
+    fsp.traverseTreeSync(@getCachePath(), onFile, onDirectory);
+
+    return result;
+
   getTaskCount: ->
     return @fileSystem.getTaskCount();
 

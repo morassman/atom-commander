@@ -113,7 +113,8 @@ class Actions
 
     if editor instanceof TextEditor
       if editor.getPath()?
-        @goFile(new File(editor.getPath()));
+        file = @main.getLocalFileSystem().getFile(editor.getPath());
+        @goFile(file, false);
 
   goPath: (path, openIfFile) =>
     if fsp.isDirectorySync(path)
@@ -123,11 +124,7 @@ class Actions
     file = new File(path);
 
     if fsp.isFileSync(path)
-      @goFile(file);
-
-      if openIfFile
-        atom.workspace.open(file.getPath());
-
+      @goFile(file, openIfFile);
       return;
 
     directory = file.getParent();
@@ -135,7 +132,7 @@ class Actions
     if fsp.isDirectorySync(directory.getPath())
       @goDirectory(directory);
 
-  goFile: (file) =>
+  goFile: (file, open=false) =>
     view = @getFocusedView();
 
     if (view != null)
@@ -143,7 +140,9 @@ class Actions
       snapShot.name = file.getBaseName();
 
       view.requestFocus();
-      view.openDirectory(file.getParent(), snapShot);
+      view.openDirectory file.getParent(), snapShot, (err) =>
+        if !err? and open
+          file.open();
 
   goDirectory: (directory) =>
     view = @getFocusedView();
@@ -177,8 +176,7 @@ class Actions
     item = fileSystem.getItemWithPathDescription(bookmark.pathDescription);
 
     if item.isFile()
-      @goFile(item);
-      item.open();
+      @goFile(item, true);
     else
       @goDirectory(item);
 

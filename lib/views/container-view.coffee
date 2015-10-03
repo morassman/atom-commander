@@ -362,7 +362,7 @@ class ContainerView extends View
       snapShot.name = @directory.getBaseName();
       @openDirectory(@directory.getParent(), snapShot);
 
-  openDirectory: (directory, snapShot = null) ->
+  openDirectory: (directory, snapShot = null, callback = null) ->
     if @searchPanel.isVisible()
       @searchPanel.hide();
 
@@ -373,18 +373,18 @@ class ContainerView extends View
     #   return;
 
     try
-      @tryOpenDirectory(directory, snapShot);
+      @tryOpenDirectory(directory, snapShot, callback);
     catch error
       console.log(error);
       # If the directory couldn't be opened and one hasn't been opened yet then
       # revert to opening the home folder and finally the PWD.
       if (@directory == null) or !fs.isDirectorySync(@directory.getRealPathSync())
         try
-          @tryOpenDirectory(@localFileSystem.getDirectory(fs.getHomeDirectory()));
+          @tryOpenDirectory(@localFileSystem.getDirectory(fs.getHomeDirectory()), null, callback);
         catch error2
-          @tryOpenDirectory(@localFileSystem.getDirectory(process.env['PWD']));
+          @tryOpenDirectory(@localFileSystem.getDirectory(process.env['PWD']), null, callback);
 
-  tryOpenDirectory: (newDirectory, snapShot = null) ->
+  tryOpenDirectory: (newDirectory, snapShot = null, callback = null) ->
     #If the directory could be read then update the field.
     @directory = newDirectory;
     @cancelSpinner();
@@ -393,7 +393,7 @@ class ContainerView extends View
     @resetItemViews();
     @highlightIndex(0);
 
-    @getEntries(newDirectory, snapShot);
+    @getEntries(newDirectory, snapShot, callback);
 
   resetItemViews: ->
     @clearItemViews();
@@ -408,17 +408,19 @@ class ContainerView extends View
       @itemViews.push(itemView);
       @addItemView(itemView);
 
-  getEntries: (newDirectory, snapShot) ->
+  getEntries: (newDirectory, snapShot, callback) ->
     @showSpinner();
     newDirectory.getEntries (newDirectory, err, entries) =>
       if err == null
-        @entriesCallback(newDirectory, entries, snapShot);
+        @entriesCallback(newDirectory, entries, snapShot, callback);
       else if !err.canceled?
         Utils.showErrorWarning("Error reading folder", null, err, null, false);
+        callback?(err);
       @hideSpinner();
 
-  entriesCallback: (newDirectory, entries, snapShot) ->
+  entriesCallback: (newDirectory, entries, snapShot, callback) ->
     if (@directory != null) and (@directory.getURI() != newDirectory.getURI())
+      callback?(null);
       return;
 
     highlightIndex = 0;
@@ -445,6 +447,7 @@ class ContainerView extends View
 
     @restoreSnapShot(snapShot);
     @enableAutoRefresh();
+    callback?(null);
 
   disableAutoRefresh: ->
     if @directoryDisposable != null

@@ -52,8 +52,8 @@ class BookmarksView extends SelectListView
 
   confirmed: (item) ->
     if @open
-      @actions.goBookmark(item.bookmark);
       @cancel();
+      @actions.goBookmark(item.bookmark);
     else
       @actions.main.getBookmarkManager().removeBookmark(item.bookmark);
       @refreshItems();

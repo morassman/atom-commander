@@ -22,17 +22,29 @@ class BookmarksView extends SelectListView
 
   refreshItems: ->
     items = [];
+    # Only show those that have an open connection.
     onlyOpen = @mode == "close";
+    showCount = @mode != "open";
 
     for server in @serverManager.getServers()
       if !onlyOpen or server.isOpen()
         item = {};
         item.server = server;
         item.text = server.getDescription();
+
+        if showCount
+          item.text += " ("+@createCountString(item.server.getCacheFileCount())+")";
+
         items.push(item);
 
     @setItems(items);
     return items;
+
+  createCountString: (count) ->
+    if count == 1
+      return "1 file in cache";
+
+    return count+" files in cache";
 
   getFilterKey: ->
     return "text";

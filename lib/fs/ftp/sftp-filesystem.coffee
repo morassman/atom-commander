@@ -53,8 +53,6 @@ class SFTPFileSystem extends VFileSystem
 
     @ssh2.on "ready", =>
       @ssh2.sftp (err, sftp) =>
-        console.log(err);
-
         if err?
           @disconnect(err);
           return;
