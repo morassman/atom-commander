@@ -4,14 +4,23 @@ PathUtil = require 'path'
 FTPFileSystem = require '../fs/ftp/ftp-filesystem'
 SFTPFileSystem = require '../fs/ftp/sftp-filesystem'
 RemoteFileManager = require './remote-file-manager'
+{CompositeDisposable} = require 'atom'
 
 module.exports =
 class Server
 
-  constructor: (@main, @config) ->
+  constructor: (@serverManager, @config) ->
+    @main = @serverManager.getMain();
     @fileSystem = @createFileSystem();
     @localDirectoryName = @fileSystem.getLocalDirectoryName();
     @remoteFileManager = new RemoteFileManager(@);
+    @disposables = new CompositeDisposable();
+
+    taskManager = @fileSystem.getTaskManager();
+    @disposables.add taskManager.onUploadCount (change) =>
+      @serverManager.uploadCountChanged(change[0], change[1]);
+    @disposables.add taskManager.onDownloadCount (change) =>
+      @serverManager.downloadCountChanged(change[0], change[1]);
 
   getName: ->
     return @fileSystem.getName();
@@ -40,6 +49,7 @@ class Server
   dispose: ->
     @close();
     @fileSystem.dispose();
+    @disposables.dispose();
 
   createFileSystem: ->
     if @config.protocol == "ftp"

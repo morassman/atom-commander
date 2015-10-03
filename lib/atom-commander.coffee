@@ -2,6 +2,7 @@ fsp = require 'fs-plus'
 Actions = require './actions'
 ListView = require './views/list-view'
 DiffView = require './views/diff/diff-view'
+StatusView = require './views/status-view'
 AtomCommanderView = require './atom-commander-view'
 BookmarkManager = require './bookmark-manager'
 ServerManager = require './servers/server-manager'
@@ -119,6 +120,8 @@ module.exports = AtomCommander =
     @subscriptions.dispose();
     @serverManager.dispose();
     @mainView.destroy();
+    @statusView?.destroy();
+    @statusTile?.destroy()
 
   serialize: ->
     if @mainView != null
@@ -155,6 +158,17 @@ module.exports = AtomCommander =
       @bottomPanel.show()
       @mainView.refocusLastView();
       @saveState();
+
+  consumeStatusBar: (statusBar) ->
+    @statusView = new StatusView();
+    @statusTile = statusBar.addRightTile({item:@statusView});
+
+  refreshStatus: ->
+    if @statusView == null
+      return;
+
+    @statusView.setUploadCount(@serverManager.getUploadCount());
+    @statusView.setDownloadCount(@serverManager.getDownloadCount());
 
   fileSystemRemoved: (fileSystem) ->
     @bookmarkManager.fileSystemRemoved(fileSystem);

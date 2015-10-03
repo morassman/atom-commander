@@ -52,16 +52,16 @@ class VFileSystem
 
   onConnected: (callback) ->
     if @emitter != null
-      @emitter.on("connected", callback);
+      return @emitter.on("connected", callback);
 
   onDisconnected: (callback) ->
     if @emitter != null
-      @emitter.on("disconnected", callback);
+      return @emitter.on("disconnected", callback);
 
   # Callback receives a single 'err' parameter.
   onError: (callback) ->
     if @emitter != null
-      @emitter.on("error", callback);
+      return @emitter.on("error", callback);
 
   emitConnected: ->
     if @emitter != null

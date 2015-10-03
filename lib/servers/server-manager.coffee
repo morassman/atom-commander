@@ -5,13 +5,24 @@ class ServerManager
 
   constructor: (@main, state) ->
     @servers = [];
+    @uploadCount = 0;
+    @downloadCount = 0;
 
     if state?
       for config in state
         @addServer(config);
 
+  getMain: ->
+    return @main;
+
+  getUploadCount: ->
+    return @uploadCount;
+
+  getDownloadCount: ->
+    return @downloadCount;
+
   addServer: (config) ->
-    server = new Server(@main, config);
+    server = new Server(@, config);
     @servers.push(server);
     return server;
 
@@ -56,6 +67,14 @@ class ServerManager
         return watcher;
 
     return null;
+
+  uploadCountChanged: (old, current) ->
+    @uploadCount += current - old;
+    @main.refreshStatus();
+
+  downloadCountChanged: (old, current) ->
+    @downloadCount += current - old;
+    @main.refreshStatus();
 
   dispose: ->
     for server in @servers

@@ -9,6 +9,7 @@ RenameDialog = require './dialogs/rename-dialog'
 FileController = require './controllers/file-controller'
 DirectoryController = require './controllers/directory-controller'
 FTPFileSystem = require './fs/ftp/ftp-filesystem'
+Utils = require './utils'
 
 module.exports =
 class AtomCommanderView extends View
@@ -227,7 +228,11 @@ class AtomCommanderView extends View
       for srcItemView in srcItemViews
         items.push(srcItemView.getItem());
 
-      srcFileSystem.getTaskManager().downloadItems(dstPath, items);
+      srcFileSystem.getTaskManager().downloadItems dstPath, items, (err, item) ->
+        if err?
+          message = "Error downloading "+item.getURI();
+          Utils.showErrorWarning("Download failed", message, null, err, true);
+
       return;
 
     if dstFileSystem.isRemote()
@@ -236,7 +241,11 @@ class AtomCommanderView extends View
       for srcItemView in srcItemViews
         items.push(srcItemView.getItem());
 
-      dstFileSystem.getTaskManager().uploadItems(dstPath, items);
+      dstFileSystem.getTaskManager().uploadItems dstPath, items, (err, item) ->
+        if err?
+          message = "Error uploading "+item.getURI();
+          Utils.showErrorWarning("Upload failed", message, null, err, true);
+
       return;
 
     srcNames = [];
