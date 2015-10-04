@@ -120,6 +120,7 @@ module.exports = AtomCommander =
   saveState: ->
     state = @serialize();
     file = @getSaveFile();
+    state.version = 1;
 
     try
       fsp.writeFileSync(file.getPath(), JSON.stringify(state));
@@ -186,6 +187,9 @@ module.exports = AtomCommander =
   fileSystemRemoved: (fileSystem) ->
     @bookmarkManager.fileSystemRemoved(fileSystem);
     @mainView.fileSystemRemoved(fileSystem);
+
+  serverClosed: (server) ->
+    @mainView.serverClosed(server);
 
   getFileSystemWithID: (fileSystemId) ->
     if @localFileSystem.getID() == fileSystemId

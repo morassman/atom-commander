@@ -141,7 +141,7 @@ class Actions
 
       view.requestFocus();
       view.openDirectory file.getParent(), snapShot, (err) =>
-        if !err? and open
+        if open
           file.open();
 
   goDirectory: (directory) =>

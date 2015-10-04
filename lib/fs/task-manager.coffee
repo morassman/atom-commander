@@ -60,6 +60,9 @@ class TaskManager
     if @emitter != null
       @emitter.emit("downloadcount", [old, @downloadCount]);
 
+  clearTasks: ->
+    @taskQueue.end();
+
   dispose: ->
     @taskQueue.end();
     @fileSystem.disconnect();

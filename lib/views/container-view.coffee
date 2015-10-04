@@ -23,6 +23,7 @@ class ContainerView extends View
     @showSpinnerCount = 0;
     @scheduler = new Scheduler(1);
     @disposables = new CompositeDisposable();
+    @lastLocalPath = null;
 
     @directoryEditor.addClass('directory-editor');
 
@@ -385,7 +386,6 @@ class ContainerView extends View
           @tryOpenDirectory(@localFileSystem.getDirectory(process.env['PWD']), null, callback);
 
   tryOpenDirectory: (newDirectory, snapShot = null, callback = null) ->
-    #If the directory could be read then update the field.
     @directory = newDirectory;
     @cancelSpinner();
     @disableAutoRefresh();
@@ -394,6 +394,9 @@ class ContainerView extends View
     @highlightIndex(0);
 
     @getEntries(newDirectory, snapShot, callback);
+
+    if @directory.isLocal()
+      @lastLocalPath = @directory.getPath();
 
   resetItemViews: ->
     @clearItemViews();
@@ -576,7 +579,11 @@ class ContainerView extends View
 
   fileSystemRemoved: (fileSystem) ->
     if @directory.getFileSystem() == fileSystem
-      @openDirectory(@getInitialDirectory(fs.getHomeDirectory()));
+      @openDirectory(@getInitialDirectory(@lastLocalPath));
+
+  serverClosed: (server) ->
+    if @directory.getFileSystem() == server.getFileSystem()
+      @openDirectory(@getInitialDirectory(@lastLocalPath));
 
   deserialize: (path, state) ->
     if (state == null) or (state == undefined)
@@ -584,13 +591,18 @@ class ContainerView extends View
       return;
 
     @openDirectory(@getInitialDirectory(state.path));
-    @highlightIndexWithName(state.highlight);
+
+    if state.highlight?
+      @highlightIndexWithName(state.highlight);
 
   serialize: ->
     state = {}
 
-    state.path = @getPath();
-    state.highlight = @getHighlightedItemName();
+    if @directory.isLocal()
+      state.path = @getPath();
+      state.highlight = @getHighlightedItemName();
+    else
+      state.path = @lastLocalPath;
 
     return state;
 

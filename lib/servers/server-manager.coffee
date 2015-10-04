@@ -76,6 +76,9 @@ class ServerManager
     @downloadCount += current - old;
     @main.refreshStatus();
 
+  serverClosed: (server) ->
+    @main.serverClosed(server);
+
   dispose: ->
     for server in @servers
       server.dispose();

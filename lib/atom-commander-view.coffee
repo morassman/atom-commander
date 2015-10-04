@@ -333,6 +333,10 @@ class AtomCommanderView extends View
     @leftView.fileSystemRemoved(fileSystem);
     @rightView.fileSystemRemoved(fileSystem);
 
+  serverClosed: (server) ->
+    @leftView.serverClosed(server);
+    @rightView.serverClosed(server);
+
   serialize: ->
     state = {};
 

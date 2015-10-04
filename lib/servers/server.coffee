@@ -118,7 +118,7 @@ class Server
 
   # Closes the connection to the server.
   close: ->
-    @fileSystem.disconnect();
-
     taskManager = @fileSystem.getTaskManager(false);
-    taskManager?.dispose();
+    taskManager?.clearTasks();
+    @fileSystem.disconnect();
+    @serverManager.serverClosed(@);
