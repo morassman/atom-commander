@@ -95,7 +95,8 @@ When the menu is closed and opened again it will start on the root menu.
   1. **Add** : Add an FTP or SFTP server.
   2. **Remove** : Remove a server.
   3. **Open** : Open the initial folder of a server.
-  4. **Cache** : View and sync the cache associated with a server.
+  4. **Close** : Close the connection to a server.
+  5. **Cache** : View and sync the cache associated with a server.
 5. **View**
   1. **Mirror** : Show the same folder in the other pane as the focused one.
   2. **Swap** : Swap the two folders.
@@ -121,10 +122,23 @@ The list of bookmarks can be opened from either the menu in Atom Commander or by
 Files can be accessed remotely via FTP and SFTP.
 
 ### Adding Servers
+Servers can be added by choosing `Add` from the `Servers` menu or `Atom Commander: Add Server` from the Command Palette.
+
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/add_server.png?raw=true)
+
+If `Remember Password` is checked then the password will be persisted along with the username. A weak encryption will be applied to the password.
+
+It is advisable to test the connection before accepting the configuration to ensure that everything is correct.
 
 ### Removing Servers
+Servers can be removed by choosing `Remove` from the `Servers` menu or `Atom Commander: Remove Server` from the Command Palette. When a server is removed all the bookmarks associated with it are removed as well. The cache is also cleared and any file transfers will be stopped. You will, however, be prompted if files are still in the cache or being transferred.
 
-### Browsing the Cache
+### Cache
+All remote files that are viewed or edited are cached on the local file system. Each server has its own cache associated with it. The cache for a server can be viewed by choosing `Cache` from the `Servers` menu or `Atom Commander: Open Cache` from the Command Palette.
+
+Doing so will open a view that lists all the files in the cache. From here files can be uploaded, downloaded, compared and deleted.
+
+### Settings
 
 ## Compare
 ### Folders
@@ -139,5 +153,5 @@ Lines that have been added are highlighted on the left whereas lines that have b
 The files are currently not being monitored for changes. If either of the files change then the comparison will have to be done again.
 
 ## Todo
-- Tabs for folders.
+- Support creating tabs.
 - Visual feedback for file system operations.

@@ -366,3 +366,22 @@ class Actions
         Utils.showErrorWarning("Download failed", "Error downloading "+file.getURI(), null, err, true);
       else
         atom.notifications.addSuccess("Downloaded "+file.getURI());
+
+  compareWithServer: =>
+    editor = atom.workspace.getActiveTextEditor();
+
+    if !(editor instanceof TextEditor)
+      return;
+
+    if !editor.getPath()?
+      return;
+
+    serverManager = @main.getServerManager();
+    watcher = serverManager.getWatcherWithLocalFilePath(editor.getPath());
+
+    if watcher == null
+      atom.notifications.addInfo(editor.getPath()+" doesn't have a server associated with it.");
+      return;
+
+    title = "Diff: "+editor.getTitle()+" | server";
+    Utils.compareFiles(title, editor.getText(), watcher.getFile());

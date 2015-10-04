@@ -166,7 +166,7 @@ class CacheItemView extends HTMLElement
   remoteStreamRead: (text) ->
     localFileSystem = @syncView.getLocalFileSystem();
     localFile = localFileSystem.getFile(@fullPath);
-    title = "Diff: "+localFile.getBaseName()+" | remote";
+    title = "Diff: "+localFile.getBaseName()+" | server";
 
     Utils.compareFiles(title, localFile, text);
 

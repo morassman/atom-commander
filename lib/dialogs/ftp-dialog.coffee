@@ -21,7 +21,7 @@ class FTPDialog extends View
             @td "URL", {class: "text-highlight"}
             @td "ftp://", {outlet: "url"}
           @tr =>
-            @td "Server", {class: "text-highlight"}
+            @td "Host", {class: "text-highlight"}
             @td =>
               @subview "serverEditor", new TextEditorView(mini: true)
           @tr =>
@@ -177,7 +177,7 @@ class FTPDialog extends View
   getErrorMessage: ->
     server = @getServer();
     if server.length == 0
-      return "Server must be specified."
+      return "Host must be specified."
 
     port = @getPort();
     if port == null

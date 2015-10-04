@@ -75,6 +75,10 @@ module.exports = AtomCommander =
       event.stopPropagation();
       @actions.downloadFile();
 
+    @subscriptions.add atom.commands.add 'atom-text-editor', 'atom-commander:compare-with-server': (event) =>
+      event.stopPropagation();
+      @actions.compareWithServer();
+
     @subscriptions.add atom.commands.add 'atom-text-editor', 'atom-commander:add-bookmark': (event) =>
       event.stopPropagation();
       @actions.bookmarksAddEditor();

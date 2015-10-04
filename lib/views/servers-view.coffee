@@ -30,10 +30,12 @@ class BookmarksView extends SelectListView
       if !onlyOpen or server.isOpen()
         item = {};
         item.server = server;
+        item.fileCount = 0;
         item.text = server.getDescription();
 
         if showCount
-          item.text += " ("+@createCountString(item.server.getCacheFileCount())+")";
+          item.fileCount = item.server.getCacheFileCount();
+          item.text += " ("+@createCountString(item.fileCount)+")";
 
         items.push(item);
 
@@ -86,10 +88,18 @@ class BookmarksView extends SelectListView
       atom.notifications.addWarning("A server cannot be removed while its files are being edited.");
       return;
 
-    if item.server.getTaskCount() > 0
+    question = null;
+    taskCount = item.server.getTaskCount();
+
+    if item.fileCount > 0
+      question = "There are still files in the cache. Removing the server will clear the cache.";
+    else if taskCount > 0
+      question = "Files on this server are still being accessed. Removing the server will also clear the cache."
+
+    if question != null
       option = atom.confirm
-        message: "Close"
-        detailedMessage: "Files on this server are still being accessed. Are you sure you want to close the connection?"
+        message: "Remove"
+        detailedMessage: question+" Are you sure you want to remove the server?"
         buttons: ["No", "Yes"]
 
       if option == 0
