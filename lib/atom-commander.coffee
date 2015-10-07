@@ -134,8 +134,7 @@ module.exports = AtomCommander =
     @subscriptions.dispose();
     @serverManager.dispose();
     @mainView.destroy();
-    @statusView?.destroy();
-    @statusTile?.destroy()
+    @statusTile?.destroy();
 
   serialize: ->
     if @mainView != null

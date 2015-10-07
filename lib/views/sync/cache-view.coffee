@@ -26,8 +26,8 @@ class CacheView extends View
   getLocalFileSystem: ->
     return @server.getMain().getLocalFileSystem();
 
-  getFileSystem: ->
-    return @server.getFileSystem();
+  getTaskManager: ->
+    return @server.getFileSystem().getTaskManager();
 
   initialize: ->
     @syncItems = [];

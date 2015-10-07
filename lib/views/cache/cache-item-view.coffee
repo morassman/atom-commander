@@ -118,8 +118,7 @@ class CacheItemView extends HTMLElement
     localFileSystem = @syncView.getLocalFileSystem();
     file = localFileSystem.getFile(@fullPath);
     remoteParentPath = PathUtil.dirname(@path);
-    fileSystem = @syncView.getFileSystem();
-    taskManager = fileSystem.getTaskManager();
+    taskManager = @syncView.getTaskManager();
 
     taskManager.uploadItem remoteParentPath, file, (err) =>
       @setTransferInProgress(false);
@@ -139,8 +138,10 @@ class CacheItemView extends HTMLElement
     @setTransferInProgress(true);
     @showStatus("Downloading...", 0);
 
-    fileSystem = @syncView.getFileSystem();
-    taskManager = fileSystem.getTaskManager();
+    console.log(@syncView);
+
+    taskManager = @syncView.getTaskManager();
+    fileSystem = taskManager.getFileSystem();
     file = fileSystem.getFile(@path);
     localParentPath = PathUtil.dirname(@fullPath);
 
@@ -164,7 +165,8 @@ class CacheItemView extends HTMLElement
 
     @showStatus("Downloading for comparison...", 0);
 
-    remoteFileSystem = @syncView.getFileSystem();
+    taskManager = @syncView.getTaskManager();
+    remoteFileSystem = taskManager.getFileSystem();
     remoteFile = remoteFileSystem.getFile(@path);
 
     remoteFile.createReadStream (err, stream) =>

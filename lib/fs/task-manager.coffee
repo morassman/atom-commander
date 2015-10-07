@@ -20,7 +20,7 @@ class TaskManager
     @taskQueue.on "error", (err, job) =>
       console.log(err);
       @jobEnded(job);
-      @taskQueue.end();
+      # @taskQueue.end();
 
     @taskQueue.on "end", () =>
       @setUploadCount(0);
