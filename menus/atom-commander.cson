@@ -102,6 +102,23 @@
       ]
     }
     {
+      'label': 'Open'
+      'submenu': [
+        {
+          'label': 'Terminal'
+          'command': 'atom-commander:open-terminal'
+        }
+        {
+          'label': 'File Manager'
+          'command': 'atom-commander:show-in-file-manager'
+        }
+        {
+          'label': 'System'
+          'command': 'atom-commander:open-with-system'
+        }
+      ]
+    }
+    {
       'label': 'View'
       'submenu': [
         {

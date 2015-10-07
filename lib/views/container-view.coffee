@@ -49,6 +49,9 @@ class ContainerView extends View
   getFileSystem: ->
     return @directory.getFileSystem();
 
+  getLastLocalPath: ->
+    return @lastLocalPath;
+
   @content: ->
     @div {class: 'tool-panel'}, =>
       @subview 'directoryEditor', new TextEditorView(mini: true)

@@ -10,6 +10,8 @@ SelectDialog = require './dialogs/select-dialog'
 NewServerDialog = require './dialogs/new-server-dialog'
 {File, Directory, TextEditor} = require 'atom'
 fsp = require 'fs-plus'
+ChildProcess = require 'child_process'
+shell = require 'shell'
 
 module.exports =
 class Actions
@@ -385,3 +387,70 @@ class Actions
 
     title = "Diff: "+editor.getTitle()+" | server";
     Utils.compareFiles(title, editor.getText(), watcher.getFile());
+
+  openTerminal: =>
+    @main.mainView.hideMenuBar();
+    view = @getFocusedView();
+
+    if (view == null)
+      return;
+
+    directory = view.directory;
+    folder = directory.getPath();
+
+    if directory.isRemote()
+      folder = view.getLastLocalPath();
+
+    if process.platform == "darwin"
+      command = "open -a Terminal";
+    else if process.platform == "win32"
+      command = "start C:\\Windows\\System32\\cmd.exe";
+    else
+      command = "/usr/bin/x-terminal-emulator";
+
+    command += " \""+folder+"\"";
+
+    options = {};
+    options.cwd = folder;
+
+    ChildProcess.exec(command, options);
+
+  openFileSystem: =>
+    @openNative(true);
+
+  openSystem: =>
+    @openNative(false);
+
+  openNative: (onlyShow) =>
+    view = @getFocusedView();
+
+    if (view == null)
+      return;
+
+    directory = view.directory;
+
+    if directory.isRemote()
+      atom.notifications.addWarning("This operation is only applicable to the local file system.");
+      return;
+
+    itemView = view.getHighlightedItem();
+
+    if itemView == null
+      return;
+
+    @main.mainView.hideMenuBar();
+
+    if !itemView.isSelectable()
+      shell.showItemInFolder(directory.getPath());
+      return;
+
+    item = itemView.getItem();
+
+    if onlyShow
+      shell.showItemInFolder(item.getPath());
+      return;
+
+    if item.isFile()
+      shell.openItem(item.getPath());
+    else
+      shell.showItemInFolder(item.getPath());

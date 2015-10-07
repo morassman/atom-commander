@@ -67,12 +67,24 @@ class MenuBarView extends View
     server.addMenuItem("4", "Close", actions.serversClose);
     server.addMenuItem("5", "Cache", actions.serversCache);
 
-    view = root.addMenuItem("5", "View");
+    open = root.addMenuItem("5", "Open");
+    open.addMenuItem("1", "Terminal", actions.openTerminal);
+
+    if process.platform == "darwin"
+      open.addMenuItem("2", "Finder", actions.openFileSystem);
+    else if process.platform == "win32"
+      open.addMenuItem("2", "Explorer", actions.openFileSystem);
+    else
+      open.addMenuItem("2", "File Manager", actions.openFileSystem);
+
+    open.addMenuItem("3", "System", actions.openSystem);
+
+    view = root.addMenuItem("6", "View");
     view.addMenuItem("1", "Refresh", actions.viewRefresh);
     view.addMenuItem("2", "Mirror", actions.viewMirror);
     view.addMenuItem("3", "Swap", actions.viewSwap);
 
-    compare = root.addMenuItem("6", "Compare");
+    compare = root.addMenuItem("7", "Compare");
     compare.addMenuItem("1", "Folders", actions.compareFolders);
     compare.addMenuItem("2", "Files", actions.compareFiles);
 
