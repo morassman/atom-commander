@@ -83,7 +83,8 @@ class ContainerView extends View
      'core:move-to-top': => @scrollToTop()
      'core:move-to-bottom': => @scrollToBottom()
      'core:cancel': => @escapePressed();
-     'atom-commander:open-highlighted-item': => @openHighlightedItem()
+     'atom-commander:open-highlighted-item': => @openHighlightedItem(false)
+     'atom-commander:open-highlighted-item-native': => @openHighlightedItem(true)
      'atom-commander:open-parent-folder': => @backspacePressed();
      'atom-commander:highlight-first-item': => @highlightFirstItem()
      'atom-commander:highlight-last-item': => @highlightLastItem()
@@ -353,12 +354,15 @@ class ContainerView extends View
 
     return @itemViews[@highlightedIndex].getName();
 
-  openHighlightedItem: ->
+  openHighlightedItem: (isNative=false)->
     if @highlightedIndex == null
       return;
 
-    itemView = @itemViews[@highlightedIndex];
-    itemView.performOpenAction();
+    if isNative
+      @getMain().getActions().openSystem();
+    else
+      itemView = @itemViews[@highlightedIndex];
+      itemView.performOpenAction();
 
   openParentDirectory: ->
     if !@directory.isRoot()

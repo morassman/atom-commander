@@ -90,6 +90,9 @@ module.exports = AtomCommander =
     if @state.visible
       @bottomPanel.show();
 
+  getActions: ->
+    return @actions;
+
   getLocalFileSystem: ->
     return @localFileSystem;
 

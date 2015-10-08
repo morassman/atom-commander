@@ -24,6 +24,7 @@
 
 '.atom-commander-container-view':
   'enter': 'atom-commander:open-highlighted-item'
+  'ctrl-enter': 'atom-commander:open-highlighted-item-native'
   'backspace': 'atom-commander:open-parent-folder'
   'left': 'atom-commander:highlight-first-item'
   'right': 'atom-commander:highlight-last-item'

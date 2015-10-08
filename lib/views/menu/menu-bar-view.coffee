@@ -110,6 +110,11 @@ class MenuBarView extends View
 
   handleKeyUp: (event) ->
     charCode = event.which | event.keyCode;
+
+    # Not sure if this the right way, but on OSX it allows the keypad to be used.
+    if charCode >= 96
+      charCode -= 48;
+
     sCode = String.fromCharCode(charCode);
 
     if sCode == "0"

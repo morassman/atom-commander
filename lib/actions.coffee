@@ -403,12 +403,12 @@ class Actions
 
     if process.platform == "darwin"
       command = "open -a Terminal";
+      command += " \""+folder+"\"";
     else if process.platform == "win32"
       command = "start C:\\Windows\\System32\\cmd.exe";
+      command += " \""+folder+"\"";
     else
       command = "/usr/bin/x-terminal-emulator";
-
-    command += " \""+folder+"\"";
 
     options = {};
     options.cwd = folder;
