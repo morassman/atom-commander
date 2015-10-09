@@ -93,8 +93,8 @@ class CacheView extends View
       return;
 
     option = atom.confirm
-      message: 'Delete'
-      detailedMessage: 'Delete the selected files from the cache?'
+      message: 'Remove'
+      detailedMessage: 'Remove the selected files from the cache?'
       buttons: ["No", "Yes"]
 
     if option == 0

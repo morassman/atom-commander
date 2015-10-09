@@ -42,7 +42,7 @@ class CacheItemView extends HTMLElement
     @downloadButton = $$ ->
       @button "Download", {class: "btn btn-sm"}
     @deleteButton = $$ ->
-      @button "Delete", {class: "btn btn-sm"}
+      @button "Remove", {class: "btn btn-sm"}
 
     @check.change => @checkChanged();
     @uploadButton.click => @upload();
@@ -220,8 +220,8 @@ class CacheItemView extends HTMLElement
       return;
 
     option = atom.confirm
-      message: "Delete"
-      detailedMessage: "Delete #{@path} from the cache?"
+      message: "Remove"
+      detailedMessage: "Remove #{@path} from the cache?"
       buttons: ["No", "Yes"]
 
     if option == 1
