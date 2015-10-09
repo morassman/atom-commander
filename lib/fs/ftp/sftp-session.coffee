@@ -10,7 +10,7 @@ class SFTPSession
 
     @client = null;
     @ssh2 = null;
-    @closed = false;
+    @open = null;
 
   getClient: ->
     return @client;
@@ -32,7 +32,7 @@ class SFTPSession
           err = {};
           err.canceled = true;
           err.message = "Incorrect credentials for "+@clientConfig.host;
-          @disconnect(err);
+          @fileSystem.emitError(err);
 
   connectWithPassword: (password) ->
     @client = null;
@@ -94,10 +94,13 @@ class SFTPSession
       @ssh2.end();
       @ssh2 = null;
 
+    @close();
+
   opened: ->
+    @open = true;
     @fileSystem.sessionOpened(@);
 
   close: ->
-    if !@closed
-      @closed = true;
+    if @open
+      @open = false;
       @fileSystem.sessionClosed(@);
