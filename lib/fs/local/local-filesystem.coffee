@@ -4,6 +4,7 @@ VFileSystem = require '../vfilesystem'
 LocalFile = require './local-file'
 LocalDirectory = require './local-directory'
 {Directory, File} = require 'atom'
+PathUtil = require 'path'
 
 module.exports =
 class LocalFileSystem extends VFileSystem
@@ -43,6 +44,9 @@ class LocalFileSystem extends VFileSystem
 
   getID: ->
     return "local";
+
+  getPathUtil: ->
+    return PathUtil;
 
   renameImpl: (oldPath, newPath, callback) ->
     fsp.moveSync(oldPath, newPath);

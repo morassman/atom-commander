@@ -1,5 +1,4 @@
 VItem = require './vitem'
-PathUtil = require 'path'
 
 module.exports =
 class VDirectory extends VItem
@@ -25,9 +24,11 @@ class VDirectory extends VItem
   onDidChange: (callback) ->
 
   getFile: (name) ->
-    return @fileSystem.getFile(PathUtil.join(@getPath(), name));
+    pathUtil = @fileSystem.getPathUtil();
+    return @fileSystem.getFile(pathUtil.join(@getPath(), name));
 
   # The callback receives one parameter :
   # 1.) file : The file that was created. null if it could not be created.
   newFile: (name, callback) ->
-    @fileSystem.newFile(PathUtil.join(@getPath(), name), callback);
+    pathUtil = @fileSystem.getPathUtil();
+    @fileSystem.newFile(pathUtil.join(@getPath(), name), callback);

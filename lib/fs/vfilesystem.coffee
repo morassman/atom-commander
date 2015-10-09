@@ -142,6 +142,8 @@ class VFileSystem
 
   getSafeConfig: ->
 
+  getPathUtil: ->
+
   # Callback receives a single string argument with error message. null if no error.
   rename: (oldPath, newPath, callback) ->
     successCallback = () =>

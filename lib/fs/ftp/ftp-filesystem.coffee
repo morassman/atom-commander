@@ -1,6 +1,6 @@
 fs = require 'fs'
 FTPClient = require 'ftp'
-PathUtil = require 'path'
+PathUtil = require('path').posix
 VFileSystem = require '../vfilesystem'
 FTPFile = require './ftp-file'
 FTPDirectory = require './ftp-directory'
@@ -131,6 +131,9 @@ class FTPFileSystem extends VFileSystem
 
   getURI: (item) ->
     return @config.protocol+"://" + PathUtil.join(@config.host, item.path);
+
+  getPathUtil: ->
+    return PathUtil;
 
   getPathFromURI: (uri) ->
     root = @config.protocol+"://"+@config.host;

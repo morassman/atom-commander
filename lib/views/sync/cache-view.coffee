@@ -1,4 +1,3 @@
-PathUtil = require 'path'
 CacheItemView = require './cache-item-view'
 {$, View} = require 'atom-space-pen-views'
 

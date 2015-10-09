@@ -228,8 +228,8 @@ class AtomCommanderView extends View
       for srcItemView in srcItemViews
         items.push(srcItemView.getItem());
 
-      srcFileSystem.getTaskManager().downloadItems dstPath, items, (err, item) ->
-        if err?
+      srcFileSystem.getTaskManager().downloadItems dstPath, items, (canceled, err, item) ->
+        if !canceled and err?
           message = "Error downloading "+item.getURI();
           Utils.showErrorWarning("Download failed", message, null, err, true);
 
@@ -241,8 +241,8 @@ class AtomCommanderView extends View
       for srcItemView in srcItemViews
         items.push(srcItemView.getItem());
 
-      dstFileSystem.getTaskManager().uploadItems dstPath, items, (err, item) ->
-        if err?
+      dstFileSystem.getTaskManager().uploadItems dstPath, items, (canceled, err, item) ->
+        if !canceled and err?
           message = "Error uploading "+item.getURI();
           Utils.showErrorWarning("Upload failed", message, null, err, true);
 

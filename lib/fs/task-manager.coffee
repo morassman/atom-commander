@@ -1,8 +1,9 @@
 queue = require 'queue'
-PathUtil = require 'path'
+PathUtil = require('path')
 fse = require 'fs-extra'
 fs = require 'fs'
 {CompositeDisposable, Emitter} = require 'atom'
+Utils = require '../utils'
 
 module.exports =
 class TaskManager
@@ -13,18 +14,33 @@ class TaskManager
     @downloadCount = 0;
     @taskQueue = queue();
     @taskQueue.concurrency = 1;
+    @disposables = new CompositeDisposable();
 
-    @taskQueue.on "success", (err, job) =>
-      @jobEnded(job);
+    @taskQueue.on "success", (result, job) =>
+      @jobEnded(job, false, null);
 
     @taskQueue.on "error", (err, job) =>
-      console.log(err);
-      @jobEnded(job);
-      # @taskQueue.end();
+      @jobEnded(job, false, err);
 
-    @taskQueue.on "end", () =>
+    @taskQueue.on "end", (err) =>
       @setUploadCount(0);
       @setDownloadCount(0);
+      if @emitter != null
+        @emitter.emit("end", err);
+
+    @disposables.add @fileSystem.onError (err) =>
+      if @taskQueue.length == 0
+        return;
+
+      if err?
+        Utils.showErrorWarning("Transfer failed", null, null, err, true);
+
+      copy = @taskQueue.slice(0);
+
+      for job in copy
+        @jobEnded(job, true, err);
+
+      @taskQueue.end(err);
 
   onUploadCount: (callback) ->
     if @emitter != null
@@ -34,11 +50,17 @@ class TaskManager
     if @emitter != null
       return @emitter.on("downloadcount", callback);
 
-  jobEnded: (job) ->
+  onEnd: (callback) ->
+    if @emitter != null
+      return @emitter.on("end", callback);
+
+  jobEnded: (job, canceled, err) ->
     if job.upload
       @adjustUploadCount(-1);
     else if job.download
       @adjustDownloadCount(-1);
+
+    job.callback?(canceled, err, job.item);
 
   adjustUploadCount: (diff) ->
     @setUploadCount(@uploadCount+diff);
@@ -92,40 +114,30 @@ class TaskManager
           @uploadDirectoryWithQueue(remoteParentPath, item, callback);
 
   uploadFileWithQueue: (remoteParentPath, file, callback) ->
-    remoteFilePath = PathUtil.join(remoteParentPath, file.getBaseName());
+    remoteFilePath = PathUtil.posix.join(remoteParentPath, file.getBaseName());
 
     task = (cb) =>
-      @fileSystem.upload file.getPath(), remoteFilePath, (err) =>
-        if err?
-          callback?(err, file);
-          cb(err);
-        else
-          callback?(null, file);
-          cb();
+      @fileSystem.upload(file.getPath(), remoteFilePath, cb);
 
-    @addUploadTask(task);
+    @addUploadTask(task, file, callback);
 
   uploadDirectoryWithQueue: (remoteParentPath, directory, callback) ->
-    remoteFolderPath = PathUtil.join(remoteParentPath, directory.getBaseName());
+    remoteFolderPath = PathUtil.posix.join(remoteParentPath, directory.getBaseName());
 
     task1 = (cb) =>
-      @fileSystem.makeDirectory remoteFolderPath, (err) =>
-        if err?
-          callback?(err, directory);
-        cb(err);
+      @fileSystem.makeDirectory(remoteFolderPath, cb);
 
-    @addUploadTask(task1);
+    @addUploadTask(task1, directory, callback);
 
     task2 = (cb) =>
       directory.getEntries (dir, err, entries) =>
         if err?
-          callback?(err, directory);
           cb(err);
         else
           @uploadItemsWithQueue(remoteFolderPath, entries);
           cb();
 
-    @addUploadTask(task2);
+    @addUploadTask(task2, directory, callback);
 
   # callback receives two parameters:
   # 1.) err - null if there was no error.
@@ -149,15 +161,9 @@ class TaskManager
     localFilePath = PathUtil.join(localParentPath, file.getBaseName());
 
     task = (cb) =>
-      file.download localFilePath, (err) =>
-        if err?
-          callback?(err, file);
-          cb(err);
-        else
-          callback?(null, file);
-          cb();
+      file.download(localFilePath, cb);
 
-    @addDownloadTask(task);
+    @addDownloadTask(task, file, callback);
 
   downloadDirectoryWithQueue: (localParentPath, directory, callback) ->
     localFolderPath = PathUtil.join(localParentPath, directory.getBaseName());
@@ -166,25 +172,28 @@ class TaskManager
       fse.ensureDirSync(localFolderPath);
       cb();
 
-    @addDownloadTask(task1);
+    @addDownloadTask(task1, directory, callback);
 
     task2 = (cb) =>
       directory.getEntries (dir, err, entries) =>
         if err?
-          callback?(err, directory);
           cb(err);
         else
           @downloadItemsWithQueue(localFolderPath, entries, callback);
           cb();
 
-    @addDownloadTask(task2);
+    @addDownloadTask(task2, directory, callback);
 
-  addUploadTask: (task) ->
+  addUploadTask: (task, item, callback) ->
     task.upload = true;
+    task.item = item;
+    task.callback = callback;
     @adjustUploadCount(1);
     @taskQueue.push(task);
 
-  addDownloadTask: (task) ->
+  addDownloadTask: (task, item, callback) ->
     task.download = true;
+    task.item = item;
+    task.callback = callback;
     @adjustDownloadCount(1);
     @taskQueue.push(task);

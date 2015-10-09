@@ -1,10 +1,9 @@
 fs = require 'fs'
-PathUtil = require 'path'
-FTPClient = require 'ftp'
-SSH2 = require 'ssh2'
+PathUtil = require('path').posix
 VFileSystem = require '../vfilesystem'
 FTPFile = require './ftp-file'
 FTPDirectory = require './ftp-directory'
+SFTPSession = require './sftp-session'
 Utils = require '../../utils'
 
 module.exports =
@@ -12,6 +11,7 @@ class SFTPFileSystem extends VFileSystem
 
   constructor: (@server, @config) ->
     super();
+    @session = null;
     @client = null;
 
     if @config.password? and !@config.passwordDecrypted?
@@ -29,85 +29,23 @@ class SFTPFileSystem extends VFileSystem
     return false;
 
   connectImpl: ->
-    if @clientConfig.password?
-      @connectWithPassword(@clientConfig.password);
-    else
-      prompt = "Enter password for ";
-      prompt += @clientConfig.username;
-      prompt += "@";
-      prompt += @clientConfig.host;
-      prompt += ":"
-
-      Utils.promptForPassword prompt, (password) =>
-        if password?
-          @connectWithPassword(password);
-        else
-          err = {};
-          err.canceled = true;
-          err.message = "Incorrect credentials for "+@clientConfig.host;
-          @disconnect(err);
-
-  connectWithPassword: (password) ->
-    @client = null;
-    @ssh2 = new SSH2();
-
-    @ssh2.on "ready", =>
-      @ssh2.sftp (err, sftp) =>
-        if err?
-          @disconnect(err);
-          return;
-
-        @client = sftp;
-
-        @client.on "end", =>
-          @disconnect();
-
-        # If the connection was successful then remember the password for
-        # the rest of the session.
-        @clientConfig.password = password;
-
-        if @config.storePassword
-          @config.password = password;
-          @config.passwordDecrypted = true;
-
-        @setConnected(true);
-
-    @ssh2.on "close", =>
-      @disconnect();
-
-    @ssh2.on "error", (err) =>
-      if err.level == "client-authentication"
-        delete @clientConfig.password;
-        atom.notifications.addWarning("Incorrect credentials for "+@clientConfig.host);
-        @connectImpl();
-      else
-        @disconnect(err);
-
-    @ssh2.on "end", =>
-      @disconnect();
-
-    @ssh2.on "keyboard-interactive", (name, instructions, instructionsLang, prompt, finish) =>
-      finish([password]);
-
-    connectConfig = {};
-
-    for key, val of @clientConfig
-      connectConfig[key] = val;
-
-    connectConfig.password = password;
-
-    @ssh2.connect(connectConfig);
+    @session = new SFTPSession(@);
+    @session.connect();
 
   disconnectImpl: ->
-    if @client?
-      @client.end();
+    if @session?
+      @session.disconnect();
+
+  sessionOpened: (session) ->
+    if session == @session
+      @client = session.getClient();
+      @setConnected(true);
+
+  sessionClosed: (session) ->
+    if session == @session
+      @session = null;
       @client = null;
-
-    if @ssh2?
-      @ssh2.end();
-      @ssh2 = null;
-
-    @setConnected(false);
+      @setConnected(false);
 
   getClientConfig: ->
     result = {};
@@ -154,6 +92,9 @@ class SFTPFileSystem extends VFileSystem
   getURI: (item) ->
     return @config.protocol+"://" + PathUtil.join(@config.host, item.path);
 
+  getPathUtil: ->
+    return PathUtil;
+
   getPathFromURI: (uri) ->
     root = @config.protocol+"://"+@config.host;
 
@@ -168,7 +109,7 @@ class SFTPFileSystem extends VFileSystem
         return;
 
       if err?
-        callback(err.message);
+        callback(err);
       else
         callback(null);
 
@@ -178,7 +119,7 @@ class SFTPFileSystem extends VFileSystem
         return;
 
       if err?
-        callback(err.message);
+        callback(err);
       else
         callback(null);
 
@@ -188,7 +129,7 @@ class SFTPFileSystem extends VFileSystem
         return;
 
       if err?
-        callback(err.message);
+        callback(err);
       else
         callback(null);
 
@@ -198,7 +139,7 @@ class SFTPFileSystem extends VFileSystem
         return;
 
       if err?
-        callback(err.message);
+        callback(err);
       else
         callback(null);
 

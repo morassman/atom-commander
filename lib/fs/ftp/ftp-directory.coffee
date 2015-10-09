@@ -1,4 +1,4 @@
-PathUtil = require 'path'
+PathUtil = require('path').posix
 VDirectory = require '../vdirectory'
 
 module.exports =

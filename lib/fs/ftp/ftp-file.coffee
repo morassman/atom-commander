@@ -1,4 +1,4 @@
-PathUtil = require 'path'
+PathUtil = require('path').posix
 VFile = require '../vfile'
 
 module.exports =
@@ -31,6 +31,6 @@ class FTPFile extends VFile
 
   isWritable: ->
     return @writable;
-    
+
   isLink: ->
     return @link;

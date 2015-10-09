@@ -1,3 +1,5 @@
+fsp = require 'fs-plus'
+
 module.exports =
 class BookmarkManager
 
@@ -13,11 +15,12 @@ class BookmarkManager
   convertArrayBookmarkToObject: (bookmark) ->
     result = {};
     result.name = bookmark[0];
+    localFileSystem = @main.getLocalFileSystem();
 
     if fsp.isFileSync(bookmark[1])
-      item = @localFileSystem.getFile(bookmark[1]);
+      item = localFileSystem.getFile(bookmark[1]);
     else
-      item = @localFileSystem.getDirectory(bookmark[1]);
+      item = localFileSystem.getDirectory(bookmark[1]);
 
     result.pathDescription = item.getPathDescription();
 

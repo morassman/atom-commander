@@ -120,10 +120,12 @@ class CacheItemView extends HTMLElement
     remoteParentPath = PathUtil.dirname(@path);
     taskManager = @syncView.getTaskManager();
 
-    taskManager.uploadItem remoteParentPath, file, (err) =>
+    taskManager.uploadItem remoteParentPath, file, (canceled, err) =>
       @setTransferInProgress(false);
       if err?
         @showStatus("Upload failed: "+err, 2);
+      else if canceled
+        @showStatus("Upload canceled", 2);
       else
         @showStatus("Uploaded", 1);
 
@@ -145,11 +147,13 @@ class CacheItemView extends HTMLElement
     file = fileSystem.getFile(@path);
     localParentPath = PathUtil.dirname(@fullPath);
 
-    taskManager.downloadItem localParentPath, file, (err) =>
+    taskManager.downloadItem localParentPath, file, (canceled, err) =>
       @setTransferInProgress(false);
 
       if err?
         @showStatus("Download failed: "+err, 2);
+      else if canceled
+        @showStatus("Download canceled", 2);
       else
         @showStatus("Downloaded", 1);
 
