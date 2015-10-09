@@ -41,6 +41,11 @@ class SFTPFileSystem extends VFileSystem
       @client = session.getClient();
       @setConnected(true);
 
+  sessionCanceled: (session) ->
+    if session == @session
+      @session = null;
+      @setConnected(false);
+
   sessionClosed: (session) ->
     if session == @session
       @session = null;

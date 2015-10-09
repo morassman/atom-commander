@@ -364,6 +364,9 @@ class ContainerView extends View
       itemView = @itemViews[@highlightedIndex];
       itemView.performOpenAction();
 
+  openLastLocalDirectory: ->
+    @openDirectory(@getInitialDirectory(@lastLocalPath));
+
   openParentDirectory: ->
     if !@directory.isRoot()
       snapShot = {};
@@ -426,6 +429,8 @@ class ContainerView extends View
       else if !err.canceled?
         Utils.showErrorWarning("Error reading folder", null, err, null, false);
         callback?(err);
+      else
+        @openLastLocalDirectory();
       @hideSpinner();
 
   entriesCallback: (newDirectory, entries, snapShot, callback) ->

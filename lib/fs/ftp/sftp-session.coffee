@@ -33,6 +33,8 @@ class SFTPSession
           err.canceled = true;
           err.message = "Incorrect credentials for "+@clientConfig.host;
           @fileSystem.emitError(err);
+          @canceled();
+          # @disconnect();
 
   connectWithPassword: (password) ->
     @client = null;
@@ -99,6 +101,10 @@ class SFTPSession
   opened: ->
     @open = true;
     @fileSystem.sessionOpened(@);
+
+  canceled: ->
+    @disconnect();
+    @fileSystem.sessionCanceled(@);
 
   close: ->
     if @open
