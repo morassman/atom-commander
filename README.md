@@ -5,10 +5,8 @@ Dual-pane file manager for Atom.
 Highlights:
 - Navigate the whole file system from within Atom.
 - Browse and edit remote files via FTP and SFTP.
-- Perform all actions with only the keyboard.
 - Bookmark files and folders for quick access.
 - Compare files side-by-side.
-- Easily toggle focus between Atom Commander and the editor.
 
 After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle Focus` from the Command Palette to show the panel and focus it. The panel can be hidden with `F10` or `Atom Commander: Toggle Visible`.
 
@@ -37,6 +35,7 @@ The following are special keys:
 Key|Action
 ---|---
 Enter|Open highlighted item. If it's a file then it will be opened in the editor.
+Ctrl-Enter|Open highlighted item with OS's default application. If it's a folder then it will be shown in the OS's file manager.
 Backspace|Navigate to the parent folder.
 Left|Highlight the first item.
 Right|Highlight the last item.
@@ -97,10 +96,14 @@ When the menu is closed and opened again it will start on the root menu.
   3. **Open** : Open the initial folder of a server.
   4. **Close** : Close the connection to a server.
   5. **Cache** : View and sync the cache associated with a server.
-5. **View**
+5. **Open**
+  1. **Terminal** : Open a terminal in the current folder.
+  2. **File Manager** : Show the highlighted item in the OS's file manager.
+  3. **System** : Open highlighted item with OS's default application. If it's a folder then it will be shown in the OS's file manager.
+6. **View**
   1. **Mirror** : Show the same folder in the other pane as the focused one.
   2. **Swap** : Swap the two folders.
-6. **Compare**
+7. **Compare**
   1. **Folders** : Select the differences between the two folders.
   2. **Files** : Show the difference between the left and right highlighted files.
 
@@ -139,6 +142,21 @@ All remote files that are viewed or edited are cached on the local file system. 
 Doing so will open a view that lists all the files in the cache. From here files can be uploaded, downloaded, compared and deleted.
 
 ### Settings
+The following settings are applicable to cached files:
+
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/settings.png?raw=true)
+
+#### Upload On Save
+If this is selected then files will be automatically uploaded to the server when they are saved. This is enabled by default. The file will remain in the cache if it couldn't be uploaded.
+#### Remove On Close
+If this is selected then files will be removed from the cache when the file is closed. If the file was modified, but it was not uploaded then it will **not** be removed. This will be the case either if the upload failed or if `Upload On Save` is not selected. This is to ensure that changes are not lost. This is enabled by default.
+
+### Editing Remote Files
+If the `Upload On Save` setting is enabled then the file will automatically be uploaded each time the file is saved. However, if it isn't enabled, then one will need to upload cached files via the cache view. A quick way to upload the file currently being edited is to select `Atom Commander: Upload File` from the Command Palette. Doing so copies the cached file to the server. The file is therefore first saved to the cache before it is uploaded.
+
+Similarly one can download the file from the server by choosing `Atom Commander: Download File` from the Command Palette. This replaces the cached file with the one that was downloaded.
+
+It is also possible to quickly compare the file being edited with the one on the server by choosing `Atom Commander: Compare With Server`. This operation doesn't require the cached file to be saved first. The content of the editor is used directly.
 
 ## Compare
 ### Folders

@@ -1,5 +1,6 @@
 CacheItemView = require './cache-item-view'
 {$, View} = require 'atom-space-pen-views'
+{CompositeDisposable} = require 'atom'
 
 module.exports =
 class CacheView extends View
@@ -26,12 +27,13 @@ class CacheView extends View
     return @server.getMain().getLocalFileSystem();
 
   getTaskManager: ->
-    return @server.getFileSystem().getTaskManager();
+    return @fileSystem.getTaskManager();
 
   initialize: ->
     @syncItems = [];
-    @titlePanel.text("Local cache for "+@server.getDescription());
+    @disposables = new CompositeDisposable();
 
+    @titlePanel.text("Local cache for "+@server.getDescription());
     @refreshButton.on 'mousedown', (e) -> e.preventDefault();
 
     @header = new CacheItemView();
@@ -40,12 +42,22 @@ class CacheView extends View
     @jHeader.addClass("table-header");
     @tableBody[0].appendChild(@header);
 
-    fileSystem = @server.getFileSystem();
-
-    if !fileSystem.isConnected()
-      fileSystem.connect();
-
+    @fileSystem = @server.getFileSystem().clone();
+    @disposables.add @fileSystem.getTaskManager().onEnd (err) => @taskManagerEnd(err);
     @refresh();
+
+  taskManagerEnd: (err) ->
+    if !err?
+      return;
+
+    message = "Error.";
+
+    if err.message
+      message += " "+err.message;
+
+    for syncItem in @syncItems
+      syncItem.showStatus(message, 2);
+      syncItem.setTransferInProgress(false);
 
   refresh: ->
     for syncItem in @syncItems
@@ -120,3 +132,7 @@ class CacheView extends View
     else
       @emptyPanel.hide();
       @jHeader.show();
+
+  destroy: ->
+    @fileSystem?.disconnect();
+    @disposables?.dispose();

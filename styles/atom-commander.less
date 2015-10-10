@@ -157,6 +157,23 @@
   height: 100%;
   background-color: @input-background-color;
 
+  .left-status, .right-status {
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    z-index: 30;
+    text-align: center;
+    color: @text-color-info;
+  }
+
+  .left-status {
+    left: 25%;
+  }
+
+  .right-status {
+    left: 75%;
+  }
+
   .left-pane, .right-pane {
     width: 50%;
     height: 100%;

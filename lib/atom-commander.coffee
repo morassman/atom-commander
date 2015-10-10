@@ -16,8 +16,8 @@ module.exports = AtomCommander =
       description: "Automatically upload cached files when saved."
       type: "boolean"
       default: true
-    deleteOnClose:
-      description: "Delete cached files when closed and were successfully uploaded."
+    removeOnClose:
+      description: "Remove cached files when closed and were successfully uploaded."
       type: "boolean"
       default: true
 

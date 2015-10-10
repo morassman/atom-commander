@@ -12,9 +12,11 @@ class DiffView extends View
 
   @content: ->
     @div {class: 'atom-commander-diff-view'}, =>
+      @div "Loading...", {class: 'left-status', outlet: 'leftStatus'}
       @div {class: 'left-pane'}, =>
         # @div {class: 'panel-heading', outlet:'leftHeader'}
         @subview 'leftTextEditor', new TextEditorView();
+      @div "Loading...", {class: 'right-status', outlet: 'rightStatus'}
       @div {class: 'right-pane'}, =>
         @subview 'rightTextEditor', new TextEditorView();
 
@@ -161,12 +163,14 @@ class DiffView extends View
 
     if util.isString(@leftFile)
       @leftContent = @leftFile;
+      @leftStatus.hide();
     else
       @leftFile.createReadStream (err, stream) =>
         @readStreamCallback(true, @leftBuffer, err, stream);
 
     if util.isString(@rightFile)
       @rightContent = @rightFile;
+      @rightStatus.hide();
     else
       @rightFile.createReadStream (err, stream) =>
         @readStreamCallback(false, @rightBuffer, err, stream);
@@ -175,7 +179,7 @@ class DiffView extends View
 
   readStreamCallback: (left, buffer, err, stream) ->
     if err?
-      console.log(err);
+      @setStatusError(left, err);
       return;
 
     stream.on "data", (data) =>
@@ -189,9 +193,27 @@ class DiffView extends View
         @rightContent = buffer.toString();
         buffer.clear();
       @fileRead();
+      @hideStatus(left);
 
     stream.on "error", (err) =>
-      console.log(err);
+      @setStatusError(left, err);
+
+  setStatusError: (left, err) ->
+    message = "Error loading file.";
+
+    if err.message
+      message += " "+err.message;
+
+    if left
+      @leftStatus.text(message);
+    else
+      @rightStatus.text(message);
+
+  hideStatus: (left) ->
+    if left
+      @leftStatus.hide();
+    else
+      @rightStatus.hide();
 
   fileRead: =>
     if (@leftContent == null) or (@rightContent == null)

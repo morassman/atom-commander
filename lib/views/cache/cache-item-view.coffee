@@ -1,7 +1,7 @@
 fsp = require 'fs-plus'
 fse = require 'fs-extra'
 {$, $$} = require 'atom-space-pen-views'
-PathUtil = require 'path';
+PathUtil = require 'path'
 Utils = require '../../utils'
 Buffer = require '../../buffer'
 
@@ -122,6 +122,7 @@ class CacheItemView extends HTMLElement
 
     taskManager.uploadItem remoteParentPath, file, (canceled, err) =>
       @setTransferInProgress(false);
+
       if err?
         @showStatus("Upload failed: "+err, 2);
       else if canceled
@@ -140,8 +141,6 @@ class CacheItemView extends HTMLElement
     @setTransferInProgress(true);
     @showStatus("Downloading...", 0);
 
-    console.log(@syncView);
-
     taskManager = @syncView.getTaskManager();
     fileSystem = taskManager.getFileSystem();
     file = fileSystem.getFile(@path);
@@ -151,7 +150,12 @@ class CacheItemView extends HTMLElement
       @setTransferInProgress(false);
 
       if err?
-        @showStatus("Download failed: "+err, 2);
+        message = "Download failed.";
+
+        if err.message?
+          message += " "+err.message;
+
+        @showStatus(message, 2);
       else if canceled
         @showStatus("Download canceled", 2);
       else

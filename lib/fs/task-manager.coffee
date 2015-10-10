@@ -20,11 +20,16 @@ class TaskManager
       @jobEnded(job, false, null);
 
     @taskQueue.on "error", (err, job) =>
-      @jobEnded(job, false, err);
+      if err.canceled
+        @jobEnded(job, true, err);
+        @taskQueue.end(err);
+      else
+        @jobEnded(job, false, err);
 
     @taskQueue.on "end", (err) =>
       @setUploadCount(0);
       @setDownloadCount(0);
+
       if @emitter != null
         @emitter.emit("end", err);
 
@@ -34,11 +39,6 @@ class TaskManager
 
       if err?
         Utils.showErrorWarning("Transfer failed", null, null, err, true);
-
-      copy = @taskQueue.slice(0);
-
-      for job in copy
-        @jobEnded(job, true, err);
 
       @taskQueue.end(err);
 

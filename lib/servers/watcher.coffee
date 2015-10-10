@@ -78,9 +78,9 @@ class Watcher
     @remoteFileManager.removeWatcher(@);
 
   shouldDeleteFile: ->
-    deleteOnClose = atom.config.get("atom-commander.deleteOnClose");
+    removeOnClose = atom.config.get("atom-commander.removeOnClose");
 
-    if !deleteOnClose
+    if !removeOnClose
       return false;
 
     if @openedRemotely
