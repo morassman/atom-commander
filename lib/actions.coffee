@@ -336,7 +336,10 @@ class Actions
       return;
 
     editor.save();
-    watcher.upload();
+
+    # Only upload if saving will not automatically cause it to be uploaded.
+    if !atom.config.get("atom-commander.uploadOnSave")
+      watcher.upload();
 
   downloadFile: =>
     editor = atom.workspace.getActiveTextEditor();
