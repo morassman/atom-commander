@@ -146,10 +146,11 @@ The following settings are applicable to cached files:
 
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/settings.png?raw=true)
 
-#### Upload On Save
-If this is selected then files will be automatically uploaded to the server when they are saved. This is enabled by default. The file will remain in the cache if it couldn't be uploaded.
 #### Remove On Close
 If this is selected then files will be removed from the cache when the file is closed. If the file was modified, but it was not uploaded then it will **not** be removed. This will be the case either if the upload failed or if `Upload On Save` is not selected. This is to ensure that changes are not lost. This is enabled by default.
+
+#### Upload On Save
+If this is selected then files will be automatically uploaded to the server when they are saved. This is enabled by default. The file will remain in the cache if it couldn't be uploaded.
 
 ### Editing Remote Files
 If the `Upload On Save` setting is enabled then the file will automatically be uploaded each time the file is saved. However, if it isn't enabled, then one will need to upload cached files via the cache view. A quick way to upload the file currently being edited is to select `Atom Commander: Upload File` from the Command Palette. Doing so copies the cached file to the server. The file is therefore first saved to the cache before it is uploaded.
