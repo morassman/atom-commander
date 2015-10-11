@@ -141,6 +141,8 @@ All remote files that are viewed or edited are cached on the local file system. 
 
 Doing so will open a view that lists all the files in the cache. From here files can be uploaded, downloaded, compared and deleted.
 
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/cache.png?raw=true)
+
 ### Settings
 The following settings are applicable to cached files:
 
