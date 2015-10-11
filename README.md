@@ -4,9 +4,12 @@ Dual-pane file manager for Atom.
 
 Highlights:
 - Navigate the whole file system from within Atom.
-- Browse and edit remote files via FTP and SFTP.
 - Bookmark files and folders for quick access.
 - Compare files side-by-side.
+- Open a terminal at the current folder.
+- Browse and edit files via FTP and SFTP.
+  - Keep multiple files cached until you're ready to upload them.
+  - Compare a cached file with its remote counterpart before uploading it.
 
 After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle Focus` from the Command Palette to show the panel and focus it. The panel can be hidden with `F10` or `Atom Commander: Toggle Visible`.
 
@@ -101,8 +104,9 @@ When the menu is closed and opened again it will start on the root menu.
   2. **File Manager** : Show the highlighted item in the OS's file manager.
   3. **System** : Open highlighted item with OS's default application. If it's a folder then it will be shown in the OS's file manager.
 6. **View**
-  1. **Mirror** : Show the same folder in the other pane as the focused one.
-  2. **Swap** : Swap the two folders.
+  1. **Refresh** : Reloads the content of the current folder. Local folders automatically refresh, but remote folders do not.
+  2. **Mirror** : Show the same folder in the other pane as the focused one.
+  3. **Swap** : Swap the two folders.
 7. **Compare**
   1. **Folders** : Select the differences between the two folders.
   2. **Files** : Show the difference between the left and right highlighted files.
@@ -139,9 +143,21 @@ Servers can be removed by choosing `Remove` from the `Servers` menu or `Atom Com
 ### Cache
 All remote files that are viewed or edited are cached on the local file system. Each server has its own cache associated with it. The cache for a server can be viewed by choosing `Cache` from the `Servers` menu or `Atom Commander: Open Cache` from the Command Palette.
 
-Doing so will open a view that lists all the files in the cache. From here files can be uploaded, downloaded, compared and deleted.
+Doing so will open a view that lists all the files in the cache. From here files can be uploaded, downloaded, compared and removed.
 
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/cache.png?raw=true)
+
+Button|Description
+---|---
+Open|Opens the cached file.
+Compare|Compares the cached file side-by-side with the one on the server.
+Upload|Uploads the cached file to the server.
+Download|Replaces the cached file with the one on the server.
+Remove|Removes the file from the cache.
+
+Multiple files can be uploaded, downloaded or removed by using the buttons at the top.
+
+The list doesn't automatically update when files are added to the cache. The `Refresh` button can be pressed to repopulate the list.
 
 ### Settings
 The following settings are applicable to cached files:
@@ -155,7 +171,7 @@ If this is selected then files will be removed from the cache when the file is c
 If this is selected then files will be automatically uploaded to the server when they are saved. This is enabled by default. The file will remain in the cache if it couldn't be uploaded.
 
 ### Editing Remote Files
-If the `Upload On Save` setting is enabled then the file will automatically be uploaded each time the file is saved. However, if it isn't enabled, then one will need to upload cached files via the cache view. A quick way to upload the file currently being edited is to select `Atom Commander: Upload File` from the Command Palette. Doing so copies the cached file to the server. The file is therefore first saved to the cache before it is uploaded.
+If the `Upload On Save` setting is enabled then the file will automatically be uploaded each time it is saved. However, if it isn't enabled, then one will need to upload cached files via the cache view. A quick way to upload the file currently being edited is to select `Atom Commander: Upload File` from the Command Palette. Doing so copies the cached file to the server. The file is therefore first saved to the cache before it is uploaded.
 
 Similarly one can download the file from the server by choosing `Atom Commander: Download File` from the Command Palette. This replaces the cached file with the one that was downloaded.
 
