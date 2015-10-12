@@ -157,7 +157,7 @@ Remove|Removes the file from the cache.
 
 Multiple files can be uploaded, downloaded or removed by using the buttons at the top.
 
-The list doesn't automatically update when files are added to the cache. The `Refresh` button can be pressed to repopulate the list.
+The list doesn't automatically update when files are added to the cache, but the `Refresh` button can be pressed to repopulate the list.
 
 ### Settings
 The following settings are applicable to cached files:
@@ -165,7 +165,7 @@ The following settings are applicable to cached files:
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/settings.png?raw=true)
 
 #### Remove On Close
-If this is selected then files will be removed from the cache when the file is closed. If the file was modified, but it was not uploaded then it will **not** be removed. This will be the case either if the upload failed or if `Upload On Save` is not selected. This is to ensure that changes are not lost. This is enabled by default.
+If this is selected then files will be removed from the cache when the file is closed. If the file was modified, but not uploaded then it will **not** be removed. This will be the case either if the upload failed or if `Upload On Save` is not selected. This is to ensure that changes are not lost. This is enabled by default.
 
 #### Upload On Save
 If this is selected then files will be automatically uploaded to the server when they are saved. This is enabled by default. The file will remain in the cache if it couldn't be uploaded.

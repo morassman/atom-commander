@@ -1,3 +1,10 @@
+## 0.4.0 - 12 October 2015
+* Added FTP and SFTP support.
+* Added 'Open' menu with options:
+  * Terminal : Open terminal in current folder.
+  * File Manager : Open highlighted item in OS's file manager.
+  * System : Open highlighted item with OS's default application.
+
 ## 0.3.5 - 7 September 2015
 * Fixed bug that prevented panel from hiding.
 * Improved event handling on Linux when showing menu.
