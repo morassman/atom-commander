@@ -1,3 +1,6 @@
+## 0.4.1 - 15 October 2015
+* Fixed the format of paths in the cache when using Windows.
+
 ## 0.4.0 - 12 October 2015
 * Added FTP and SFTP support.
 * Added 'Open' menu with options:

@@ -11,6 +11,8 @@ Highlights:
   - Keep multiple files cached until you're ready to upload them.
   - Compare a cached file with its remote counterpart before uploading it.
 
+See the [changelog](https://github.com/morassman/atom-commander/blob/master/CHANGELOG.md) for the latest improvements.
+
 After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle Focus` from the Command Palette to show the panel and focus it. The panel can be hidden with `F10` or `Atom Commander: Toggle Visible`.
 
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/panel.png?raw=true)

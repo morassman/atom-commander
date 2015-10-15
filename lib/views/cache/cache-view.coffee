@@ -71,7 +71,9 @@ class CacheView extends View
 
     for filePath in filePaths
       item = new CacheItemView();
-      item.initializeRow(@, filePath, filePath.substring(cachePath.length));
+      remotePath = filePath.substring(cachePath.length);
+      remotePath = remotePath.split("\\").join("/");
+      item.initializeRow(@, filePath, remotePath);
       @syncItems.push(item);
       @tableBody[0].appendChild(item);
 
