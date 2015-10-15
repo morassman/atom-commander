@@ -37,7 +37,9 @@ class RemoteFileManager
       return;
 
     fileSystem = @server.getFileSystem();
-    file = fileSystem.getFile(PathUtil.sep+dir.relativize(localFilePath));
+    remotePath = dir.relativize(localFilePath);
+    remotePath = remotePath.split("\\").join("/");
+    file = fileSystem.getFile("/"+remotePath);
     watcher = @addWatcher(cachePath, localFilePath, file, textEditor);
     watcher.setOpenedRemotely(false);
 
