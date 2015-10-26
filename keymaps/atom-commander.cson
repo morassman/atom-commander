@@ -21,6 +21,16 @@
   'f8': 'atom-commander:delete'
   'tab': 'atom-commander:focus-other-view'
   'ctrl-tab': 'atom-commander:mirror'
+  'ctrl-t': 'atom-commander:add-tab'
+  'ctrl-r': 'atom-commander:remove-tab'
+  'ctrl-left': 'atom-commander:previous-tab'
+  'ctrl-right': 'atom-commander:next-tab'
+
+'.platform-darwin .atom-commander':
+  'cmd-t': 'atom-commander:add-tab'
+  'cmd-r': 'atom-commander:remove-tab'
+  'cmd-left': 'atom-commander:previous-tab'
+  'cmd-right': 'atom-commander:next-tab'
 
 '.atom-commander-container-view':
   'enter': 'atom-commander:open-highlighted-item'

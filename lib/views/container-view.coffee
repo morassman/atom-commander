@@ -34,11 +34,21 @@ class ContainerView extends View
       'core:confirm': => @directoryEditorConfirm()
       'core:cancel': => @directoryEditorCancel()
 
+  isLeft: ->
+    return @left;
+
   setMainView: (@mainView) ->
     @localFileSystem = @mainView.getMain().getLocalFileSystem();
 
   getMainView: ->
     return @mainView;
+
+  setTabView: (@tabView) ->
+    if @directory != null
+      @tabView.directoryChanged();
+
+  getTabView: ->
+    return @tabView;
 
   getMain: ->
     return @mainView.getMain();
@@ -53,7 +63,7 @@ class ContainerView extends View
     return @lastLocalPath;
 
   @content: ->
-    @div {class: 'tool-panel'}, =>
+    @div {class: 'tool-panel', tabindex: -1}, =>
       @subview 'directoryEditor', new TextEditorView(mini: true)
       @div {class: 'atom-commander-container-view'}, =>
         @container();
@@ -63,6 +73,8 @@ class ContainerView extends View
   initialize: (state) ->
     @searchPanel.hide();
     @spinnerPanel.hide();
+
+    @directoryEditor.addClass("directory-editor");
 
     @on 'dblclick', '.item', (e) =>
       @requestFocus();
@@ -80,8 +92,8 @@ class ContainerView extends View
      'core:move-down': @moveDown.bind(this)
      'core:page-up': => @pageUp()
      'core:page-down': => @pageDown()
-     'core:move-to-top': => @scrollToTop()
-     'core:move-to-bottom': => @scrollToBottom()
+     'core:move-to-top': => @highlightFirstItem()
+     'core:move-to-bottom': => @highlightLastItem()
      'core:cancel': => @escapePressed();
      'atom-commander:open-highlighted-item': => @openHighlightedItem(false)
      'atom-commander:open-highlighted-item-native': => @openHighlightedItem(true)
@@ -91,6 +103,17 @@ class ContainerView extends View
      'atom-commander:page-up': => @pageUp()
      'atom-commander:page-down': => @pageDown()
      'atom-commander:select-item': => @spacePressed()
+
+  storeScrollTop: ->
+    @scrollTop = @getScrollTop();
+
+  restoreScrollTop: ->
+    if @scrollTop?
+      @setScrollTop(@scrollTop);
+
+  getScrollTop: ->
+
+  setScrollTop: (scrollTop) ->
 
   cancelSpinner: ->
     if @showSpinnerCount == 0
@@ -397,6 +420,7 @@ class ContainerView extends View
 
   tryOpenDirectory: (newDirectory, snapShot = null, callback = null) ->
     @directory = newDirectory;
+    @tabView?.directoryChanged();
     @cancelSpinner();
     @disableAutoRefresh();
 
@@ -597,15 +621,17 @@ class ContainerView extends View
     if @directory.getFileSystem() == server.getFileSystem()
       @openDirectory(@getInitialDirectory(@lastLocalPath));
 
-  deserialize: (path, state) ->
-    if (state == null) or (state == undefined)
-      @openDirectory(@getInitialDirectory(path));
+  deserialize: (state) ->
+    if !state?
+      @openDirectory(@getInitialDirectory());
       return;
 
-    @openDirectory(@getInitialDirectory(state.path));
+    snapShot = {}
+    snapShot.name = state.highlight;
+    @openDirectory(@getInitialDirectory(state.path), snapShot);
 
-    if state.highlight?
-      @highlightIndexWithName(state.highlight);
+    # if state.highlight?
+    #   @highlightIndexWithName(state.highlight);
 
   serialize: ->
     state = {}

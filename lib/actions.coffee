@@ -22,7 +22,7 @@ class Actions
     focusedView = @main.mainView.focusedView;
 
     if focusedView == null
-      focusedView = @main.mainView.leftView;
+      focusedView = @main.mainView.getLeftView();
 
     return focusedView;
 
@@ -195,8 +195,8 @@ class Actions
     @main.mainView.swap();
 
   compareFolders: =>
-    leftView = @main.mainView.leftView;
-    rightView = @main.mainView.rightView;
+    leftView = @main.mainView.getLeftView();
+    rightView = @main.mainView.getRightView();
 
     leftView.selectNone();
     rightView.selectNone();
@@ -210,9 +210,8 @@ class Actions
         itemView.select(true);
 
   compareFiles: =>
-    leftView = @main.mainView.leftView;
-    rightView = @main.mainView.rightView;
-
+    leftView = @main.mainView.getLeftView();
+    rightView = @main.mainView.getRightView();
     leftViewItem = leftView.getHighlightedItem();
 
     if (leftViewItem == null)

@@ -89,3 +89,9 @@ class ListView extends ContainerView
 
   setContentHeight: (contentHeight) ->
     @listViewResizer.height(contentHeight);
+
+  getScrollTop: ->
+    return @scroller.scrollTop();
+
+  setScrollTop: (scrollTop) ->
+    @scroller.scrollTop(scrollTop);

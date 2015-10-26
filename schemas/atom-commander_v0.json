@@ -1,0 +1,6 @@
+{
+  "leftPath": "string - Path to left folder.",
+  "rightPath": "string - Path to left folder.",
+  "height": "number - Height of panel",
+  "visible": "boolean - true if the panel is visible."
+}

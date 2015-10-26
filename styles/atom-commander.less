@@ -4,6 +4,29 @@
 // for a full listing of what's available.
 @import "ui-variables";
 
+.atom-commander-tabs-view {
+  overflow: hidden;
+  width: 100%;
+  white-space: nowrap;
+  background-color: @input-border-color;
+}
+
+.atom-commander-tab-view {
+  cursor: default;
+  margin-right: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  background-color: mix(@input-border-color, @input-background-color, 50%);
+}
+
+.atom-commander-tab-view-selected {
+  background-color: @input-background-color;
+  // background-color: @tab-background-color-active;
+  // background-color: @background-color-selected;
+}
+
 .atom-commander-resizer {
   .atom-commander-resize-handle {
     position: absolute;
@@ -54,6 +77,14 @@
   .right {
     width: 50%;
     float: right;
+  }
+
+  .directory-editor {
+    box-shadow: none;
+    border-radius: 0;
+    border-top-style: none;
+    border-left-style: none;
+    border-right-style: none;
   }
 
   .search-panel {

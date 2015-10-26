@@ -110,8 +110,15 @@ module.exports = AtomCommander =
   loadState: ->
     if !@state?
       @state = {};
+      @state.version = 2;
       @state.bookmarks = [];
+      @state.servers = [];
       @state.visible = false;
+      @state.height = 200;
+      @state.left = {};
+      @state.left.tabs = [];
+      @state.right = {};
+      @state.right.tabs = [];
 
     file = @getSaveFile();
 
@@ -127,7 +134,7 @@ module.exports = AtomCommander =
   saveState: ->
     state = @serialize();
     file = @getSaveFile();
-    state.version = 1;
+    state.version = 2;
 
     try
       fsp.writeFileSync(file.getPath(), JSON.stringify(state));

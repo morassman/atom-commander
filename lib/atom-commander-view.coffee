@@ -10,6 +10,7 @@ FileController = require './controllers/file-controller'
 DirectoryController = require './controllers/directory-controller'
 FTPFileSystem = require './fs/ftp/ftp-filesystem'
 Utils = require './utils'
+TabbedView = require './views/tabbed-view'
 
 module.exports =
 class AtomCommanderView extends View
@@ -17,21 +18,24 @@ class AtomCommanderView extends View
   constructor: (@main, state)->
     super(@main);
 
-    @focusedView = @leftView;
-
     @menuBar.setMainView(@);
-    @leftView.setMainView(@);
-    @rightView.setMainView(@);
+    @leftTabbedView.setMainView(@);
+    @rightTabbedView.setMainView(@);
 
-    @leftView.addClass('left');
-    @rightView.addClass('right');
+    @leftTabbedView.addClass('left');
+    @rightTabbedView.addClass('right');
 
-    @leftView.deserialize(state.leftPath, state.left);
-    @rightView.deserialize(state.rightPath, state.right);
+    @leftTabbedView.deserialize(state.version, state.leftPath, state.left);
+    @rightTabbedView.deserialize(state.version, state.rightPath, state.right);
+
+    @leftView = @leftTabbedView.getSelectedView();
+    @rightView = @rightTabbedView.getSelectedView();
 
     if state.height
-      @leftView.setContentHeight(state.height);
-      @rightView.setContentHeight(state.height);
+      @leftTabbedView.setContentHeight(state.height);
+      @rightTabbedView.setContentHeight(state.height);
+
+    @focusedView = @getLeftView();
 
   @content: ->
     buttonStyle = 'width: 11.1%';
@@ -40,8 +44,8 @@ class AtomCommanderView extends View
       @div class: 'atom-commander-resize-handle', outlet: 'resizeHandle'
       @subview 'menuBar', new MenuBarView();
       @div {class: 'content'}, =>
-        @subview 'leftView', new ListView(true)
-        @subview 'rightView', new ListView(false)
+        @subview 'leftTabbedView', new TabbedView(true)
+        @subview 'rightTabbedView', new TabbedView(false)
       @div {class: 'btn-group-xs'}, =>
         @button 'F2 Rename', {class: 'btn', style: buttonStyle, click: 'renameButton'}
         @button 'F3 Add Project', {class: 'btn', style: buttonStyle, click: 'addProjectButton'}
@@ -68,6 +72,10 @@ class AtomCommanderView extends View
       'atom-commander:focus': => @focusButton();
       'atom-commander:hide': => @hideButton();
       'atom-commander:mirror': => @mirror();
+      'atom-commander:add-tab': => @addTab();
+      'atom-commander:remove-tab': => @removeTab();
+      'atom-commander:previous-tab': => @previousTab();
+      'atom-commander:next-tab': => @nextTab();
 
     @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);
 
@@ -127,17 +135,23 @@ class AtomCommanderView extends View
     return @resizeStopped() unless which is 1
 
     change = @offset().top - pageY;
-    @leftView.adjustContentHeight(change);
-    @rightView.adjustContentHeight(change);
+    @leftTabbedView.adjustContentHeight(change);
+    @rightTabbedView.adjustContentHeight(change);
 
   getMain: ->
     return @main;
 
-  getOtherView: (view) ->
-    if view == @leftView
-      return @rightView;
+  getLeftView: ->
+    return @leftTabbedView.getSelectedView();
 
-    return @leftView;
+  getRightView: ->
+    return @rightTabbedView.getSelectedView();
+
+  getOtherView: (view) ->
+    if view.isLeft()
+      return @getRightView();
+
+    return @getLeftView();
 
   focusView: (@focusedView) ->
     otherView = @getOtherView(@focusedView);
@@ -145,10 +159,10 @@ class AtomCommanderView extends View
     @focusedView.focus();
 
   focusOtherView: ->
-    if @leftView.hasFocus()
-      @focusView(@rightView);
+    if @getLeftView().hasFocus()
+      @focusView(@getRightView());
     else
-      @focusView(@leftView);
+      @focusView(@getLeftView());
 
   addProjectButton: ->
     if @focusedView != null
@@ -327,21 +341,63 @@ class AtomCommanderView extends View
     if @focusedView != null
       @focusView(@focusedView);
     else
-      @focusView(@leftView);
+      @focusView(@getLeftView());
+
+  getFocusedTabbedView: ->
+    if @focusedView == null
+      return null;
+
+    if @focusedView.isLeft()
+      return @leftTabbedView;
+
+    return @rightTabbedView;
+
+  addTab: ->
+    focusedTabbedView = @getFocusedTabbedView();
+
+    if focusedTabbedView == null
+      return;
+
+    focusedTabbedView.insertTab();
+
+  removeTab: ->
+    focusedTabbedView = @getFocusedTabbedView();
+
+    if focusedTabbedView == null
+      return;
+
+    focusedTabbedView.removeSelectedTab();
+
+  previousTab: ->
+    focusedTabbedView = @getFocusedTabbedView();
+
+    if focusedTabbedView != null
+      focusedTabbedView.previousTab();
+
+  nextTab: ->
+    focusedTabbedView = @getFocusedTabbedView();
+
+    if focusedTabbedView != null
+      focusedTabbedView.nextTab();
+
+  tabCountChanged: ->
+    totalTabs = @leftTabbedView.getTabCount() + @rightTabbedView.getTabCount();
+    @leftTabbedView.setTabsVisible(totalTabs > 2);
+    @rightTabbedView.setTabsVisible(totalTabs > 2);
 
   fileSystemRemoved: (fileSystem) ->
-    @leftView.fileSystemRemoved(fileSystem);
-    @rightView.fileSystemRemoved(fileSystem);
+    @leftTabbedView.fileSystemRemoved(fileSystem);
+    @rightTabbedView.fileSystemRemoved(fileSystem);
 
   serverClosed: (server) ->
-    @leftView.serverClosed(server);
-    @rightView.serverClosed(server);
+    @leftTabbedView.serverClosed(server);
+    @rightTabbedView.serverClosed(server);
 
   serialize: ->
     state = {};
 
-    state.left = @leftView.serialize();
-    state.right = @rightView.serialize();
-    state.height = @leftView.getContentHeight();
+    state.left = @leftTabbedView.serialize();
+    state.right = @rightTabbedView.serialize();
+    state.height = @getLeftView().getContentHeight();
 
     return state;
