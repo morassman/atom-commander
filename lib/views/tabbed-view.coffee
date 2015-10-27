@@ -76,6 +76,12 @@ class TabbedView extends View
   nextTab: ->
     @tabsView.nextTab();
 
+  shiftLeft: ->
+    @tabsView.shiftLeft();
+
+  shiftRight: ->
+    @tabsView.shiftRight();
+
   selectView: (view, requestFocus=false) ->
     if @selectedView != null
       @selectedView.storeScrollTop();
@@ -127,9 +133,9 @@ class TabbedView extends View
     if @getTabCount() == 0
       fileSystem = @mainView.getMain().getLocalFileSystem();
       if path?
-        @addTab(fileSystem.getDirectory(path), true);
+        @addTab(fileSystem.getDirectory(path));
       else
-        @addTab(fileSystem.getInitialDirectory(), true);
+        @addTab(fileSystem.getInitialDirectory());
 
     if @tabsView.getSelectedIndex() == null
       @tabsView.selectIndex(0);

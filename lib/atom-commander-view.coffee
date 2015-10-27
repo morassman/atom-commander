@@ -76,6 +76,8 @@ class AtomCommanderView extends View
       'atom-commander:remove-tab': => @removeTab();
       'atom-commander:previous-tab': => @previousTab();
       'atom-commander:next-tab': => @nextTab();
+      'atom-commander:shift-tab-left': => @shiftTabLeft();
+      'atom-commander:shift-tab-right': => @shiftTabRight();
 
     @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);
 
@@ -379,6 +381,18 @@ class AtomCommanderView extends View
 
     if focusedTabbedView != null
       focusedTabbedView.nextTab();
+
+  shiftTabLeft: ->
+    focusedTabbedView = @getFocusedTabbedView();
+
+    if focusedTabbedView != null
+      focusedTabbedView.shiftLeft();
+
+  shiftTabRight: ->
+    focusedTabbedView = @getFocusedTabbedView();
+
+    if focusedTabbedView != null
+      focusedTabbedView.shiftRight();
 
   tabCountChanged: ->
     totalTabs = @leftTabbedView.getTabCount() + @rightTabbedView.getTabCount();

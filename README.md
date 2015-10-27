@@ -3,8 +3,9 @@
 Dual-pane file manager for Atom.
 
 Highlights:
-- Navigate the whole file system from within Atom.
+- Navigate the file system from within Atom.
 - Bookmark files and folders for quick access.
+- Create multiple folder tabs.
 - Compare files side-by-side.
 - Open a terminal at the current folder.
 - Browse and edit files via FTP and SFTP.
@@ -17,20 +18,20 @@ After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle Fo
 
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/panel.png?raw=true)
 
-Keep in mind that this is not meant to be a full featured file manager. More features will be added in time, but the primary focus is to provide a way to browse the file system in a way that's familiar to many people.
+Keep in mind that this is not meant to be a full featured file manager. More features will be added in time, but the primary focus is to provide a way to browse the file system that's familiar to many people.
 
 ## Buttons
 Button|Action
 ---|---
-F2 Rename|Rename the highlighted file or folder.
-F3 Add Project|Add the highlighted or selected folders as project folders to the workspace. If a folder isn't highlighted nor any folders selected then the folder currently being shown will be added.
-F4 New File|Create a new file in the selected pane's folder and opens it for editing.
-F5 Copy|Copy the selected files to the other pane.
-F6 Move|Move the selected files to the other pane.
-F7 New Folder|Create a new folder in the current pane.
-F8 Delete|Delete the selected files in the current pane.
-F9 Focus|Toggle focus between the panel and the editor.
-F10 Hide|Toggle visibility.
+`F2 Rename`|Rename the highlighted file or folder.
+`F3 Add Project`|Add the highlighted or selected folders as project folders to the workspace. If a folder isn't highlighted nor any folders selected then the folder currently being shown will be added.
+`F4 New File`|Create a new file in the selected pane's folder and opens it for editing.
+`F5 Copy`|Copy the selected files to the other pane.
+`F6 Move`|Move the selected files to the other pane.
+`F7 New Folder`|Create a new folder in the current pane.
+`F8 Delete`|Delete the selected files in the current pane.
+`F9 Focus`|Toggle focus between the panel and the editor.
+`F10 Hide`|Toggle visibility.
 
 ## Keys
 Use the arrow keys, page-up, page-down, home and end to navigate.
@@ -39,15 +40,21 @@ The following are special keys:
 
 Key|Action
 ---|---
-Enter|Open highlighted item. If it's a file then it will be opened in the editor.
-Ctrl-Enter|Open highlighted item with OS's default application. If it's a folder then it will be shown in the OS's file manager.
-Backspace|Navigate to the parent folder.
-Left|Highlight the first item.
-Right|Highlight the last item.
-Space|Select the highlighted item.
-Tab|Switch to the other pane.
-Ctrl-Tab|Show the same folder in the other pane.
-Alt|Open the quick menu.
+`Alt`|Open the quick menu.
+`Left`|Highlight the first item.
+`Right`|Highlight the last item.
+`Space`|Select the highlighted item.
+`Backspace`|Navigate to the parent folder.
+`Tab`|Switch to the other pane.
+`Ctrl-Tab`|Show the same folder in the other pane.
+`Enter`|Open highlighted item. If it's a file then it will be opened in the editor.
+`Ctrl-Enter` `Cmd-Enter`|Open highlighted item with OS's default application. If it's a folder then it will be shown in the OS's file manager.
+`Ctrl-T` `Cmd-T`|Open highlighted item in a new tab.
+`Ctrl-R` `Cmd-R`|Remove current tab.
+`Ctrl-Left` `Cmd-Left|Select previous tab.
+`Ctrl-Right` `Cmd-Right`|Select next tab.
+`Ctrl-Shift-Left` `Cmd-Shift-Left`|Shift current tab left.
+`Ctrl-Shift-Right` `Cmd-Shift-Right`|Shift current tab right.
 `+`|Open dialog to add items to selection.
 `-`|Open dialog to remove items from selection.
 `*`|Invert selection.
@@ -127,6 +134,23 @@ The list of bookmarks can be opened from either the menu in Atom Commander or by
 ### Removing Bookmarks
 The list of bookmarks can be opened from either the menu in Atom Commander or by choosing `Atom Commander: Remove Bookmark` from the Command Palette. Each bookmark that is selected will be removed. The list will remain open until it is cancelled by pressing the `Escape` key.
 
+## Folder Tabs
+Multiple folder tabs can be added to each of the panels.
+
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/tabs.png?raw=true)
+
+### Adding Tabs
+A new tab can be added by pressing `Ctrl-T` or `Cmd-T`. If a folder is highlighted then that folder will be opened in the new tab. Otherwise the current folder will be opened instead.
+
+### Removing Tabs
+The current tab can be removed by pressing `Ctrl-R` or `Cmd-R`.
+
+### Navigating Tabs
+The previous tab can be selected by pressing `Ctrl-Left` or `Cmd-Left` whereas the next tab is selected with `Ctrl-Right` or `Cmd-Right`.
+
+### Sorting Tabs
+Pressing `Ctrl-Shift-Left` or `Cmd-Shift-Left` will shift the current tab to the left whereas `Ctrl-Shift-Right` or `Cmd-Shift-Right` will shift it to the right. If the end is reached the tab will wrap to the other side.
+
 ## Servers
 Files can be accessed remotely via FTP and SFTP.
 
@@ -192,5 +216,4 @@ Lines that have been added are highlighted on the left whereas lines that have b
 The files are currently not being monitored for changes. If either of the files change then the comparison will have to be done again.
 
 ## Todo
-- Support creating tabs.
 - Visual feedback for file system operations.

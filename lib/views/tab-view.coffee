@@ -59,6 +59,9 @@ class TabView extends View
     else
       @addClass("text-subtle");
 
+  scrollIntoView: ->
+    @element.scrollIntoView();
+
   isSelected: ->
     return @hasClass("atom-commander-tab-view-selected");
 

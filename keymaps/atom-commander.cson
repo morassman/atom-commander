@@ -25,16 +25,21 @@
   'ctrl-r': 'atom-commander:remove-tab'
   'ctrl-left': 'atom-commander:previous-tab'
   'ctrl-right': 'atom-commander:next-tab'
+  'ctrl-shift-left': 'atom-commander:shift-tab-left'
+  'ctrl-shift-right': 'atom-commander:shift-tab-right'
 
 '.platform-darwin .atom-commander':
   'cmd-t': 'atom-commander:add-tab'
   'cmd-r': 'atom-commander:remove-tab'
   'cmd-left': 'atom-commander:previous-tab'
   'cmd-right': 'atom-commander:next-tab'
+  'cmd-shift-left': 'atom-commander:shift-tab-left'
+  'cmd-shift-right': 'atom-commander:shift-tab-right'
 
 '.atom-commander-container-view':
   'enter': 'atom-commander:open-highlighted-item'
   'ctrl-enter': 'atom-commander:open-highlighted-item-native'
+  'cmd-enter': 'atom-commander:open-highlighted-item-native'
   'backspace': 'atom-commander:open-parent-folder'
   'left': 'atom-commander:highlight-first-item'
   'right': 'atom-commander:highlight-last-item'

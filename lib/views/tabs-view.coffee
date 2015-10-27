@@ -78,6 +78,42 @@ class TabsView extends View
 
     @selectTab(@tabs[index]);
 
+  shiftLeft: ->
+    @shiftTab(-1);
+
+  shiftRight: ->
+    @shiftTab(1);
+
+  shiftTab: (change) ->
+    if @tabs.length <= 1
+      return;
+
+    index = @getSelectedIndex();
+
+    if index == null
+      return;
+
+    tab = @tabs[index];
+    @tabs.splice(index, 1);
+
+    newIndex = index + change;
+    tab.detach();
+
+    if newIndex < 0
+      @tabs.push(tab);
+      @buttonView.append(tab);
+    else if newIndex > @tabs.length
+      @tabs.unshift(tab);
+      @buttonView.prepend(tab);
+    else
+      @tabs.splice(newIndex, 0, tab);
+      if newIndex == 0
+        @tabs[newIndex+1].before(tab);
+      else
+        @tabs[newIndex-1].after(tab);
+
+    tab.scrollIntoView();
+
   getSelectedIndex: ->
     index = 0;
 

@@ -1,3 +1,6 @@
+## 0.5.0 - 30 October 2015
+* Added folder tabs.
+
 ## 0.4.2 - 15 October 2015
 * Fixed the format of paths in the cache when using Windows.
 
