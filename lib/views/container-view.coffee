@@ -621,9 +621,9 @@ class ContainerView extends View
     if @directory.getFileSystem() == server.getFileSystem()
       @openDirectory(@getInitialDirectory(@lastLocalPath));
 
-  deserialize: (state) ->
+  deserialize: (path, state) ->
     if !state?
-      @openDirectory(@getInitialDirectory());
+      @openDirectory(@getInitialDirectory(path));
       return;
 
     snapShot = {}

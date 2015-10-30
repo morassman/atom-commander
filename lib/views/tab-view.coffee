@@ -69,4 +69,4 @@ class TabView extends View
     return @view.serialize();
 
   deserialize: (state) ->
-    @view.deserialize(state);
+    @view.deserialize(null, state);

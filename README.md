@@ -18,8 +18,6 @@ After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle Fo
 
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/panel.png?raw=true)
 
-Keep in mind that this is not meant to be a full featured file manager. More features will be added in time, but the primary focus is to provide a way to browse the file system that's familiar to many people.
-
 ## Buttons
 Button|Action
 ---|---
