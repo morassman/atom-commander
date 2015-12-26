@@ -1,3 +1,7 @@
+## 0.5.1 - 26 December 2015
+* Fixed selecting of marker in diff view.
+* Small UI touch-ups.
+
 ## 0.5.0 - 30 October 2015
 * Added folder tabs.
 
