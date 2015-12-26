@@ -12,7 +12,7 @@ class TabbedView extends View
     @selectedView = null;
 
   @content: (left) ->
-    @div {class: "tool-panel"}, =>
+    @div {}, =>
       @subview "tabsView", new TabsView()
       @div {outlet: "container"}
 

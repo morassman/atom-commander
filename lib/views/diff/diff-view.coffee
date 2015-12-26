@@ -82,7 +82,8 @@ class DiffView extends View
 
   handleMouseDown: (e, textEditor) ->
     @resetSelections();
-    y = e.offsetY + textEditor.getModel().getScrollTop();
+    # y = e.offsetY + textEditor.getModel().getScrollTop();
+    y = e.offsetY;
     @selection = @getDecorationAtPixelY(y, textEditor);
 
     if (@selection == null)
@@ -124,12 +125,16 @@ class DiffView extends View
       decorations = @rightDecorations;
 
     lineHeight = textEditor.getModel().getLineHeightInPixels();
+    y += textEditor.getModel().getFirstVisibleScreenRow() * lineHeight;
 
     for decoration in decorations
-      pixelRange = decoration.getMarker().getPixelRange();
+      pixelRange = textEditor.getModel().pixelRectForScreenRange(decoration.getMarker().getScreenRange());
 
-      if ((y >= pixelRange.start.top) and (y <= (pixelRange.end.top + lineHeight)))
-        return decoration;
+      start = textEditor.getModel().pixelPositionForBufferPosition(decoration.getMarker().getStartBufferPosition());
+      end = textEditor.getModel().pixelPositionForBufferPosition(decoration.getMarker().getEndBufferPosition());
+
+      if ((y >= start.top) and (y <= (end.top + lineHeight)))
+       return decoration;
 
     return null;
 

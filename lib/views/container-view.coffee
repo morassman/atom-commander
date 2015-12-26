@@ -63,7 +63,7 @@ class ContainerView extends View
     return @lastLocalPath;
 
   @content: ->
-    @div {class: 'tool-panel', tabindex: -1}, =>
+    @div {tabindex: -1}, =>
       @subview 'directoryEditor', new TextEditorView(mini: true)
       @div {class: 'atom-commander-container-view'}, =>
         @container();
@@ -73,6 +73,9 @@ class ContainerView extends View
   initialize: (state) ->
     @searchPanel.hide();
     @spinnerPanel.hide();
+
+    if (@left)
+      @addClass("left-container");
 
     @directoryEditor.addClass("directory-editor");
 

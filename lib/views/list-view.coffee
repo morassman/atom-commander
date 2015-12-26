@@ -46,8 +46,8 @@ class ListView extends ContainerView
   createHeaderView: ->
     return """
       <tr>
-        <th>Name</th>
-        <th>Extension</th>
+        <th id='name'>Name</th>
+        <th id='ext'>Extension</th>
       </tr>
     """;
 
