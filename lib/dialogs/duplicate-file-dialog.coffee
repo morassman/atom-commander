@@ -1,6 +1,6 @@
 Utils = require '../utils'
 fse = require 'fs-extra'
-PathUtil = require('path')
+PathUtil = require 'path'
 InputDialog = require '@aki77/atom-input-dialog'
 
 module.exports =
