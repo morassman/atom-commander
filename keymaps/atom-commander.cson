@@ -14,6 +14,7 @@
 '.atom-commander':
   'f2': 'atom-commander:rename'
   'f3': 'atom-commander:add-project'
+  'shift-f3' : 'atom-commander:remove-project'
   'f4': 'atom-commander:new-file'
   'f5': 'atom-commander:copy'
   'f6': 'atom-commander:move'

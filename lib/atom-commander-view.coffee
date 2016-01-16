@@ -48,7 +48,7 @@ class AtomCommanderView extends View
         @subview 'rightTabbedView', new TabbedView(false)
       @div {class: 'btn-group-xs'}, =>
         @button 'F2 Rename', {class: 'btn', style: buttonStyle, click: 'renameButton'}
-        @button 'F3 Add Project', {class: 'btn', style: buttonStyle, click: 'addProjectButton'}
+        @button 'F3 Add Project', {class: 'btn', style: buttonStyle, click: 'addProjectButton', outlet: 'F3Button'}
         @button 'F4 New File', {class: 'btn', style: buttonStyle, click: 'newFileButton'}
         @button 'F5 Copy', {class: 'btn', style: buttonStyle, click: 'copyButton'}
         @button 'F6 Move', {class: 'btn', style: buttonStyle, click: 'moveButton'}
@@ -64,6 +64,7 @@ class AtomCommanderView extends View
       'atom-commander:focus-other-view': => @focusOtherView()
       'atom-commander:rename': => @renameButton();
       'atom-commander:add-project': => @addProjectButton();
+      'atom-commander:remove-project': => @removeProjectButton();
       'atom-commander:new-file': => @newFileButton();
       'atom-commander:copy': => @copyButton();
       'atom-commander:move': => @moveButton();
@@ -95,14 +96,15 @@ class AtomCommanderView extends View
 
   handleKeyDown: (e) ->
     if e.altKey and @menuBar.isHidden()
-      @menuBar.reset();
-      @menuBar.show();
+      @showMenuBar();
       e.preventDefault();
       e.stopPropagation();
     else if @menuBar.isVisible()
       @menuBar.handleKeyDown(e);
       e.preventDefault();
       e.stopPropagation();
+    else if e.shiftKey
+      @showAlternateButtons();
 
   handleKeyUp: (e) ->
     if e.altKey
@@ -113,6 +115,8 @@ class AtomCommanderView extends View
       @hideMenuBar();
       e.preventDefault();
       e.stopPropagation();
+    else if !e.shiftKey
+      @hideAlternateButtons();
 
   handleKeyPress: (e) ->
     if @menuBar.isVisible()
@@ -120,10 +124,20 @@ class AtomCommanderView extends View
       e.preventDefault();
       e.stopPropagation();
 
+  showMenuBar: ->
+    @menuBar.reset();
+    @menuBar.show();
+
   hideMenuBar: ->
     @menuBar.hide();
     @menuBar.reset();
     @refocusLastView();
+
+  showAlternateButtons: ->
+    @F3Button.text("F3 Remove Project");
+
+  hideAlternateButtons: ->
+    @F3Button.text("F3 Add Project");
 
   resizeStarted: =>
     $(document).on('mousemove', @resizeView)
@@ -169,6 +183,10 @@ class AtomCommanderView extends View
   addProjectButton: ->
     if @focusedView != null
       @focusedView.addProject();
+
+  removeProjectButton: ->
+    if @focusedView != null
+      @focusedView.removeProject();
 
   getFocusedViewDirectory: ->
     if @focusedView == null

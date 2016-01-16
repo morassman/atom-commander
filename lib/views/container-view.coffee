@@ -570,6 +570,12 @@ class ContainerView extends View
     @directoryEditor.setText(@directory.getURI());
 
   addProject: ->
+    @addRemoveProject(true);
+
+  removeProject: ->
+    @addRemoveProject(false);
+
+  addRemoveProject: (add) ->
     if @directory == null
       return;
 
@@ -585,10 +591,16 @@ class ContainerView extends View
         directories.push(selectedItemView.itemController.getDirectory());
 
     if directories.length == 0
-      atom.project.addPath(@directory.getPath());
+      if add
+        atom.project.addPath(@directory.getPath());
+      else
+        atom.project.removePath(@directory.getPath());
     else
       for directory in directories
-        atom.project.addPath(directory.getPath());
+        if add
+          atom.project.addPath(directory.getPath());
+        else
+          atom.project.removePath(directory.getPath());
 
   selectAll: ->
     for itemView in @itemViews
