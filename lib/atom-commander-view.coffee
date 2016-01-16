@@ -251,7 +251,7 @@ class AtomCommanderView extends View
 
     if move
       if srcFileSystem.isRemote() or dstFileSystem.isRemote()
-        atom.notifications.addWarning("Move to/from remote file systems is not supported.");
+        atom.notifications.addWarning("Move to/from remote file systems is not yet supported.");
         return;
     # else if srcFileSystem.isRemote() and dstFileSystem.isRemote()
     #   atom.notifications.addWarning("Copy between remote file systems is not yet supported.");
