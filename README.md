@@ -31,6 +31,14 @@ Button|Action
 `F9 Focus`|Toggle focus between the panel and the editor.
 `F10 Hide`|Toggle visibility.
 
+## Alternative Buttons
+Hold down `Shift` to see the alternative buttons.
+
+Button|Action
+---|---
+`Shift-F3 Remove Project`|Remove the highlighted or selected project folders from the workspace. If a folder isn't highlighted nor any folders selected then the folder currently being shown will be removed.
+`Shift-F5 Duplicate`|Duplicate the highlighted file or folder.
+
 ## Keys
 Use the arrow keys, page-up, page-down, home and end to navigate.
 
@@ -39,6 +47,7 @@ The following are special keys:
 Key|Action
 ---|---
 `Alt`|Open the quick menu.
+`Shift`|Show alternative buttons.
 `Left`|Highlight the first item.
 `Right`|Highlight the last item.
 `Space`|Select the highlighted item.
