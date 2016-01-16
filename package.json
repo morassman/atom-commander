@@ -1,7 +1,7 @@
 {
   "name": "atom-commander",
   "main": "./lib/atom-commander",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Dual-pane file manager with FTP support and much more.",
   "keywords": [
     "file",
