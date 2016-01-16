@@ -13,7 +13,7 @@
     "commander",
     "diff",
     "compare",
-    "bookmark",
+    "bookmark"
   ],
   "activationCommands": {},
   "repository": "https://github.com/morassman/atom-commander",
