@@ -17,6 +17,7 @@
   'shift-f3' : 'atom-commander:remove-project'
   'f4': 'atom-commander:new-file'
   'f5': 'atom-commander:copy'
+  'shift-f5': 'atom-commander:duplicate'
   'f6': 'atom-commander:move'
   'f7': 'atom-commander:new-folder'
   'f8': 'atom-commander:delete'

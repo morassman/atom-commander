@@ -6,6 +6,7 @@ MenuBarView = require './views/menu/menu-bar-view'
 NewFileDialog = require './dialogs/new-file-dialog'
 NewDirectoryDialog = require './dialogs/new-directory-dialog'
 RenameDialog = require './dialogs/rename-dialog'
+DuplicateFileDialog = require './dialogs/duplicate-file-dialog'
 FileController = require './controllers/file-controller'
 DirectoryController = require './controllers/directory-controller'
 FTPFileSystem = require './fs/ftp/ftp-filesystem'
@@ -50,7 +51,7 @@ class AtomCommanderView extends View
         @button 'F2 Rename', {class: 'btn', style: buttonStyle, click: 'renameButton'}
         @button 'F3 Add Project', {class: 'btn', style: buttonStyle, click: 'addProjectButton', outlet: 'F3Button'}
         @button 'F4 New File', {class: 'btn', style: buttonStyle, click: 'newFileButton'}
-        @button 'F5 Copy', {class: 'btn', style: buttonStyle, click: 'copyButton'}
+        @button 'F5 Copy', {class: 'btn', style: buttonStyle, click: 'copyButton', outlet: 'F5Button'}
         @button 'F6 Move', {class: 'btn', style: buttonStyle, click: 'moveButton'}
         @button 'F7 New Folder', {class: 'btn', style: buttonStyle, click: 'newDirectoryButton'}
         @button 'F8 Delete', {class: 'btn', style: buttonStyle, click: 'deleteButton'}
@@ -67,6 +68,7 @@ class AtomCommanderView extends View
       'atom-commander:remove-project': => @removeProjectButton();
       'atom-commander:new-file': => @newFileButton();
       'atom-commander:copy': => @copyButton();
+      'atom-commander:duplicate': => @duplicateButton();
       'atom-commander:move': => @moveButton();
       'atom-commander:new-folder': => @newDirectoryButton();
       'atom-commander:delete': => @deleteButton();
@@ -135,9 +137,11 @@ class AtomCommanderView extends View
 
   showAlternateButtons: ->
     @F3Button.text("F3 Remove Project");
+    @F5Button.text("F5 Duplicate");
 
   hideAlternateButtons: ->
     @F3Button.text("F3 Add Project");
+    @F5Button.text("F5 Copy");
 
   resizeStarted: =>
     $(document).on('mousemove', @resizeView)
@@ -295,6 +299,27 @@ class AtomCommanderView extends View
 
     task.on 'success', (data) =>
       srcItemViews[data.index].select(false);
+
+  duplicateButton: ->
+    if @focusedView == null
+      return;
+
+    fileSystem = @focusedView.directory.fileSystem;
+
+    if fileSystem.isRemote()
+      atom.notifications.addWarning("Duplicate on remote file systems is not yet supported.");
+      return;
+
+    itemView = @focusedView.getHighlightedItem();
+
+    if (itemView == null) or !itemView.isSelectable()
+      return;
+
+    item = itemView.getItem();
+
+    if item.isFile() or item.isDirectory()
+      dialog = new DuplicateFileDialog(@focusedView, item);
+      dialog.attach();
 
   deleteButton: ->
     if @focusedView == null

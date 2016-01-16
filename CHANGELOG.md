@@ -1,3 +1,8 @@
+## 0.6.0 -
+* Added alternative buttons when holding down shift key.
+* Added ability to remove projects: Shift-F3
+* Added ability to duplicate files and folders: Shift-F5
+
 ## 0.5.1 - 26 December 2015
 * Fixed selecting of marker in diff view.
 * Small UI touch-ups.
