@@ -1,4 +1,3 @@
-fsp = require 'fs-plus'
 VDirectory = require '../vdirectory'
 LocalFile = require './local-file'
 
@@ -27,7 +26,7 @@ class LocalDirectory extends VDirectory
     return true;
 
   isLink: ->
-    return fsp.isSymbolicLinkSync(@getRealPathSync());
+    return @directory.isSymbolicLink();
 
   onDidChange: (callback) ->
     return @directory.onDidChange(callback);
