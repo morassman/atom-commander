@@ -13,14 +13,14 @@ class ListFileView extends ListItemView
     @name = document.createElement('td');
     @extension = document.createElement('td');
 
-    @name.textContent = fileController.getName();
+    @name.textContent = fileController.getNamePart();
 
     if fileController.isLink()
       @name.classList.add('icon', 'icon-file-symlink-file');
     else
       @name.classList.add('icon', 'icon-file-text');
 
-    @extension.textContent = fileController.getExtension();
+    @extension.textContent = fileController.getExtensionPart();
     @extension.classList.add('extension');
 
     @appendChild(@name);

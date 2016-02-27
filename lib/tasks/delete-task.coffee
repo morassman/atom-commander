@@ -11,5 +11,6 @@ module.exports = (folderPath, names) ->
       fse.removeSync(p);
   catch error
     console.log("Error deleting.");
+    console.error(error);
 
   callback();

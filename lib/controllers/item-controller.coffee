@@ -23,7 +23,10 @@ class ItemController
   getName: ->
     return @item.getBaseName();
 
-  getExtension: ->
+  getNamePart: ->
+    return @getName();
+
+  getExtensionPart: ->
     return "";
 
   getPath: ->

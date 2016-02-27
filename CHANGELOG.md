@@ -1,3 +1,7 @@
+## 0.6.1 - 27 February 2016
+* Added support for SFTP symbolic links.
+* Fixed the way FTP folder symbolic links are determined.
+
 ## 0.6.0 - 16 January 2016
 * Added alternative buttons when holding down shift key.
 * Added ability to remove projects: Shift-F3

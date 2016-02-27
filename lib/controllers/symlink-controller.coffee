@@ -9,14 +9,14 @@ class SymLinkController extends ItemController
     super(symLink);
     @targetController = null;
 
-  getName: ->
-    if @name?
-      return @name;
+  getNamePart: ->
+    if @namePart?
+      return @namePart;
     return super();
 
-  getExtension: ->
-    if @extension?
-      return @extension;
+  getExtensionPart: ->
+    if @extensionPart?
+      return @extensionPart;
     return super();
 
   getTargetController: ->
@@ -38,15 +38,15 @@ class SymLinkController extends ItemController
     if targetItem.isFile()
       @targetController = new FileController(targetItem);
       ne = @getNameExtension();
-      @name = ne[0];
-      @extension = ne[1];
+      @namePart = ne[0];
+      @extensionPart = ne[1];
     else if targetItem.isDirectory()
       @targetController = new DirectoryController(targetItem);
-      @name = @item.getBaseName();
-      @extension = null;
+      @namePart = @item.getBaseName();
+      @extensionPart = null;
     else
-      @name = null;
-      @extension = null;
+      @namePart = null;
+      @extensionPart = null;
 
     @targetController?.initialize(@getItemView());
 

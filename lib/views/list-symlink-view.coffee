@@ -19,8 +19,8 @@ class ListSymLinkView extends ListItemView
     @refresh();
 
   refresh: ->
-    @name.textContent = @itemController.getName();
-    @extension.textContent = @itemController.getExtension();
+    @name.textContent = @itemController.getNamePart();
+    @extension.textContent = @itemController.getExtensionPart();
 
     targetController = @itemController.getTargetController();
 

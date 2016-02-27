@@ -9,20 +9,20 @@ class FileController extends ItemController
   getFile: ->
     return @item;
 
-  getName: ->
-    if !@name?
+  getNamePart: ->
+    if !@namePart?
       @refreshNameExtension();
-    return @name;
+    return @namePart;
 
-  getExtension: ->
-    if !@extension?
+  getExtensionPart: ->
+    if !@extensionPart?
       @refreshNameExtension();
-    return @extension;
+    return @extensionPart;
 
   refreshNameExtension: ->
     ne = @getNameExtension();
-    @name = ne[0];
-    @extension = ne[1];
+    @namePart = ne[0];
+    @extensionPart = ne[1];
 
   performOpenAction: ->
     @getFile().open();

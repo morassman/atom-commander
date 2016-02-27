@@ -38,5 +38,6 @@ module.exports = (srcFolderPath, srcNames, dstFolderPath, move=false) ->
       index++;
   catch error
     console.log("Error copying.");
+    console.error(error);
 
   callback();
