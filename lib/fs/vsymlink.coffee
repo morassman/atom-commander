@@ -5,25 +5,43 @@ class VSymLink extends VItem
 
   constructor: (fileSystem) ->
     super(fileSystem);
-    @item = null;
+    @targetItem = null;
 
-  getItem: ->
-    return @item;
+  setTargetItem: (@targetItem) ->
+    if @controller?
+      @controller.refresh();
+
+  getTargetItem: ->
+    return @targetItem;
 
   isFile: ->
-    if !@item?
+    if !@targetItem?
       return false;
 
-    return @item.isFile();
+    return @targetItem.isFile();
 
   isDirectory: ->
-    if !@item?
+    if !@targetItem?
       return false;
 
-    return @item.isDirectory();
+    return @targetItem.isDirectory();
 
   existsSync: ->
     return true;
 
   isLink: ->
     return true;
+
+# This is called once it is known that the symlink points to file.
+  setTargetFilePath: (targetPath) ->
+    @setTargetItem(@createFileItem(targetPath));
+
+# This is called once it is known that the symlink points to directory.
+  setTargetDirectoryPath: (targetPath) ->
+    @setTargetItem(@createDirectoryItem(targetPath));
+
+# Overwrite to create a VFile for the file pointed to by this symlink.
+  createFileItem: (targetPath) ->
+
+# Overwrite to create a VDirectory for the directory pointed to by this symlink.
+  createDirectoryItem: (targetPath) ->

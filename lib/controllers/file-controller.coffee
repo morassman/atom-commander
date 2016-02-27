@@ -10,21 +10,19 @@ class FileController extends ItemController
     return @item;
 
   getName: ->
-    return @item.getBaseName();
+    if !@name?
+      @refreshNameExtension();
+    return @name;
 
-  getPath: ->
-    return @item.getRealPathSync();
+  getExtension: ->
+    if !@extension?
+      @refreshNameExtension();
+    return @extension;
 
-  getNameExtension: ->
-    baseName = @item.getBaseName();
-
-    index = baseName.lastIndexOf(".");
-    lastIndex = baseName.length - 1;
-
-    if (index == -1) or (index == 0) or (index == lastIndex)
-      return [baseName, ''];
-
-    return [baseName.slice(0, index), baseName.slice(index + 1)];
+  refreshNameExtension: ->
+    ne = @getNameExtension();
+    @name = ne[0];
+    @extension = ne[1];
 
   performOpenAction: ->
     @getFile().open();

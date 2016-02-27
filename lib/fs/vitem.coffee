@@ -2,6 +2,12 @@ module.exports =
 class VItem
 
   constructor: (@fileSystem) ->
+    @controller = null;
+
+  setController: (@controller) ->
+
+  getController: ->
+    return @controller;
 
   getFileSystem: ->
     return @fileSystem;

@@ -1,4 +1,7 @@
 VSymLink = require '../vsymlink'
+PathUtil = require('path').posix
+FTPFile = require './ftp-file'
+FTPDirectory = require './ftp-directory'
 
 module.exports =
 class FTPSymLink extends VSymLink
@@ -21,3 +24,9 @@ class FTPSymLink extends VSymLink
 
   isWritable: ->
     return @writable;
+
+  createFileItem: (targetPath) ->
+    return new FTPFile(@getFileSystem(), false, targetPath);
+
+  createDirectoryItem: (targetPath) ->
+    return new FTPDirectory(@getFileSystem(), false, targetPath);

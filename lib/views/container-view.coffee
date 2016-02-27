@@ -6,7 +6,10 @@ Scheduler = require 'nschedule';
 {CompositeDisposable, Directory} = require 'atom'
 FileController = require '../controllers/file-controller'
 DirectoryController = require '../controllers/directory-controller'
+SymLinkController = require '../controllers/symlink-controller'
 VFile = require '../fs/vfile'
+VDirectory = require '../fs/vdirectory'
+VSymLink = require '../fs/vsymlink'
 Utils = require '../utils'
 
 module.exports =
@@ -290,6 +293,8 @@ class ContainerView extends View
 
   createDirectoryView: (index, directoryController) ->
 
+  createSymLinkView: (index, symLinkController) ->
+
   # Override to add the given item view.
   addItemView: (itemView) ->
 
@@ -412,6 +417,7 @@ class ContainerView extends View
     try
       @tryOpenDirectory(directory, snapShot, callback);
     catch error
+      console.error(error);
       console.log(error);
       # If the directory couldn't be opened and one hasn't been opened yet then
       # revert to opening the home folder and finally the PWD.
@@ -477,12 +483,17 @@ class ContainerView extends View
     for entry in entries
       if entry instanceof VFile
         itemView = @createFileView(index, new FileController(entry));
-      else
+      else if entry instanceof VDirectory
         itemView = @createDirectoryView(index, new DirectoryController(entry));
+      else if entry instanceof VSymLink
+        itemView = @createSymLinkView(index, new SymLinkController(entry));
+      else
+        itemView = null;
 
-      @itemViews.push(itemView);
-      @addItemView(itemView);
-      index++;
+      if itemView?
+        @itemViews.push(itemView);
+        @addItemView(itemView);
+        index++;
 
     if @itemViews.length > 0
       @highlightIndex(highlightIndex);

@@ -3,6 +3,7 @@ PathUtil = require('path').posix
 VFileSystem = require '../vfilesystem'
 FTPFile = require './ftp-file'
 FTPDirectory = require './ftp-directory'
+FTPSymLink = require './ftp-symlink'
 SFTPSession = require './sftp-session'
 Utils = require '../../utils'
 
@@ -207,11 +208,30 @@ class SFTPFileSystem extends VFileSystem
       return new FTPDirectory(@, false, PathUtil.join(path, entry.filename));
     else if entry.attrs.isFile()
       return new FTPFile(@, false, PathUtil.join(path, entry.filename));
-    # else if entry.attrs.isSymbolicLink()
-      # console.log(entry)
-      # TODO : Support symbolic links.
+    else if entry.attrs.isSymbolicLink()
+      return @wrapSymLinkEntry(path, entry);
 
     return null;
+
+  wrapSymLinkEntry: (path, entry) ->
+    fullPath = PathUtil.join(path, entry.filename);
+    result = new FTPSymLink(@, fullPath);
+    @client.stat fullPath, (err, stat) =>
+      if err?
+        return;
+
+      @client.readlink fullPath, (err, target) =>
+        if err?
+          return;
+
+        fullTarget = PathUtil.join(path, target);
+
+        if stat.isFile()
+          result.setTargetFilePath(fullTarget);
+        else if stat.isDirectory()
+          result.setTargetDirectoryPath(fullTarget);
+
+    return result;
 
   newFileImpl: (path, callback) ->
     @client.open path, "w", {}, (err, handle) =>

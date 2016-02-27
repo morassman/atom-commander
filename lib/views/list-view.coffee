@@ -1,5 +1,6 @@
 ListFileView = require './list-file-view'
 ListDirectoryView = require './list-directory-view'
+ListSymLinkView = require './list-symlink-view'
 ContainerView = require './container-view'
 {$} = require 'atom-space-pen-views'
 
@@ -38,6 +39,11 @@ class ListView extends ContainerView
   createDirectoryView: (index, directoryController) ->
     itemView = new ListDirectoryView();
     itemView.initialize(@, index, false, directoryController);
+    return itemView;
+
+  createSymLinkView: (index, symLinkController) ->
+    itemView = new ListSymLinkView();
+    itemView.initialize(@, index, symLinkController);
     return itemView;
 
   addItemView: (itemView) ->

@@ -22,6 +22,9 @@ class BaseItemView extends HTMLElement
   getItem: ->
     return @itemController.getItem();
 
+  # Called if anything about the item changed.
+  refresh: ->
+
   # Override to return the name of this item.
   getName: ->
 

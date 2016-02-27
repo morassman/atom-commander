@@ -6,7 +6,7 @@ DiffView = require './views/diff/diff-view'
 InputDialog = require './dialogs/input-dialog'
 
 module.exports =
-class Actions
+class Utils
 
   # Opens a DiffView with the given title. left and right can either
   # be a file or a string.
