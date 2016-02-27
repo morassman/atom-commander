@@ -4,9 +4,12 @@ VDirectory = require '../vdirectory'
 module.exports =
 class FTPDirectory extends VDirectory
 
-  constructor: (fileSystem, @link, @path) ->
+  constructor: (fileSystem, @link, @path, @baseName = null) ->
     super(fileSystem);
     @writable = true;
+
+    if @baseName == null
+      @baseName = PathUtil.basename(@path);
 
   existsSync: ->
     return true;
@@ -15,7 +18,7 @@ class FTPDirectory extends VDirectory
     return @path;
 
   getBaseName: ->
-    return PathUtil.basename(@path);
+    return @baseName;
 
   getParent: ->
     return new FTPDirectory(@fileSystem, false, PathUtil.dirname(@path));

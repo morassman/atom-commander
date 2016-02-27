@@ -260,8 +260,9 @@ class FTPFileSystem extends VFileSystem
     else if entry.type == "-"
       return new FTPFile(@, false, PathUtil.join(path, entry.name));
     else if (entry.type == "l")
-      if entry.target.length >= 1 && entry.target[entry.target.length - 1] == '/'
-        return new FTPDirectory(@, true, PathUtil.join(path, entry.name));
+      if entry.target.indexOf('/') != -1
+        return new FTPDirectory(@, true, PathUtil.resolve(path, entry.target), entry.name);
+        # return new FTPDirectory(@, true, PathUtil.join(path, entry.target), entry.name);
       else
         return new FTPFile(@, true, PathUtil.resolve(path, entry.target), entry.name);
 

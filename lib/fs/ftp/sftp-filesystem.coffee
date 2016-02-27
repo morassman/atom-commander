@@ -208,6 +208,7 @@ class SFTPFileSystem extends VFileSystem
     else if entry.attrs.isFile()
       return new FTPFile(@, false, PathUtil.join(path, entry.filename));
     # else if entry.attrs.isSymbolicLink()
+      # console.log(entry)
       # TODO : Support symbolic links.
 
     return null;
