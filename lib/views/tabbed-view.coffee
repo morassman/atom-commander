@@ -110,6 +110,14 @@ class TabbedView extends View
   serverClosed: (server) ->
     @tabsView.serverClosed(server);
 
+  setSizeColumnVisible: (visible) ->
+    for tabView in @tabsView.getTabViews()
+      tabView.getView().setSizeColumnVisible(visible);
+
+  setDateColumnVisible: (visible) ->
+    for tabView in @tabsView.getTabViews()
+      tabView.getView().setDateColumnVisible(visible);
+
   serialize: ->
     state = {};
     state.tabs = [];

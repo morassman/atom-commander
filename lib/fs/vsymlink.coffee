@@ -32,6 +32,12 @@ class VSymLink extends VItem
   isLink: ->
     return true;
 
+  setModifyDate: (@modifyDate) ->
+    @controller?.refresh();
+
+  setSize: (@size) ->
+    @controller?.refresh();
+  
 # This is called once it is known that the symlink points to file.
   setTargetFilePath: (targetPath) ->
     @setTargetItem(@createFileItem(targetPath));

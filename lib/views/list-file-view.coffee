@@ -6,12 +6,9 @@ class ListFileView extends ListItemView
   constructor: ->
     super();
 
-  initialize: (containerView, @index, fileController) ->
-    super(containerView, fileController);
+  initialize: (containerView, index, fileController) ->
+    super(containerView, index, fileController);
     @.classList.add('file');
-
-    @name = document.createElement('td');
-    @extension = document.createElement('td');
 
     @name.textContent = fileController.getNamePart();
 
@@ -21,10 +18,6 @@ class ListFileView extends ListItemView
       @name.classList.add('icon', 'icon-file-text');
 
     @extension.textContent = fileController.getExtensionPart();
-    @extension.classList.add('extension');
-
-    @appendChild(@name);
-    @appendChild(@extension);
 
   getName: ->
     return @itemController.getName();

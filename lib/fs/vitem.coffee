@@ -3,6 +3,8 @@ class VItem
 
   constructor: (@fileSystem) ->
     @controller = null;
+    @modifyDate = null;
+    @size = null;
 
   setController: (@controller) ->
 
@@ -42,6 +44,12 @@ class VItem
 
   isRemote: ->
     return @fileSystem.isRemote();
+
+  getModifyDate: ->
+    return @modifyDate;
+
+  getSize: ->
+    return @size;
 
   isFile: ->
 

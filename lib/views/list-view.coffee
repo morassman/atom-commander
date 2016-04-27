@@ -13,7 +13,7 @@ class ListView extends ContainerView
   @container: ->
     @div {class: 'atom-commander-list-view-resizer', click:'requestFocus', outlet: 'listViewResizer'}, =>
       @div {class: 'atom-commander-list-view-scroller', outlet:'scroller', click:'requestFocus'}, =>
-        @table {class: 'atom-commander-list-view-table'}, =>
+        @table {class: 'atom-commander-list-view-table', outlet: 'table'}, =>
           @tbody {class: 'atom-commander-list-view list', tabindex: -1, outlet: 'tableBody'}
 
   initialize: (state)->
@@ -25,6 +25,9 @@ class ListView extends ContainerView
   clearItemViews: ->
     @tableBody.empty();
     @tableBody.append($(@createHeaderView()));
+
+    @setSizeColumnVisible(@isSizeColumnVisible());
+    @setDateColumnVisible(@isDateColumnVisible());
 
   createParentView: (index, directoryController) ->
     itemView = new ListDirectoryView();
@@ -47,13 +50,21 @@ class ListView extends ContainerView
     return itemView;
 
   addItemView: (itemView) ->
+    if !@isSizeColumnVisible()
+      itemView.setSizeColumnVisible(false);
+
+    if !@isDateColumnVisible()
+      itemView.setDateColumnVisible(false);
+
     @tableBody[0].appendChild(itemView);
 
   createHeaderView: ->
     return """
       <tr>
-        <th id='name'>Name</th>
-        <th id='ext'>Extension</th>
+        <th id='name-header'>Name</th>
+        <th id='extension-header'>Extension</th>
+        <th id='size-header'>Size</th>
+        <th id='date-header'>Date</th>
       </tr>
     """;
 
@@ -101,3 +112,15 @@ class ListView extends ContainerView
 
   setScrollTop: (scrollTop) ->
     @scroller.scrollTop(scrollTop);
+
+  setSizeColumnVisible: (visible) ->
+    if visible
+      @table.find('tr :nth-child(3)').show();
+    else
+      @table.find('tr :nth-child(3)').hide();
+
+  setDateColumnVisible: (visible) ->
+    if visible
+      @table.find('tr :nth-child(4)').show();
+    else
+      @table.find('tr :nth-child(4)').hide();

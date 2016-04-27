@@ -647,6 +647,16 @@ class ContainerView extends View
     if @directory.getFileSystem() == server.getFileSystem()
       @openDirectory(@getInitialDirectory(@lastLocalPath));
 
+  isSizeColumnVisible: ->
+    return @getMainView().isSizeColumnVisible();
+
+  isDateColumnVisible: ->
+    return @getMainView().isDateColumnVisible();
+
+  setSizeColumnVisible: (visible) ->
+
+  setDateColumnVisible: (visible) ->
+
   deserialize: (path, state) ->
     if !state?
       @openDirectory(@getInitialDirectory(path));

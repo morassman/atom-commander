@@ -6,21 +6,12 @@ class ListSymLinkView extends ListItemView
   constructor: ->
     super();
 
-  initialize: (containerView, @index, symLinkController) ->
-    super(containerView, symLinkController);
-
-    @name = document.createElement('td');
-    @extension = document.createElement('td');
-
-    @extension.classList.add('extension');
-
-    @appendChild(@name);
-    @appendChild(@extension);
+  initialize: (containerView, index, symLinkController) ->
+    super(containerView, index, symLinkController);
     @refresh();
 
   refresh: ->
-    @name.textContent = @itemController.getNamePart();
-    @extension.textContent = @itemController.getExtensionPart();
+    super();
 
     targetController = @itemController.getTargetController();
 

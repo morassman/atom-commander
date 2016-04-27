@@ -71,6 +71,9 @@ module.exports = AtomCommander =
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:show-in-file-manager': => @actions.openFileSystem();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:open-with-system': => @actions.openSystem();
 
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-size-column': => @actions.toggleSizeColumn();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-date-column': => @actions.toggleDateColumn();
+
     @subscriptions.add atom.commands.add 'atom-text-editor', 'atom-commander:upload-file': (event) =>
       event.stopPropagation();
       @actions.uploadFile();

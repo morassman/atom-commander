@@ -255,15 +255,21 @@ class FTPFileSystem extends VFileSystem
     if (entry.name == ".") or (entry.name == "..")
       return null;
 
+    item = null;
+
     if (entry.type == "d")
-      return new FTPDirectory(@, false, PathUtil.join(path, entry.name));
+      item = new FTPDirectory(@, false, PathUtil.join(path, entry.name));
     else if entry.type == "-"
-      return new FTPFile(@, false, PathUtil.join(path, entry.name));
+      item = new FTPFile(@, false, PathUtil.join(path, entry.name));
     else if (entry.type == "l")
       if entry.target.indexOf('/') != -1
-        return new FTPDirectory(@, true, PathUtil.resolve(path, entry.target), entry.name);
-        # return new FTPDirectory(@, true, PathUtil.join(path, entry.target), entry.name);
+        item = new FTPDirectory(@, true, PathUtil.resolve(path, entry.target), entry.name);
+        # item = new FTPDirectory(@, true, PathUtil.join(path, entry.target), entry.name);
       else
-        return new FTPFile(@, true, PathUtil.resolve(path, entry.target), entry.name);
+        item = new FTPFile(@, true, PathUtil.resolve(path, entry.target), entry.name);
 
-    return null;
+    if item?
+      item.modifyDate = entry.date;
+      item.size = entry.size;
+
+    return item;

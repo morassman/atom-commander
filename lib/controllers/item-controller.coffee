@@ -1,3 +1,5 @@
+filesize = require 'filesize'
+
 module.exports =
 class ItemController
 
@@ -8,8 +10,7 @@ class ItemController
 
   # Called if anything about the item changed.
   refresh: ->
-    if @itemView?
-      @itemView.refresh();
+    @itemView?.refresh();
 
   getItem: ->
     return @item;
@@ -52,6 +53,18 @@ class ItemController
       return [baseName, ''];
 
     return [baseName.slice(0, index), baseName.slice(index + 1)];
+
+  getFormattedModifyDate: ->
+    date = @item.getModifyDate();
+    if date?
+      return date.toLocaleDateString();
+    return "";
+
+  getFormattedSize: ->
+    size = @item.getSize();
+    if size?
+      return filesize(size);
+    return "";
 
   # Override this to implement the open behavior of this item.
   performOpenAction: ->

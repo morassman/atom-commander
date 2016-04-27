@@ -144,6 +144,20 @@
         }
       ]
     }
+    {type: 'separator'}
+    {
+      'label': 'Columns'
+      'submenu': [
+        {
+          'label': 'Toggle Size'
+          'command': 'atom-commander:toggle-size-column'
+        }
+        {
+          'label': 'Toggle Date'
+          'command': 'atom-commander:toggle-date-column'
+        }
+      ]
+    }
   ]
 'menu': [
   {

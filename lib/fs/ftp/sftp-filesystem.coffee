@@ -204,14 +204,20 @@ class SFTPFileSystem extends VFileSystem
     return directories.concat(files);
 
   wrapEntry: (path, entry) ->
-    if entry.attrs.isDirectory()
-      return new FTPDirectory(@, false, PathUtil.join(path, entry.filename));
-    else if entry.attrs.isFile()
-      return new FTPFile(@, false, PathUtil.join(path, entry.filename));
-    else if entry.attrs.isSymbolicLink()
-      return @wrapSymLinkEntry(path, entry);
+    item = null;
 
-    return null;
+    if entry.attrs.isDirectory()
+      item = new FTPDirectory(@, false, PathUtil.join(path, entry.filename));
+    else if entry.attrs.isFile()
+      item = new FTPFile(@, false, PathUtil.join(path, entry.filename));
+    else if entry.attrs.isSymbolicLink()
+      item = @wrapSymLinkEntry(path, entry);
+
+    if item?
+      item.modifyDate = new Date(entry.attrs.mtime*1000);
+      item.size = entry.attrs.size;
+
+    return item;
 
   wrapSymLinkEntry: (path, entry) ->
     fullPath = PathUtil.join(path, entry.filename);
@@ -219,6 +225,9 @@ class SFTPFileSystem extends VFileSystem
     @client.stat fullPath, (err, stat) =>
       if err?
         return;
+
+      result.setModifyDate(new Date(entry.attrs.mtime*1000));
+      result.setSize(entry.attrs.size);
 
       @client.readlink fullPath, (err, target) =>
         if err?

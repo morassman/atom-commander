@@ -456,3 +456,9 @@ class Actions
       shell.openItem(item.getPath());
     else
       shell.showItemInFolder(item.getPath());
+
+  toggleSizeColumn: ->
+    @main.mainView.toggleSizeColumn();
+
+  toggleDateColumn: ->
+    @main.mainView.toggleDateColumn();

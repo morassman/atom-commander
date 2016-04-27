@@ -6,24 +6,21 @@ class ListDirectoryView extends ListItemView
   constructor: ->
     super();
 
-  initialize: (containerView, @index, @parentDirectory, directoryController) ->
-    super(containerView, directoryController);
-    @.classList.add('directory');
+  initialize: (containerView, index, @parentDirectory, directoryController) ->
+    super(containerView, index, directoryController);
 
-    @name = document.createElement('td');
-    @extension = document.createElement('td');
-
+    # @name.classList.add('directory');
+    @name.className += ' directory';
     @name.textContent = @getName();
+    @size.textContent = '';
 
     if @parentDirectory
       @name.classList.add('icon', 'icon-arrow-up');
+      @date.textContent = '';
     else if directoryController.isLink()
       @name.classList.add('icon', 'icon-file-symlink-directory');
     else
       @name.classList.add('icon', 'icon-file-directory');
-
-    @appendChild(@name);
-    @appendChild(@extension);
 
   getName: ->
     if @parentDirectory
