@@ -222,5 +222,10 @@ Lines that have been added are highlighted on the left whereas lines that have b
 
 The files are currently not being monitored for changes. If either of the files change then the comparison will have to be done again.
 
+## Columns
+The size and modified date columns can be toggled from the context menu.
+
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/columns.png?raw=true)
+
 ## Todo
 - Visual feedback for file system operations.

@@ -12,7 +12,7 @@
     "manager",
     "commander",
     "diff",
-    "compare",
+    "browser",
     "bookmark"
   ],
   "activationCommands": {},
