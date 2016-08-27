@@ -454,6 +454,10 @@ class ContainerView extends View
       @itemViews.push(itemView);
       @addItemView(itemView);
 
+  refreshItemViews: ->
+    for itemView in @itemViews
+      itemView.refresh();
+
   getEntries: (newDirectory, snapShot, callback) ->
     @showSpinner();
     newDirectory.getEntries (newDirectory, err, entries) =>
@@ -653,9 +657,14 @@ class ContainerView extends View
   isDateColumnVisible: ->
     return @getMainView().isDateColumnVisible();
 
+  isExtensionColumnVisible: ->
+    return @getMainView().isExtensionColumnVisible();
+
   setSizeColumnVisible: (visible) ->
 
   setDateColumnVisible: (visible) ->
+
+  setExtensionColumnVisible: (visible) ->
 
   deserialize: (path, state) ->
     if !state?

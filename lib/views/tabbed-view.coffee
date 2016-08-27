@@ -118,6 +118,10 @@ class TabbedView extends View
     for tabView in @tabsView.getTabViews()
       tabView.getView().setDateColumnVisible(visible);
 
+  setExtensionColumnVisible: (visible) ->
+    for tabView in @tabsView.getTabViews()
+      tabView.getView().setExtensionColumnVisible(visible);
+
   serialize: ->
     state = {};
     state.tabs = [];

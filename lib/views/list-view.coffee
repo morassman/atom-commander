@@ -26,6 +26,7 @@ class ListView extends ContainerView
     @tableBody.empty();
     @tableBody.append($(@createHeaderView()));
 
+    @setExtensionColumnVisible(@isExtensionColumnVisible());
     @setSizeColumnVisible(@isSizeColumnVisible());
     @setDateColumnVisible(@isDateColumnVisible());
 
@@ -55,6 +56,8 @@ class ListView extends ContainerView
 
     if !@isDateColumnVisible()
       itemView.setDateColumnVisible(false);
+
+    itemView.setExtensionColumnVisible(@isExtensionColumnVisible());
 
     @tableBody[0].appendChild(itemView);
 
@@ -112,6 +115,14 @@ class ListView extends ContainerView
 
   setScrollTop: (scrollTop) ->
     @scroller.scrollTop(scrollTop);
+
+  setExtensionColumnVisible: (visible) ->
+    if visible
+      @table.find('tr :nth-child(2)').show();
+    else
+      @table.find('tr :nth-child(2)').hide();
+
+    @refreshItemViews();
 
   setSizeColumnVisible: (visible) ->
     if visible

@@ -28,10 +28,13 @@ class ListItemView extends BaseItemView
     @appendChild(@date);
 
   refresh: ->
-    @name.textContent = @itemController.getNamePart();
+    @name.textContent = @getNameColumnValue();
     @extension.textContent = @itemController.getExtensionPart();
     @size.textContent = @itemController.getFormattedSize();
     @date.textContent = @itemController.getFormattedModifyDate();
+
+  getNameColumnValue: ->
+    return @itemController.getNamePart();
 
   setSizeColumnVisible: (visible) ->
     if visible
@@ -44,3 +47,11 @@ class ListItemView extends BaseItemView
       $(@date).show();
     else
       $(@date).hide();
+
+  setExtensionColumnVisible: (visible) ->
+    if visible
+      $(@extension).show();
+    else
+      $(@extension).hide();
+
+    @refresh();

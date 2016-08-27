@@ -462,3 +462,6 @@ class Actions
 
   toggleDateColumn: ->
     @main.mainView.toggleDateColumn();
+
+  toggleExtensionColumn: ->
+    @main.mainView.toggleExtensionColumn();

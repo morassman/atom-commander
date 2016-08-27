@@ -149,6 +149,10 @@
       'label': 'Columns'
       'submenu': [
         {
+          'label': 'Toggle Extension'
+          'command': 'atom-commander:toggle-extension-column'
+        }
+        {
           'label': 'Toggle Size'
           'command': 'atom-commander:toggle-size-column'
         }

@@ -10,13 +10,12 @@ class ListFileView extends ListItemView
     super(containerView, index, fileController);
     @.classList.add('file');
 
-    @name.textContent = fileController.getNamePart();
-
     if fileController.isLink()
       @name.classList.add('icon', 'icon-file-symlink-file');
     else
       @name.classList.add('icon', 'icon-file-text');
 
+    @name.textContent = @getNameColumnValue();
     @extension.textContent = fileController.getExtensionPart();
 
   getName: ->
@@ -27,5 +26,11 @@ class ListFileView extends ListItemView
 
   isSelectable: ->
     return true;
+
+  getNameColumnValue: ->
+    if @containerView.isExtensionColumnVisible()
+      return @itemController.getNamePart();
+
+    return @itemController.getName();
 
 module.exports = document.registerElement('list-file-view', prototype: ListFileView.prototype, extends: 'tr')

@@ -21,12 +21,16 @@ class AtomCommanderView extends View
 
     @sizeColumnVisible = state.sizeColumnVisible;
     @dateColumnVisible = state.dateColumnVisible;
+    @extensionColumnVisible = state.extensionColumnVisible;
 
     if !@sizeColumnVisible?
       @sizeColumnVisible = false;
 
     if !@dateColumnVisible?
       @dateColumnVisible = false;
+
+    if !@extensionColumnVisible?
+      @extensionColumnVisible = true;
 
     @menuBar.setMainView(@);
     @leftTabbedView.setMainView(@);
@@ -465,6 +469,9 @@ class AtomCommanderView extends View
   isDateColumnVisible: ->
     return @dateColumnVisible;
 
+  isExtensionColumnVisible: ->
+    return @extensionColumnVisible;
+
   toggleSizeColumn: ->
     @sizeColumnVisible = !@sizeColumnVisible;
     @leftTabbedView.setSizeColumnVisible(@sizeColumnVisible);
@@ -475,6 +482,11 @@ class AtomCommanderView extends View
     @leftTabbedView.setDateColumnVisible(@dateColumnVisible);
     @rightTabbedView.setDateColumnVisible(@dateColumnVisible);
 
+  toggleExtensionColumn: ->
+    @extensionColumnVisible = !@extensionColumnVisible;
+    @leftTabbedView.setExtensionColumnVisible(@extensionColumnVisible);
+    @rightTabbedView.setExtensionColumnVisible(@extensionColumnVisible);
+
   serialize: ->
     state = {};
 
@@ -483,5 +495,6 @@ class AtomCommanderView extends View
     state.height = @getLeftView().getContentHeight();
     state.sizeColumnVisible = @sizeColumnVisible;
     state.dateColumnVisible = @dateColumnVisible;
+    state.extensionColumnVisible = @extensionColumnVisible;
 
     return state;
