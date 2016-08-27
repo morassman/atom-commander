@@ -236,12 +236,10 @@ class SFTPFileSystem extends VFileSystem
         if err?
           return;
 
-        fullTarget = PathUtil.join(path, target);
-
         if stat.isFile()
-          result.setTargetFilePath(fullTarget);
+          result.setTargetFilePath(target);
         else if stat.isDirectory()
-          result.setTargetDirectoryPath(fullTarget);
+          result.setTargetDirectoryPath(PathUtil.join(path, target));
 
     return result;
 
