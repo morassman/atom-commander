@@ -31,6 +31,18 @@ class ListDirectoryView extends ListItemView
   getNameColumnValue: ->
     return @getName();
 
+  getExtensionColumnValue: ->
+    return '';
+
+  getSizeColumnValue: ->
+    return '';
+
+  getDateColumnValue: ->
+    if @parentDirectory
+      return '';
+
+    return super;
+
   canRename: ->
     if @parentDirectory
       return false;

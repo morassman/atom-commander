@@ -36,6 +36,43 @@ class ListSymLinkView extends ListItemView
   getPath: ->
     return @itemController.getPath();
 
+  getNameColumnValue: ->
+    targetController = @itemController.getTargetController();
+
+    if targetController?
+      targetItem = targetController.getItem();
+
+    if !targetItem?
+      return @itemController.getName();
+
+    if targetItem.isDirectory()
+      return @itemController.getName();
+
+    if @containerView.isExtensionColumnVisible()
+      return @itemController.getNamePart();
+
+    return @itemController.getName();
+
+  getExtensionColumnValue: ->
+    if @containerView.isExtensionColumnVisible()
+      @itemController.getExtensionPart();
+
+    return '';
+
+  getSizeColumnValue: ->
+    targetController = @itemController.getTargetController();
+
+    if targetController?
+      targetItem = targetController.getItem();
+
+    if !targetItem?
+      return '';
+
+    if targetItem.isDirectory()
+      return '';
+
+    return super;
+
   isSelectable: ->
     return true;
 

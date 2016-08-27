@@ -1,4 +1,4 @@
-## 0.6.2 - 27 August 2016
+## 0.7.1 - 27 August 2016
 * Added ability to toggle extension column.
 * Added setting to hide panel after opening a file.
 * Added username indicator when browsing a remote file system.

@@ -33,4 +33,10 @@ class ListFileView extends ListItemView
 
     return @itemController.getName();
 
+  getExtensionColumnValue: ->
+    if @containerView.isExtensionColumnVisible()
+      @itemController.getExtensionPart();
+
+    return '';
+
 module.exports = document.registerElement('list-file-view', prototype: ListFileView.prototype, extends: 'tr')

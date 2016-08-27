@@ -29,12 +29,21 @@ class ListItemView extends BaseItemView
 
   refresh: ->
     @name.textContent = @getNameColumnValue();
-    @extension.textContent = @itemController.getExtensionPart();
-    @size.textContent = @itemController.getFormattedSize();
-    @date.textContent = @itemController.getFormattedModifyDate();
+    @extension.textContent = @getExtensionColumnValue();
+    @size.textContent = @getSizeColumnValue();
+    @date.textContent = @getDateColumnValue();
 
   getNameColumnValue: ->
     return @itemController.getNamePart();
+
+  getExtensionColumnValue: ->
+    return @itemController.getExtensionPart();
+
+  getSizeColumnValue: ->
+    return @itemController.getFormattedSize();
+
+  getDateColumnValue: ->
+    return @itemController.getFormattedModifyDate();
 
   setSizeColumnVisible: (visible) ->
     if visible
