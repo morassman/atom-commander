@@ -35,7 +35,7 @@ class ListFileView extends ListItemView
 
   getExtensionColumnValue: ->
     if @containerView.isExtensionColumnVisible()
-      @itemController.getExtensionPart();
+      return @itemController.getExtensionPart();
 
     return '';
 
