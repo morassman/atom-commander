@@ -45,6 +45,9 @@ class LocalFileSystem extends VFileSystem
   getID: ->
     return "local";
 
+  getUsername: ->
+    return "";
+
   getPathUtil: ->
     return PathUtil;
 

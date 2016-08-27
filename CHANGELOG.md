@@ -1,5 +1,7 @@
 ## 0.6.2 - 27 August 2016
-* Added setting to hide panel when opening a file.
+* Added ability to toggle extension column.
+* Added setting to hide panel after opening a file.
+* Added username indicator when browsing a remote file system.
 
 ## 0.6.1 - 27 February 2016
 * Added support for SFTP symbolic links.

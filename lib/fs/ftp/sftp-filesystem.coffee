@@ -152,6 +152,9 @@ class SFTPFileSystem extends VFileSystem
   getName: ->
     return @config.host;
 
+  getUsername: ->
+    return @config.username;
+
   getID: ->
     return @getLocalDirectoryName();
 

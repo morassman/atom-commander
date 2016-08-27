@@ -186,6 +186,9 @@ class FTPFileSystem extends VFileSystem
   getName: ->
     return @config.host;
 
+  getUsername: ->
+    return @config.user;
+
   getID: ->
     return @getLocalDirectoryName();
 
