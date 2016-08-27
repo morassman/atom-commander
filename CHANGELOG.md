@@ -1,3 +1,6 @@
+## 0.6.2 - 27 August 2016
+* Added setting to hide panel when opening a file.
+
 ## 0.6.1 - 27 February 2016
 * Added support for SFTP symbolic links.
 * Fixed the way FTP folder symbolic links are determined.

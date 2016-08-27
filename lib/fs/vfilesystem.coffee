@@ -5,11 +5,14 @@ TaskManager = require './task-manager'
 module.exports =
 class VFileSystem
 
-  constructor: ->
+  constructor: (@main) ->
     @emitter = new Emitter();
     @taskManager = null;
     @connecting = false;
     @connected = false;
+
+  getMain: ->
+    return @main;
 
   getTaskManager: (create=true) ->
     if (@taskManager == null) and create
@@ -190,6 +193,13 @@ class VFileSystem
   downloadImpl: (path, localPath, callback) ->
 
   openFile: (file) ->
+
+  fileOpened: (file) ->
+    console.log("fileOpened");
+    hideOnOpen = atom.config.get('atom-commander.panel.hideOnOpen');
+
+    if hideOnOpen
+      @main.hidePanel();
 
   # Callback receives two arguments:
   # 1.) err : String with error message. null if no error.

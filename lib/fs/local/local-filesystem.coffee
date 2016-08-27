@@ -9,11 +9,11 @@ PathUtil = require 'path'
 module.exports =
 class LocalFileSystem extends VFileSystem
 
-  constructor: ->
-    super();
+  constructor: (main) ->
+    super(main);
 
   clone: ->
-    return new LocalFileSystem();
+    return new LocalFileSystem(@getMain());
 
   isLocal: ->
     return true;
@@ -85,6 +85,7 @@ class LocalFileSystem extends VFileSystem
 
   openFile: (file) ->
     atom.workspace.open(file.getRealPathSync());
+    @fileOpened(file);
 
   createReadStreamImpl: (path, callback) ->
     callback(null, fse.createReadStream(path));

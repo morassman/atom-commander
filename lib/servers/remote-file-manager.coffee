@@ -87,6 +87,7 @@ class RemoteFileManager
           watcher = @addWatcher(cachePath, localFilePath, file, textEditor);
 
         watcher.setOpenedRemotely(true);
+        @server.getFileSystem().fileOpened(file);
 
   handleDownloadError: (file, err) ->
     message = "The file "+file.getPath()+" could not be downloaded."

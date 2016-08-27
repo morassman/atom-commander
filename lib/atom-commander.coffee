@@ -12,12 +12,19 @@ LocalFileSystem = require './fs/local/local-filesystem'
 module.exports = AtomCommander =
 
   config:
+    panel:
+      type: "object"
+      properties:
+        hideOnOpen:
+          description: "Hide the panel after opening a file."
+          type: "boolean"
+          default: false
     uploadOnSave:
       description: "Automatically upload cached files when saved."
       type: "boolean"
       default: true
     removeOnClose:
-      description: "Remove cached files when closed and were successfully uploaded."
+      description: "Remove a cached file after it was closed and successfully uploaded."
       type: "boolean"
       default: true
 
@@ -25,7 +32,7 @@ module.exports = AtomCommander =
     @loadState();
     @bookmarks = [];
 
-    @localFileSystem = new LocalFileSystem();
+    @localFileSystem = new LocalFileSystem(@);
     @actions = new Actions(@);
     @bookmarkManager = new BookmarkManager(@, @state.bookmarks);
     @serverManager = new ServerManager(@, @state.servers);

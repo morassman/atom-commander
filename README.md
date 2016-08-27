@@ -193,6 +193,7 @@ Multiple files can be uploaded, downloaded or removed by using the buttons at th
 The list doesn't automatically update when files are added to the cache, but the `Refresh` button can be pressed to repopulate the list.
 
 ### Settings
+
 The following settings are applicable to cached files:
 
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/settings.png?raw=true)

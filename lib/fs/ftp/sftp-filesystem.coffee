@@ -11,7 +11,7 @@ module.exports =
 class SFTPFileSystem extends VFileSystem
 
   constructor: (@server, @config) ->
-    super();
+    super(@server.getMain());
     @session = null;
     @client = null;
 
