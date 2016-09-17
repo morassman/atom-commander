@@ -9,9 +9,10 @@ class NewDirectoryDialog extends InputDialog
 
   initialize: () ->
     options = {};
+    pathUtil = @directory.getFileSystem().getPathUtil();
+    
     options.callback = (text) =>
       name = text.trim();
-      pathUtil = @directory.getFileSystem().getPathUtil();
       path = pathUtil.join(@directory.getPath(), name);
 
       @directory.fileSystem.makeDirectory path, (err) =>

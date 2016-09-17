@@ -1,7 +1,10 @@
+## 0.7.3 - 18 September 2016
+* Fixed bug in new folder modal.
+
 ## 0.7.2 - 17 September 2016
 * Fixed file separator used for remote paths.
 * Fixed alternate button behaviour when clicking on button.
-* 
+
 ## 0.7.1 - 27 August 2016
 * Added ability to toggle extension column.
 * Added setting to hide panel after opening a file.
