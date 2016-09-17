@@ -1,6 +1,5 @@
 Utils = require '../utils'
 fse = require 'fs-extra'
-PathUtil = require 'path'
 InputDialog = require '@aki77/atom-input-dialog'
 
 module.exports =
@@ -17,7 +16,8 @@ class DuplicateFileDialog extends InputDialog
 
     options.callback = (text) =>
       name = text.trim();
-      newPath = PathUtil.join(@directory.getPath(), name);
+      pathUtil = @directory.getFileSystem().getPathUtil();
+      newPath = pathUtil.join(@directory.getPath(), name);
 
       fse.copy @item.getPath(), newPath, (err) ->
         if err?

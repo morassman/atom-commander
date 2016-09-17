@@ -1,4 +1,3 @@
-path = require 'path'
 InputDialog = require '@aki77/atom-input-dialog'
 
 module.exports =
@@ -15,10 +14,11 @@ class RenameDialog extends InputDialog
 
     options = {};
     options.defaultText = @itemName;
+    pathUtil = @item.getFileSystem().getPathUtil();
 
     options.callback = (text) =>
       name = text.trim();
-      newPath = path.join(@directoryPath, name);
+      newPath = pathUtil.join(@directoryPath, name);
 
       if @oldPath == newPath
         return;
@@ -41,7 +41,7 @@ class RenameDialog extends InputDialog
       if name.length == 0
         return "The name may not be empty.";
 
-      parsed = path.parse(name);
+      parsed = pathUtil.parse(name);
 
       if parsed.dir != ""
         return "The name should not contain a parent.";
