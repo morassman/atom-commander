@@ -19,6 +19,7 @@ class AtomCommanderView extends View
   constructor: (@main, state)->
     super(@main);
 
+    @alternateButtons = false;
     @sizeColumnVisible = state.sizeColumnVisible;
     @dateColumnVisible = state.dateColumnVisible;
     @extensionColumnVisible = state.extensionColumnVisible;
