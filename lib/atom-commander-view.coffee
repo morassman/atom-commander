@@ -281,9 +281,9 @@ class AtomCommanderView extends View
       if srcFileSystem.isRemote() or dstFileSystem.isRemote()
         atom.notifications.addWarning("Move to/from remote file systems is not yet supported.");
         return;
-    # else if srcFileSystem.isRemote() and dstFileSystem.isRemote()
-    #   atom.notifications.addWarning("Copy between remote file systems is not yet supported.");
-    #   return;
+    else if srcFileSystem.isRemote() and dstFileSystem.isRemote()
+      atom.notifications.addWarning("Copy between remote file systems is not yet supported.");
+      return;
 
     srcPath = srcView.getPath();
     dstPath = dstView.getPath();
@@ -368,10 +368,23 @@ class AtomCommanderView extends View
     if option == 0
       return;
 
-    for itemView in itemViews
-      itemView.getItem().delete();
+    index = 0;
+    callback = (err) =>
+      if err?
+        title = "Error deleting " + itemViews[index].getItem().getPath();
+        post = null;
+        if itemViews[index].getItem().isDirectory()
+          post = "Make sure the folder is empty before deleting it.";
+        Utils.showErrorWarning(title, null, post, err, true);
 
-    @focusedView.refreshDirectory();
+      index++;
+
+      if index == itemViews.length
+        @focusedView.refreshDirectory();
+      else
+        itemViews[index].getItem().delete(callback);
+
+    itemViews[0].getItem().delete(callback);
 
   newDirectoryButton: ->
     directory = @getFocusedViewDirectory();
