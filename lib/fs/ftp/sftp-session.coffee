@@ -78,7 +78,6 @@ class SFTPSession
   # password: The password that should be used. empty if not logging in with password.
   # passphrase: The passphrase to use when loggin in with a private key. empty if it shouldn't be used.
   connectWith: (password, passphrase) ->
-    console.log("connectWith: _"+password+"_"+passphrase);
     @client = null;
     @ssh2 = new SSH2();
 
