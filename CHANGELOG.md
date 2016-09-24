@@ -1,6 +1,8 @@
 ## 0.8.0 - 25 September 2016
 * Added SFTP SSH key login.
 * Fixed layout in FTP modal.
+* Auto show panel when navigating from command palette.
+* Added username indicator when selecting a remove file system.
 
 ## 0.7.3 - 18 September 2016
 * Fixed bug in new folder modal.
