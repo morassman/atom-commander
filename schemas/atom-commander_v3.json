@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "left": {
+    "selectedTab" : "number - Index of selected tab.",
+    "tabs" : [
+      {
+        "path": "string - Path to folder.",
+        "highlight": "string - Name of item to highlight.",
+      }
+    ]
+  },
+  "right": {
+    "selectedTab" : "number - Index of selected tab.",
+    "tabs" : [
+      {
+        "path": "string - Path to folder.",
+        "highlight": "string - Name of item to highlight.",
+      }
+    ]
+  },
+  "height": "number - Height of panel",
+  "visible": "boolean - true if the panel is visible.",
+  "bookmarks": [
+    {
+      "name": "string - Name of bookmark.",
+      "pathDescription": {
+        "isLink": "boolean - true if it's a link.",
+        "isFile": "boolean - true if it's a file.",
+        "path": "string - Absolute path to item.",
+        "name": "string - Name of item.",
+        "isLocal": "boolean - true if filesystem is local",
+        "fileSystemId": "string - Name of filesystem",
+        "uri": "string - URI of item."
+      }
+    }
+  ],
+  "servers": [
+    {
+      "protocol": "ftp",
+      "host": "string - Host name.",
+      "port": "number - Port number.",
+      "folder": "string - Initial folder.",
+      "anonymous": "boolean - true if anonymous login.",
+      "user": "string - Username",
+      "password": "string - Encoded password.",
+      "storePassword": "boolean - true if password is stored.",
+    },
+    {
+      "protocol": "sftp",
+      "host": "string - Host name.",
+      "port": "number - Port number.",
+      "folder": "string - Initial folder.",
+      "username": "string - Username",
+      "password": "string - Encoded password.",
+      "privateKeyPath": "string - Path to file with private key.",
+      "passphrase": "string - Encoded passphrase",
+      "storePassword": "boolean - true if password and passphrase are stored.",
+      "loginWithPassword": "boolean - true if password should be used. false for private key.",
+      "usePassphrase": "boolean - true if the passphrase must be used to decode the private key."
+    }
+  ]
+}

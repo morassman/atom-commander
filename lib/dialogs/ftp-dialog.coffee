@@ -18,37 +18,36 @@ class FTPDialog extends View
       @table =>
         @tbody =>
           @tr =>
-            @td "URL", {class: "text-highlight"}
+            @td "URL", {class: "text-highlight", style: "width:40%"}
             @td "ftp://", {outlet: "url"}
           @tr =>
-            @td "Host", {class: "text-highlight"}
+            @td "Host", {class: "text-highlight", style: "width:40%"}
             @td =>
               @subview "serverEditor", new TextEditorView(mini: true)
           @tr =>
-            @td "Port", {class: "text-highlight"}
+            @td "Port", {class: "text-highlight", style: "width:40%"}
             @td =>
               @subview "portEditor", new TextEditorView(mini: true)
           @tr =>
-            @td "Folder", {class: "text-highlight"}
+            @td "Folder", {class: "text-highlight", style: "width:40%"}
             @td =>
               @subview "folderEditor", new TextEditorView(mini: true)
           @tr =>
-            @td "Anonymous", {class: "text-highlight"}
             @td =>
               @input {type: "checkbox", outlet: "anonymous"}
+              @span "Anonymous", {class: "text-highlight", style: "margin-left:5px"}
           @tr =>
-            @td "Username", {class: "text-highlight"}
+            @td "Username", {class: "text-highlight", style: "width:40%"}
             @td =>
               @subview "usernameEditor", new TextEditorView(mini: true)
           @tr =>
-            @td "Password", {class: "text-highlight"}
+            @td "Password", {class: "text-highlight", style: "width:40%"}
             @td {class: "password"}, =>
               @subview "passwordEditor", new TextEditorView(mini: true)
           @tr =>
-            @td "Remember Password", {class: "text-highlight"}
             @td =>
               @input {type: "checkbox", outlet: "storeCheckBox"}
-          @tr =>
+              @span "Store password", {class: "text-highlight", style: "margin-left:5px"}
             @td =>
               @span "Passwords are encrypted", {class: "encrypted"}
       @div {class: "test-button-panel"}, =>

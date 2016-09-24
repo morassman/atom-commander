@@ -1,4 +1,5 @@
 fs = require 'fs'
+fsp = require 'fs-plus'
 PathUtil = require('path').posix
 VFileSystem = require '../vfilesystem'
 FTPFile = require './ftp-file'
@@ -15,8 +16,11 @@ class SFTPFileSystem extends VFileSystem
     @session = null;
     @client = null;
 
-    if @config.password? and !@config.passwordDecrypted?
-      @config.password = Utils.decrypt(@config.password, @getDescription());
+    if !@config.passwordDecrypted?
+      if @config.loginWithPassword
+        @config.password = Utils.decrypt(@config.password, @getDescription());
+      else
+        @config.passphrase = Utils.decrypt(@config.passphrase, @getDescription());
       @config.passwordDecrypted = true;
 
     @clientConfig = @getClientConfig();
@@ -60,10 +64,23 @@ class SFTPFileSystem extends VFileSystem
     result.port = @config.port;
     result.username = @config.username;
     result.password = @config.password;
+    result.passphrase = @config.passphrase;
+    result.privateKey = @getPrivateKey(@config.privateKeyPath);
     result.tryKeyboard = true;
     result.keepaliveInterval = 60000;
 
     return result;
+
+  getPrivateKey: (path) ->
+    if !path or path.length == 0
+      return '';
+
+    path = Utils.resolveHome(path);
+
+    if !fsp.isFileSync(path)
+      return '';
+
+    return fs.readFileSync(path, 'utf8');
 
   getSafeConfig: ->
     result = {};
@@ -73,8 +90,10 @@ class SFTPFileSystem extends VFileSystem
 
     if @config.storePassword
       result.password = Utils.encrypt(result.password, @getDescription());
+      result.passphrase = Utils.encrypt(result.passphrase, @getDescription());
     else
       delete result.password;
+      delete result.passphrase;
 
     delete result.passwordDecrypted;
 

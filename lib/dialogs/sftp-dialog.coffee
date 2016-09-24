@@ -1,4 +1,8 @@
+fs = require 'fs'
+fsp = require 'fs-plus'
 SSH2 = require 'ssh2'
+PathUtil = require('path')
+Utils = require '../utils'
 FTPFileSystem = require '../fs/ftp/ftp-filesystem'
 {View, TextEditorView} = require 'atom-space-pen-views'
 
@@ -18,35 +22,52 @@ class SFTPDialog extends View
       @table =>
         @tbody =>
           @tr =>
-            @td "URL", {class: "text-highlight"}
+            @td "URL", {class: "text-highlight", style: "width:40%"}
             @td "sftp://", {outlet: "url"}
           @tr =>
-            @td "Host", {class: "text-highlight"}
+            @td "Host", {class: "text-highlight", style: "width:40%"}
             @td =>
               @subview "serverEditor", new TextEditorView(mini: true)
           @tr =>
-            @td "Port", {class: "text-highlight"}
+            @td "Port", {class: "text-highlight", style: "width:40%"}
             @td =>
               @subview "portEditor", new TextEditorView(mini: true)
           @tr =>
-            @td "Folder", {class: "text-highlight"}
+            @td "Folder", {class: "text-highlight", style: "width:40%"}
             @td =>
               @subview "folderEditor", new TextEditorView(mini: true)
           @tr =>
-            @td "Username", {class: "text-highlight"}
+            @td "Username", {class: "text-highlight", style: "width:40%"}
             @td =>
               @subview "usernameEditor", new TextEditorView(mini: true)
           @tr =>
-            @td "Password", {class: "text-highlight"}
+            @td =>
+              @input {type: "radio", outlet: "loginWithPasswordCheckBox"}
+              @span "Login with password", {class: "text-highlight", style: "margin-left:5px"}
+          # @tr =>
+          #   @td "Password", {class: "text-highlight indent", style: "width:40%"}
             @td {class: "password"}, =>
               @subview "passwordEditor", new TextEditorView(mini: true)
           @tr =>
-            @td "Remember Password", {class: "text-highlight"}
             @td =>
-              @input {type: "checkbox", outlet: "storeCheckBox"}
+              @input {type: "radio", outlet: "loginWithPrivateKeyCheckBox"}
+              @span "Login with private key", {class: "text-highlight", style: "margin-left:5px"}
+          @tr =>
+            @td "Path to file", {class: "text-highlight indent", style: "width:40%"}
+            @td =>
+              @subview "privateKeyPathEditor", new TextEditorView(mini: true)
+          @tr =>
+            @td {class: "indent", style: "width:40%"}, =>
+              @input {type: "checkbox", outlet: "usePassphraseCheckBox"}
+              @span "Use passphrase", {class: "text-highlight", style: "margin-left:5px"}
+            @td {class: "password"}, =>
+              @subview "passphraseEditor", new TextEditorView(mini: true)
           @tr =>
             @td =>
-              @span "Passwords are encrypted", {class: "encrypted"}
+              @input {type: "checkbox", outlet: "storeCheckBox"}
+              @span "Store password\\phrase", {class: "text-highlight", style: "width:40%; margin-left:5px"}
+            @td =>
+              @span "These are encrypted", {class: "encrypted"}
       @div {class: "test-button-panel"}, =>
         @button "Test", {class: "btn", click: "test", outlet: "testButton"}
       @div {class: "bottom-button-panel"}, =>
@@ -62,14 +83,30 @@ class SFTPDialog extends View
     @folderEditor.attr("tabindex", 3);
     @usernameEditor.attr("tabindex", 4);
     @passwordEditor.attr("tabindex", 5);
-    @storeCheckBox.attr("tabindex", 6);
-    @testButton.attr("tabindex", 7);
-    @okButton.attr("tabindex", 8);
-    @cancelButton.attr("tabindex", 9);
+    @privateKeyPathEditor.attr("tabindex", 6);
+    @usePassphraseCheckBox.attr("tabindex", 7);
+    @passphraseEditor.attr("tabindex", 8);
+    @storeCheckBox.attr("tabindex", 9);
+    @testButton.attr("tabindex", 10);
+    @okButton.attr("tabindex", 11);
+    @cancelButton.attr("tabindex", 12);
 
     @spinner.hide();
     @portEditor.getModel().setText("22");
+    @privateKeyPathEditor.getModel().setText(PathUtil.join("~", ".ssh", "id_rsa"));
+    @loginWithPasswordCheckBox.prop("checked", true);
     @storeCheckBox.prop("checked", true);
+
+    @loginWithPasswordCheckBox.change =>
+      @loginWithPrivateKeyCheckBox.prop("checked", !@isLoginWithPasswordSelected());
+      @refreshError();
+
+    @loginWithPrivateKeyCheckBox.change =>
+      @loginWithPasswordCheckBox.prop("checked", !@isLoginWithPrivateKeySelected());
+      @refreshError();
+
+    @usePassphraseCheckBox.change =>
+      @refreshError();
 
     @serverEditor.getModel().onDidChange =>
       @refreshURL();
@@ -88,6 +125,9 @@ class SFTPDialog extends View
       @refreshError();
 
     @passwordEditor.getModel().onDidChange =>
+      @refreshError();
+
+    @privateKeyPathEditor.getModel().onDidChange =>
       @refreshError();
 
     atom.commands.add @element,
@@ -148,8 +188,17 @@ class SFTPDialog extends View
     if @serverExists(server, port, username)
       return "This server has already been added.";
 
-    if @getPassword().length == 0
-      return "Password must be specified."
+    if @isLoginWithPasswordSelected() and @getPassword().length == 0
+      return "Password not specified."
+
+    if @isLoginWithPrivateKeySelected()
+      if @getPrivateKeyPath(false).length == 0
+        return "Path to private key not specified.";
+      else if !@isPrivateKeyPathValid()
+        return "Private key file not found.";
+
+      if @isUsePassphraseSelected() and @getPassphrase().length == 0
+        return "Passphrase not specified.";
 
     return null;
 
@@ -193,6 +242,40 @@ class SFTPDialog extends View
   getPassword: ->
     return @passwordEditor.getModel().getText().trim();
 
+  getPrivateKeyPath: (resolve) ->
+    path = @privateKeyPathEditor.getModel().getText().trim();
+
+    if resolve
+      path = Utils.resolveHome(path);
+
+    return path;
+
+  getPassphrase: ->
+    return @passphraseEditor.getModel().getText().trim();
+
+  isLoginWithPasswordSelected: ->
+    return @loginWithPasswordCheckBox.is(":checked");
+
+  isLoginWithPrivateKeySelected: ->
+    return @loginWithPrivateKeyCheckBox.is(":checked");
+
+  isUsePassphraseSelected: ->
+    return @usePassphraseCheckBox.is(":checked");
+
+  isPrivateKeyPathValid: ->
+    path = @getPrivateKeyPath(true);
+
+    if path.length == 0
+      return false;
+
+    return fsp.isFileSync(path);
+
+  getPrivateKey: ->
+    if !@isPrivateKeyPathValid()
+      return '';
+
+    return fs.readFileSync(@getPrivateKeyPath(true), 'utf8');
+
   isStoreCheckBoxSelected: ->
     return @storeCheckBox.is(":checked");
 
@@ -207,6 +290,11 @@ class SFTPDialog extends View
     config.password = @getPassword();
     config.passwordDecrypted = true;
     config.storePassword = @isStoreCheckBoxSelected();
+    config.privateKeyPath = @getPrivateKeyPath(false);
+    config.privateKey = @getPrivateKey();
+    config.passphrase = @getPassphrase();
+    config.loginWithPassword = @isLoginWithPasswordSelected();
+    config.usePassPhrase = @isUsePassphraseSelected();
 
     return config;
 

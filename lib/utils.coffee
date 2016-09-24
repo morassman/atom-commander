@@ -82,3 +82,12 @@ class Utils
       message += "\n"+post;
 
     @showWarning(title, message, dismissable);
+
+  @resolveHome: (path) ->
+    if path.length == 0
+      return path;
+
+    if path[0] == '~'
+      return PathUtil.join(process.env.HOME, path.slice(1));
+
+    return path;

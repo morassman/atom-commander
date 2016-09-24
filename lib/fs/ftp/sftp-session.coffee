@@ -1,3 +1,4 @@
+fs = require 'fs'
 SSH2 = require 'ssh2'
 Utils = require '../../utils'
 
@@ -16,27 +17,58 @@ class SFTPSession
     return @client;
 
   connect: ->
-    if @clientConfig.password?
-      @connectWithPassword(@clientConfig.password);
-    else
-      prompt = "Enter password for ";
-      prompt += @clientConfig.username;
-      prompt += "@";
-      prompt += @clientConfig.host;
-      prompt += ":"
+    if @clientConfig.loginWithPassword
+      if @clientConfig.password?
+        @connectWithPassword(@clientConfig.password);
+        return;
+    else # Login with private key.
+      if @clientConfig.usePassphrase
+        if @clientConfig.passphrase
+          @connectWithPassphrase(@clientConfig.passphrase);
+          return;
+      else
+        @connectWithPrivateKey();
+        return;
 
-      Utils.promptForPassword prompt, (password) =>
-        if password?
-          @connectWithPassword(password);
+    # If this point is reached then either a password or a passphrase needs to be entered.
+
+    prompt = "Enter ";
+    if @clientConfig.loginWithPassword
+      promtp += "password for ";
+    else
+      prompt += "passphrase for ";
+    prompt += @clientConfig.username;
+    prompt += "@";
+    prompt += @clientConfig.host;
+    prompt += ":"
+
+    Utils.promptForPassword prompt, (input) =>
+      if input?
+        if @clientConfig.loginWithPassword
+          @connectWithPassword(input);
         else
-          err = {};
-          err.canceled = true;
-          err.message = "Incorrect credentials for "+@clientConfig.host;
-          @fileSystem.emitError(err);
-          @canceled();
-          # @disconnect();
+          @connectWithPassphrase(input);
+      else
+        err = {};
+        err.canceled = true;
+        err.message = "Incorrect credentials for "+@clientConfig.host;
+        @fileSystem.emitError(err);
+        @canceled();
 
   connectWithPassword: (password) ->
+    @connectWith(password, undefined);
+
+  connectWithPrivateKey: ->
+    @connectWith(undefined, undefined);
+
+  connectWithPassphrase: (passphrase) ->
+    @connectWith(undefined, passphrase);
+
+  # All connectWith? functions boil down to this one.
+  #
+  # password: The password that should be used. undefined if not logging in with password.
+  # passphrase: The passphrase to use when loggin in with a private key. undefined if it shouldn't be used.
+  connectWith: (privateKey, password, passphrase) ->
     @client = null;
     @ssh2 = new SSH2();
 
@@ -54,10 +86,17 @@ class SFTPSession
 
         # If the connection was successful then remember the password for
         # the rest of the session.
-        @clientConfig.password = password;
+        if password?
+          @clientConfig.password = password;
+
+        if passphrase?
+          @clientConfig.passphrase = passphrase;
 
         if @config.storePassword
-          @config.password = password;
+          if password?
+            @config.password = password;
+          if passphrase?
+            @config.passphrase = passphrase;
           @config.passwordDecrypted = true;
 
         @opened();
@@ -85,6 +124,10 @@ class SFTPSession
       connectConfig[key] = val;
 
     connectConfig.password = password;
+    connectConfig.passphrase = passphrase;
+
+    console.log(connectConfig);
+
     @ssh2.connect(connectConfig);
 
   disconnect: ->

@@ -1,5 +1,6 @@
 fsp = require 'fs-plus'
 Actions = require './actions'
+Schemas = require './schemas'
 ListView = require './views/list-view'
 DiffView = require './views/diff/diff-view'
 StatusView = require './views/status-view'
@@ -120,16 +121,7 @@ module.exports = AtomCommander =
 
   loadState: ->
     if !@state?
-      @state = {};
-      @state.version = 2;
-      @state.bookmarks = [];
-      @state.servers = [];
-      @state.visible = false;
-      @state.height = 200;
-      @state.left = {};
-      @state.left.tabs = [];
-      @state.right = {};
-      @state.right.tabs = [];
+      @state = Schemas.newState();
 
     file = @getSaveFile();
 
@@ -138,6 +130,7 @@ module.exports = AtomCommander =
 
     try
       @state = JSON.parse(fsp.readFileSync(file.getPath()));
+      @state = Schemas.upgrade(@state);
     catch error
       console.log("Error loading Atom Commander state.");
       console.log(error);
