@@ -3,7 +3,7 @@ CacheView = require './cache/cache-view'
 {SelectListView} = require 'atom-space-pen-views'
 
 module.exports =
-class BookmarksView extends SelectListView
+class ServersView extends SelectListView
 
   constructor: (@actions, @mode, @fromView) ->
     super();
@@ -52,7 +52,7 @@ class BookmarksView extends SelectListView
     return "text";
 
   viewForItem: (item) ->
-    return "<li>#{item.text}</li>";
+    return "<li>#{item.text} <span class='highlight highlight-info' style='float: right'>#{item.server.getUsername()}</span></li>";
 
   confirmed: (item) ->
     if @mode == "open"

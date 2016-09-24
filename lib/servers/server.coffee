@@ -25,6 +25,9 @@ class Server
   getName: ->
     return @fileSystem.getName();
 
+  getUsername: ->
+    return @fileSystem.getUsername();
+
   serialize: ->
     return @fileSystem.getSafeConfig();
 
