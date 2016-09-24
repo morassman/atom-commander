@@ -1,5 +1,5 @@
-## 0.8.0 25 September 2016
-* Added SSH key login.
+## 0.8.0 - 25 September 2016
+* Added SFTP SSH key login.
 * Fixed layout in FTP modal.
 
 ## 0.7.3 - 18 September 2016
