@@ -22,17 +22,17 @@ class SFTPSession
     delete @clientConfig.password;
     delete @clientConfig.passphrase;
 
-    if @clientConfig.loginWithPassword or @clientConfig.usePassphrase
+    if @config.loginWithPassword or @config.usePassphrase
       @connect();
 
   connect: ->
-    if @clientConfig.loginWithPassword
-      if @clientConfig.password.length == 0
+    if @config.loginWithPassword
+      if @clientConfig.password.length > 0
         @connectWithPassword(@clientConfig.password);
         return;
     else # Login with private key.
-      if @clientConfig.usePassphrase
-        if @clientConfig.passphrase.length == 0
+      if @config.usePassphrase
+        if @clientConfig.passphrase.length > 0
           @connectWithPassphrase(@clientConfig.passphrase);
           return;
       else
@@ -42,8 +42,8 @@ class SFTPSession
     # If this point is reached then either a password or a passphrase needs to be entered.
 
     prompt = "Enter ";
-    if @clientConfig.loginWithPassword
-      promtp += "password for ";
+    if @config.loginWithPassword
+      prompt += "password for ";
     else
       prompt += "passphrase for ";
     prompt += @clientConfig.username;
@@ -53,7 +53,7 @@ class SFTPSession
 
     Utils.promptForPassword prompt, (input) =>
       if input?
-        if @clientConfig.loginWithPassword
+        if @config.loginWithPassword
           @connectWithPassword(input);
         else
           @connectWithPassphrase(input);
@@ -78,6 +78,7 @@ class SFTPSession
   # password: The password that should be used. empty if not logging in with password.
   # passphrase: The passphrase to use when loggin in with a private key. empty if it shouldn't be used.
   connectWith: (password, passphrase) ->
+    console.log("connectWith: _"+password+"_"+passphrase);
     @client = null;
     @ssh2 = new SSH2();
 
