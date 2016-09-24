@@ -16,14 +16,23 @@ class SFTPSession
   getClient: ->
     return @client;
 
+  # Called if connecting failed due to invalid credentials. This will only try
+  # to connect again if a password or passphrase should be prompted for.
+  reconnect: ->
+    delete @clientConfig.password;
+    delete @clientConfig.passphrase;
+
+    if @clientConfig.loginWithPassword or @clientConfig.usePassphrase
+      @connect();
+
   connect: ->
     if @clientConfig.loginWithPassword
-      if @clientConfig.password?
+      if @clientConfig.password.length == 0
         @connectWithPassword(@clientConfig.password);
         return;
     else # Login with private key.
       if @clientConfig.usePassphrase
-        if @clientConfig.passphrase
+        if @clientConfig.passphrase.length == 0
           @connectWithPassphrase(@clientConfig.passphrase);
           return;
       else
@@ -56,19 +65,19 @@ class SFTPSession
         @canceled();
 
   connectWithPassword: (password) ->
-    @connectWith(password, undefined);
+    @connectWith(password, '');
 
   connectWithPrivateKey: ->
-    @connectWith(undefined, undefined);
+    @connectWith('', '');
 
   connectWithPassphrase: (passphrase) ->
-    @connectWith(undefined, passphrase);
+    @connectWith('', passphrase);
 
   # All connectWith? functions boil down to this one.
   #
-  # password: The password that should be used. undefined if not logging in with password.
-  # passphrase: The passphrase to use when loggin in with a private key. undefined if it shouldn't be used.
-  connectWith: (privateKey, password, passphrase) ->
+  # password: The password that should be used. empty if not logging in with password.
+  # passphrase: The passphrase to use when loggin in with a private key. empty if it shouldn't be used.
+  connectWith: (password, passphrase) ->
     @client = null;
     @ssh2 = new SSH2();
 
@@ -86,16 +95,16 @@ class SFTPSession
 
         # If the connection was successful then remember the password for
         # the rest of the session.
-        if password?
+        if password.length > 0
           @clientConfig.password = password;
 
-        if passphrase?
+        if passphrase.length > 0
           @clientConfig.passphrase = passphrase;
 
         if @config.storePassword
-          if password?
+          if password.length > 0
             @config.password = password;
-          if passphrase?
+          if passphrase.length > 0
             @config.passphrase = passphrase;
           @config.passwordDecrypted = true;
 
@@ -103,9 +112,8 @@ class SFTPSession
 
     @ssh2.on "error", (err) =>
       if err.level == "client-authentication"
-        delete @clientConfig.password;
         atom.notifications.addWarning("Incorrect credentials for "+@clientConfig.host);
-        @connect();
+        @reconnect();
       else
         @fileSystem.emitError(err);
 
@@ -125,8 +133,6 @@ class SFTPSession
 
     connectConfig.password = password;
     connectConfig.passphrase = passphrase;
-
-    console.log(connectConfig);
 
     @ssh2.connect(connectConfig);
 

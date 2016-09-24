@@ -279,7 +279,7 @@ class SFTPDialog extends View
   isStoreCheckBoxSelected: ->
     return @storeCheckBox.is(":checked");
 
-  getSFTPConfig: ->
+  getSFTPConfig: (testing) ->
     config = {};
 
     config.protocol = "sftp";
@@ -291,10 +291,12 @@ class SFTPDialog extends View
     config.passwordDecrypted = true;
     config.storePassword = @isStoreCheckBoxSelected();
     config.privateKeyPath = @getPrivateKeyPath(false);
-    config.privateKey = @getPrivateKey();
     config.passphrase = @getPassphrase();
     config.loginWithPassword = @isLoginWithPasswordSelected();
-    config.usePassPhrase = @isUsePassphraseSelected();
+    config.usePassphrase = @isUsePassphraseSelected();
+
+    if testing
+      config.privateKey = @getPrivateKey();
 
     return config;
 
@@ -316,7 +318,7 @@ class SFTPDialog extends View
     if @hasError()
       return;
 
-    @parentDialog.addServer(@getSFTPConfig());
+    @parentDialog.addServer(@getSFTPConfig(false));
 
   cancel: ->
     @parentDialog.close();
@@ -329,7 +331,7 @@ class SFTPDialog extends View
       return;
 
     @ssh2 = new SSH2();
-    config = @getSFTPConfig();
+    config = @getSFTPConfig(true);
     config.tryKeyboard = true;
 
     @ssh2.on "ready", =>

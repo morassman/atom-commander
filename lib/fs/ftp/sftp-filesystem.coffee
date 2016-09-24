@@ -16,7 +16,7 @@ class SFTPFileSystem extends VFileSystem
     @session = null;
     @client = null;
 
-    if !@config.passwordDecrypted?
+    if !@config.passwordDecrypted
       if @config.loginWithPassword
         @config.password = Utils.decrypt(@config.password, @getDescription());
       else
@@ -89,12 +89,15 @@ class SFTPFileSystem extends VFileSystem
       result[key] = val;
 
     if @config.storePassword
-      result.password = Utils.encrypt(result.password, @getDescription());
-      result.passphrase = Utils.encrypt(result.passphrase, @getDescription());
+      if @config.loginWithPassword
+        result.password = Utils.encrypt(result.password, @getDescription());
+      else if @config.usePassphrase
+        result.passphrase = Utils.encrypt(result.passphrase, @getDescription());
     else
       delete result.password;
       delete result.passphrase;
 
+    delete result.privateKey;
     delete result.passwordDecrypted;
 
     return result;

@@ -197,7 +197,6 @@ class VFileSystem
   openFile: (file) ->
 
   fileOpened: (file) ->
-    console.log("fileOpened");
     hideOnOpen = atom.config.get('atom-commander.panel.hideOnOpen');
 
     if hideOnOpen

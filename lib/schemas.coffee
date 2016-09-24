@@ -23,6 +23,7 @@ class Schemas
     return state;
 
   @upgradeTo3: (state) ->
+    state.version = 3;
     @upgradeServersTo3(state.servers);
 
   @upgradeServersTo3: (servers) ->

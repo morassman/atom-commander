@@ -427,7 +427,6 @@ class ContainerView extends View
       @tryOpenDirectory(directory, snapShot, callback);
     catch error
       console.error(error);
-      console.log(error);
       # If the directory couldn't be opened and one hasn't been opened yet then
       # revert to opening the home folder and finally the PWD.
       if (@directory == null) or !fs.isDirectorySync(@directory.getRealPathSync())

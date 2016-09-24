@@ -138,7 +138,7 @@ module.exports = AtomCommander =
   saveState: ->
     state = @serialize();
     file = @getSaveFile();
-    state.version = 2;
+    state.version = 3;
 
     try
       fsp.writeFileSync(file.getPath(), JSON.stringify(state));
