@@ -141,6 +141,7 @@ class Actions
       snapShot = {};
       snapShot.name = file.getBaseName();
 
+      @main.showPanel();
       view.requestFocus();
       view.openDirectory file.getParent(), snapShot, (err) =>
         if open
@@ -150,6 +151,7 @@ class Actions
     view = @getFocusedView();
 
     if (view != null)
+      @main.showPanel();
       view.requestFocus();
       view.openDirectory(directory);
 

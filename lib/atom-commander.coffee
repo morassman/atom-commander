@@ -179,6 +179,10 @@ module.exports = AtomCommander =
     @bottomPanel.hide();
     @saveState();
 
+  showPanel: ->
+    @bottomPanel.show();
+    @saveState();
+
   toggleFocus: ->
     if @bottomPanel.isVisible()
       if (@mainView.focusedView != null) and @mainView.focusedView.hasFocus()
