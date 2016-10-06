@@ -1,3 +1,6 @@
+## 0.8.3 - 6 October 2016
+* Fixed SFTP login when password is not stored.
+
 ## 0.8.0 - 25 September 2016
 * Added SFTP SSH key login.
 * Fixed layout in FTP modal.
