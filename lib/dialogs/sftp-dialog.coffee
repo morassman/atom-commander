@@ -188,8 +188,8 @@ class SFTPDialog extends View
     if @serverExists(server, port, username)
       return "This server has already been added.";
 
-    if @isLoginWithPasswordSelected() and @getPassword().length == 0
-      return "Password not specified."
+    # if @isLoginWithPasswordSelected() and @getPassword().length == 0
+    #   return "Password not specified."
 
     if @isLoginWithPrivateKeySelected()
       if @getPrivateKeyPath(false).length == 0
@@ -197,8 +197,8 @@ class SFTPDialog extends View
       else if !@isPrivateKeyPathValid()
         return "Private key file not found.";
 
-      if @isUsePassphraseSelected() and @getPassphrase().length == 0
-        return "Passphrase not specified.";
+      # if @isUsePassphraseSelected() and @getPassphrase().length == 0
+      #   return "Passphrase not specified.";
 
     return null;
 

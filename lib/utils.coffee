@@ -47,13 +47,13 @@ class Utils
     dialog.attach();
 
   @encrypt: (text, key) ->
-    if text.length == 0
+    if !text or text.length == 0
       return text;
 
     return SimpleEncryptor(@padKey(key)).encrypt(text);
 
   @decrypt: (text, key) ->
-    if text.length == 0
+    if !text or text.length == 0
       return text;
 
     return SimpleEncryptor(@padKey(key)).decrypt(text);

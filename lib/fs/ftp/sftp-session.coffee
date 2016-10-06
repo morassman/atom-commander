@@ -27,12 +27,12 @@ class SFTPSession
 
   connect: ->
     if @config.loginWithPassword
-      if @clientConfig.password.length > 0
+      if @clientConfig.password? and @clientConfig.password.length > 0
         @connectWithPassword(@clientConfig.password);
         return;
     else # Login with private key.
       if @config.usePassphrase
-        if @clientConfig.passphrase.length > 0
+        if @clientConfig.passphrase and @clientConfig.passphrase.length > 0
           @connectWithPassphrase(@clientConfig.passphrase);
           return;
       else
