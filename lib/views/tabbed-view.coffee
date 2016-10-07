@@ -137,7 +137,7 @@ class TabbedView extends View
     try
       if version == 1
         @deserialize1(path, state);
-      else if version == 2
+      else if version >= 2
         @deserialize2(state);
     catch error
       console.error(error);
