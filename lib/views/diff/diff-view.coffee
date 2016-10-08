@@ -42,11 +42,11 @@ class DiffView extends View
     @leftTextEditor.on 'contextmenu', false
     @rightTextEditor.on 'contextmenu', false
 
-    @leftTextEditor.mousedown (e) =>
-      @handleMouseDown(e, @leftTextEditor);
+    @leftTextEditor.getModel().onDidChangeCursorPosition (e) =>
+      @handleCursorPositionChange(e, @leftTextEditor, @leftDecorations);
 
-    @rightTextEditor.mousedown (e) =>
-      @handleMouseDown(e, @rightTextEditor);
+    @rightTextEditor.getModel().onDidChangeCursorPosition (e) =>
+      @handleCursorPositionChange(e, @rightTextEditor, @rightDecorations);
 
     @leftBuffer = new Buffer();
     @rightBuffer = new Buffer();
@@ -80,11 +80,10 @@ class DiffView extends View
 
     selection.setProperties(newProperties);
 
-  handleMouseDown: (e, textEditor) ->
+  handleCursorPositionChange: (e, textEditor, decorations) ->
     @resetSelections();
-    # y = e.offsetY + textEditor.getModel().getScrollTop();
-    y = e.offsetY;
-    @selection = @getDecorationAtPixelY(y, textEditor);
+
+    @selection = @getDecorationAtBufferPosition(e.newBufferPosition, decorations);
 
     if (@selection == null)
       return;
@@ -96,6 +95,16 @@ class DiffView extends View
       @scrollToDecoration(@rightTextEditor, @selection.otherDecoration);
     else
       @scrollToDecoration(@leftTextEditor, @selection.otherDecoration);
+
+  getDecorationAtBufferPosition: (bufferPosition, decorations) ->
+    row = bufferPosition.row;
+
+    for decoration in decorations
+      range = decoration.getMarker().getBufferRange();
+      if row >= range.start.row && row <= range.end.row
+        return decoration;
+
+    return null;
 
   scrollToDecoration: (textEditor, decoration) ->
     if !decoration?
@@ -117,26 +126,6 @@ class DiffView extends View
     newProperties.class = properties.class+"-highlight";
 
     decoration.setProperties(newProperties);
-
-  getDecorationAtPixelY: (y, textEditor) ->
-    if textEditor == @leftTextEditor
-      decorations = @leftDecorations;
-    else
-      decorations = @rightDecorations;
-
-    lineHeight = textEditor.getModel().getLineHeightInPixels();
-    y += textEditor.getModel().getFirstVisibleScreenRow() * lineHeight;
-
-    for decoration in decorations
-      pixelRange = textEditor.getModel().pixelRectForScreenRange(decoration.getMarker().getScreenRange());
-
-      start = textEditor.getModel().pixelPositionForBufferPosition(decoration.getMarker().getStartBufferPosition());
-      end = textEditor.getModel().pixelPositionForBufferPosition(decoration.getMarker().getEndBufferPosition());
-
-      if ((y >= start.top) and (y <= (end.top + lineHeight)))
-       return decoration;
-
-    return null;
 
   refreshFileNames: =>
     # @leftHeader.text(@leftFile.getRealPathSync());
@@ -268,8 +257,8 @@ class DiffView extends View
     range = new Range(startPoint, endPoint);
     marker = editor.getModel().markBufferRange(range, invalidate: 'never');
     @markers.push[marker];
+    
     decoration = editor.getModel().decorateMarker(marker, {type: 'line', class: cls})
-
     decorations.push(decoration);
 
     return decoration;
