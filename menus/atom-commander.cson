@@ -122,6 +122,10 @@
       'label': 'View'
       'submenu': [
         {
+          'label': 'Refresh'
+          'command': 'atom-commander:refresh-view'
+        }
+        {
           'label': 'Mirror'
           'command': 'atom-commander:mirror-view'
         }

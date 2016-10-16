@@ -53,6 +53,7 @@ module.exports = AtomCommander =
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-folders': => @actions.selectFolders();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:select-files': => @actions.selectFiles();
 
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:refresh-view': => @actions.viewRefresh();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:mirror-view': => @actions.viewMirror();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:swap-view': => @actions.viewSwap();
 
