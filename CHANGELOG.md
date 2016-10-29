@@ -1,7 +1,8 @@
-## 0.8.4 - 16 October 2016
+## 0.8.4 - 29 October 2016
+- Added refresh to context menu.
 - Fixed restoring of current folder after loading.
 - Fixed selection of diffs in diff viewer.
-- Added refresh to context menu.
+- Fixed opening local cache from context menu.
 
 ## 0.8.3 - 6 October 2016
 * Fixed SFTP login when password is not stored.
