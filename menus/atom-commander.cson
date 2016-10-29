@@ -97,7 +97,7 @@
         }
         {
           'label': 'Cache'
-          'command': 'atom-commander:view-cache'
+          'command': 'atom-commander:open-cache'
         }
       ]
     }
