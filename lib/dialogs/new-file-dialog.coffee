@@ -1,5 +1,6 @@
 fs = require 'fs-plus'
 InputDialog = require '@aki77/atom-input-dialog'
+Utils = require '../utils'
 
 module.exports =
 class NewFileDialog extends InputDialog
@@ -11,13 +12,13 @@ class NewFileDialog extends InputDialog
     options = {};
     options.callback = (text) =>
       name = text.trim();
-      @directory.newFile name, (file) =>
+      @directory.newFile name, (file, err) =>
         if file != null
           @containerView.refreshDirectory();
           @containerView.highlightIndexWithName(file.getBaseName());
           file.open();
         else
-          atom.notifications.addWarning("Unable to create file "+name);
+          Utils.showErrorWarning("Unable to create file "+name, null, null, err, true);
 
     options.validate = (text) ->
       name = text.trim();

@@ -96,11 +96,13 @@ class LocalFileSystem extends VFileSystem
   newFileImpl: (path, callback) ->
     file = new File(path);
 
-    file.create().then (created) =>
+    p = file.create().then (created) =>
       if created
-        callback(@getFile(path));
+        callback(@getFile(path), null);
       else
-        callback(null);
+        callback(null, 'File could not be created.');
+    p.catch (error) =>
+      callback(null, error);
 
   getEntriesImpl: (directory, callback) ->
     directory.directory.getEntries (err, entries) =>

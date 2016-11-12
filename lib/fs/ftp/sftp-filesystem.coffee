@@ -268,12 +268,12 @@ class SFTPFileSystem extends VFileSystem
   newFileImpl: (path, callback) ->
     @client.open path, "w", {}, (err, handle) =>
       if err?
-        callback(null);
+        callback(null, err);
         return;
 
       @client.close handle, (err) =>
         if err?
-          callback(null);
+          callback(null, err);
           return;
 
-        callback(@getFile(path));
+        callback(@getFile(path), null);

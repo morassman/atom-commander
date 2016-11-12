@@ -212,9 +212,9 @@ class FTPFileSystem extends VFileSystem
     buffer = new Buffer("", "utf8");
     @client.put buffer, path, (err) =>
       if err?
-        callback(null);
+        callback(null, err);
       else
-        callback(@getFile(path));
+        callback(@getFile(path), null);
 
   openFile: (file) ->
     @server.openFile(file);

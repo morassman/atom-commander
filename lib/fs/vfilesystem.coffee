@@ -216,14 +216,15 @@ class VFileSystem
 
   createReadStreamImpl: (path, callback) ->
 
-  # The callback receives one parameter :
+  # The callback receives two parameters :
   # 1.) file : The file that was created. null if it could not be created.
+  # 2.) err : The error if the file could not be created.
   newFile: (path, callback) ->
     successCallback = () =>
       @newFileImpl(path, callback);
 
     errorCallback = (err) =>
-      callback(null);
+      callback(null, err);
 
     @connectPromise().then(successCallback, errorCallback);
 
