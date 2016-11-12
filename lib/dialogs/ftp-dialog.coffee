@@ -283,14 +283,16 @@ class FTPDialog extends View
     @client.on "ready", =>
       @spinner.hide();
       @showMessage("Connection successful", 0);
-      @client.end();
-      @client = null;
+      if @client != null
+        @client.end();
+        @client = null;
 
     @client.on "error", (err) =>
       @spinner.hide();
       @showMessage("Connection failed", 1);
-      @client.end();
-      @client = null;
+      if @client != null
+        @client.end();
+        @client = null;
 
     @spinner.show();
     @client.connect(@getFTPConfig());

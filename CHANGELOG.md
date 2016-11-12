@@ -3,6 +3,7 @@
 - Fixed restoring of current folder after loading.
 - Fixed selection of diffs in diff viewer.
 - Fixed opening local cache from context menu.
+- Fixed null dereference in FTP dialog.
 
 ## 0.8.3 - 6 October 2016
 * Fixed SFTP login when password is not stored.
