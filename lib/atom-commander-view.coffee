@@ -242,7 +242,7 @@ class AtomCommanderView extends View
     if directory == null
       return;
 
-    dialog = new NewFileDialog(@focusedView, directory);
+    dialog = new NewFileDialog(@focusedView, directory, @focusedView.getNames());
     dialog.attach();
 
   copyDuplicateButton: ->

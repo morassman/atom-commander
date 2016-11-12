@@ -1,6 +1,7 @@
 ## 0.8.4 - 12 November 2016
 - Added refresh to context menu.
 - Improved error handling when creating files.
+- Added duplicate name checking when creating a file.
 - Fixed restoring of current folder after loading.
 - Fixed selection of diffs in diff viewer.
 - Fixed opening local cache from context menu.

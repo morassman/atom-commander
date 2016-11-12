@@ -538,6 +538,14 @@ class ContainerView extends View
       if names.indexOf(itemView.getName()) > -1
         itemView.select(true);
 
+  getNames: ->
+    names = [];
+
+    for itemView in @itemViews
+      names.push(itemView.getName());
+
+    return names;
+
   refreshDirectory: ->
     @refreshDirectoryWithSnapShot(@captureSnapShot());
 
