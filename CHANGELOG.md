@@ -1,4 +1,4 @@
-## 0.8.4 - 12 November 2016
+## 0.8.4 - 16 November 2016
 - Added refresh to context menu.
 - Improved error handling when creating files.
 - Added duplicate name checking when creating a file.
