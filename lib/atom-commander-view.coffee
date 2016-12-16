@@ -360,9 +360,19 @@ class AtomCommanderView extends View
     if itemViews.length == 0
       return;
 
+    detailedMessage = "Delete the selected items?";
+
+    if itemViews.length == 1
+      itemView = itemViews[0];
+
+      if itemView.getItem().isFile()
+        detailedMessage = "Delete the file '" + itemView.getName() + "'?";
+      else
+        detailedMessage = "Delete the folder '" + itemView.getName() + "'?";
+
     option = atom.confirm
       message: "Delete"
-      detailedMessage: "Delete the selected files?"
+      detailedMessage: detailedMessage
       buttons: ["No", "Yes"]
 
     if option == 0
