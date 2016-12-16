@@ -1,3 +1,8 @@
+## 0.8.5 - 17 December 2016
+- Added bookmarks to context menu.
+- Changed SSH2 dependency to latest version.
+- Added item name to delete prompt.
+
 ## 0.8.4 - 16 November 2016
 - Added refresh to context menu.
 - Improved error handling when creating files.

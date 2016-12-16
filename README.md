@@ -18,6 +18,10 @@ After installing Atom Commander, press `F9` or choose `Atom Commander: Toggle Fo
 
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/panel.png?raw=true)
 
+:bulb: **Good to know...**
+
+While Atom Commander has focus, hold down the `Alt` key to see the quick menu. From here you can access all its features. Read more about it under the **Menus** section.
+
 ## Buttons
 Button|Action
 ---|---
