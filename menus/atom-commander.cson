@@ -61,20 +61,7 @@
     }
     {
       'label': 'Bookmarks'
-      'submenu': [
-        {
-          'label': 'Add'
-          'command': 'atom-commander:add-bookmark'
-        }
-        {
-          'label': 'Remove'
-          'command': 'atom-commander:remove-bookmark'
-        }
-        {
-          'label': 'Open'
-          'command': 'atom-commander:open-bookmark'
-        }
-      ]
+      'submenu': []
     }
     {
       'label': 'Servers'
