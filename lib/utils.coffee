@@ -11,8 +11,8 @@ class Utils
 
   # Opens a DiffView with the given title. left and right can either
   # be a file or a string.
-  @compareFiles: (title, left, right) ->
-    view = new DiffView(title, left, right);
+  @compareFiles: (title, tooltip, left, right) ->
+    view = new DiffView(title, tooltip, left, right);
     pane = atom.workspace.getActivePane();
     item = pane.addItem(view, 0);
     pane.activateItem(item);

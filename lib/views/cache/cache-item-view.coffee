@@ -213,7 +213,7 @@ class CacheItemView extends HTMLElement
     localFile = localFileSystem.getFile(@fullPath);
     title = "Diff "+localFile.getBaseName()+" | server";
 
-    Utils.compareFiles(title, localFile, text);
+    Utils.compareFiles(title, @path, localFile, text);
 
   promptDelete: ->
     if @isHeader

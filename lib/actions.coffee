@@ -243,8 +243,9 @@ class Actions
     leftFile = leftViewItem.itemController.getFile();
     rightFile = rightViewItem.itemController.getFile();
     title = "Diff: "+leftFile.getBaseName()+" | "+rightFile.getBaseName();
+    tooltip = leftFile.getPath()+" | "+rightFile.getPath();
 
-    Utils.compareFiles(title, leftFile, rightFile);
+    Utils.compareFiles(title, tooltip, leftFile, rightFile);
 
   bookmarksAddEditor: =>
     editor = atom.workspace.getActiveTextEditor();
@@ -320,6 +321,10 @@ class Actions
     @main.mainView.hideMenuBar();
     view = new ServersView(@, "cache", fromView);
 
+  serversEdit: (fromView=true) =>
+    @main.mainView.hideMenuBar();
+    view = new ServersView(@, "edit", fromView);
+
   uploadFile: =>
     editor = atom.workspace.getActiveTextEditor();
 
@@ -390,7 +395,8 @@ class Actions
       return;
 
     title = "Diff: "+editor.getTitle()+" | server";
-    Utils.compareFiles(title, editor.getText(), watcher.getFile());
+    tooltip = watcher.getFile().getPath();
+    Utils.compareFiles(title, tooltip, editor.getText(), watcher.getFile());
 
   openTerminal: =>
     @main.mainView.hideMenuBar();

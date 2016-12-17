@@ -7,8 +7,8 @@ util = require 'util'
 module.exports =
 class DiffView extends View
 
-  constructor: (@title, @leftFile, @rightFile) ->
-    super(@title, @leftFile, @rightFile);
+  constructor: (@title, @tooltip, @leftFile, @rightFile) ->
+    super(@title, @tooltip, @leftFile, @rightFile);
 
   @content: ->
     @div {class: 'atom-commander-diff-view'}, =>
@@ -257,7 +257,7 @@ class DiffView extends View
     range = new Range(startPoint, endPoint);
     marker = editor.getModel().markBufferRange(range, invalidate: 'never');
     @markers.push[marker];
-    
+
     decoration = editor.getModel().decorateMarker(marker, {type: 'line', class: cls})
     decorations.push(decoration);
 
@@ -265,6 +265,9 @@ class DiffView extends View
 
   getTitle: ->
     return @title;
+
+  getPath: ->
+    return @tooltip;
 
   destroy: ->
     @disposables?.dispose();
