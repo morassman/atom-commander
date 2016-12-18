@@ -83,6 +83,10 @@
           'command': 'atom-commander:close-server'
         }
         {
+          'label': 'Edit'
+          'command': 'atom-commander:edit-server'
+        }
+        {
           'label': 'Cache'
           'command': 'atom-commander:open-cache'
         }

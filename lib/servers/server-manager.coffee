@@ -1,4 +1,5 @@
 Server = require './server'
+fsp = require 'fs-plus'
 
 module.exports =
 class ServerManager
@@ -27,15 +28,36 @@ class ServerManager
     return server;
 
   removeServer: (server) ->
+    @removeServerImpl(server, true);
+
+  removeServerImpl: (server, deleteLocalDirectory) ->
     index = @servers.indexOf(server);
 
     if (index >= 0)
       @servers.splice(index, 1);
 
     fileSystem = server.getFileSystem();
-    server.deleteLocalDirectory();
+
+    if deleteLocalDirectory
+      server.deleteLocalDirectory();
+
     server.dispose();
     @main.fileSystemRemoved(fileSystem);
+
+  # Changes the given server's configuration. This is called after
+  # a server's config has been edited. The existing server will be
+  # removed, but its cache will not be deleted. The name of the
+  # cache's folder will be renamed based on the new config and
+  # a new server will be created with the new config.
+  changeServerConfig: (server, config) ->
+    @removeServerImpl(server, false);
+    newServer = @addServer(config);
+
+    oldPath = server.getLocalDirectoryPath();
+    newPath = newServer.getLocalDirectoryPath();
+
+    if fsp.existsSync(oldPath) and (oldPath != newPath)
+      fsp.moveSync(oldPath, newPath);
 
   getServers: ->
     return @servers;

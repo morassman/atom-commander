@@ -22,6 +22,12 @@ class Server
     @disposables.add taskManager.onDownloadCount (change) =>
       @serverManager.downloadCountChanged(change[0], change[1]);
 
+  getServerManager: ->
+    return @serverManager;
+
+  getConfig: ->
+    return @config;
+
   getName: ->
     return @fileSystem.getName();
 
@@ -61,6 +67,12 @@ class Server
       return new SFTPFileSystem(@, @config);
 
     return @main.getLocalFileSystem();
+
+  isFTP: ->
+    return @config.protocol == "ftp";
+
+  isSFTP: ->
+    return @config.protocol == "sftp";
 
   # Return a string that will be used when selecting a server from a list.
   getDescription: ->
@@ -118,6 +130,9 @@ class Server
   # Return true if the connection to the server is open.
   isOpen: ->
     return @fileSystem.isConnected();
+
+  isClosed: ->
+    return !@isOpen();
 
   # Closes the connection to the server.
   close: ->

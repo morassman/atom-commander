@@ -103,6 +103,17 @@ class FTPDialog extends View
 
     @refreshError();
 
+  # Populates the fields with an existing server's config. This is used
+  # when editing a server.
+  populateFields: (config) ->
+    @serverEditor.getModel().setText(config.host);
+    @portEditor.getModel().setText(config.port + "");
+    @usernameEditor.getModel().setText(config.user);
+    @passwordEditor.getModel().setText(config.password);
+    @folderEditor.getModel().setText(config.folder);
+    @anonymous.prop("checked", config.anonymous);
+    @storeCheckBox.prop("checked", config.storePassword);
+
   getPort: ->
     port = @portEditor.getModel().getText().trim();
 

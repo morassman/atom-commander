@@ -23,6 +23,10 @@ class NewServerDialog extends View
         @subview "ftpDialog", new FTPDialog()
         @subview "sftpDialog", new SFTPDialog()
 
+  # Called from the embedded dialog after it got initialized.
+  # The dialog that was initialized. Either FTPDialog or SFTPDialog.
+  dialogInitialized: (dialog) ->
+
   getServerManager: ->
     return @containerView.getMain().getServerManager();
 

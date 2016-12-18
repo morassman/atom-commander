@@ -11,7 +11,6 @@ class SFTPDialog extends View
 
   constructor: ->
     super();
-    @username = "";
     @ssh2 = null;
 
   setParentDialog: (@parentDialog) ->
@@ -121,7 +120,6 @@ class SFTPDialog extends View
       @refreshError();
 
     @usernameEditor.getModel().onDidChange =>
-      @username = @usernameEditor.getModel().getText().trim();
       @refreshError();
 
     @passwordEditor.getModel().onDidChange =>
@@ -134,6 +132,24 @@ class SFTPDialog extends View
       "core:confirm": => @confirm()
       "core:cancel": => @cancel()
 
+    @refreshError();
+
+  # Populates the fields with an existing server's config. This is used
+  # when editing a server.
+  populateFields: (config) ->
+    @serverEditor.getModel().setText(config.host);
+    @portEditor.getModel().setText(config.port + "");
+    @folderEditor.getModel().setText(config.folder);
+    @usernameEditor.getModel().setText(config.username);
+    @passwordEditor.getModel().setText(config.password);
+    @privateKeyPathEditor.getModel().setText(config.privateKeyPath);
+    @passphraseEditor.getModel().setText(config.passphrase);
+    @storeCheckBox.prop("checked", config.storePassword);
+    @usePassphraseCheckBox.prop("checked", config.usePassphrase);
+    @loginWithPasswordCheckBox.prop("checked", config.loginWithPassword);
+    @loginWithPrivateKeyCheckBox.prop("checked", !config.loginWithPassword);
+
+    @refreshURL();
     @refreshError();
 
   getPort: ->
@@ -237,7 +253,7 @@ class SFTPDialog extends View
     return folder;
 
   getUsername: ->
-    return @username;
+    return @usernameEditor.getModel().getText().trim();
 
   getPassword: ->
     return @passwordEditor.getModel().getText().trim();
@@ -286,7 +302,7 @@ class SFTPDialog extends View
     config.host = @getServer();
     config.port = @getPort();
     config.folder = @getFolder();
-    config.username = @username;
+    config.username = @getUsername();
     config.password = @getPassword();
     config.passwordDecrypted = true;
     config.storePassword = @isStoreCheckBoxSelected();

@@ -1,4 +1,5 @@
 CacheView = require './cache/cache-view'
+EditServerDialog = require '../dialogs/edit-server-dialog'
 {Directory} = require 'atom'
 {SelectListView} = require 'atom-space-pen-views'
 
@@ -63,6 +64,8 @@ class ServersView extends SelectListView
       @confirmRemove(item);
     else if @mode == "cache"
       @confirmCache(item);
+    else if @mode == "edit"
+      @confirmEdit(item);
 
   confirmOpen: (item) ->
     @cancel();
@@ -115,9 +118,24 @@ class ServersView extends SelectListView
     @cancel();
 
     view = new CacheView(item.server);
-    pane = atom.workspace.getActivePane()
-    item = pane.addItem(view, 0)
+    pane = atom.workspace.getActivePane();
+    item = pane.addItem(view, 0);
     pane.activateItem(item);
+
+  confirmEdit: (item) ->
+    @cancel();
+
+    if item.server.isOpen()
+      atom.notifications.addWarning("The server must be closed before it can be edited.");
+      return;
+
+    if item.server.getOpenFileCount() > 0
+      atom.notifications.addWarning("A server cannot be edited while its files are being accessed.");
+      return;
+
+
+    dialog = new EditServerDialog(item.server);
+    dialog.attach();
 
   cancelled: ->
     @hide();
