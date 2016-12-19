@@ -39,6 +39,15 @@ class BookmarkManager
     @main.saveState();
     @bookmarksChanged();
 
+  # Adds multiple bookmarks.
+  # bookmarks : Array of bookmarks to add.
+  addBookmarks: (bookmarks) ->
+    for bookmark in bookmarks
+      @bookmarks.push(bookmark);
+
+    @main.saveState();
+    @bookmarksChanged();
+
   removeBookmark: (bookmark, save=true) ->
     index = @bookmarks.indexOf(bookmark);
 

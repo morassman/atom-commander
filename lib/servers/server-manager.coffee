@@ -11,7 +11,7 @@ class ServerManager
 
     if state?
       for config in state
-        @addServer(config);
+        @addServer(config, false);
 
   getMain: ->
     return @main;
@@ -22,15 +22,19 @@ class ServerManager
   getDownloadCount: ->
     return @downloadCount;
 
-  addServer: (config) ->
+  addServer: (config, save=true) ->
     server = new Server(@, config);
     @servers.push(server);
+
+    if save
+      @main.saveState();
+
     return server;
 
   removeServer: (server) ->
-    @removeServerImpl(server, true);
+    @removeServerImpl(server, true, true);
 
-  removeServerImpl: (server, deleteLocalDirectory) ->
+  removeServerImpl: (server, deleteLocalDirectory, save) ->
     index = @servers.indexOf(server);
 
     if (index >= 0)
@@ -44,20 +48,38 @@ class ServerManager
     server.dispose();
     @main.fileSystemRemoved(fileSystem);
 
+    if save
+      @main.saveState();
+
   # Changes the given server's configuration. This is called after
   # a server's config has been edited. The existing server will be
   # removed, but its cache will not be deleted. The name of the
   # cache's folder will be renamed based on the new config and
   # a new server will be created with the new config.
   changeServerConfig: (server, config) ->
-    @removeServerImpl(server, false);
-    newServer = @addServer(config);
+    # By removing the server its bookmarks will be removed as well.
+    # It is therefore necessary to get its bookmarks before removing it.
+    oldFSID = server.getFileSystem().getID();
+    bookmarks = @main.bookmarkManager.getBookmarksWithFileSystemId(oldFSID);
+
+    @removeServerImpl(server, false, false);
+    newServer = @addServer(config, false);
 
     oldPath = server.getLocalDirectoryPath();
     newPath = newServer.getLocalDirectoryPath();
 
     if fsp.existsSync(oldPath) and (oldPath != newPath)
       fsp.moveSync(oldPath, newPath);
+
+    # Update bookmarks.
+    newFS = newServer.getFileSystem();
+
+    for bookmark in bookmarks
+      item = newFS.getItemWithPathDescription(bookmark.pathDescription);
+      bookmark.pathDescription = item.getPathDescription();
+
+    @main.bookmarkManager.addBookmarks(bookmarks);
+    @main.saveState();
 
   getServers: ->
     return @servers;

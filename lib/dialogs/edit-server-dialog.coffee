@@ -52,11 +52,8 @@ class EditServerDialog extends View
     @close();
     serverManager = @getServerManager();
     serverManager.changeServerConfig(@server, config);
-    # server = serverManager.addServer(config);
-    # @containerView.openDirectory(server.getInitialDirectory());
 
   close: ->
     panelToDestroy = @panel;
     @panel = null;
     panelToDestroy?.destroy();
-    # @containerView.requestFocus();
