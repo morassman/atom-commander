@@ -119,7 +119,7 @@ class ServersView extends SelectListView
 
     view = new CacheView(item.server);
     pane = atom.workspace.getActivePane();
-    item = pane.addItem(view, 0);
+    item = pane.addItem(view, {index: 0});
     pane.activateItem(item);
 
   confirmEdit: (item) ->

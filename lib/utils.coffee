@@ -14,7 +14,7 @@ class Utils
   @compareFiles: (title, tooltip, left, right) ->
     view = new DiffView(title, tooltip, left, right);
     pane = atom.workspace.getActivePane();
-    item = pane.addItem(view, 0);
+    item = pane.addItem(view, {index: 0});
     pane.activateItem(item);
 
   @getFirstFileViewItem: (viewItems) ->
