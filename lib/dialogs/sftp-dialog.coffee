@@ -380,4 +380,15 @@ class SFTPDialog extends View
       finish([config.password]);
 
     @spinner.show();
-    @ssh2.connect(config);
+
+    try
+      @ssh2.connect(config);
+    catch err
+      console.log(err);
+      @spinner.hide();
+      
+      if err.message?
+        @showMessage("Connection failed. "+err.message, 1);
+
+      @ssh2.end();
+      @ssh2 = null;
