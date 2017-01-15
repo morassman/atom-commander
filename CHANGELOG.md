@@ -1,3 +1,9 @@
+## 0.8.6 - 15 January 2017
+- Added ability to edit FTP and SFTP settings.
+- Improved error handling when testing SFTP settings.
+- Changed tab's tooltip to show full paths of files being compared.
+- Use latest API when adding a pane item.
+
 ## 0.8.5 - 17 December 2016
 - Added bookmarks to context menu.
 - Changed SSH2 dependency to latest version.
@@ -19,7 +25,7 @@
 * Added SFTP SSH key login.
 * Fixed layout in FTP modal.
 * Auto show panel when navigating from command palette.
-* Added username indicator when selecting a remove file system.
+* Added username indicator when selecting a remote file system.
 
 ## 0.7.3 - 18 September 2016
 * Fixed bug in new folder modal.
