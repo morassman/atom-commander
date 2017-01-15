@@ -1,4 +1,3 @@
-fsp = require 'fs-plus'
 Actions = require './actions'
 Schemas = require './schemas'
 ListView = require './views/list-view'
@@ -9,6 +8,8 @@ BookmarkManager = require './bookmark-manager'
 ServerManager = require './servers/server-manager'
 LocalFileSystem = require './fs/local/local-filesystem'
 {CompositeDisposable, File, Directory} = require 'atom'
+
+fsp = null;
 
 module.exports = AtomCommander =
 
@@ -130,6 +131,8 @@ module.exports = AtomCommander =
     if !file.existsSync()
       return;
 
+    fsp ?= require 'fs-plus';
+
     try
       @state = JSON.parse(fsp.readFileSync(file.getPath()));
       @state = Schemas.upgrade(@state);
@@ -138,6 +141,8 @@ module.exports = AtomCommander =
       console.log(error);
 
   saveState: ->
+    fsp ?= require 'fs-plus';
+    
     state = @serialize();
     file = @getSaveFile();
     state.version = 3;
