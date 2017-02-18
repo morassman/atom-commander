@@ -384,9 +384,8 @@ class SFTPDialog extends View
     try
       @ssh2.connect(config);
     catch err
-      console.log(err);
       @spinner.hide();
-      
+
       if err.message?
         @showMessage("Connection failed. "+err.message, 1);
 
