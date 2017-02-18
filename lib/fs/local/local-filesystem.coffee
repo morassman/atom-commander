@@ -115,9 +115,15 @@ class LocalFileSystem extends VFileSystem
     result = [];
 
     for entry in entries
-      if entry.isDirectory()
-        result.push(new LocalDirectory(@, entry));
-      else
-        result.push(new LocalFile(@, entry));
+      # Added a try/catch, because it was found that there are sometimes
+      # temporary files created by the OS in the list of entries that no
+      # exist by the time they get here. Reading them then threw an error.
+      try
+        if entry.isDirectory()
+          result.push(new LocalDirectory(@, entry));
+        else
+          result.push(new LocalFile(@, entry));
+      catch error
+        console.error(error);
 
     return result;

@@ -1,3 +1,6 @@
+## 0.8.7 - 18 February 2017
+- Added guard to handle files that do not exist anymore.
+
 ## 0.8.6 - 15 January 2017
 - Added ability to edit FTP and SFTP settings.
 - Improved error handling when testing SFTP settings.
