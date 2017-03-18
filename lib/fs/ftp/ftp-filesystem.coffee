@@ -28,7 +28,7 @@ class FTPFileSystem extends VFileSystem
     return false;
 
   connectImpl: ->
-    if @clientConfig.password?
+    if @clientConfig.password? and @clientConfig.password.length > 0
       @connectWithPassword(@clientConfig.password);
     else
       prompt = "Enter password for ";

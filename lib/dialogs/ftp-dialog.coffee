@@ -42,8 +42,10 @@ class FTPDialog extends View
               @subview "usernameEditor", new TextEditorView(mini: true)
           @tr =>
             @td "Password", {class: "text-highlight", style: "width:40%"}
-            @td {class: "password"}, =>
-              @subview "passwordEditor", new TextEditorView(mini: true)
+            @td =>
+              @div {class: "password"}, =>
+                @subview "passwordEditor", new TextEditorView(mini: true)
+              @div "Leave empty to prompt for password", {class:"encrypted"}
           @tr =>
             @td =>
               @input {type: "checkbox", outlet: "storeCheckBox"}
