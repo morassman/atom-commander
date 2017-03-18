@@ -39,30 +39,41 @@ class SFTPSession
         @connectWithPrivateKey();
         return;
 
+    password = @clientConfig.password;
+    passphrase = @clientConfig.passphrase;
+
+    if !password?
+      password = '';
+
+    if !passphrase?
+      passphrase = '';
+
+    @connectWith(password, passphrase);
+
     # If this point is reached then either a password or a passphrase needs to be entered.
 
-    prompt = "Enter ";
-    if @config.loginWithPassword
-      prompt += "password for ";
-    else
-      prompt += "passphrase for ";
-    prompt += @clientConfig.username;
-    prompt += "@";
-    prompt += @clientConfig.host;
-    prompt += ":"
-
-    Utils.promptForPassword prompt, (input) =>
-      if input?
-        if @config.loginWithPassword
-          @connectWithPassword(input);
-        else
-          @connectWithPassphrase(input);
-      else
-        err = {};
-        err.canceled = true;
-        err.message = "Incorrect credentials for "+@clientConfig.host;
-        @fileSystem.emitError(err);
-        @canceled();
+    # prompt = "Enter ";
+    # if @config.loginWithPassword
+    #   prompt += "password for ";
+    # else
+    #   prompt += "passphrase for ";
+    # prompt += @clientConfig.username;
+    # prompt += "@";
+    # prompt += @clientConfig.host;
+    # prompt += ":"
+    #
+    # Utils.promptForPassword prompt, (input) =>
+    #   if input?
+    #     if @config.loginWithPassword
+    #       @connectWithPassword(input);
+    #     else
+    #       @connectWithPassphrase(input);
+    #   else
+    #     err = {};
+    #     err.canceled = true;
+    #     err.message = "Incorrect credentials for "+@clientConfig.host;
+    #     @fileSystem.emitError(err);
+    #     @canceled();
 
   connectWithPassword: (password) ->
     @connectWith(password, '');
@@ -124,9 +135,12 @@ class SFTPSession
       @close();
 
     @ssh2.on "keyboard-interactive", (name, instructions, instructionsLang, prompt, finish) =>
-      prompts = prompt.map (p) -> p.prompt;
-      values = [];
-      @prompt(0, prompts, values, finish);
+      if password.length > 0
+        finish([password]);
+      else
+        prompts = prompt.map (p) -> p.prompt;
+        values = [];
+        @prompt(0, prompts, values, finish);
 
     connectConfig = {};
 
