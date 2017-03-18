@@ -40,13 +40,19 @@ class SFTPDialog extends View
             @td =>
               @subview "usernameEditor", new TextEditorView(mini: true)
           @tr =>
+            @td "Password", {class: "text-highlight", style: "width:40%"}
+            @td =>
+              @div {class: "password"}, =>
+                @subview "passwordEditor", new TextEditorView(mini: true)
+              @div "Leave empty to prompt for password", {class:"encrypted"}
+          @tr =>
             @td =>
               @input {type: "radio", outlet: "loginWithPasswordCheckBox"}
               @span "Login with password", {class: "text-highlight", style: "margin-left:5px"}
           # @tr =>
           #   @td "Password", {class: "text-highlight indent", style: "width:40%"}
-            @td {class: "password"}, =>
-              @subview "passwordEditor", new TextEditorView(mini: true)
+            # @td {class: "password"}, =>
+              # @subview "passwordEditor", new TextEditorView(mini: true)
           @tr =>
             @td =>
               @input {type: "radio", outlet: "loginWithPrivateKeyCheckBox"}
