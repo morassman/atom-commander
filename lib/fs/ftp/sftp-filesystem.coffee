@@ -65,9 +65,14 @@ class SFTPFileSystem extends VFileSystem
     result.username = @config.username;
     result.password = @config.password;
     result.passphrase = @config.passphrase;
-    result.privateKey = @getPrivateKey(@config.privateKeyPath);
     result.tryKeyboard = true;
     result.keepaliveInterval = 60000;
+
+    if !@config.loginWithPassword
+      try
+        result.privateKey = @getPrivateKey(@config.privateKeyPath);
+      catch err
+        Utils.showErrorWarning("Error reading private key", null, null, err, true);
 
     return result;
 
