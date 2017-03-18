@@ -124,7 +124,9 @@ class SFTPSession
       @close();
 
     @ssh2.on "keyboard-interactive", (name, instructions, instructionsLang, prompt, finish) =>
-      finish([password]);
+      prompts = prompt.map (p) -> p.prompt;
+      values = [];
+      @prompt(0, prompts, values, finish);
 
     connectConfig = {};
 
@@ -133,6 +135,12 @@ class SFTPSession
 
     connectConfig.password = password;
     connectConfig.passphrase = passphrase;
+
+    if (connectConfig.password.length == 0)
+      delete connectConfig['password'];
+
+    if (connectConfig.passphrase.length == 0)
+      delete connectConfig['passphrase'];
 
     @ssh2.connect(connectConfig);
 
@@ -159,3 +167,18 @@ class SFTPSession
     if @open
       @open = false;
       @fileSystem.sessionClosed(@);
+
+  prompt: (index, prompts, values, finish) ->
+    Utils.promptForPassword prompts[index], (input) =>
+      if input?
+        values.push(input);
+        if prompts.length == (index + 1)
+          finish(values);
+        else
+          @prompt(index + 1, prompts, values, finish);
+      else
+        err = {};
+        err.canceled = true;
+        err.message = "Incorrect credentials for "+@clientConfig.host;
+        @fileSystem.emitError(err);
+        @canceled();
