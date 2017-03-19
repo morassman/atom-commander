@@ -65,8 +65,9 @@ class SFTPDialog extends View
             @td {class: "indent", style: "width:40%"}, =>
               @input {type: "checkbox", outlet: "usePassphraseCheckBox"}
               @span "Use passphrase", {class: "text-highlight", style: "margin-left:5px"}
-            @td {class: "password"}, =>
-              @subview "passphraseEditor", new TextEditorView(mini: true)
+            @td =>
+              @div {class: "password"}, =>
+                @subview "passphraseEditor", new TextEditorView(mini: true)
           @tr =>
             @td =>
               @input {type: "checkbox", outlet: "storeCheckBox"}
@@ -95,6 +96,9 @@ class SFTPDialog extends View
     @testButton.attr("tabindex", 10);
     @okButton.attr("tabindex", 11);
     @cancelButton.attr("tabindex", 12);
+
+    @passwordEditor.addClass("password-editor");
+    @passphraseEditor.addClass("password-editor");
 
     @spinner.hide();
     @portEditor.getModel().setText("22");
@@ -143,13 +147,22 @@ class SFTPDialog extends View
   # Populates the fields with an existing server's config. This is used
   # when editing a server.
   populateFields: (config) ->
+    password = config.password;
+    passphrase = config.passphrase;
+
+    if !password?
+      password = '';
+
+    if !passphrase?
+      passphrase = '';
+
     @serverEditor.getModel().setText(config.host);
     @portEditor.getModel().setText(config.port + "");
     @folderEditor.getModel().setText(config.folder);
     @usernameEditor.getModel().setText(config.username);
-    @passwordEditor.getModel().setText(config.password);
+    @passwordEditor.getModel().setText(password);
     @privateKeyPathEditor.getModel().setText(config.privateKeyPath);
-    @passphraseEditor.getModel().setText(config.passphrase);
+    @passphraseEditor.getModel().setText(passphrase);
     @storeCheckBox.prop("checked", config.storePassword);
     @usePassphraseCheckBox.prop("checked", config.usePassphrase);
     @loginWithPasswordCheckBox.prop("checked", config.loginWithPassword);

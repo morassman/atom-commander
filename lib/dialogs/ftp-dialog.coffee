@@ -45,7 +45,9 @@ class FTPDialog extends View
             @td =>
               @div {class: "password"}, =>
                 @subview "passwordEditor", new TextEditorView(mini: true)
-              @div "Leave empty to prompt for password", {class:"encrypted"}
+          @tr =>
+            @td ""
+            @td "Leave empty to prompt for password", {class:"encrypted"}
           @tr =>
             @td =>
               @input {type: "checkbox", outlet: "storeCheckBox"}
@@ -72,6 +74,8 @@ class FTPDialog extends View
     @testButton.attr("tabindex", 8);
     @okButton.attr("tabindex", 9);
     @cancelButton.attr("tabindex", 10);
+
+    @passwordEditor.addClass("password-editor");
 
     @spinner.hide();
     @portEditor.getModel().setText("21");
@@ -108,10 +112,15 @@ class FTPDialog extends View
   # Populates the fields with an existing server's config. This is used
   # when editing a server.
   populateFields: (config) ->
+    password = config.password;
+
+    if !password?
+      password = "";
+
     @serverEditor.getModel().setText(config.host);
     @portEditor.getModel().setText(config.port + "");
     @usernameEditor.getModel().setText(config.user);
-    @passwordEditor.getModel().setText(config.password);
+    @passwordEditor.getModel().setText(password);
     @folderEditor.getModel().setText(config.folder);
     @anonymous.prop("checked", config.anonymous);
     @storeCheckBox.prop("checked", config.storePassword);
