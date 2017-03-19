@@ -26,19 +26,6 @@ class SFTPSession
       @connect();
 
   connect: ->
-    if @config.loginWithPassword
-      if @clientConfig.password? and @clientConfig.password.length > 0
-        @connectWithPassword(@clientConfig.password);
-        return;
-    else # Login with private key.
-      if @config.usePassphrase
-        if @clientConfig.passphrase and @clientConfig.passphrase.length > 0
-          @connectWithPassphrase(@clientConfig.passphrase);
-          return;
-      else
-        @connectWithPrivateKey();
-        return;
-
     password = @clientConfig.password;
     passphrase = @clientConfig.passphrase;
 
@@ -48,41 +35,32 @@ class SFTPSession
     if !passphrase?
       passphrase = '';
 
-    @connectWith(password, passphrase);
+    if @config.loginWithPassword
+      @connectWith(password, passphrase);
+      return;
 
-    # If this point is reached then either a password or a passphrase needs to be entered.
+    if @config.usePassphrase and passphrase.length > 0
+      @connectWith(password, passphrase);
+      return;
 
-    # prompt = "Enter ";
-    # if @config.loginWithPassword
-    #   prompt += "password for ";
-    # else
-    #   prompt += "passphrase for ";
-    # prompt += @clientConfig.username;
-    # prompt += "@";
-    # prompt += @clientConfig.host;
-    # prompt += ":"
-    #
-    # Utils.promptForPassword prompt, (input) =>
-    #   if input?
-    #     if @config.loginWithPassword
-    #       @connectWithPassword(input);
-    #     else
-    #       @connectWithPassphrase(input);
-    #   else
-    #     err = {};
-    #     err.canceled = true;
-    #     err.message = "Incorrect credentials for "+@clientConfig.host;
-    #     @fileSystem.emitError(err);
-    #     @canceled();
+    # Only the passphrase needs to be prompted for. The password will
+    # be prompted for by ssh2.
 
-  connectWithPassword: (password) ->
-    @connectWith(password, '');
+    prompt = "Enter passphrase for ";
+    prompt += @clientConfig.username;
+    prompt += "@";
+    prompt += @clientConfig.host;
+    prompt += ":"
 
-  connectWithPrivateKey: ->
-    @connectWith('', '');
-
-  connectWithPassphrase: (passphrase) ->
-    @connectWith('', passphrase);
+    Utils.promptForPassword prompt, (input) =>
+      if input?
+        @connectWith(password, input);
+      else
+        err = {};
+        err.canceled = true;
+        err.message = "Incorrect credentials for "+@clientConfig.host;
+        @fileSystem.emitError(err);
+        @canceled();
 
   # All connectWith? functions boil down to this one.
   #
@@ -111,13 +89,6 @@ class SFTPSession
 
         if passphrase.length > 0
           @clientConfig.passphrase = passphrase;
-
-        if @config.storePassword
-          if password.length > 0
-            @config.password = password;
-          if passphrase.length > 0
-            @config.passphrase = passphrase;
-          @config.passwordDecrypted = true;
 
         @opened();
 
