@@ -1,5 +1,5 @@
-## 0.8.8 - 18 March 2017
-- Improved prompts from SFTP server when password is required.
+## 0.8.8 - 19 March 2017
+- Improved FTP and SFTP connection handling.
 
 ## 0.8.7 - 18 February 2017
 - Added guard to handle files that do not exist anymore.
