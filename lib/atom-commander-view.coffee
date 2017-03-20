@@ -95,6 +95,7 @@ class AtomCommanderView extends View
       'atom-commander:next-tab': => @nextTab();
       'atom-commander:shift-tab-left': => @shiftTabLeft();
       'atom-commander:shift-tab-right': => @shiftTabRight();
+      'atom-commander:copy-path': => @copyPath();
 
     @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);
 
@@ -487,6 +488,14 @@ class AtomCommanderView extends View
 
     if focusedTabbedView != null
       focusedTabbedView.shiftRight();
+
+  copyPath: ->
+    if @focusedView != null
+      itemView = @focusedView.getHighlightedItem();
+      if itemView?
+        path = itemView.getPath();
+        atom.clipboard.write(path);
+        atom.notifications.addInfo('Copied \'' + path + '\' to clipboard.');
 
   tabCountChanged: ->
     totalTabs = @leftTabbedView.getTabCount() + @rightTabbedView.getTabCount();
