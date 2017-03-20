@@ -473,3 +473,6 @@ class Actions
 
   toggleExtensionColumn: ->
     @main.mainView.toggleExtensionColumn();
+
+  sortByName: ->
+    @main.mainView.sortByName();

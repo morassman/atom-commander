@@ -157,6 +157,15 @@
         }
       ]
     }
+    # {
+    #   'label': 'Sort'
+    #   'submenu': [
+    #     {
+    #       'label': 'Name'
+    #       'command': 'atom-commander:sort-by-name'
+    #     }
+    #   ]
+    # }
   ]
 'menu': [
   {

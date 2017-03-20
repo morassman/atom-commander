@@ -22,6 +22,9 @@ class ListDirectoryView extends ListItemView
     else
       @name.classList.add('icon', 'icon-file-directory');
 
+  isForParentDirectory: ->
+    return @parentDirectory;
+
   getName: ->
     if @parentDirectory
       return "..";

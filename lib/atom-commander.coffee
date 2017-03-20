@@ -86,6 +86,8 @@ module.exports = AtomCommander =
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-date-column': => @actions.toggleDateColumn();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-extension-column': => @actions.toggleExtensionColumn();
 
+    # @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:sort-by-name': => @actions.sortByName();
+
     @subscriptions.add atom.commands.add 'atom-text-editor', 'atom-commander:upload-file': (event) =>
       event.stopPropagation();
       @actions.uploadFile();
@@ -142,7 +144,7 @@ module.exports = AtomCommander =
 
   saveState: ->
     fsp ?= require 'fs-plus';
-    
+
     state = @serialize();
     file = @getSaveFile();
     state.version = 3;

@@ -11,6 +11,7 @@ VFile = require '../fs/vfile'
 VDirectory = require '../fs/vdirectory'
 VSymLink = require '../fs/vsymlink'
 Utils = require '../utils'
+ListDirectoryView = require './list-directory-view';
 
 module.exports =
 class ContainerView extends View
@@ -687,6 +688,52 @@ class ContainerView extends View
   setDateColumnVisible: (visible) ->
 
   setExtensionColumnVisible: (visible) ->
+
+  setSortBy: (sortBy) ->
+    if @itemViews.length == 0
+      return;
+
+    prevHighlightIndex = @highlightedIndex;
+    @highlightIndex(null, false);
+    @clearItemViews();
+
+    parentItemView = null;
+    dirItemViews = [];
+    fileItemViews = [];
+
+    for itemView in @itemViews
+      item = itemView.getItem();
+
+      if item.isFile()
+        fileItemViews.push(itemView);
+      else if item.isDirectory()
+        if itemView.isForParentDirectory()
+          parentItemView = itemView;
+        else
+          dirItemViews.push(itemView);
+
+    # TODO : Apply proper sort function.
+    dirItemViews = dirItemViews.reverse();
+    fileItemViews = fileItemViews.reverse();
+
+    @itemViews = [];
+
+    if parentItemView?
+      @itemViews.push(parentItemView);
+
+    @itemViews = @itemViews.concat(dirItemViews);
+    @itemViews = @itemViews.concat(fileItemViews);
+
+    index = 0;
+    newHighlightIndex = null;
+
+    for itemView in @itemViews
+      if !newHighlightIndex? and itemView.index == prevHighlightIndex
+        newHighlightIndex = index;
+      itemView.index = index++;
+      @addItemView(itemView);
+
+    @highlightIndex(newHighlightIndex, true);
 
   deserialize: (path, state) ->
     if !state?
