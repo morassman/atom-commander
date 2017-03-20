@@ -91,6 +91,10 @@ class ContainerView extends View
       @addClass("left-container");
 
     @directoryEditor.addClass("directory-editor");
+    @directoryEditor.on 'focus', (e) =>
+      @mainView.focusedView = @;
+      @mainView.getOtherView(@).refreshHighlight();
+      @refreshHighlight();
 
     @on 'dblclick', '.item', (e) =>
       @requestFocus();
@@ -289,8 +293,11 @@ class ContainerView extends View
     atom.workspace.getActivePane().activate()
     @refreshHighlight();
 
-  # Override and return whether view has focus.
   hasFocus: ->
+    return @hasContainerFocus() or @directoryEditor.hasFocus();
+
+  # Override and return whether the item container view has focus.
+  hasContainerFocus: ->
 
   # Override to remove all item views.
   clearItemViews: ->
