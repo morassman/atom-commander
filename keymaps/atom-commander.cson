@@ -11,7 +11,7 @@
   'f9': 'atom-commander:toggle-focus'
   'f10': 'atom-commander:toggle-visible'
 
-'.atom-commander':
+'.atom-commander, .atom-commander atom-text-editor':
   'f2': 'atom-commander:rename'
   'f3': 'atom-commander:add-project'
   'shift-f3' : 'atom-commander:remove-project'
@@ -30,7 +30,7 @@
   'ctrl-shift-left': 'atom-commander:shift-tab-left'
   'ctrl-shift-right': 'atom-commander:shift-tab-right'
 
-'.platform-darwin .atom-commander':
+'.platform-darwin .atom-commander, .platform-darwin .atom-commander atom-text-editor':
   'cmd-t': 'atom-commander:add-tab'
   'cmd-r': 'atom-commander:remove-tab'
   'cmd-left': 'atom-commander:previous-tab'
