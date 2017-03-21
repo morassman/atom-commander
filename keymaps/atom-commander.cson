@@ -11,7 +11,7 @@
   'f9': 'atom-commander:toggle-focus'
   'f10': 'atom-commander:toggle-visible'
 
-'.atom-commander, .atom-commander atom-text-editor':
+'.atom-commander':
   'f2': 'atom-commander:rename'
   'f3': 'atom-commander:add-project'
   'shift-f3' : 'atom-commander:remove-project'
@@ -25,22 +25,26 @@
   'ctrl-tab': 'atom-commander:mirror'
   'ctrl-p': 'atom-commander:copy-paths'
   'ctrl-shift-p': 'atom-commander:copy-path-names'
-  'ctrl-t': 'atom-commander:add-tab'
-  'ctrl-r': 'atom-commander:remove-tab'
   'ctrl-left': 'atom-commander:previous-tab'
   'ctrl-right': 'atom-commander:next-tab'
   'ctrl-shift-left': 'atom-commander:shift-tab-left'
   'ctrl-shift-right': 'atom-commander:shift-tab-right'
 
-'.platform-darwin .atom-commander, .platform-darwin .atom-commander atom-text-editor':
+'.atom-commander, .atom-commander atom-text-editor':
+  'ctrl-t': 'atom-commander:add-tab'
+  'ctrl-r': 'atom-commander:remove-tab'
+
+'.platform-darwin .atom-commander':
   'cmd-p': 'atom-commander:copy-paths'
   'cmd-shift-p': 'atom-commander:copy-path-names'
-  'cmd-t': 'atom-commander:add-tab'
-  'cmd-r': 'atom-commander:remove-tab'
   'cmd-left': 'atom-commander:previous-tab'
   'cmd-right': 'atom-commander:next-tab'
   'cmd-shift-left': 'atom-commander:shift-tab-left'
   'cmd-shift-right': 'atom-commander:shift-tab-right'
+
+'.platform-darwin .atom-commander, .platform-darwin .atom-commander atom-text-editor':
+  'cmd-t': 'atom-commander:add-tab'
+  'cmd-r': 'atom-commander:remove-tab'
 
 '.atom-commander-container-view':
   'enter': 'atom-commander:open-highlighted-item'

@@ -594,6 +594,10 @@ class ContainerView extends View
     if fs.isDirectorySync(uri)
       @openDirectory(@localFileSystem.getDirectory(uri));
       return;
+    else if fs.isFileSync(uri)
+      file = @localFileSystem.getFile(uri);
+      @mainView.main.actions.goFile(file, true);
+      return;
 
     fileSystem = @directory.getFileSystem();
 
