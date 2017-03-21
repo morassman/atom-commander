@@ -23,6 +23,8 @@ class AtomCommanderView extends View
     @sizeColumnVisible = state.sizeColumnVisible;
     @dateColumnVisible = state.dateColumnVisible;
     @extensionColumnVisible = state.extensionColumnVisible;
+    @sortBy = state.sortBy;
+    @sortAscending = state.sortAscending;
 
     if !@sizeColumnVisible?
       @sizeColumnVisible = false;
@@ -32,6 +34,12 @@ class AtomCommanderView extends View
 
     if !@extensionColumnVisible?
       @extensionColumnVisible = true;
+
+    if !@sortBy?
+      @sortBy = null;
+
+    if !@sortAscending?
+      @sortAscending = true;
 
     @menuBar.setMainView(@);
     @leftTabbedView.setMainView(@);
@@ -548,9 +556,15 @@ class AtomCommanderView extends View
     @leftTabbedView.setExtensionColumnVisible(@extensionColumnVisible);
     @rightTabbedView.setExtensionColumnVisible(@extensionColumnVisible);
 
-  setSortBy: (sortBy)->
-    @leftTabbedView.setSortBy(sortBy);
-    @rightTabbedView.setSortBy(sortBy);
+  setSortBy: (sortBy) ->
+    if @sortBy == sortBy
+      @sortAscending = !@sortAscending
+    else
+      @sortBy = sortBy;
+      @sortAscending = true;
+
+    @leftTabbedView.sort();
+    @rightTabbedView.sort();
 
   serialize: ->
     state = {};
@@ -561,5 +575,7 @@ class AtomCommanderView extends View
     state.sizeColumnVisible = @sizeColumnVisible;
     state.dateColumnVisible = @dateColumnVisible;
     state.extensionColumnVisible = @extensionColumnVisible;
+    state.sortBy = @sortBy;
+    state.sortAscending = @sortAscending;
 
     return state;

@@ -324,6 +324,9 @@ class ContainerView extends View
   # Override to set the height of the content.
   setContentHeight: (contentHeight) ->
 
+  # Override to refresh the sort icons.
+  refreshSortIcons: (sortBy, ascending) ->
+
   moveUp: (event) ->
     if @highlightedIndex != null
       @highlightIndex(@highlightedIndex-1);
@@ -518,7 +521,7 @@ class ContainerView extends View
 
       if itemView?
         @itemViews.push(itemView);
-        @addItemView(itemView);
+        # @addItemView(itemView);
         index++;
 
     if @itemViews.length > 0
@@ -526,6 +529,7 @@ class ContainerView extends View
 
     @restoreSnapShot(snapShot);
     @enableAutoRefresh();
+    @sort(true);
     callback?(null);
 
   disableAutoRefresh: ->
@@ -700,7 +704,7 @@ class ContainerView extends View
 
   setExtensionColumnVisible: (visible) ->
 
-  setSortBy: (sortBy) ->
+  sort: (scrollToHighlight=false) ->
     if @itemViews.length == 0
       return;
 
@@ -724,8 +728,8 @@ class ContainerView extends View
         else
           dirItemViews.push(itemView);
 
-    Utils.sortItemViews(true, dirItemViews, sortBy);
-    Utils.sortItemViews(false, fileItemViews, sortBy);
+    Utils.sortItemViews(true, dirItemViews, @mainView.sortBy, @mainView.sortAscending);
+    Utils.sortItemViews(false, fileItemViews, @mainView.sortBy, @mainView.sortAscending);
 
     @itemViews = [];
 
@@ -744,7 +748,8 @@ class ContainerView extends View
       itemView.index = index++;
       @addItemView(itemView);
 
-    @highlightIndex(newHighlightIndex, true);
+    @highlightIndex(newHighlightIndex, scrollToHighlight);
+    @refreshSortIcons(@mainView.sortBy, @mainView.sortAscending);
 
   deserialize: (path, state) ->
     if !state?

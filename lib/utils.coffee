@@ -102,7 +102,8 @@ class Utils
   # @dirs true if the items are directories. false if files.
   # @item Array of BaseItemView to sort.
   # @sortBy Attribute to sort by : 'name', 'ext', 'size', 'date'
-  @sortItemViews: (dirs, items, sortBy) ->
+  # @ascending true to sort ascending. false for descending.
+  @sortItemViews: (dirs, items, sortBy, ascending) ->
     if sortBy == 'name'
       items.sort(@itemViewNameComparator);
     else if sortBy == 'date'
@@ -110,9 +111,12 @@ class Utils
 
     if !dirs
       if sortBy == 'extension'
-        items.sort(@itemViewNameComparator);
+        items.sort(@itemViewExtensionComparator);
       else if sortBy == 'size'
         items.sort(@itemViewSizeComparator);
+
+    if !ascending
+      items.reverse();
 
 
   @itemViewNameComparator: (a, b) ->

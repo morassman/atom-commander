@@ -26,6 +26,11 @@ class ListView extends ContainerView
     @tableBody.empty();
     @tableBody.append($(@createHeaderView()));
 
+    @tableBody.find('#name-header').click () => @getMain().actions.sortByName();
+    @tableBody.find('#extension-header').click () => @getMain().actions.sortByExtension();
+    @tableBody.find('#size-header').click () => @getMain().actions.sortBySize();
+    @tableBody.find('#date-header').click () => @getMain().actions.sortByDate();
+
     @setExtensionColumnVisible(@isExtensionColumnVisible());
     @setSizeColumnVisible(@isSizeColumnVisible());
     @setDateColumnVisible(@isDateColumnVisible());
@@ -64,10 +69,10 @@ class ListView extends ContainerView
   createHeaderView: ->
     return """
       <tr>
-        <th id='name-header'>Name</th>
-        <th id='extension-header'>Extension</th>
-        <th id='size-header'>Size</th>
-        <th id='date-header'>Date</th>
+        <th id='name-header'><span id='name' class='sort-icon icon'>Name</span></th>
+        <th id='extension-header'><span id='extension' class='sort-icon icon'>Extension</span></th>
+        <th id='size-header'><span id='size' class='sort-icon icon'>Size</span></th>
+        <th id='date-header'><span id='date' class='sort-icon icon'>Date</span></th>
       </tr>
     """;
 
@@ -135,3 +140,19 @@ class ListView extends ContainerView
       @table.find('tr :nth-child(4)').show();
     else
       @table.find('tr :nth-child(4)').hide();
+
+  refreshSortIcons: (sortBy, ascending) ->
+    element = @table.find('#'+sortBy);
+
+    if !element?
+      return;
+
+    element.removeClass('icon-chevron-up');
+    element.removeClass('icon-chevron-down');
+
+    if ascending
+      element.addClass('icon-chevron-down');
+    else
+      element.addClass('icon-chevron-up');
+
+    element.show();
