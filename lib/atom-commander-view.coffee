@@ -548,9 +548,9 @@ class AtomCommanderView extends View
     @leftTabbedView.setExtensionColumnVisible(@extensionColumnVisible);
     @rightTabbedView.setExtensionColumnVisible(@extensionColumnVisible);
 
-  sortByName: ->
-    @leftTabbedView.setSortBy('name');
-    @rightTabbedView.setSortBy('name');
+  setSortBy: (sortBy)->
+    @leftTabbedView.setSortBy(sortBy);
+    @rightTabbedView.setSortBy(sortBy);
 
   serialize: ->
     state = {};

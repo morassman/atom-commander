@@ -86,7 +86,10 @@ module.exports = AtomCommander =
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-date-column': => @actions.toggleDateColumn();
     @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:toggle-extension-column': => @actions.toggleExtensionColumn();
 
-    # @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:sort-by-name': => @actions.sortByName();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:sort-by-name': => @actions.sortByName();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:sort-by-extension': => @actions.sortByExtension();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:sort-by-size': => @actions.sortBySize();
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-commander:sort-by-date': => @actions.sortByDate();
 
     @subscriptions.add atom.commands.add 'atom-text-editor', 'atom-commander:upload-file': (event) =>
       event.stopPropagation();

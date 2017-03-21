@@ -708,6 +708,7 @@ class ContainerView extends View
     @highlightIndex(null, false);
     @clearItemViews();
 
+    # Separate files and directories.
     parentItemView = null;
     dirItemViews = [];
     fileItemViews = [];
@@ -723,9 +724,8 @@ class ContainerView extends View
         else
           dirItemViews.push(itemView);
 
-    # TODO : Apply proper sort function.
-    dirItemViews = dirItemViews.reverse();
-    fileItemViews = fileItemViews.reverse();
+    Utils.sortItemViews(true, dirItemViews, sortBy);
+    Utils.sortItemViews(false, fileItemViews, sortBy);
 
     @itemViews = [];
 

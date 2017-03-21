@@ -98,3 +98,67 @@ class Utils
       return PathUtil.join(fsp.getHomeDirectory(), path.slice(1));
 
     return path;
+
+  # @dirs true if the items are directories. false if files.
+  # @item Array of BaseItemView to sort.
+  # @sortBy Attribute to sort by : 'name', 'ext', 'size', 'date'
+  @sortItemViews: (dirs, items, sortBy) ->
+    if sortBy == 'name'
+      items.sort(@itemViewNameComparator);
+    else if sortBy == 'date'
+      items.sort(@itemViewDateComparator);
+
+    if !dirs
+      if sortBy == 'extension'
+        items.sort(@itemViewNameComparator);
+      else if sortBy == 'size'
+        items.sort(@itemViewSizeComparator);
+
+
+  @itemViewNameComparator: (a, b) ->
+    na = a.itemController.getNamePart();
+    nb = b.itemController.getNamePart();
+
+    if na < nb
+      return -1;
+
+    if na > nb
+      return 1;
+
+    return 0;
+
+  @itemViewExtensionComparator: (a, b) ->
+    na = a.itemController.getExtensionPart();
+    nb = b.itemController.getExtensionPart();
+
+    if na < nb
+      return -1;
+
+    if na > nb
+      return 1;
+
+    return 0;
+
+  @itemViewSizeComparator: (a, b) ->
+    na = a.getItem().getSize();
+    nb = b.getItem().getSize();
+
+    if na < nb
+      return -1;
+
+    if na > nb
+      return 1;
+
+    return 0;
+
+  @itemViewDateComparator: (a, b) ->
+    na = a.getItem().getModifyDate();
+    nb = b.getItem().getModifyDate();
+
+    if na < nb
+      return -1;
+
+    if na > nb
+      return 1;
+
+    return 0;

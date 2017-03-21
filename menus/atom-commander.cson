@@ -157,15 +157,27 @@
         }
       ]
     }
-    # {
-    #   'label': 'Sort'
-    #   'submenu': [
-    #     {
-    #       'label': 'Name'
-    #       'command': 'atom-commander:sort-by-name'
-    #     }
-    #   ]
-    # }
+    {
+      'label': 'Sort'
+      'submenu': [
+        {
+          'label': 'Name'
+          'command': 'atom-commander:sort-by-name'
+        }
+        {
+          'label': 'Extension'
+          'command': 'atom-commander:sort-by-extension'
+        }
+        {
+          'label': 'Size'
+          'command': 'atom-commander:sort-by-size'
+        }
+        {
+          'label': 'Date'
+          'command': 'atom-commander:sort-by-date'
+        }
+      ]
+    }
   ]
 'menu': [
   {

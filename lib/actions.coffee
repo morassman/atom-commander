@@ -475,4 +475,13 @@ class Actions
     @main.mainView.toggleExtensionColumn();
 
   sortByName: ->
-    @main.mainView.sortByName();
+    @main.mainView.setSortBy('name');
+
+  sortByExtension: ->
+    @main.mainView.setSortBy('extension');
+
+  sortBySize: ->
+    @main.mainView.setSortBy('size');
+
+  sortByDate: ->
+    @main.mainView.setSortBy('date');
