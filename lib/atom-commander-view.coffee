@@ -95,7 +95,8 @@ class AtomCommanderView extends View
       'atom-commander:next-tab': => @nextTab();
       'atom-commander:shift-tab-left': => @shiftTabLeft();
       'atom-commander:shift-tab-right': => @shiftTabRight();
-      'atom-commander:copy-path': => @copyPath();
+      'atom-commander:copy-paths': => @copyPaths(false);
+      'atom-commander:copy-path-names': => @copyPaths(true);
 
     @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);
 
@@ -489,13 +490,26 @@ class AtomCommanderView extends View
     if focusedTabbedView != null
       focusedTabbedView.shiftRight();
 
-  copyPath: ->
+  copyPaths: (namesOnly) ->
     if @focusedView != null
-      itemView = @focusedView.getHighlightedItem();
-      if itemView?
-        path = itemView.getPath();
-        atom.clipboard.write(path);
-        atom.notifications.addInfo('Copied \'' + path + '\' to clipboard.');
+      itemViews = @focusedView.getSelectedItemViews(true);
+      if itemViews.length > 0
+        if namesOnly
+          paths = itemViews.map (i) -> i.getName();
+        else
+          paths = itemViews.map (i) -> i.getPath();
+        text = paths.join('\n');
+        atom.clipboard.write(text);
+        if paths.length == 1
+          if namesOnly
+            atom.notifications.addInfo('Copied name \'' + paths[0] + '\' to clipboard.');
+          else
+            atom.notifications.addInfo('Copied path \'' + paths[0] + '\' to clipboard.');
+        else
+          if namesOnly
+            atom.notifications.addInfo('Copied ' + paths.length + ' names to clipboard.');
+          else
+            atom.notifications.addInfo('Copied ' + paths.length + ' paths to clipboard.');
 
   tabCountChanged: ->
     totalTabs = @leftTabbedView.getTabCount() + @rightTabbedView.getTabCount();

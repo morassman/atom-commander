@@ -23,7 +23,8 @@
   'f8': 'atom-commander:delete'
   'tab': 'atom-commander:focus-other-view'
   'ctrl-tab': 'atom-commander:mirror'
-  'ctrl-p': 'atom-commander:copy-path'
+  'ctrl-p': 'atom-commander:copy-paths'
+  'ctrl-shift-p': 'atom-commander:copy-path-names'
   'ctrl-t': 'atom-commander:add-tab'
   'ctrl-r': 'atom-commander:remove-tab'
   'ctrl-left': 'atom-commander:previous-tab'
@@ -32,7 +33,8 @@
   'ctrl-shift-right': 'atom-commander:shift-tab-right'
 
 '.platform-darwin .atom-commander, .platform-darwin .atom-commander atom-text-editor':
-  'cmd-p': 'atom-commander:copy-path'
+  'cmd-p': 'atom-commander:copy-paths'
+  'cmd-shift-p': 'atom-commander:copy-path-names'
   'cmd-t': 'atom-commander:add-tab'
   'cmd-r': 'atom-commander:remove-tab'
   'cmd-left': 'atom-commander:previous-tab'
