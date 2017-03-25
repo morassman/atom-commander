@@ -3,7 +3,7 @@ fsp = require 'fs-plus'
 SSH2 = require 'ssh2'
 PathUtil = require('path')
 Utils = require '../utils'
-FTPFileSystem = require '../fs/ftp/ftp-filesystem'
+SFTPFileSystem = require '../fs/ftp/sftp-filesystem'
 {View, TextEditorView} = require 'atom-space-pen-views'
 
 module.exports =
@@ -365,48 +365,25 @@ class SFTPDialog extends View
     if @hasError() or (@ssh2 != null)
       return;
 
-    @ssh2 = new SSH2();
-    config = @getSFTPConfig(true);
-    config.tryKeyboard = true;
+    config = @getSFTPConfig(false);
+    fs = new SFTPFileSystem(@parentDialog.getMain(), null, config);
 
-    @ssh2.on "ready", =>
-      @ssh2.sftp (err, sftp) =>
-        @spinner.hide();
+    fs.onError (err) =>
+      @parentDialog.attach();
 
-        if err?
-          if err.message?
-            @showMessage("Connection failed. "+err.message, 1);
-          else
-            @showMessage("Connection failed", 1);
-        else
-          @showMessage("Connection successful", 0);
-
-        @ssh2.end();
-        @ssh2 = null;
-
-    @ssh2.on "error", (err) =>
-      @spinner.hide();
-
-      if err.message?
-        @showMessage("Connection failed. "+err.message, 1);
+      if err.canceled
+        @showMessage("", 0);
       else
-        @showMessage("Connection failed", 1);
-
-      @ssh2.end();
-      @ssh2 = null;
-
-    @ssh2.on "keyboard-interactive", (name, instructions, instructionsLang, prompt, finish) =>
-      finish([config.password]);
-
-    @spinner.show();
-
-    try
-      @ssh2.connect(config);
-    catch err
-      @spinner.hide();
-
-      if err.message?
         @showMessage("Connection failed. "+err.message, 1);
 
-      @ssh2.end();
-      @ssh2 = null;
+      fs.disconnect();
+
+    fs.onConnected () =>
+      @parentDialog.attach();
+      @showMessage("Connection successful", 0);
+      fs.disconnect();
+
+    fs.onDisconnected () =>
+      @parentDialog.attach();
+
+    fs.connect();

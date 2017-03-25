@@ -11,8 +11,8 @@ Utils = require '../../utils'
 module.exports =
 class SFTPFileSystem extends VFileSystem
 
-  constructor: (@server, @config) ->
-    super(@server.getMain());
+  constructor: (main, @server, @config) ->
+    super(main);
     @session = null;
     @client = null;
 
@@ -26,7 +26,7 @@ class SFTPFileSystem extends VFileSystem
     @clientConfig = @getClientConfig();
 
   clone: ->
-    cloneFS = new SFTPFileSystem(@server, @config);
+    cloneFS = new SFTPFileSystem(@getMain(), @server, @config);
     cloneFS.clientConfig = @clientConfig;
     return cloneFS;
 

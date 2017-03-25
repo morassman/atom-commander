@@ -18,12 +18,15 @@ class SFTPSession
 
   # Called if connecting failed due to invalid credentials. This will only try
   # to connect again if a password or passphrase should be prompted for.
-  reconnect: ->
+  reconnect: (err) ->
     delete @clientConfig.password;
     delete @clientConfig.passphrase;
 
     if @config.loginWithPassword or @config.usePassphrase
       @connect();
+    else
+      @fileSystem.emitError(err);
+      @canceled();
 
   connect: ->
     password = @clientConfig.password;
@@ -98,7 +101,10 @@ class SFTPSession
     @ssh2.on "error", (err) =>
       if err.level == "client-authentication"
         atom.notifications.addWarning("Incorrect credentials for "+@clientConfig.host);
-        @reconnect();
+        err = {};
+        err.canceled = false;
+        err.message = "Incorrect credentials for "+@clientConfig.host;
+        @reconnect(err);
       else
         @fileSystem.emitError(err);
 

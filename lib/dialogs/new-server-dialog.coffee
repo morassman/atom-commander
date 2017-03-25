@@ -27,6 +27,9 @@ class NewServerDialog extends View
   # The dialog that was initialized. Either FTPDialog or SFTPDialog.
   dialogInitialized: (dialog) ->
 
+  getMain: ->
+    return @containerView.getMain();
+
   getServerManager: ->
     return @containerView.getMain().getServerManager();
 

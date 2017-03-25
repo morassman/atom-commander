@@ -64,7 +64,7 @@ class Server
     if @config.protocol == "ftp"
       return new FTPFileSystem(@, @config);
     else if @config.protocol == "sftp"
-      return new SFTPFileSystem(@, @config);
+      return new SFTPFileSystem(@main, @, @config);
 
     return @main.getLocalFileSystem();
 
