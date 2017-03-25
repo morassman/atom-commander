@@ -31,26 +31,48 @@ class ContainerView extends View
 
     @directoryEditor.addClass('directory-editor');
 
+    @disposables.add(atom.tooltips.add(@history, {title: 'History'}));
+
     if @left
       @username.addClass('left-username');
+      @history.addClass('left-history');
     else
       @username.addClass('right-username');
+      @history.addClass('right-history');
 
     @username.hide();
 
     @directoryEditor.focusout =>
       @directoryEditorCancel();
 
-    @disposables.add atom.commands.add @directoryEditor.element,
+    @disposables.add atom.commands.add @directoryEditor[0],
       'core:confirm': => @directoryEditorConfirm()
       'core:cancel': => @directoryEditorCancel()
+
+    @disposables.add atom.commands.add @containerView[0],
+      'core:move-up': @moveUp.bind(this)
+      'core:move-down': @moveDown.bind(this)
+      'core:page-up': => @pageUp()
+      'core:page-down': => @pageDown()
+      'core:move-to-top': => @highlightFirstItem()
+      'core:move-to-bottom': => @highlightLastItem()
+      'core:cancel': => @escapePressed();
+      'atom-commander:open-highlighted-item': => @openHighlightedItem(false)
+      'atom-commander:open-highlighted-item-native': => @openHighlightedItem(true)
+      'atom-commander:open-parent-folder': => @backspacePressed();
+      'atom-commander:highlight-first-item': => @highlightFirstItem()
+      'atom-commander:highlight-last-item': => @highlightLastItem()
+      'atom-commander:page-up': => @pageUp()
+      'atom-commander:page-down': => @pageDown()
+      'atom-commander:select-item': => @spacePressed()
 
   @content: ->
     @div {tabindex: -1}, =>
       @div =>
         @span '', {class: 'highlight-info username', outlet: 'username'}
+        @span '', {class: 'history icon icon-clock', outlet: 'history', click: 'openHistory' }
         @subview 'directoryEditor', new TextEditorView(mini: true)
-      @div {class: 'atom-commander-container-view'}, =>
+      @div {class: 'atom-commander-container-view', outlet: 'containerView'}, =>
         @container();
       @div {class: 'search-panel', outlet: 'searchPanel'}
       @div "Loading...", {class: 'loading-panel', outlet: 'spinnerPanel'}
@@ -107,22 +129,8 @@ class ContainerView extends View
 
     @keypress (e) => @handleKeyPress(e);
 
-    atom.commands.add @element,
-     'core:move-up': @moveUp.bind(this)
-     'core:move-down': @moveDown.bind(this)
-     'core:page-up': => @pageUp()
-     'core:page-down': => @pageDown()
-     'core:move-to-top': => @highlightFirstItem()
-     'core:move-to-bottom': => @highlightLastItem()
-     'core:cancel': => @escapePressed();
-     'atom-commander:open-highlighted-item': => @openHighlightedItem(false)
-     'atom-commander:open-highlighted-item-native': => @openHighlightedItem(true)
-     'atom-commander:open-parent-folder': => @backspacePressed();
-     'atom-commander:highlight-first-item': => @highlightFirstItem()
-     'atom-commander:highlight-last-item': => @highlightLastItem()
-     'atom-commander:page-up': => @pageUp()
-     'atom-commander:page-down': => @pageDown()
-     'atom-commander:select-item': => @spacePressed()
+  openHistory: ->
+    console.log('openHistory');
 
   storeScrollTop: ->
     @scrollTop = @getScrollTop();
@@ -173,7 +181,7 @@ class ContainerView extends View
       @selectItem();
 
   handleKeyPress: (e) ->
-    if !@hasFocus()
+    if !@hasContainerFocus()
       return;
 
     # When Alt is down the menu is being shown.
@@ -596,7 +604,7 @@ class ContainerView extends View
     uri = @directoryEditor.getText().trim();
 
     if fs.isDirectorySync(uri)
-      @openDirectory(@localFileSystem.getDirectory(uri));
+      @openDirectory(@localFileSystem.getDirectory(uri), null, () => @focus());
       return;
     else if fs.isFileSync(uri)
       file = @localFileSystem.getFile(uri);
@@ -611,7 +619,7 @@ class ContainerView extends View
     path = fileSystem.getPathFromURI(uri);
 
     if path != null
-      @openDirectory(fileSystem.getDirectory(path));
+      @openDirectory(fileSystem.getDirectory(path), null, () => @focus());
 
     # # TODO : The file system may change.
     # directory = @directory.fileSystem.getDirectory(@directoryEditor.getText().trim());
