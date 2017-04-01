@@ -15,8 +15,13 @@ class FTPDialog extends View
   @content: ->
     @div class: "atom-commander-ftp-dialog", =>
       # @div "New FTP Connection", {class: "heading"}
+  # Modifed by OXPUS
       @table =>
         @tbody =>
+          @tr =>
+            @td "Alias", {class: "text-highlight", style: "width:40%"}
+            @td =>
+              @subview "aliasEditor", new TextEditorView(mini: true)
           @tr =>
             @td "URL", {class: "text-highlight", style: "width:40%"}
             @td "ftp://", {outlet: "url"}
@@ -64,22 +69,29 @@ class FTPDialog extends View
         @span {class: "message", outlet: "message"}
 
   initialize: ->
-    @serverEditor.attr("tabindex", 1);
-    @portEditor.attr("tabindex", 2);
-    @folderEditor.attr("tabindex", 3);
-    @anonymous.attr("tabindex", 4);
-    @usernameEditor.attr("tabindex", 5);
-    @passwordEditor.attr("tabindex", 6);
-    @storeCheckBox.attr("tabindex", 7);
-    @testButton.attr("tabindex", 8);
-    @okButton.attr("tabindex", 9);
-    @cancelButton.attr("tabindex", 10);
+   # Modifed by OXPUS
+    @aliasEditor.attr("tabindex", 1);
+    @serverEditor.attr("tabindex", 2);
+    @portEditor.attr("tabindex", 3);
+    @folderEditor.attr("tabindex", 4);
+    @anonymous.attr("tabindex", 5);
+    @usernameEditor.attr("tabindex", 6);
+    @passwordEditor.attr("tabindex", 7);
+    @storeCheckBox.attr("tabindex", 8);
+    @testButton.attr("tabindex", 9);
+    @okButton.attr("tabindex", 10);
+    @cancelButton.attr("tabindex", 11);
 
     @passwordEditor.addClass("password-editor");
 
     @spinner.hide();
     @portEditor.getModel().setText("21");
     @storeCheckBox.prop("checked", true);
+
+   # Modifed by OXPUS
+    @aliasEditor.getModel().onDidChange =>
+      @refreshURL();
+      @refreshError();
 
     @serverEditor.getModel().onDidChange =>
       @refreshURL();
@@ -117,6 +129,8 @@ class FTPDialog extends View
     if !password?
       password = "";
 
+   # Modifed by OXPUS
+    @aliasEditor.getModel().setText(config.alias);
     @serverEditor.getModel().setText(config.host);
     @portEditor.getModel().setText(config.port + "");
     @usernameEditor.getModel().setText(config.user);
@@ -168,6 +182,8 @@ class FTPDialog extends View
   refreshURL: ->
     server = @serverEditor.getModel().getText().trim();
     port = @portEditor.getModel().getText().trim();
+   # Modifed by OXPUS
+    alias = @aliasEditor.getModel().getText().trim();
 
     url = "ftp://" + server;
 
@@ -196,6 +212,11 @@ class FTPDialog extends View
     @showMessage("", 0);
 
   getErrorMessage: ->
+   # Modifed by OXPUS
+    alias = @getAlias();
+    if alias.length == 0
+      return "Please enter an alias."
+
     server = @getServer();
     if server.length == 0
       return "Host must be specified."
@@ -236,6 +257,9 @@ class FTPDialog extends View
     id = "ftp_"+server+"_"+port+"_"+username;
     return @parentDialog.serverExists(id);
 
+  getAlias: ->
+    return @aliasEditor.getModel().getText().trim();
+
   getServer: ->
     return @serverEditor.getModel().getText().trim();
 
@@ -245,6 +269,8 @@ class FTPDialog extends View
   getFTPConfig: ->
     config = {};
 
+   # Modifed by OXPUS
+    config.alias = @getAlias();
     config.protocol = "ftp";
     config.host = @getServer();
     config.port = @getPort();
