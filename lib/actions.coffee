@@ -485,3 +485,6 @@ class Actions
 
   sortByDate: ->
     @main.mainView.setSortBy('date');
+
+  sortByDefault: ->
+    @main.mainView.setSortBy(null);

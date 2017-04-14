@@ -29,6 +29,8 @@ class ContainerView extends View
     @scheduler = new Scheduler(1);
     @disposables = new CompositeDisposable();
     @lastLocalPath = null;
+    @sortBy = null;
+    @sortAscending = true;
 
     @directoryEditor.addClass('directory-editor');
 
@@ -725,6 +727,20 @@ class ContainerView extends View
 
   setExtensionColumnVisible: (visible) ->
 
+  setSortBy: (sortBy) ->
+    if @sortBy == sortBy
+      if sortBy == null
+        return;
+      @sortAscending = !@sortAscending
+    else
+      @sortBy = sortBy;
+      @sortAscending = true;
+
+    if sortBy == null
+      @refreshDirectory();
+    else
+      @sort(true);
+
   sort: (scrollToHighlight=false) ->
     if @itemViews.length == 0
       return;
@@ -749,8 +765,8 @@ class ContainerView extends View
         else
           dirItemViews.push(itemView);
 
-    Utils.sortItemViews(true, dirItemViews, @mainView.sortBy, @mainView.sortAscending);
-    Utils.sortItemViews(false, fileItemViews, @mainView.sortBy, @mainView.sortAscending);
+    Utils.sortItemViews(true, dirItemViews, @sortBy, @sortAscending);
+    Utils.sortItemViews(false, fileItemViews, @sortBy, @sortAscending);
 
     @itemViews = [];
 
@@ -770,12 +786,21 @@ class ContainerView extends View
       @addItemView(itemView);
 
     @highlightIndex(newHighlightIndex, scrollToHighlight);
-    @refreshSortIcons(@mainView.sortBy, @mainView.sortAscending);
+    @refreshSortIcons(@sortBy, @sortAscending);
 
   deserialize: (path, state) ->
     if !state?
       @openDirectory(@getInitialDirectory(path));
       return;
+
+    @sortBy = state.sortBy;
+    @sortAscending = state.sortAscending;
+
+    if !@sortBy?
+      @sortBy = null;
+
+    if !@sortAscending?
+      @sortAscending = true;
 
     snapShot = {}
     snapShot.name = state.highlight;
@@ -786,6 +811,8 @@ class ContainerView extends View
 
   serialize: ->
     state = {}
+    state.sortBy = @sortBy;
+    state.sortAscending = @sortAscending;
 
     if @directory.isLocal()
       state.path = @getPath();

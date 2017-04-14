@@ -122,10 +122,6 @@ class TabbedView extends View
     for tabView in @tabsView.getTabViews()
       tabView.getView().setExtensionColumnVisible(visible);
 
-  sort: () ->
-    for tabView in @tabsView.getTabViews()
-      tabView.getView().sort();
-
   serialize: ->
     state = {};
     state.tabs = [];
