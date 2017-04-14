@@ -12,6 +12,7 @@ VDirectory = require '../fs/vdirectory'
 VSymLink = require '../fs/vsymlink'
 Utils = require '../utils'
 ListDirectoryView = require './list-directory-view';
+# HistoryView = require './history-view';
 
 module.exports =
 class ContainerView extends View
@@ -31,14 +32,14 @@ class ContainerView extends View
 
     @directoryEditor.addClass('directory-editor');
 
-    @disposables.add(atom.tooltips.add(@history, {title: 'History'}));
+    # @disposables.add(atom.tooltips.add(@history, {title: 'History'}));
 
     if @left
       @username.addClass('left-username');
-      @history.addClass('left-history');
+      # @history.addClass('left-history');
     else
       @username.addClass('right-username');
-      @history.addClass('right-history');
+      # @history.addClass('right-history');
 
     @username.hide();
 
@@ -70,12 +71,13 @@ class ContainerView extends View
     @div {tabindex: -1}, =>
       @div =>
         @span '', {class: 'highlight-info username', outlet: 'username'}
-        @span '', {class: 'history icon icon-clock', outlet: 'history', click: 'openHistory' }
+        # @span '', {class: 'history icon icon-clock', outlet: 'history', click: 'toggleHistory' }
         @subview 'directoryEditor', new TextEditorView(mini: true)
       @div {class: 'atom-commander-container-view', outlet: 'containerView'}, =>
         @container();
       @div {class: 'search-panel', outlet: 'searchPanel'}
       @div "Loading...", {class: 'loading-panel', outlet: 'spinnerPanel'}
+      # @subview 'historyView', new HistoryView()
 
   isLeft: ->
     return @left;
@@ -109,12 +111,15 @@ class ContainerView extends View
     @searchPanel.hide();
     @spinnerPanel.hide();
 
-    if (@left)
+    # @historyView.setContainerView(@);
+
+    if @left
       @addClass("left-container");
 
     @directoryEditor.addClass("directory-editor");
     @directoryEditor.on 'focus', (e) =>
       @mainView.focusedView = @;
+      # @historyView.close();
       @mainView.getOtherView(@).refreshHighlight();
       @refreshHighlight();
 
@@ -129,8 +134,9 @@ class ContainerView extends View
 
     @keypress (e) => @handleKeyPress(e);
 
-  openHistory: ->
-    console.log('openHistory');
+  toggleHistory: (e) ->
+    e.stopPropagation();
+    # @historyView.toggle();
 
   storeScrollTop: ->
     @scrollTop = @getScrollTop();
@@ -599,6 +605,13 @@ class ContainerView extends View
 
     if snapShot.selectedNames?
       @selectNames(snapShot.selectedNames);
+
+  setDirectory: (path) ->
+    if !fs.isDirectorySync(path)
+      return;
+
+    @directoryEditor.setText(path);
+    @directoryEditorConfirm();
 
   directoryEditorConfirm: ->
     uri = @directoryEditor.getText().trim();
