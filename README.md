@@ -44,28 +44,41 @@ Button|Action
 `Shift-F5 Duplicate`|Duplicate the highlighted file or folder.
 
 ## Keys
+
+### Navigation
 Use the arrow keys, page-up, page-down, home and end to navigate.
 
-The following are special keys:
+Key|Action
+---|---
+`Left`|Highlight the first item.
+`Right`|Highlight the last item.
+`Backspace`|Navigate to the parent folder.
+`Tab`|Switch to the other pane.
+`Ctrl-Tab`|Show the same folder in the other pane.
 
+### Actions
 Key|Action
 ---|---
 `Alt`|Open the quick menu.
 `Shift`|Show alternative buttons.
-`Left`|Highlight the first item.
-`Right`|Highlight the last item.
-`Space`|Select the highlighted item.
-`Backspace`|Navigate to the parent folder.
-`Tab`|Switch to the other pane.
-`Ctrl-Tab`|Show the same folder in the other pane.
 `Enter`|Open highlighted item. If it's a file then it will be opened in the editor.
 `Ctrl-Enter` `Cmd-Enter`|Open highlighted item with OS's default application. If it's a folder then it will be shown in the OS's file manager.
+`Ctrl-P` `Cmd-P`|Copy the paths of the selected items.
+
+### Tabs
+Key|Action
+---|---
 `Ctrl-T` `Cmd-T`|Open highlighted item in a new tab.
 `Ctrl-R` `Cmd-R`|Remove current tab.
-`Ctrl-Left` `Cmd-Left|Select previous tab.
+`Ctrl-Left` `Cmd-Left`|Select previous tab.
 `Ctrl-Right` `Cmd-Right`|Select next tab.
 `Ctrl-Shift-Left` `Cmd-Shift-Left`|Shift current tab left.
 `Ctrl-Shift-Right` `Cmd-Shift-Right`|Shift current tab right.
+
+### Selection
+Key|Action
+---|---
+`Space`|Select the highlighted item.
 `+`|Open dialog to add items to selection.
 `-`|Open dialog to remove items from selection.
 `*`|Invert selection.
@@ -76,12 +89,7 @@ A file or folder can be quickly found by simply starting to type parts of its na
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/search.png?raw=true)
 
 ## Menus
-There are two types of menus available: A context menu and a quick menu.
-
-### Context Menu
-The context menu can be opened from anywhere on the panel.
-
-![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/context_menu.png?raw=true)
+There are two types of menus available: The quick menu and the context menu.
 
 ### Quick Menu
 The menu is opened by holding down the `Alt` key. Releasing the key will close the menu again.
@@ -130,6 +138,11 @@ When the menu is closed and opened again it will start on the root menu.
 7. **Compare**
   1. **Folders** : Select the differences between the two folders.
   2. **Files** : Show the difference between the left and right highlighted files.
+
+### Context Menu
+The context menu can be opened from anywhere on the panel. It contains everything the quick menu does, but has entries for toggling and sorting columns as well.
+
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/context_menu.png?raw=true)
 
 ## Bookmarks
 Bookmarks allow for quick navigation to both files and folders.
