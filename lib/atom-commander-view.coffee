@@ -46,22 +46,24 @@ class AtomCommanderView extends View
     @leftView = @leftTabbedView.getSelectedView();
     @rightView = @rightTabbedView.getSelectedView();
 
-    if state.height
-      @leftTabbedView.setContentHeight(state.height);
-      @rightTabbedView.setContentHeight(state.height);
+    if state.height and !atom.config.get('atom-commander.panel.showInDock')
+      @height(state.height);
+    #   @leftTabbedView.setContentHeight(state.height);
+    #   @rightTabbedView.setContentHeight(state.height);
 
     @focusedView = @getLeftView();
 
   @content: ->
-    buttonStyle = 'width: 11.1%';
+    # buttonStyle = 'width: 11.1%';
+    buttonStyle = '';
 
-    @div {class: 'atom-commander atom-commander-resizer'}, =>
+    @div {class: 'atom-commander'}, =>
       @div class: 'atom-commander-resize-handle', outlet: 'resizeHandle'
       @subview 'menuBar', new MenuBarView();
       @div {class: 'content'}, =>
         @subview 'leftTabbedView', new TabbedView(true)
         @subview 'rightTabbedView', new TabbedView(false)
-      @div {class: 'btn-group-xs'}, =>
+      @div {class: 'atom-commander-button-bar btn-group-xs'}, =>
         @button 'F2 Rename', {class: 'btn', style: buttonStyle, click: 'renameButton'}
         @button 'F3 Add Project', {class: 'btn', style: buttonStyle, click: 'addRemoveProjectButton', outlet: 'F3Button'}
         @button 'F4 New File', {class: 'btn', style: buttonStyle, click: 'newFileButton'}
@@ -98,7 +100,10 @@ class AtomCommanderView extends View
       'atom-commander:copy-paths': => @copyPaths(false);
       'atom-commander:copy-path-names': => @copyPaths(true);
 
-    @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);
+    if atom.config.get('atom-commander.panel.showInDock')
+      @resizeHandle.hide();
+    else
+      @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);      
 
     @keyup (e) => @handleKeyUp(e);
     @keydown (e) => @handleKeyDown(e);
@@ -173,8 +178,9 @@ class AtomCommanderView extends View
     return @resizeStopped() unless which is 1
 
     change = @offset().top - pageY;
-    @leftTabbedView.adjustContentHeight(change);
-    @rightTabbedView.adjustContentHeight(change);
+    @height(@outerHeight() + change);
+    # @leftTabbedView.adjustContentHeight(change);
+    # @rightTabbedView.adjustContentHeight(change);
 
   getMain: ->
     return @main;
@@ -411,7 +417,7 @@ class AtomCommanderView extends View
     @main.toggleFocus();
 
   hideButton: ->
-    @main.hidePanel();
+    @main.hide();
 
   mirror: ->
     if @focusedView != null
@@ -557,7 +563,7 @@ class AtomCommanderView extends View
 
     state.left = @leftTabbedView.serialize();
     state.right = @rightTabbedView.serialize();
-    state.height = @getLeftView().getContentHeight();
+    state.height = @height();
     state.sizeColumnVisible = @sizeColumnVisible;
     state.dateColumnVisible = @dateColumnVisible;
     state.extensionColumnVisible = @extensionColumnVisible;

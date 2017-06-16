@@ -70,7 +70,7 @@ class ContainerView extends View
       'atom-commander:select-item': => @spacePressed()
 
   @content: ->
-    @div {tabindex: -1}, =>
+    @div {tabindex: -1, style: 'display: flex; flex-direction: column; flex: 1'}, =>
       @div =>
         @span '', {class: 'highlight-info username', outlet: 'username'}
         # @span '', {class: 'history icon icon-clock', outlet: 'history', click: 'toggleHistory' }
@@ -80,7 +80,7 @@ class ContainerView extends View
       @div {class: 'search-panel', outlet: 'searchPanel'}
       @div "Loading...", {class: 'loading-panel', outlet: 'spinnerPanel'}
       # @subview 'historyView', new HistoryView()
-
+    
   isLeft: ->
     return @left;
 
@@ -113,7 +113,7 @@ class ContainerView extends View
     @searchPanel.hide();
     @spinnerPanel.hide();
 
-    # @historyView.setContainerView(@);
+    # @historyView.set§(@);
 
     if @left
       @addClass("left-container");

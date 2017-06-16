@@ -11,10 +11,10 @@ class ListView extends ContainerView
     super(left);
 
   @container: ->
-    @div {class: 'atom-commander-list-view-resizer', click:'requestFocus', outlet: 'listViewResizer'}, =>
-      @div {class: 'atom-commander-list-view-scroller', outlet:'scroller', click:'requestFocus'}, =>
-        @table {class: 'atom-commander-list-view-table', outlet: 'table'}, =>
-          @tbody {class: 'atom-commander-list-view list', tabindex: -1, outlet: 'tableBody'}
+    # @div {class: 'atom-commander-list-view-resizer', click:'requestFocus', outlet: 'listViewResizer'}, =>
+    @div {class: 'atom-commander-list-view-scroller', outlet:'scroller', click:'requestFocus'}, =>
+      @table {class: 'atom-commander-list-view-table', outlet: 'table'}, =>
+        @tbody {class: 'atom-commander-list-view list', tabindex: -1, outlet: 'tableBody'}
 
   initialize: (state)->
     super(state);
@@ -107,13 +107,14 @@ class ListView extends ContainerView
       @highlightIndex(@highlightedIndex + itemsPerPage);
 
   adjustContentHeight: (change) ->
-    @listViewResizer.height(@listViewResizer.outerHeight() + change);
+    # @listViewResizer.height(@listViewResizer.outerHeight() + change);
 
   getContentHeight: ->
-    return @listViewResizer.height();
+    return 0;
+    # return @listViewResizer.height();
 
   setContentHeight: (contentHeight) ->
-    @listViewResizer.height(contentHeight);
+    # @listViewResizer.height(contentHeight);
 
   getScrollTop: ->
     return @scroller.scrollTop();

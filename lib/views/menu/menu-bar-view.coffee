@@ -9,7 +9,7 @@ class MenuBarView extends View
 
   @content: ->
     @div {class: 'atom-commander-menu-bar'}, =>
-      @div {class:'block content', outlet:'content'}
+      @div {class:'content', outlet:'content'}
 
   setMainView: (@mainView) ->
     @rootMenuItem = @createRootMenuItem();
