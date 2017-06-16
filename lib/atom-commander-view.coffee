@@ -50,13 +50,10 @@ class AtomCommanderView extends View
 
     if !atom.config.get('atom-commander.panel.showInDock') and state.height
       @height(state.height);
-    #   @leftTabbedView.setContentHeight(state.height);
-    #   @rightTabbedView.setContentHeight(state.height);
 
     @focusedView = @getLeftView();
 
   @content: ->
-    # buttonStyle = 'width: 11.1%';
     buttonStyle = '';
 
     @div {class: 'atom-commander'}, =>
@@ -65,16 +62,16 @@ class AtomCommanderView extends View
       @div {class: 'content', outlet: 'contentView'}, =>
         @subview 'leftTabbedView', new TabbedView(true)
         @subview 'rightTabbedView', new TabbedView(false)
-      @div {class: 'atom-commander-button-bar btn-group-xs'}, =>
-        @button 'F2 Rename', {class: 'btn', style: buttonStyle, click: 'renameButton'}
-        @button 'F3 Add Project', {class: 'btn', style: buttonStyle, click: 'addRemoveProjectButton', outlet: 'F3Button'}
-        @button 'F4 New File', {class: 'btn', style: buttonStyle, click: 'newFileButton'}
-        @button 'F5 Copy', {class: 'btn', style: buttonStyle, click: 'copyDuplicateButton', outlet: 'F5Button'}
-        @button 'F6 Move', {class: 'btn', style: buttonStyle, click: 'moveButton'}
-        @button 'F7 New Folder', {class: 'btn', style: buttonStyle, click: 'newDirectoryButton'}
-        @button 'F8 Delete', {class: 'btn', style: buttonStyle, click: 'deleteButton'}
-        @button 'F9 Focus', {class: 'btn', style: buttonStyle, click: 'focusButton'}
-        @button 'F10 Hide', {class: 'btn', style: buttonStyle, click: 'hideButton'}
+      @div {tabindex: -1, class: 'atom-commander-button-bar btn-group-xs'}, =>
+        @button 'F2 Rename', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'renameButton'}
+        @button 'F3 Add Project', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'addRemoveProjectButton', outlet: 'F3Button'}
+        @button 'F4 New File', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'newFileButton'}
+        @button 'F5 Copy', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'copyDuplicateButton', outlet: 'F5Button'}
+        @button 'F6 Move', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'moveButton'}
+        @button 'F7 New Folder', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'newDirectoryButton'}
+        @button 'F8 Delete', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'deleteButton'}
+        @button 'F9 Focus', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'focusButton'}
+        @button 'F10 Hide', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'hideButton'}
 
   initialize: ->
     @menuBar.hide();
@@ -181,8 +178,6 @@ class AtomCommanderView extends View
 
     change = @offset().top - pageY;
     @height(@outerHeight() + change);
-    # @leftTabbedView.adjustContentHeight(change);
-    # @rightTabbedView.adjustContentHeight(change);
 
   getMain: ->
     return @main;
@@ -212,10 +207,28 @@ class AtomCommanderView extends View
       @contentView.addClass('content-vertical');
       @contentView.removeClass('content-horizontal');
 
+    @applyVisibility();
+
   focusView: (@focusedView) ->
     otherView = @getOtherView(@focusedView);
     otherView.unfocus();
+    @applyVisibility();
     @focusedView.focus();
+
+  applyVisibility: ->
+    onlyOne = atom.config.get('atom-commander.panel.onlyOneWhenVertical');
+
+    if @horizontal or !onlyOne
+      @leftTabbedView.show();
+      @rightTabbedView.show();
+      return;
+
+    if @getRightView() == @focusedView
+      @leftTabbedView.hide();
+      @rightTabbedView.show();
+    else
+      @leftTabbedView.show();
+      @rightTabbedView.hide();
 
   focusOtherView: ->
     if @getLeftView().hasFocus()

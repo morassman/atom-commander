@@ -19,16 +19,24 @@ module.exports = AtomCommander =
     panel:
       type: "object"
       properties:
-        hideOnOpen:
-          title: "Hide On Open"
-          description: "Hide the panel after opening a file."
-          type: "boolean"
-          default: false
         showInDock:
           title: "Show In Dock"
-          description: "Show the panel in the dock. This allows docking on the left and right as well."
+          description: "Show the panel in the dock. Disable to limit the panel to the bottom of the screen."
           type: "boolean"
           default: false
+          order: 1
+        onlyOneWhenVertical:
+          title: "One At A Time When Docked Left Or Right"
+          description: "Show only one browser at a time when the panel is docked on the left or right. Tabbing will toggle between them."
+          type: "boolean"
+          default: false
+          order: 2
+        hideOnOpen:
+          title: "Hide After Opening File"
+          description: "Hide the panel after opening a file and focus the editor."
+          type: "boolean"
+          default: false
+          order: 3
     uploadOnSave:
       title: "Upload Cached File On Save"
       description: "Automatically upload cached files when saved."
@@ -147,6 +155,9 @@ module.exports = AtomCommander =
 
     @subscriptions.add atom.workspace.getBottomDock().onDidChangeActivePaneItem (event) =>
       @dockActivePaneItemChanged(event);
+
+    @subscriptions.add atom.config.onDidChange 'atom-commander.panel.onlyOneWhenVertical', () =>
+      @mainView.applyVisibility();
 
     if !atom.config.get('atom-commander.panel.showInDock')
       @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false);
