@@ -1,3 +1,6 @@
+## 0.10.0 - 17 June 2017
+- Added ability to show panel in Atom's docks.
+
 ## 0.9.0 - 1 May 2017
 - Added sorting by column.
 - Added copying of file paths and file names to clipboard.

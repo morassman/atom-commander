@@ -21,9 +21,9 @@ module.exports = AtomCommander =
       properties:
         showInDock:
           title: "Show In Dock"
-          description: "Show the panel in the dock. Disable to limit the panel to the bottom of the screen."
+          description: "Show the panel in the dock. Disable to limit the panel to the bottom of the screen. Changing requires a restart."
           type: "boolean"
-          default: false
+          default: true
           order: 1
         onlyOneWhenVertical:
           title: "One At A Time When Docked Left Or Right"
@@ -126,26 +126,6 @@ module.exports = AtomCommander =
       event.stopPropagation();
       @actions.bookmarksAddEditor();
 
-    # @subscriptions.add atom.workspace.getLeftDock().onDidAddPane (event) =>
-    #   console.log('onDidAddPane');
-    #   console.log(event);
-    #
-    # @subscriptions.add atom.workspace.getLeftDock().onDidAddPaneItem (event) =>
-    #   console.log('onDidAddPaneItem');
-    #   console.log(event);
-    #
-    # @subscriptions.add atom.workspace.getLeftDock().observePanes (event) =>
-    #   console.log('observePanes');
-    #   console.log(event);
-    #
-    # @subscriptions.add atom.workspace.getLeftDock().observePaneItems (event) =>
-    #   console.log('observePaneItems');
-    #   console.log(event);
-    #
-    # @subscriptions.add atom.workspace.getLeftDock().onDidChangeActivePane (event) =>
-    #   console.log('onDidChangeActivePane');
-    #   console.log(event);
-
     # Monitor active pane item in docks.
     @subscriptions.add atom.workspace.getLeftDock().onDidChangeActivePaneItem (event) =>
       @dockActivePaneItemChanged(event);
@@ -156,8 +136,12 @@ module.exports = AtomCommander =
     @subscriptions.add atom.workspace.getBottomDock().onDidChangeActivePaneItem (event) =>
       @dockActivePaneItemChanged(event);
 
+    # Monitor configuration
     @subscriptions.add atom.config.onDidChange 'atom-commander.panel.onlyOneWhenVertical', () =>
       @mainView.applyVisibility();
+
+    @subscriptions.add atom.config.onDidChange 'atom-commander.panel.showInDock', () =>
+      @showInDockChanged();
 
     if !atom.config.get('atom-commander.panel.showInDock')
       @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false);
@@ -247,6 +231,30 @@ module.exports = AtomCommander =
 
     return @state;
 
+  showInDockChanged: ->
+    # TODO : Dynamically switch between dock and panel.
+
+    # height = @state.height;
+    #
+    # if @getDock() == atom.workspace.getBottomDock()
+    #   height = @mainView.height();
+    #
+    # if @bottomPanel?
+    #   @bottomPanel.destroy();
+    #   @bottomPanel = null;
+    # else
+    #   pane = atom.workspace.paneForItem(@);
+    #   if pane?
+    #     pane.removeItem(@);
+    #
+    # if !atom.config.get('atom-commander.panel.showInDock')
+    #   @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false);
+    #
+    # @mainView.showInDockChanged(height);
+    #
+    # if @state.visible
+    #   @show(false, 'bottom');
+
   dockActivePaneItemChanged: (item) ->
     if item != @
       return;
@@ -296,11 +304,11 @@ module.exports = AtomCommander =
     else
       @bottomPanel.show();
 
-  show: (focus) ->
+  show: (focus, location = undefined) ->
     if @bottomPanel?
       @showPanel(focus);
     else
-      @showDock(focus);
+      @showDock(focus, location);
 
     @state.visible = true;
     @saveState();
@@ -311,11 +319,34 @@ module.exports = AtomCommander =
     if focus
       @focus();
 
-  showDock: (focus) ->
+  showDock: (focus, location) ->
+    # paneContainer = atom.workspace.paneContainerForURI(@getURI());
+    #
+    # if paneContainer?
+    #   paneContainer.show();
+    #
+    #   if focus
+    #     @focus();
+    # else
+    #   atom.workspace.open(@, {
+    #     searchAllPanes: true,
+    #     activatePane: true,
+    #     activateItem: true,
+    #     location: location
+    #   }).then =>
+    #     paneContainer = atom.workspace.paneContainerForURI(@getURI());
+    #
+    #     if paneContainer?
+    #       paneContainer.show();
+    #
+    #       if focus
+    #         @focus();
+
     atom.workspace.open(this, {
       searchAllPanes: true,
       activatePane: true,
       activateItem: true,
+      location: location
     }).then =>
       atom.workspace.paneContainerForURI(@getURI()).show()
       @focus() if focus

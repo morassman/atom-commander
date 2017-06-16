@@ -48,8 +48,8 @@ class AtomCommanderView extends View
 
     @horizontal = true;
 
-    if !atom.config.get('atom-commander.panel.showInDock') and state.height
-      @height(state.height);
+    if !atom.config.get('atom-commander.panel.showInDock')
+      @setHeight(state.height);
 
     @focusedView = @getLeftView();
 
@@ -101,8 +101,8 @@ class AtomCommanderView extends View
 
     if atom.config.get('atom-commander.panel.showInDock')
       @resizeHandle.hide();
-    else
-      @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);
+
+    @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);
 
     @keyup (e) => @handleKeyUp(e);
     @keydown (e) => @handleKeyDown(e);
@@ -177,7 +177,15 @@ class AtomCommanderView extends View
     return @resizeStopped() unless which is 1
 
     change = @offset().top - pageY;
-    @height(@outerHeight() + change);
+    @setHeight(@outerHeight() + change);
+
+  setHeight: (height) ->
+    if !height?
+      @height(200);
+    else if height < 50
+      @height(50);
+    else
+      @height(height);
 
   getMain: ->
     return @main;
@@ -195,9 +203,6 @@ class AtomCommanderView extends View
     return @getLeftView();
 
   setHorizontal: (horizontal) ->
-    if @horizontal == horizontal
-      return;
-
     @horizontal = horizontal;
 
     if @horizontal
@@ -214,6 +219,18 @@ class AtomCommanderView extends View
     otherView.unfocus();
     @applyVisibility();
     @focusedView.focus();
+
+  showInDockChanged: (height) ->
+    # TODO : Call this when toggling docked mode.
+
+    # if atom.config.get('atom-commander.panel.showInDock')
+    #   @height('100%')
+    #   @resizeHandle.hide();
+    #   @applyVisibility();
+    # else
+    #   @height(height);
+    #   @resizeHandle.show();
+    #   @setHorizontal(true);
 
   applyVisibility: ->
     onlyOne = atom.config.get('atom-commander.panel.onlyOneWhenVertical');
