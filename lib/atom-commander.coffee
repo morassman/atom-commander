@@ -118,12 +118,6 @@ module.exports = AtomCommander =
       event.stopPropagation();
       @actions.bookmarksAddEditor();
 
-    if !atom.config.get('atom-commander.panel.showInDock')
-      @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false);
-
-    if @state.visible
-      @show(false);
-
     # @subscriptions.add atom.workspace.getLeftDock().onDidAddPane (event) =>
     #   console.log('onDidAddPane');
     #   console.log(event);
@@ -143,10 +137,22 @@ module.exports = AtomCommander =
     # @subscriptions.add atom.workspace.getLeftDock().onDidChangeActivePane (event) =>
     #   console.log('onDidChangeActivePane');
     #   console.log(event);
-    # 
-    # @subscriptions.add atom.workspace.getLeftDock().onDidChangeActivePaneItem (event) =>
-    #   console.log('onDidChangeActivePaneItem : ' + (event == @));
-    #   console.log(event);
+
+    # Monitor active pane item in docks.
+    @subscriptions.add atom.workspace.getLeftDock().onDidChangeActivePaneItem (event) =>
+      @dockActivePaneItemChanged(event);
+
+    @subscriptions.add atom.workspace.getRightDock().onDidChangeActivePaneItem (event) =>
+      @dockActivePaneItemChanged(event);
+
+    @subscriptions.add atom.workspace.getBottomDock().onDidChangeActivePaneItem (event) =>
+      @dockActivePaneItemChanged(event);
+
+    if !atom.config.get('atom-commander.panel.showInDock')
+      @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false);
+
+    if @state.visible
+      @show(false);
 
   getTitle: ->
     return 'Atom Commander';
@@ -229,6 +235,15 @@ module.exports = AtomCommander =
       return state;
 
     return @state;
+
+  dockActivePaneItemChanged: (item) ->
+    if item != @
+      return;
+
+    dock = @getDock();
+
+    if dock?
+      @mainView.setHorizontal(dock.location == 'bottom');
 
   getDock: ->
     if atom.workspace.getBottomDock().getPaneItems().indexOf(@) >= 0

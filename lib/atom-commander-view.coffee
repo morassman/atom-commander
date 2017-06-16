@@ -46,7 +46,9 @@ class AtomCommanderView extends View
     @leftView = @leftTabbedView.getSelectedView();
     @rightView = @rightTabbedView.getSelectedView();
 
-    if state.height and !atom.config.get('atom-commander.panel.showInDock')
+    @horizontal = true;
+
+    if !atom.config.get('atom-commander.panel.showInDock') and state.height
       @height(state.height);
     #   @leftTabbedView.setContentHeight(state.height);
     #   @rightTabbedView.setContentHeight(state.height);
@@ -60,7 +62,7 @@ class AtomCommanderView extends View
     @div {class: 'atom-commander'}, =>
       @div class: 'atom-commander-resize-handle', outlet: 'resizeHandle'
       @subview 'menuBar', new MenuBarView();
-      @div {class: 'content'}, =>
+      @div {class: 'content', outlet: 'contentView'}, =>
         @subview 'leftTabbedView', new TabbedView(true)
         @subview 'rightTabbedView', new TabbedView(false)
       @div {class: 'atom-commander-button-bar btn-group-xs'}, =>
@@ -103,7 +105,7 @@ class AtomCommanderView extends View
     if atom.config.get('atom-commander.panel.showInDock')
       @resizeHandle.hide();
     else
-      @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);      
+      @on 'mousedown', '.atom-commander-resize-handle', (e) => @resizeStarted(e);
 
     @keyup (e) => @handleKeyUp(e);
     @keydown (e) => @handleKeyDown(e);
@@ -196,6 +198,19 @@ class AtomCommanderView extends View
       return @getRightView();
 
     return @getLeftView();
+
+  setHorizontal: (horizontal) ->
+    if @horizontal == horizontal
+      return;
+
+    @horizontal = horizontal;
+
+    if @horizontal
+      @contentView.addClass('content-horizontal');
+      @contentView.removeClass('content-vertical');
+    else
+      @contentView.addClass('content-vertical');
+      @contentView.removeClass('content-horizontal');
 
   focusView: (@focusedView) ->
     otherView = @getOtherView(@focusedView);
