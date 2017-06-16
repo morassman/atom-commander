@@ -118,16 +118,35 @@ module.exports = AtomCommander =
       event.stopPropagation();
       @actions.bookmarksAddEditor();
 
-    console.log("dock : "+atom.config.get('atom-commander.panel.showInDock'));
-
     if !atom.config.get('atom-commander.panel.showInDock')
       @bottomPanel = atom.workspace.addBottomPanel(item: @mainView.getElement(), visible: false);
 
-    console.log("visible : "+@state.visible);
-
     if @state.visible
       @show(false);
-    #   @bottomPanel.show();
+
+    # @subscriptions.add atom.workspace.getLeftDock().onDidAddPane (event) =>
+    #   console.log('onDidAddPane');
+    #   console.log(event);
+    #
+    # @subscriptions.add atom.workspace.getLeftDock().onDidAddPaneItem (event) =>
+    #   console.log('onDidAddPaneItem');
+    #   console.log(event);
+    #
+    # @subscriptions.add atom.workspace.getLeftDock().observePanes (event) =>
+    #   console.log('observePanes');
+    #   console.log(event);
+    #
+    # @subscriptions.add atom.workspace.getLeftDock().observePaneItems (event) =>
+    #   console.log('observePaneItems');
+    #   console.log(event);
+    #
+    # @subscriptions.add atom.workspace.getLeftDock().onDidChangeActivePane (event) =>
+    #   console.log('onDidChangeActivePane');
+    #   console.log(event);
+    # 
+    # @subscriptions.add atom.workspace.getLeftDock().onDidChangeActivePaneItem (event) =>
+    #   console.log('onDidChangeActivePaneItem : ' + (event == @));
+    #   console.log(event);
 
   getTitle: ->
     return 'Atom Commander';
@@ -211,19 +230,38 @@ module.exports = AtomCommander =
 
     return @state;
 
+  getDock: ->
+    if atom.workspace.getBottomDock().getPaneItems().indexOf(@) >= 0
+      return atom.workspace.getBottomDock();
+    if atom.workspace.getLeftDock().getPaneItems().indexOf(@) >= 0
+      return atom.workspace.getLeftDock();
+    if atom.workspace.getRightDock().getPaneItems().indexOf(@) >= 0
+      return atom.workspace.getRightDock();
+
+    return null;
+
+  isVisible: ->
+    if @bottomPanel
+      return @state.visible;
+    else
+      return @isVisibleInDock();
+
+  isVisibleInDock: ->
+    dock = @getDock();
+
+    if !dock? or !dock.isVisible()
+      return false;
+
+    if !dock.getActivePane()?
+      return false;
+
+    return dock.getActivePane().getActiveItem() == @;
+
   toggle: ->
-    if @state.visible
+    if @isVisible()
       @hide();
     else
-      @show();
-
-    # if @bottomPanel?
-    #   @togglePanelVisible();
-    # else
-    #   atom.workspace.toggle(this);
-    #
-    # @state.visible = !@state.visible;
-    # @saveState();
+      @show(false);
 
   togglePanelVisible: ->
     if @bottomPanel.isVisible()
@@ -233,7 +271,6 @@ module.exports = AtomCommander =
       @bottomPanel.show();
 
   show: (focus) ->
-    console.log("show : " + focus);
     if @bottomPanel?
       @showPanel(focus);
     else
@@ -249,11 +286,10 @@ module.exports = AtomCommander =
       @focus();
 
   showDock: (focus) ->
-    console.log("showDock");
     atom.workspace.open(this, {
       searchAllPanes: true,
-      activatePane: false,
-      activateItem: false,
+      activatePane: true,
+      activateItem: true,
     }).then =>
       atom.workspace.paneContainerForURI(@getURI()).show()
       @focus() if focus
