@@ -19,7 +19,7 @@
   "repository": "https://github.com/morassman/atom-commander",
   "license": "MIT",
   "engines": {
-    "atom": ">=1.0.0 <2.0.0"
+    "atom": ">=1.17.0 <2.0.0"
   },
   "consumedServices": {
     "status-bar": {
