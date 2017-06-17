@@ -10,6 +10,7 @@ class MenuBarView extends View
   @content: ->
     @div {class: 'atom-commander-menu-bar'}, =>
       @div {class:'content', outlet:'content'}
+      @button {tabindex: -1, class: 'btn btn-sm inline-block settings-btn icon-gear', click: "settingsPressed"}
 
   setMainView: (@mainView) ->
     @rootMenuItem = @createRootMenuItem();
@@ -19,6 +20,10 @@ class MenuBarView extends View
 
     @content.on 'click', 'button', ->
       buttonClicked($(this).text());
+
+  settingsPressed: =>
+    @mainView.hideMenuBar();
+    atom.workspace.open('atom://config/packages/atom-commander');
 
   buttonClicked: (title) =>
     if (title == "")
