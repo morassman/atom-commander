@@ -13,6 +13,8 @@ FTPFileSystem = require './fs/ftp/ftp-filesystem'
 Utils = require './utils'
 TabbedView = require './views/tabbed-view'
 
+ATOM_COMMANDER_URI = 'atom://atom-commander'
+
 module.exports =
 class AtomCommanderView extends View
 
@@ -47,6 +49,7 @@ class AtomCommanderView extends View
     @rightView = @rightTabbedView.getSelectedView();
 
     @horizontal = true;
+    @customHeight = state.height;
 
     if !atom.config.get('atom-commander.panel.showInDock')
       @setHeight(state.height);
@@ -112,6 +115,21 @@ class AtomCommanderView extends View
     @leftView.dispose();
     @rightView.dispose();
     @element.remove();
+
+  getTitle: ->
+    return 'Atom Commander';
+
+  getURI: ->
+    return ATOM_COMMANDER_URI
+
+  getPreferredLocation: ->
+    return 'bottom';
+
+  getAllowedLocations: ->
+    return ['bottom', 'left', 'right'];
+
+  isPermanentDockItem: ->
+    return false;
 
   getElement: ->
     return @element;
@@ -179,13 +197,13 @@ class AtomCommanderView extends View
     change = @offset().top - pageY;
     @setHeight(@outerHeight() + change);
 
-  setHeight: (height) ->
-    if !height?
-      @height(200);
-    else if height < 50
-      @height(50);
-    else
-      @height(height);
+  setHeight: (@customHeight) ->
+    if !@customHeight?
+      @customHeight = 200;
+    else if @customHeight < 50
+      @customHeight = 50;
+
+    @height(@customHeight);
 
   getMain: ->
     return @main;
@@ -221,7 +239,7 @@ class AtomCommanderView extends View
     @focusedView.focus();
 
   showInDockChanged: (height) ->
-    # TODO : Call this when toggling docked mode.
+    # TODO : Call this when toggling docked mode without recreating main view.
 
     # if atom.config.get('atom-commander.panel.showInDock')
     #   @height('100%')
@@ -608,9 +626,9 @@ class AtomCommanderView extends View
 
     state.left = @leftTabbedView.serialize();
     state.right = @rightTabbedView.serialize();
-    state.height = @height();
     state.sizeColumnVisible = @sizeColumnVisible;
     state.dateColumnVisible = @dateColumnVisible;
     state.extensionColumnVisible = @extensionColumnVisible;
+    state.height = @customHeight;
 
     return state;
