@@ -31,7 +31,7 @@ module.exports = AtomCommander =
           order: 2
         hideOnOpen:
           title: "Hide After Opening File"
-          description: "Hide the panel after opening a file and focus the editor."
+          description: "Hide the panel after opening a file and then focus the editor."
           type: "boolean"
           default: false
           order: 3
@@ -306,42 +306,43 @@ module.exports = AtomCommander =
       @focus();
 
   showDock: (focus, location) ->
-    # paneContainer = atom.workspace.paneContainerForURI(@getURI());
-    #
-    # if paneContainer?
-    #   paneContainer.show();
-    #
-    #   if focus
-    #     @focus();
-    # else
-    #   atom.workspace.open(@, {
-    #     searchAllPanes: true,
-    #     activatePane: true,
-    #     activateItem: true,
-    #     location: location
-    #   }).then =>
-    #     paneContainer = atom.workspace.paneContainerForURI(@getURI());
-    #
-    #     if paneContainer?
-    #       paneContainer.show();
-    #
-    #       if focus
-    #         @focus();
+    paneContainer = atom.workspace.paneContainerForURI(@mainView.getURI());
 
-    atom.workspace.open(@mainView, {
-      searchAllPanes: true,
-      activatePane: true,
-      activateItem: true,
-      location: location
-    }).then =>
-      atom.workspace.paneContainerForURI(@mainView.getURI()).show()
-      @focus() if focus
+    if paneContainer?
+      paneContainer.show();
+
+      if focus
+        @focus();
+    else
+      atom.workspace.open(@mainView, {
+        searchAllPanes: true,
+        activatePane: true,
+        activateItem: true,
+        location: location
+      }).then =>
+        paneContainer = atom.workspace.paneContainerForURI(@mainView.getURI());
+
+        if paneContainer?
+          paneContainer.show();
+
+          if focus
+            @focus();
+
+    # atom.workspace.open(@mainView, {
+    #   searchAllPanes: true,
+    #   activatePane: true,
+    #   activateItem: true,
+    #   location: location
+    # }).then =>
+    #   atom.workspace.paneContainerForURI(@mainView.getURI()).show()
+    #   @focus() if focus
 
   hide: ->
+    console.log('hide');
     if @bottomPanel?
       @bottomPanel.hide();
     else
-      atom.workspace.hide(this)
+      atom.workspace.hide(@mainView);
 
     @state.visible = false;
     @saveState();

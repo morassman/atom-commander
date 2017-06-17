@@ -129,7 +129,7 @@ class AtomCommanderView extends View
     return ['bottom', 'left', 'right'];
 
   isPermanentDockItem: ->
-    return false;
+    return true;
 
   getElement: ->
     return @element;

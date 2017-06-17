@@ -141,8 +141,8 @@ class Actions
       snapShot = {};
       snapShot.name = file.getBaseName();
 
-      @main.show();
-      view.requestFocus();
+      @main.show(true);
+      # view.requestFocus();
       view.openDirectory file.getParent(), snapShot, (err) =>
         if open
           file.open();
@@ -151,8 +151,8 @@ class Actions
     view = @getFocusedView();
 
     if (view != null)
-      @main.show();
-      view.requestFocus();
+      @main.show(true);
+      # view.requestFocus();
       view.openDirectory(directory);
 
   goDrive: (fromView=true) =>

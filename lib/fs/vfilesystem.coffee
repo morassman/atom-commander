@@ -200,7 +200,7 @@ class VFileSystem
     hideOnOpen = atom.config.get('atom-commander.panel.hideOnOpen');
 
     if hideOnOpen
-      @main.hidePanel();
+      @main.hide();
 
   # Callback receives two arguments:
   # 1.) err : String with error message. null if no error.
