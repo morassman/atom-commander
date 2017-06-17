@@ -245,5 +245,12 @@ The size and modified date columns can be toggled from the context menu.
 
 ![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/columns.png?raw=true)
 
+## Dock
+Since version 0.10.0 the panel will be placed in Atom's dock by default. This allows one to drag the panel to any of the other docks. This can be disabled from Atom Commander's settings if you prefer the original behavior of simply showing it at the bottom of the screen.
+
+When the panel is docked on either the left or the right then the two browsers will be shown on top of each other. One can also choose to show only one browser at a time from the settings. Both browsers still exist, but only one is shown at a time. Pressing tab will toggle between the two.
+
+![Screenshot](https://github.com/morassman/atom-commander/blob/master/resources/single_browser.png?raw=true)
+
 ## Todo
 - Visual feedback for file system operations.
