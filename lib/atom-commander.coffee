@@ -19,7 +19,7 @@ module.exports = AtomCommander =
       properties:
         showInDock:
           title: "Show In Dock"
-          description: "Show the panel in the dock. Disable to limit the panel to the bottom of the screen. Changing this requires a restart."
+          description: "Show the panel in the dock. Disable to limit the panel to the bottom of the screen."
           type: "boolean"
           default: true
           order: 1
