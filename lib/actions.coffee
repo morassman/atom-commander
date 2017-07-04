@@ -19,24 +19,24 @@ class Actions
   constructor: (@main) ->
 
   getFocusedView: ->
-    focusedView = @main.mainView.focusedView;
+    focusedView = @main.getMainView()?.focusedView;
 
     if focusedView == null
-      focusedView = @main.mainView.getLeftView();
+      focusedView = @main.getMainView()?.getLeftView();
 
     return focusedView;
 
   selectAll: =>
     view = @getFocusedView();
 
-    if view != null
+    if view?
       view.selectAll();
       view.requestFocus();
 
   selectNone: =>
     view = @getFocusedView();
 
-    if view != null
+    if view?
       view.selectNone();
       view.requestFocus();
 
@@ -49,7 +49,7 @@ class Actions
   selectAddRemove: (add) ->
     view = @getFocusedView();
 
-    if (view != null)
+    if view?
       view.requestFocus();
       dialog = new SelectDialog(@, view, add);
       dialog.attach();
@@ -57,14 +57,14 @@ class Actions
   selectInvert: =>
     view = @getFocusedView();
 
-    if (view != null)
+    if view?
       view.selectInvert();
       view.requestFocus();
 
   selectFolders: =>
     view = @getFocusedView();
 
-    if (view == null)
+    if !view?
       return;
 
     view.requestFocus();
@@ -76,7 +76,7 @@ class Actions
   selectFiles: =>
     view = @getFocusedView();
 
-    if (view == null)
+    if !view?
       return;
 
     view.requestFocus();
@@ -89,14 +89,15 @@ class Actions
     @goDirectory(new Directory(fsp.getHomeDirectory()));
 
   goRoot: =>
+    @main.show(true);
     view = @getFocusedView();
 
-    if (view == null)
+    if !view?
       return;
 
     directory = view.directory;
 
-    if (directory == null)
+    if !directory?
       return;
 
     while (!directory.isRoot())
@@ -135,9 +136,10 @@ class Actions
       @goDirectory(directory);
 
   goFile: (file, open=false) =>
+    @main.show(true);
     view = @getFocusedView();
 
-    if (view != null)
+    if view?
       snapShot = {};
       snapShot.name = file.getBaseName();
 
@@ -148,15 +150,16 @@ class Actions
           file.open();
 
   goDirectory: (directory) =>
+    @main.show(true);
     view = @getFocusedView();
 
-    if (view != null)
+    if view?
       @main.show(true);
       # view.requestFocus();
       view.openDirectory(directory);
 
   goDrive: (fromView=true) =>
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
     view = new DriveListView(@, fromView);
 
   goProject: (fromView=true) =>
@@ -168,7 +171,7 @@ class Actions
     if projects.length == 1
       @goDirectory(projects[0]);
     else
-      @main.mainView.hideMenuBar();
+      @main.getMainView()?.hideMenuBar();
       view = new ProjectListView(@, fromView);
 
   goBookmark: (bookmark) =>
@@ -187,18 +190,21 @@ class Actions
   viewRefresh: =>
     view = @getFocusedView();
 
-    if (view != null)
+    if view?
       view.refreshDirectory();
 
   viewMirror: =>
-    @main.mainView.mirror();
+    @main.getMainView()?.mirror();
 
   viewSwap: =>
-    @main.mainView.swap();
+    @main.getMainView()?.swap();
 
   compareFolders: =>
-    leftView = @main.mainView.getLeftView();
-    rightView = @main.mainView.getRightView();
+    leftView = @main.getMainView()?.getLeftView();
+    rightView = @main.getMainView()?.getRightView();
+
+    if !leftView? or !rightView?
+      return;
 
     leftView.selectNone();
     rightView.selectNone();
@@ -212,8 +218,12 @@ class Actions
         itemView.select(true);
 
   compareFiles: =>
-    leftView = @main.mainView.getLeftView();
-    rightView = @main.mainView.getRightView();
+    leftView = @main.getMainView()?.getLeftView();
+    rightView = @main.getMainView()?.getRightView();
+
+    if !leftView? or !rightView?
+      return;
+
     leftViewItem = leftView.getHighlightedItem();
 
     if (leftViewItem == null)
@@ -270,12 +280,12 @@ class Actions
   bookmarksAdd: (fromView=true) =>
     view = @getFocusedView();
 
-    if (view == null)
+    if !view?
       return;
 
     itemView = view.getHighlightedItem();
 
-    if (itemView == null)
+    if !itemView?
       return;
 
     item = itemView.getItem();
@@ -283,46 +293,46 @@ class Actions
     if !itemView.isSelectable()
       item = view.directory;
 
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
     dialog = new AddBookmarkDialog(@main, item.getBaseName(), item, fromView);
     dialog.attach();
 
   bookmarksRemove: (fromView=true) =>
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
     view = new BookmarksView(@, false, fromView);
 
   bookmarksOpen: (fromView=true) =>
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
     view = new BookmarksView(@, true, fromView);
 
   serversAdd: (fromView=true) =>
     view = @getFocusedView();
 
-    if view == null
+    if !view?
       return;
 
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
     dialog = new NewServerDialog(view);
     dialog.attach();
 
   serversRemove: (fromView=true) =>
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
     view = new ServersView(@, "remove", fromView);
 
   serversOpen: (fromView=true) =>
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
     view = new ServersView(@, "open", fromView);
 
   serversClose: (fromView=true) =>
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
     view = new ServersView(@, "close", fromView);
 
   serversCache: (fromView=true) =>
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
     view = new ServersView(@, "cache", fromView);
 
   serversEdit: (fromView=true) =>
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
     view = new ServersView(@, "edit", fromView);
 
   uploadFile: =>
@@ -399,10 +409,10 @@ class Actions
     Utils.compareFiles(title, tooltip, editor.getText(), watcher.getFile());
 
   openTerminal: =>
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
     view = @getFocusedView();
 
-    if (view == null)
+    if !view?
       return;
 
     directory = view.directory;
@@ -434,7 +444,7 @@ class Actions
   openNative: (onlyShow) =>
     view = @getFocusedView();
 
-    if (view == null)
+    if !view?
       return;
 
     directory = view.directory;
@@ -448,7 +458,7 @@ class Actions
     if itemView == null
       return;
 
-    @main.mainView.hideMenuBar();
+    @main.getMainView()?.hideMenuBar();
 
     if !itemView.isSelectable()
       shell.showItemInFolder(directory.getPath());
@@ -466,25 +476,25 @@ class Actions
       shell.showItemInFolder(item.getPath());
 
   toggleSizeColumn: ->
-    @main.mainView.toggleSizeColumn();
+    @main.getMainView()?.toggleSizeColumn();
 
   toggleDateColumn: ->
-    @main.mainView.toggleDateColumn();
+    @main.getMainView()?.toggleDateColumn();
 
   toggleExtensionColumn: ->
-    @main.mainView.toggleExtensionColumn();
+    @main.getMainView()?.toggleExtensionColumn();
 
   sortByName: ->
-    @main.mainView.setSortBy('name');
+    @main.getMainView()?.setSortBy('name');
 
   sortByExtension: ->
-    @main.mainView.setSortBy('extension');
+    @main.getMainView()?.setSortBy('extension');
 
   sortBySize: ->
-    @main.mainView.setSortBy('size');
+    @main.getMainView()?.setSortBy('size');
 
   sortByDate: ->
-    @main.mainView.setSortBy('date');
+    @main.getMainView()?.setSortBy('date');
 
   sortByDefault: ->
-    @main.mainView.setSortBy(null);
+    @main.getMainView()?.setSortBy(null);

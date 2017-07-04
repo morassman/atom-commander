@@ -13,10 +13,10 @@ FTPFileSystem = require './fs/ftp/ftp-filesystem'
 Utils = require './utils'
 TabbedView = require './views/tabbed-view'
 
-ATOM_COMMANDER_URI = 'atom://atom-commander'
-
 module.exports =
 class AtomCommanderView extends View
+
+  @ATOM_COMMANDER_URI = 'atom://atom-commander'
 
   constructor: (@main, state)->
     super(@main);
@@ -120,7 +120,7 @@ class AtomCommanderView extends View
     return 'Atom Commander';
 
   getURI: ->
-    return ATOM_COMMANDER_URI
+    return AtomCommanderView.ATOM_COMMANDER_URI;
 
   getPreferredLocation: ->
     return 'bottom';
