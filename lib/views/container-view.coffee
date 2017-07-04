@@ -80,7 +80,7 @@ class ContainerView extends View
       @div {class: 'search-panel', outlet: 'searchPanel'}
       @div "Loading...", {class: 'loading-panel', outlet: 'spinnerPanel'}
       # @subview 'historyView', new HistoryView()
-    
+
   isLeft: ->
     return @left;
 
@@ -135,6 +135,25 @@ class ContainerView extends View
       @highlightIndex(e.currentTarget.index, false);
 
     @keypress (e) => @handleKeyPress(e);
+
+  setHorizontal: (horizontal) ->
+    @username.removeClass('vertical-username');
+
+    if @left
+      @username.removeClass('left-username');
+
+      if horizontal
+        @username.addClass('left-username');
+      # @history.addClass('left-history');
+    else
+      @username.removeClass('right-username');
+
+      if horizontal
+        @username.addClass('right-username');
+      # @history.addClass('right-history');
+
+    if !horizontal
+      @username.addClass('vertical-username');
 
   toggleHistory: (e) ->
     e.stopPropagation();

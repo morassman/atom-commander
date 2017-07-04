@@ -230,6 +230,9 @@ class AtomCommanderView extends View
       @contentView.addClass('content-vertical');
       @contentView.removeClass('content-horizontal');
 
+    @getLeftView().setHorizontal(horizontal);
+    @getRightView().setHorizontal(horizontal);
+
     @applyVisibility();
 
   focusView: (@focusedView) ->
