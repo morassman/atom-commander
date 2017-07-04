@@ -126,13 +126,22 @@ module.exports = AtomCommander =
 
     # Monitor active pane item in docks.
     @subscriptions.add atom.workspace.getLeftDock().onDidChangeActivePaneItem (event) =>
-      @dockActivePaneItemChanged(event);
+      @onDidChangeActivePaneItem(event);
 
     @subscriptions.add atom.workspace.getRightDock().onDidChangeActivePaneItem (event) =>
-      @dockActivePaneItemChanged(event);
+      @onDidChangeActivePaneItem(event);
 
     @subscriptions.add atom.workspace.getBottomDock().onDidChangeActivePaneItem (event) =>
-      @dockActivePaneItemChanged(event);
+      @onDidChangeActivePaneItem(event);
+
+    @subscriptions.add atom.workspace.getLeftDock().onWillDestroyPaneItem (event) =>
+      @onWillDestroyPaneItem(event);
+
+    @subscriptions.add atom.workspace.getRightDock().onWillDestroyPaneItem (event) =>
+      @onWillDestroyPaneItem(event);
+
+    @subscriptions.add atom.workspace.getBottomDock().onWillDestroyPaneItem (event) =>
+      @onWillDestroyPaneItem(event);
 
     # Monitor configuration
     @subscriptions.add atom.config.onDidChange 'atom-commander.panel.onlyOneWhenVertical', () =>
@@ -241,7 +250,14 @@ module.exports = AtomCommander =
     if visible
       @show(false, 'bottom');
 
-  dockActivePaneItemChanged: (item) ->
+  onWillDestroyPaneItem: (event) ->
+    console.log('onWillDestroyPaneItem');
+    console.log(event);
+
+    if event.item is @mainView
+      @hide();
+
+  onDidChangeActivePaneItem: (item) ->
     if item isnt @mainView
       return;
 
