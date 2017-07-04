@@ -1,4 +1,4 @@
-## 0.10.0 - 17 June 2017
+## 0.10.0 - 4 July 2017
 - Added ability to show panel in Atom's docks. Can be disabled from settings.
 
 ## 0.9.0 - 1 May 2017
