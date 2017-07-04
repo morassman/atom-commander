@@ -328,17 +328,7 @@ module.exports = AtomCommander =
           if focus
             @focus();
 
-    # atom.workspace.open(@mainView, {
-    #   searchAllPanes: true,
-    #   activatePane: true,
-    #   activateItem: true,
-    #   location: location
-    # }).then =>
-    #   atom.workspace.paneContainerForURI(@mainView.getURI()).show()
-    #   @focus() if focus
-
   hide: ->
-    console.log('hide');
     if @bottomPanel?
       @bottomPanel.hide();
     else
@@ -348,38 +338,22 @@ module.exports = AtomCommander =
     @saveState();
 
   focus: ->
+    pane = atom.workspace.paneForURI(@mainView.getURI());
+    pane.activateItemForURI(@mainView.getURI());
+
     @mainView.refocusLastView();
-    # @element.focus()
 
   unfocus: ->
     atom.workspace.getCenter().activate()
 
   hasFocus: ->
     return (@mainView.focusedView != null) and @mainView.focusedView.hasFocus();
-    # document.activeElement is @element
 
   toggleFocus: ->
     if @hasFocus()
       @unfocus()
     else
       @show(true)
-
-  # showPanel: ->
-  #   @show(false);
-  #
-  #   @bottomPanel.show();
-  #   @saveState();
-
-  # toggleFocus: ->
-    # if @bottomPanel.isVisible()
-    #   if (@mainView.focusedView != null) and @mainView.focusedView.hasFocus()
-    #     @mainView.focusedView.unfocus();
-    #   else
-    #     @mainView.refocusLastView();
-    # else
-    #   @bottomPanel.show()
-    #   @mainView.refocusLastView();
-    #   @saveState();
 
   consumeStatusBar: (statusBar) ->
     @statusView = new StatusView();
