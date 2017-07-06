@@ -1,3 +1,6 @@
+## 0.10.1 - 6 July 2017
+- Fixed bug when navigating to file in active tab.
+
 ## 0.10.0 - 4 July 2017
 - Added ability to show panel in Atom's docks. Can be disabled from settings.
 

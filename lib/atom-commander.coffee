@@ -360,9 +360,6 @@ module.exports = AtomCommander =
     @saveState();
 
   focus: ->
-    pane = atom.workspace.paneForURI(AtomCommanderView.ATOM_COMMANDER_URI);
-    pane.activateItemForURI(AtomCommanderView.ATOM_COMMANDER_URI);
-
     @getMainView()?.refocusLastView();
 
   unfocus: ->
