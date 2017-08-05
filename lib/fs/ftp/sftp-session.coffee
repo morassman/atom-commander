@@ -48,6 +48,7 @@ class SFTPSession
 
     if !@config.usePassphrase
       @connectWith(password, passphrase);
+      return;
 
     # Only the passphrase needs to be prompted for. The password will
     # be prompted for by ssh2.
