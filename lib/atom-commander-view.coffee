@@ -135,7 +135,7 @@ class AtomCommanderView extends View
     return @element;
 
   handleKeyDown: (e) ->
-    if e.altKey and @menuBar.isHidden()
+    if e.altKey and !e.ctrlKey and !e.metaKey and @menuBar.isHidden()
       @showMenuBar();
       e.preventDefault();
       e.stopPropagation();

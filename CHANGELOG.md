@@ -1,3 +1,7 @@
+## 0.10.2 - 5 August 2017
+- Changed shortcut key for copying file names to ctrl-alt-c and cmd-alt-c.
+- Changed shortcut key for copying file paths to ctrl-shift-c and cmd-shift-c.
+
 ## 0.10.1 - 6 July 2017
 - Fixed bug when navigating to file in active tab.
 
