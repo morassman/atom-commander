@@ -30,6 +30,9 @@ class EditServerDialog extends View
   getServerManager: ->
     return @server.getServerManager();
 
+  getMain: ->
+    return @server.getServerManager().getMain();
+
   serverExists: (id) ->
     fs = @getServerManager().getFileSystemWithID(id);
 
