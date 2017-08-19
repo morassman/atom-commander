@@ -176,6 +176,11 @@
           'label': 'Date'
           'command': 'atom-commander:sort-by-date'
         }
+        {type: 'separator'}
+        {
+          'label': 'Default'
+          'command': 'atom-commander:sort-by-default'
+        }
       ]
     }
   ]

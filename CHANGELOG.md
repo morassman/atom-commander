@@ -1,4 +1,4 @@
-## 0.9.0 -
+## 0.9.0 - 1 May 2017
 - Added sorting by column.
 - Added copying of file paths and file names to clipboard.
 - Added ability to open a file from the directory editor.

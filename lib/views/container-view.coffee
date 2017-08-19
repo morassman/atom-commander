@@ -12,6 +12,7 @@ VDirectory = require '../fs/vdirectory'
 VSymLink = require '../fs/vsymlink'
 Utils = require '../utils'
 ListDirectoryView = require './list-directory-view';
+# HistoryView = require './history-view';
 
 module.exports =
 class ContainerView extends View
@@ -28,17 +29,19 @@ class ContainerView extends View
     @scheduler = new Scheduler(1);
     @disposables = new CompositeDisposable();
     @lastLocalPath = null;
+    @sortBy = null;
+    @sortAscending = true;
 
     @directoryEditor.addClass('directory-editor');
 
-    @disposables.add(atom.tooltips.add(@history, {title: 'History'}));
+    # @disposables.add(atom.tooltips.add(@history, {title: 'History'}));
 
     if @left
       @username.addClass('left-username');
-      @history.addClass('left-history');
+      # @history.addClass('left-history');
     else
       @username.addClass('right-username');
-      @history.addClass('right-history');
+      # @history.addClass('right-history');
 
     @username.hide();
 
@@ -70,12 +73,13 @@ class ContainerView extends View
     @div {tabindex: -1}, =>
       @div =>
         @span '', {class: 'highlight-info username', outlet: 'username'}
-        @span '', {class: 'history icon icon-clock', outlet: 'history', click: 'openHistory' }
+        # @span '', {class: 'history icon icon-clock', outlet: 'history', click: 'toggleHistory' }
         @subview 'directoryEditor', new TextEditorView(mini: true)
       @div {class: 'atom-commander-container-view', outlet: 'containerView'}, =>
         @container();
       @div {class: 'search-panel', outlet: 'searchPanel'}
       @div "Loading...", {class: 'loading-panel', outlet: 'spinnerPanel'}
+      # @subview 'historyView', new HistoryView()
 
   isLeft: ->
     return @left;
@@ -109,12 +113,15 @@ class ContainerView extends View
     @searchPanel.hide();
     @spinnerPanel.hide();
 
-    if (@left)
+    # @historyView.setContainerView(@);
+
+    if @left
       @addClass("left-container");
 
     @directoryEditor.addClass("directory-editor");
     @directoryEditor.on 'focus', (e) =>
       @mainView.focusedView = @;
+      # @historyView.close();
       @mainView.getOtherView(@).refreshHighlight();
       @refreshHighlight();
 
@@ -129,8 +136,9 @@ class ContainerView extends View
 
     @keypress (e) => @handleKeyPress(e);
 
-  openHistory: ->
-    console.log('openHistory');
+  toggleHistory: (e) ->
+    e.stopPropagation();
+    # @historyView.toggle();
 
   storeScrollTop: ->
     @scrollTop = @getScrollTop();
@@ -600,6 +608,13 @@ class ContainerView extends View
     if snapShot.selectedNames?
       @selectNames(snapShot.selectedNames);
 
+  setDirectory: (path) ->
+    if !fs.isDirectorySync(path)
+      return;
+
+    @directoryEditor.setText(path);
+    @directoryEditorConfirm();
+
   directoryEditorConfirm: ->
     uri = @directoryEditor.getText().trim();
 
@@ -712,6 +727,20 @@ class ContainerView extends View
 
   setExtensionColumnVisible: (visible) ->
 
+  setSortBy: (sortBy) ->
+    if @sortBy == sortBy
+      if sortBy == null
+        return;
+      @sortAscending = !@sortAscending
+    else
+      @sortBy = sortBy;
+      @sortAscending = true;
+
+    if sortBy == null
+      @refreshDirectory();
+    else
+      @sort(true);
+
   sort: (scrollToHighlight=false) ->
     if @itemViews.length == 0
       return;
@@ -736,8 +765,8 @@ class ContainerView extends View
         else
           dirItemViews.push(itemView);
 
-    Utils.sortItemViews(true, dirItemViews, @mainView.sortBy, @mainView.sortAscending);
-    Utils.sortItemViews(false, fileItemViews, @mainView.sortBy, @mainView.sortAscending);
+    Utils.sortItemViews(true, dirItemViews, @sortBy, @sortAscending);
+    Utils.sortItemViews(false, fileItemViews, @sortBy, @sortAscending);
 
     @itemViews = [];
 
@@ -757,12 +786,21 @@ class ContainerView extends View
       @addItemView(itemView);
 
     @highlightIndex(newHighlightIndex, scrollToHighlight);
-    @refreshSortIcons(@mainView.sortBy, @mainView.sortAscending);
+    @refreshSortIcons(@sortBy, @sortAscending);
 
   deserialize: (path, state) ->
     if !state?
       @openDirectory(@getInitialDirectory(path));
       return;
+
+    @sortBy = state.sortBy;
+    @sortAscending = state.sortAscending;
+
+    if !@sortBy?
+      @sortBy = null;
+
+    if !@sortAscending?
+      @sortAscending = true;
 
     snapShot = {}
     snapShot.name = state.highlight;
@@ -773,6 +811,8 @@ class ContainerView extends View
 
   serialize: ->
     state = {}
+    state.sortBy = @sortBy;
+    state.sortAscending = @sortAscending;
 
     if @directory.isLocal()
       state.path = @getPath();

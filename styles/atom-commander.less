@@ -90,7 +90,8 @@
   .username {
     position: absolute;
     top: 0.4em;
-    margin-right: 2.4em;
+    margin-right: 0.4em;
+    // margin-right: 2.4em;
   }
 
   .left-username {
@@ -118,6 +119,30 @@
   }
 
   .right-history {
+    right: 0;
+  }
+
+  .history-panel {
+    position: absolute;
+    bottom: 100%;
+    padding-right: 1em;
+  }
+
+  .history-list {
+    margin: 0;
+    overflow: auto !important;
+  }
+
+  .history-list-item:hover {
+    color: @text-color-selected;
+    background-color: @background-color-selected;
+  }
+
+  .left-history-panel {
+    right: 50%;
+  }
+
+  .right-history-panel {
     right: 0;
   }
 
