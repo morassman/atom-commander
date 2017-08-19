@@ -64,7 +64,7 @@ class Server
     if @config.protocol == "ftp"
       return new FTPFileSystem(@, @config);
     else if @config.protocol == "sftp"
-      return new SFTPFileSystem(@, @config);
+      return new SFTPFileSystem(@main, @, @config);
 
     return @main.getLocalFileSystem();
 
@@ -75,9 +75,8 @@ class Server
     return @config.protocol == "sftp";
 
   # Return a string that will be used when selecting a server from a list.
-  # Modifed by OXPUS
   getDescription: ->
-    return "<span class='highlight highlight-info' style='float: left'>" + @config.alias + '</span>&nbsp;&nbsp;&nbsp;' + @fileSystem.getDescription();
+    return @fileSystem.getDescription();
 
   getRootDirectory: ->
     return @fileSystem.getDirectory("/");
