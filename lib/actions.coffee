@@ -250,6 +250,8 @@ class Actions
     # if (rightViewItem == null)
     #   return;
 
+    @main.getMainView().hideMenuBar();
+
     leftFile = leftViewItem.itemController.getFile();
     rightFile = rightViewItem.itemController.getFile();
     title = "Diff: "+leftFile.getBaseName()+" | "+rightFile.getBaseName();

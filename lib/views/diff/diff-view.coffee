@@ -29,9 +29,18 @@ class DiffView extends View
     @selection = null;
 
     @leftTextEditor[0].removeAttribute('tabindex');
-    @leftTextEditor.getModel().getDecorations({class: 'cursor-line', type: 'line'})[0].destroy();
     @rightTextEditor[0].removeAttribute('tabindex');
-    @rightTextEditor.getModel().getDecorations({class: 'cursor-line', type: 'line'})[0].destroy();
+
+    leftDecorations = @leftTextEditor.getModel().getDecorations({class: 'cursor-line', type: 'line'});
+    rightDecorations = @rightTextEditor.getModel().getDecorations({class: 'cursor-line', type: 'line'});
+
+    if (leftDecorations.length > 0) {
+      leftDecorations[0].destroy();
+    }
+
+    if (rightDecorations.length > 0) {
+      rightDecorations[0].destroy();
+    }
 
     @leftEditorBuffer = @leftTextEditor.getModel().getBuffer();
     @rightEditorBuffer = @rightTextEditor.getModel().getBuffer();
