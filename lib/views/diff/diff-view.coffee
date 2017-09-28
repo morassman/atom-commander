@@ -34,13 +34,11 @@ class DiffView extends View
     leftDecorations = @leftTextEditor.getModel().getDecorations({class: 'cursor-line', type: 'line'});
     rightDecorations = @rightTextEditor.getModel().getDecorations({class: 'cursor-line', type: 'line'});
 
-    if (leftDecorations.length > 0) {
+    if (leftDecorations.length > 0)
       leftDecorations[0].destroy();
-    }
 
-    if (rightDecorations.length > 0) {
+    if (rightDecorations.length > 0)
       rightDecorations[0].destroy();
-    }
 
     @leftEditorBuffer = @leftTextEditor.getModel().getBuffer();
     @rightEditorBuffer = @rightTextEditor.getModel().getBuffer();
