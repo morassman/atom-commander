@@ -1,3 +1,6 @@
+## 0.10.3 - 27 January 2018
+- Fixed bug when attempting to compare two files.
+
 ## 0.10.2 - 5 August 2017
 - Changed shortcut key for copying file names to ctrl-alt-c and cmd-alt-c.
 - Changed shortcut key for copying file paths to ctrl-shift-c and cmd-shift-c.
