@@ -73,18 +73,22 @@
   .details {
     display: flex;
     flex-direction: row;
-    // justify-content: space-around;
+    justify-content: space-between;
     background-color: @base-background-color;
     padding-top: 5px;
     padding-bottom: 5px;
     flex-wrap: wrap;
 
     .column {
-      margin-left: 1em;
-      margin-right: 1em;
-      margin-bottom: 1em;
+      margin-left: 2px;
+      margin-right: 2px;
+      margin-bottom: 2px;
+      background-color: @inset-panel-background-color;
+      border-radius: 5px;
+      padding: 0.15em 0.75em 0.25em 0.75em;
 
       .title {
+        text-align: center;
         white-space: nowrap;
         color: @text-color-highlight;
       }

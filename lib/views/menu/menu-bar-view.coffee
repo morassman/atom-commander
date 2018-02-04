@@ -17,53 +17,53 @@ class MenuBarView extends View
           @div {class: 'column'}, =>
             @div '1 Select', {class: 'title'}
             @div {class: 'body'}, =>
-              @div 'All',  {class: 'item', click: 'selectAll'}
-              @div 'None',  {class: 'item', click: 'selectNone'}
-              @div 'Add to selection...',  {class: 'item', click: 'selectAdd'}
-              @div 'Remove from selection...',  {class: 'item', click: 'selectRemove'}
-              @div 'Invert selection',  {class: 'item', click: 'selectInvert'}
-              @div 'Folders',  {class: 'item', click: 'selectFolders'}
-              @div 'Files',  {class: 'item', click: 'selectFiles'}
+              @div '1 All',  {class: 'item', click: 'selectAll'}
+              @div '2 None',  {class: 'item', click: 'selectNone'}
+              @div '3 Add to selection...',  {class: 'item', click: 'selectAdd'}
+              @div '4 Remove from selection...',  {class: 'item', click: 'selectRemove'}
+              @div '5 Invert selection',  {class: 'item', click: 'selectInvert'}
+              @div '6 Folders',  {class: 'item', click: 'selectFolders'}
+              @div '7 Files',  {class: 'item', click: 'selectFiles'}
           @div {class: 'column'}, =>
             @div '2 Go', {class: 'title'}
             @div {class: 'body'}, =>
-              @div 'Project: Choose project folder to go to...',  {class: 'item', click: 'goProject'}
-              @div 'Editor: Go to focused file in editor',  {class: 'item', click: 'goEditor'}
-              @div 'Drive: Choose drive to go to...',  {class: 'item', click: 'goDrive'}
-              @div 'Root: Go to current folder\'s root folder',  {class: 'item', click: 'goRoot'}
-              @div 'Home: Go to user\'s home folder',  {class: 'item', click: 'goHome'}
+              @div '1 Project - Choose project folder to go to...',  {class: 'item', click: 'goProject'}
+              @div '2 Editor - Go to focused file in editor',  {class: 'item', click: 'goEditor'}
+              @div '3 Drive - Choose drive to go to...',  {class: 'item', click: 'goDrive'}
+              @div '4 Root - Go to current folder\'s root folder',  {class: 'item', click: 'goRoot'}
+              @div '5 Home - Go to user\'s home folder',  {class: 'item', click: 'goHome'}
           @div {class: 'column'}, =>
             @div '3 Bookmarks', {class: 'title'}
             @div {class: 'body'}, =>
-              @div 'Add',  {class: 'item', click: 'bookmarksAdd'}
-              @div 'Remove',  {class: 'item', click: 'bookmarksRemove'}
-              @div 'Open',  {class: 'item', click: 'bookmarksOpen'}
+              @div '1 Add',  {class: 'item', click: 'bookmarksAdd'}
+              @div '2 Remove',  {class: 'item', click: 'bookmarksRemove'}
+              @div '3 Open',  {class: 'item', click: 'bookmarksOpen'}
           @div {class: 'column'}, =>
             @div '4 Servers', {class: 'title'}
             @div {class: 'body'}, =>
-              @div 'Add',  {class: 'item', click: 'serversAdd'}
-              @div 'Remove',  {class: 'item', click: 'serversRemove'}
-              @div 'Open',  {class: 'item', click: 'serversOpen'}
-              @div 'Close',  {class: 'item', click: 'serversClose'}
-              @div 'Edit',  {class: 'item', click: 'serversEdit'}
-              @div 'Cache',  {class: 'item', click: 'serversCache'}
+              @div '1 Add',  {class: 'item', click: 'serversAdd'}
+              @div '2 Remove',  {class: 'item', click: 'serversRemove'}
+              @div '3 Open',  {class: 'item', click: 'serversOpen'}
+              @div '4 Close',  {class: 'item', click: 'serversClose'}
+              @div '5 Edit',  {class: 'item', click: 'serversEdit'}
+              @div '6 Cache',  {class: 'item', click: 'serversCache'}
           @div {class: 'column'}, =>
             @div '5 Open', {class: 'title'}
             @div {class: 'body'}, =>
-              @div 'Terminal: Open terminal in current folder',  {class: 'item', click: 'openTerminal'}
-              @div 'File manager: Open system file manager for selected item',  {class: 'item', click: 'openFileManager', outlet: 'fileManagerItem'}
-              @div 'System: Open selected item with system default',  {class: 'item', click: 'openSystem'}
+              @div '1 Terminal - Open terminal in current folder',  {class: 'item', click: 'openTerminal'}
+              @div '2 File manager - Open system file manager for highlighted item',  {class: 'item', click: 'openFileManager', outlet: 'fileManagerItem'}
+              @div '3 System - Open highlighted item with system default',  {class: 'item', click: 'openSystem'}
           @div {class: 'column'}, =>
             @div '6 View', {class: 'title'}
             @div {class: 'body'}, =>
-              @div 'Refresh: Refresh content of focused pane',  {class: 'item', click: 'viewRefresh'}
-              @div 'Mirror: Show same content in other pane',  {class: 'item', click: 'viewMirror'}
-              @div 'Swap: Swap content of two panes',  {class: 'item', click: 'viewSwap'}
+              @div '1 Refresh - Refresh content of focused pane',  {class: 'item', click: 'viewRefresh'}
+              @div '2 Mirror - Show same content in other pane',  {class: 'item', click: 'viewMirror'}
+              @div '3 Swap - Swap content of two panes',  {class: 'item', click: 'viewSwap'}
           @div {class: 'column'}, =>
             @div '7 Compare', {class: 'title'}
             @div {class: 'body'}, =>
-              @div 'Folders: Highlight difference between the two panes',  {class: 'item', click: 'compareFolders'}
-              @div 'Files: Show difference between content of highlighted files',  {class: 'item', click: 'compareFiles'}
+              @div '1 Folders - Highlight difference between the two panes',  {class: 'item', click: 'compareFolders'}
+              @div '2 Files - Show difference between content of highlighted files',  {class: 'item', click: 'compareFiles'}
 
   dispose: ->
     @configDisposable.dispose();
@@ -114,9 +114,9 @@ class MenuBarView extends View
       buttonClicked($(this).text());
 
     if process.platform == "darwin"
-      @fileManagerItem.text('Finder');
+      @fileManagerItem.text('2 Finder - Open Finder for highlighted item');
     else if process.platform == "win32"
-      @fileManagerItem.text('Explorer');
+      @fileManagerItem.text('2 Explorer - Open Explorer for highlighted item');
 
     @configDisposable = atom.config.observe 'atom-commander.menu.showMenuDetails', (value) =>
       if value
