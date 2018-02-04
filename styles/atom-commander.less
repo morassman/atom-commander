@@ -76,8 +76,8 @@
     justify-content: space-between;
     background-color: @base-background-color;
     padding-top: 5px;
-    padding-bottom: 5px;
-    flex-wrap: wrap;
+    padding-bottom: 1px;
+    flex-wrap: nowrap;
 
     .column {
       margin-left: 2px;
@@ -86,6 +86,7 @@
       background-color: @inset-panel-background-color;
       border-radius: 5px;
       padding: 0.15em 0.75em 0.25em 0.75em;
+      // max-width: 14%;
 
       .title {
         text-align: center;
@@ -97,7 +98,15 @@
         .item {
           cursor: pointer;
           margin-top: 0.3em;
-          white-space: nowrap;
+          display: flex;
+          flex-wrap: nowrap;
+          // white-space: nowrap;
+
+          .description {
+            flex: 1;
+            margin-left: 0.5em;
+          }
+
         }
 
         .item:hover {

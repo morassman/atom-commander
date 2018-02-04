@@ -17,53 +17,111 @@ class MenuBarView extends View
           @div {class: 'column'}, =>
             @div '1 Select', {class: 'title'}
             @div {class: 'body'}, =>
-              @div '1 All',  {class: 'item', click: 'selectAll'}
-              @div '2 None',  {class: 'item', click: 'selectNone'}
-              @div '3 Add to selection...',  {class: 'item', click: 'selectAdd'}
-              @div '4 Remove from selection...',  {class: 'item', click: 'selectRemove'}
-              @div '5 Invert selection',  {class: 'item', click: 'selectInvert'}
-              @div '6 Folders',  {class: 'item', click: 'selectFolders'}
-              @div '7 Files',  {class: 'item', click: 'selectFiles'}
+              @div {class: 'item', click: 'selectAll'}, =>
+                @div '1'
+                @div 'All', {class: 'description'}
+              @div {class: 'item', click: 'selectNone'}, =>
+                @div '2'
+                @div 'None', {class: 'description'}
+              @div {class: 'item', click: 'selectAdd'}, =>
+                @div '3'
+                @div 'Add to selection...', {class: 'description'}
+              @div {class: 'item', click: 'selectRemove'}, =>
+                @div '4'
+                @div 'Remove from selection...', {class: 'description'}
+              @div {class: 'item', click: 'selectInvert'}, =>
+                @div '5'
+                @div 'Invert selection', {class: 'description'}
+              @div {class: 'item', click: 'selectFolders'}, =>
+                @div '6'
+                @div 'Folders', {class: 'description'}
+              @div {class: 'item', click: 'selectFiles'}, =>
+                @div '7'
+                @div 'Files', {class: 'description'}
           @div {class: 'column'}, =>
             @div '2 Go', {class: 'title'}
             @div {class: 'body'}, =>
-              @div '1 Project - Choose project folder to go to...',  {class: 'item', click: 'goProject'}
-              @div '2 Editor - Go to focused file in editor',  {class: 'item', click: 'goEditor'}
-              @div '3 Drive - Choose drive to go to...',  {class: 'item', click: 'goDrive'}
-              @div '4 Root - Go to current folder\'s root folder',  {class: 'item', click: 'goRoot'}
-              @div '5 Home - Go to user\'s home folder',  {class: 'item', click: 'goHome'}
+              @div {class: 'item', click: 'goProject'}, =>
+                @div '1'
+                @div 'Project - Choose project folder to go to...', {class: 'description'}
+              @div {class: 'item', click: 'goEditor'}, =>
+                @div '2'
+                @div 'Editor - Go to focused file in editor', {class: 'description'}
+              @div {class: 'item', click: 'goDrive'}, =>
+                @div '3'
+                @div 'Drive - Choose drive to go to...', {class: 'description'}
+              @div {class: 'item', click: 'goRoot'}, =>
+                @div '4'
+                @div 'Root - Go to current folder\'s root folder', {class: 'description'}
+              @div {class: 'item', click: 'goHome'}, =>
+                @div '5'
+                @div 'Home - Go to user\'s home folder', {class: 'description'}
           @div {class: 'column'}, =>
             @div '3 Bookmarks', {class: 'title'}
             @div {class: 'body'}, =>
-              @div '1 Add',  {class: 'item', click: 'bookmarksAdd'}
-              @div '2 Remove',  {class: 'item', click: 'bookmarksRemove'}
-              @div '3 Open',  {class: 'item', click: 'bookmarksOpen'}
+              @div {class: 'item', click: 'bookmarksAdd'}, =>
+                @div '1'
+                @div 'Add', {class: 'description'}
+              @div {class: 'item', click: 'bookmarksRemove'}, =>
+                @div '2'
+                @div 'Remove', {class: 'description'}
+              @div {class: 'item', click: 'bookmarksOpen'}, =>
+                @div '3'
+                @div 'Open', {class: 'description'}
           @div {class: 'column'}, =>
             @div '4 Servers', {class: 'title'}
             @div {class: 'body'}, =>
-              @div '1 Add',  {class: 'item', click: 'serversAdd'}
-              @div '2 Remove',  {class: 'item', click: 'serversRemove'}
-              @div '3 Open',  {class: 'item', click: 'serversOpen'}
-              @div '4 Close',  {class: 'item', click: 'serversClose'}
-              @div '5 Edit',  {class: 'item', click: 'serversEdit'}
-              @div '6 Cache',  {class: 'item', click: 'serversCache'}
+              @div {class: 'item', click: 'serversAdd'}, =>
+                @div '1'
+                @div 'Add', {class: 'description'}
+              @div {class: 'item', click: 'serversRemove'}, =>
+                @div '2'
+                @div 'Remove', {class: 'description'}
+              @div {class: 'item', click: 'serversOpen'}, =>
+                @div '3'
+                @div 'Open', {class: 'description'}
+              @div {class: 'item', click: 'serversClose'}, =>
+                @div '4'
+                @div 'Close', {class: 'description'}
+              @div {class: 'item', click: 'serversEdit'}, =>
+                @div '5'
+                @div 'Edit', {class: 'description'}
+              @div {class: 'item', click: 'serversCache'}, =>
+                @div '6'
+                @div 'Cache', {class: 'description'}
           @div {class: 'column'}, =>
             @div '5 Open', {class: 'title'}
             @div {class: 'body'}, =>
-              @div '1 Terminal - Open terminal in current folder',  {class: 'item', click: 'openTerminal'}
-              @div '2 File manager - Open system file manager for highlighted item',  {class: 'item', click: 'openFileManager', outlet: 'fileManagerItem'}
-              @div '3 System - Open highlighted item with system default',  {class: 'item', click: 'openSystem'}
+              @div {class: 'item', click: 'openTerminal'}, =>
+                @div '1'
+                @div 'Terminal - Open terminal in current folder', {class: 'description'}
+              @div {class: 'item', click: 'openFileManager'}, =>
+                @div '2'
+                @div 'File manager - Open system file manager for highlighted item', {class: 'description', outlet: 'fileManagerItem'}
+              @div {class: 'item', click: 'openSystem'}, =>
+                @div '3'
+                @div 'System - Open highlighted item with system default', {class: 'description'}
           @div {class: 'column'}, =>
             @div '6 View', {class: 'title'}
             @div {class: 'body'}, =>
-              @div '1 Refresh - Refresh content of focused pane',  {class: 'item', click: 'viewRefresh'}
-              @div '2 Mirror - Show same content in other pane',  {class: 'item', click: 'viewMirror'}
-              @div '3 Swap - Swap content of two panes',  {class: 'item', click: 'viewSwap'}
+              @div {class: 'item', click: 'viewRefresh'}, =>
+                @div '1'
+                @div 'Refresh - Refresh content of focused pane', {class: 'description'}
+              @div {class: 'item', click: 'viewMirror'}, =>
+                @div '2'
+                @div 'Mirror - Show same content in other pane', {class: 'description'}
+              @div {class: 'item', click: 'viewSwap'}, =>
+                @div '3'
+                @div 'Swap - Swap content of two panes', {class: 'description'}
           @div {class: 'column'}, =>
             @div '7 Compare', {class: 'title'}
             @div {class: 'body'}, =>
-              @div '1 Folders - Highlight difference between the two panes',  {class: 'item', click: 'compareFolders'}
-              @div '2 Files - Show difference between content of highlighted files',  {class: 'item', click: 'compareFiles'}
+              @div {class: 'item', click: 'compareFolders'}, =>
+                @div '1'
+                @div 'Folders - Highlight difference between the two panes', {class: 'description'}
+              @div {class: 'item', click: 'compareFiles'}, =>
+                @div '2'
+                @div 'Files - Show difference between content of highlighted files', {class: 'description'}
 
   dispose: ->
     @configDisposable.dispose();
@@ -114,9 +172,9 @@ class MenuBarView extends View
       buttonClicked($(this).text());
 
     if process.platform == "darwin"
-      @fileManagerItem.text('2 Finder - Open Finder for highlighted item');
+      @fileManagerItem.text('Finder - Open Finder for highlighted item');
     else if process.platform == "win32"
-      @fileManagerItem.text('2 Explorer - Open Explorer for highlighted item');
+      @fileManagerItem.text('Explorer - Open Explorer for highlighted item');
 
     @configDisposable = atom.config.observe 'atom-commander.menu.showMenuDetails', (value) =>
       if value
