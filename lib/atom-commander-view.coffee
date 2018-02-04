@@ -168,8 +168,7 @@ class AtomCommanderView extends View
       e.preventDefault();
       e.stopPropagation();
     else if e.shiftKey
-      @toggleAlternateButtons();
-      # @showAlternateButtons();
+      @showAlternateButtons();
 
   handleKeyUp: (e) ->
     if e.altKey
@@ -181,8 +180,7 @@ class AtomCommanderView extends View
       e.preventDefault();
       e.stopPropagation();
     else if !e.shiftKey
-      @toggleAlternateButtons();
-      # @hideAlternateButtons();
+      @hideAlternateButtons();
 
   handleKeyPress: (e) ->
     if @menuBar.isVisible()

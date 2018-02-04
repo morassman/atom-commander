@@ -200,6 +200,7 @@ class Actions
     @main.getMainView()?.swap();
 
   compareFolders: =>
+    @main.getMainView().hideMenuBar();
     leftView = @main.getMainView()?.getLeftView();
     rightView = @main.getMainView()?.getRightView();
 
@@ -218,6 +219,7 @@ class Actions
         itemView.select(true);
 
   compareFiles: =>
+    @main.getMainView().hideMenuBar();
     leftView = @main.getMainView()?.getLeftView();
     rightView = @main.getMainView()?.getRightView();
 
