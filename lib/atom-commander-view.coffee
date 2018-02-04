@@ -66,15 +66,39 @@ class AtomCommanderView extends View
         @subview 'leftTabbedView', new TabbedView(true)
         @subview 'rightTabbedView', new TabbedView(false)
       @div {tabindex: -1, class: 'atom-commander-button-bar btn-group-xs'}, =>
-        @button 'F2 Rename', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'renameButton'}
-        @button 'F3 Add Project', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'addRemoveProjectButton', outlet: 'F3Button'}
-        @button 'F4 New File', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'newFileButton'}
-        @button 'F5 Copy', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'copyDuplicateButton', outlet: 'F5Button'}
-        @button 'F6 Move', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'moveButton'}
-        @button 'F7 New Folder', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'newDirectoryButton'}
-        @button 'F8 Delete', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'deleteButton'}
-        @button 'F9 Focus', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'focusButton'}
-        @button 'F10 Hide', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'hideButton'}
+        @span {class: 'label'}, =>
+          @span 'Alt', {class: 'key text-highlight'}
+          @span 'Menu'
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'renameButton'}, =>
+          @span 'F2', {class: 'key text-highlight'}
+          @span 'Rename'
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'addRemoveProjectButton', outlet: 'F3Button'}, =>
+          @span 'F3', {class: 'key text-highlight'}
+          @span 'Add Project'
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'newFileButton'}, =>
+          @span 'F4', {class: 'key text-highlight'}
+          @span 'New File'
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'copyDuplicateButton', outlet: 'F5Button'}, =>
+          @span 'F5', {class: 'key text-highlight'}
+          @span 'Copy'
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'moveButton'}, =>
+          @span 'F6', {class: 'key text-highlight'}
+          @span 'Move'
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'newDirectoryButton'}, =>
+          @span 'F7', {class: 'key text-highlight'}
+          @span 'New Folder'
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'deleteButton'}, =>
+          @span 'F8', {class: 'key text-highlight'}
+          @span 'Delete'
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'focusButton'}, =>
+          @span 'F9', {class: 'key text-highlight'}
+          @span 'Focus'
+        @button 'F10 Hide', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'hideButton'}, =>
+          @span {class: 'key text-highlight'}
+          @span 'Hide'
+        @span {class: 'label'}, =>
+          @span 'Shift', {class: 'key text-highlight'}
+          @span 'More'
 
   initialize: ->
     @menuBar.hide();

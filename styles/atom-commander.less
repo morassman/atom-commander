@@ -76,9 +76,27 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
+  align-items: center;
+  background-color: @input-border-color;
 
   .btn {
     flex-grow: 1;
+    margin-left: 0.5px;
+    margin-right: 0.5px;
+
+    .key {
+      margin-right: 0.5em;
+    }
+  }
+
+  .label {
+    font-size: smaller;
+    margin-left: 5px;
+    margin-right: 5px;
+
+    .key {
+      margin-right: 0.5em;
+    }
   }
 }
 
