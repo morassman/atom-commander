@@ -35,6 +35,14 @@ module.exports = AtomCommander =
           type: "boolean"
           default: false
           order: 3
+    menu:
+      type: "object"
+      properties:
+        showMenuDetails:
+          title: "Show Menu Details"
+          description: "Show the details of all menus under the menu bar."
+          type: "boolean"
+          default: true
     uploadOnSave:
       title: "Upload Cached File On Save"
       description: "Automatically upload cached files when saved."

@@ -138,6 +138,7 @@ class AtomCommanderView extends View
   destroy: ->
     @leftView.dispose();
     @rightView.dispose();
+    @menuBar.dispose();
     @element.remove();
 
   getTitle: ->
