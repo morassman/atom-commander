@@ -66,21 +66,21 @@ class AtomCommanderView extends View
         @subview 'leftTabbedView', new TabbedView(true)
         @subview 'rightTabbedView', new TabbedView(false)
       @div {tabindex: -1, class: 'atom-commander-button-bar btn-group-xs'}, =>
-        @span {class: 'label'}, =>
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'menuButton'}, =>
           @span 'Alt', {class: 'key text-highlight'}
           @span 'Menu'
         @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'renameButton'}, =>
           @span 'F2', {class: 'key text-highlight'}
           @span 'Rename'
-        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'addRemoveProjectButton', outlet: 'F3Button'}, =>
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'addRemoveProjectButton'}, =>
           @span 'F3', {class: 'key text-highlight'}
-          @span 'Add Project'
+          @span 'Add Project', {outlet: 'F3ButtonLabel'}
         @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'newFileButton'}, =>
           @span 'F4', {class: 'key text-highlight'}
           @span 'New File'
-        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'copyDuplicateButton', outlet: 'F5Button'}, =>
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'copyDuplicateButton'}, =>
           @span 'F5', {class: 'key text-highlight'}
-          @span 'Copy'
+          @span 'Copy', {outlet: 'F5ButtonLabel'}
         @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'moveButton'}, =>
           @span 'F6', {class: 'key text-highlight'}
           @span 'Move'
@@ -93,12 +93,12 @@ class AtomCommanderView extends View
         @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'focusButton'}, =>
           @span 'F9', {class: 'key text-highlight'}
           @span 'Focus'
-        @button 'F10 Hide', {tabindex: -1, class: 'btn', style: buttonStyle, click: 'hideButton'}, =>
-          @span {class: 'key text-highlight'}
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'hideButton'}, =>
+          @span 'F10', {class: 'key text-highlight'}
           @span 'Hide'
-        @span {class: 'label'}, =>
+        @button {tabindex: -1, class: 'btn', style: buttonStyle, click: 'shiftButton'}, =>
           @span 'Shift', {class: 'key text-highlight'}
-          @span 'More'
+          @span 'More...'
 
   initialize: ->
     @menuBar.hide();
@@ -168,7 +168,8 @@ class AtomCommanderView extends View
       e.preventDefault();
       e.stopPropagation();
     else if e.shiftKey
-      @showAlternateButtons();
+      @toggleAlternateButtons();
+      # @showAlternateButtons();
 
   handleKeyUp: (e) ->
     if e.altKey
@@ -180,13 +181,20 @@ class AtomCommanderView extends View
       e.preventDefault();
       e.stopPropagation();
     else if !e.shiftKey
-      @hideAlternateButtons();
+      @toggleAlternateButtons();
+      # @hideAlternateButtons();
 
   handleKeyPress: (e) ->
     if @menuBar.isVisible()
       @menuBar.handleKeyUp(e);
       e.preventDefault();
       e.stopPropagation();
+
+  toggleMenuBar: ->
+    if @menuBar.isVisible()
+      @hideMenuBar();
+    else
+      @showMenuBar();
 
   showMenuBar: ->
     @menuBar.reset();
@@ -197,15 +205,21 @@ class AtomCommanderView extends View
     @menuBar.reset();
     @refocusLastView();
 
+  toggleAlternateButtons: ->
+    if @alternateButtons
+      @hideAlternateButtons();
+    else
+      @showAlternateButtons();
+
   showAlternateButtons: ->
     @alternateButtons = true;
-    @F3Button.text("F3 Remove Project");
-    @F5Button.text("F5 Duplicate");
+    @F3ButtonLabel.text("Remove Project");
+    @F5ButtonLabel.text("Duplicate");
 
   hideAlternateButtons: ->
     @alternateButtons = false;
-    @F3Button.text("F3 Add Project");
-    @F5Button.text("F5 Copy");
+    @F3ButtonLabel.text("Add Project");
+    @F5ButtonLabel.text("Copy");
 
   resizeStarted: =>
     $(document).on('mousemove', @resizeView)
@@ -317,6 +331,12 @@ class AtomCommanderView extends View
       return null;
 
     return @focusedView.directory;
+
+  menuButton: ->
+    @toggleMenuBar();
+
+  shiftButton: ->
+    @toggleAlternateButtons();
 
   renameButton: ->
     if @focusedView == null
