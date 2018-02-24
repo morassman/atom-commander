@@ -88,7 +88,7 @@ class MenuBarView extends View
                 @div 'Edit', {class: 'description'}
               @div {class: 'item', click: 'serversCache'}, =>
                 @div '6'
-                @div 'Cache', {class: 'description'}
+                @div 'Cache - View cached files', {class: 'description'}
           @div {class: 'column'}, =>
             @div '5 Open', {class: 'title'}
             @div {class: 'body'}, =>
@@ -97,7 +97,7 @@ class MenuBarView extends View
                 @div 'Terminal - Open terminal in current folder', {class: 'description'}
               @div {class: 'item', click: 'openFileManager'}, =>
                 @div '2'
-                @div 'File manager - Open system file manager for highlighted item', {class: 'description', outlet: 'fileManagerItem'}
+                @div 'File manager - Show highlighted item in system file manager', {class: 'description', outlet: 'fileManagerItem'}
               @div {class: 'item', click: 'openSystem'}, =>
                 @div '3'
                 @div 'System - Open highlighted item with system default', {class: 'description'}
@@ -172,9 +172,9 @@ class MenuBarView extends View
       buttonClicked($(this).text());
 
     if process.platform == "darwin"
-      @fileManagerItem.text('Finder - Open Finder for highlighted item');
+      @fileManagerItem.text('Finder - Show highlighted item in Finder');
     else if process.platform == "win32"
-      @fileManagerItem.text('Explorer - Open Explorer for highlighted item');
+      @fileManagerItem.text('Explorer - Show highlighted item in Explorer');
 
     @configDisposable = atom.config.observe 'atom-commander.menu.showMenuDetails', (value) =>
       if value
