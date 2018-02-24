@@ -1,3 +1,7 @@
+## 0.11.0 - 24 February 2018
+- Added buttons for toggling menu bar and alternative buttons.
+- Added short descriptions of all menu items under menu bar.
+
 ## 0.10.3 - 27 January 2018
 - Fixed bug when attempting to compare two files.
 
