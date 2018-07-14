@@ -4,7 +4,7 @@ class Schemas
   # Creates a new state for the current version.
   @newState: ->
     state = {};
-    state.version = 3;
+    state.version = 4;
     state.bookmarks = [];
     state.servers = [];
     state.visible = false;
@@ -19,6 +19,9 @@ class Schemas
   @upgrade: (state) ->
     if state.version == 1 or state.version == 2
       @upgradeTo3(state);
+
+    if state.version == 3
+      @upgradeTo4(state);
 
     return state;
 
@@ -41,3 +44,14 @@ class Schemas
     server.passphrase = '';
     server.loginWithPassword = true;
     server.usePassphrase = false;
+
+  @upgradeTo4: (state) ->
+    state.version = 4;
+    @upgradeServersTo4(state.servers);
+
+  @upgradeServersTo4: (servers) ->
+    if !servers
+      return;
+
+    for server in servers
+      server.name = '';

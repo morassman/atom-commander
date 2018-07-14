@@ -15,7 +15,7 @@ class Watcher
     @saveTime = null;
     @uploadTime = null;
     @disposables = new CompositeDisposable();
-    @serverName = @remoteFileManager.getServer().getName();
+    @serverName = @remoteFileManager.getServer().getDisplayName();
 
     @disposables.add @textEditor.onDidSave (event) =>
       @fileSaved();

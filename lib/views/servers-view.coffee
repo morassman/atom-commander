@@ -25,18 +25,20 @@ class ServersView extends SelectListView
     items = [];
     # Only show those that have an open connection.
     onlyOpen = @mode == "close";
-    showCount = @mode != "open";
+    showCount = @showCount();
 
     for server in @serverManager.getServers()
       if !onlyOpen or server.isOpen()
         item = {};
         item.server = server;
         item.fileCount = 0;
-        item.text = server.getDescription();
+        item.name = server.getName();
+        item.description = server.getDescription();
+        item.filter = item.name + " " + item.description;
 
         if showCount
           item.fileCount = item.server.getCacheFileCount();
-          item.text += " ("+@createCountString(item.fileCount)+")";
+          # item.text += " ("+@createCountString(item.fileCount)+")";
 
         items.push(item);
 
@@ -50,10 +52,40 @@ class ServersView extends SelectListView
     return count+" files in cache";
 
   getFilterKey: ->
-    return "text";
+    return "filter";
+
+  showCount: ->
+    return @mode != "open";
 
   viewForItem: (item) ->
-    return "<li>#{item.text} <span class='highlight highlight-info' style='float: right'>#{item.server.getUsername()}</span></li>";
+    primary = "";
+    secondary = "";
+    count = "";
+
+    if item.name.length > 0
+      primary = item.name;
+      secondary = item.description;
+    else
+      primary = item.description;
+
+    if @showCount()
+      count = "(" + @createCountString(item.fileCount) + ")";
+
+    return "<li class='two-lines'>" +
+      "<div class='primary-line'>" +
+        "<div style='display: flex'>" +
+          "<div style='flex: 1'>" +
+            "<span>#{primary}</span>" +
+            "<span class='text-subtle' style='margin-left: 0.5em'>#{count}</span>" +
+          "</div>" +
+          "<div class='inline-block highlight-info' style='margin-left: 0.5em'" +
+            "style='white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>" +
+            "#{item.server.getUsername()}" +
+          "</div>" +
+        "</div>" +
+      "</div>" +
+      "<div class='secondary-line'>#{secondary}</div>" +
+    "</li>";
 
   confirmed: (item) ->
     if @mode == "open"

@@ -21,8 +21,12 @@ class SFTPDialog extends View
       @table =>
         @tbody =>
           @tr =>
+            @td "Name", {class: "text-highlight", style: "width:40%"}
+            @td =>
+              @subview "nameEditor", new TextEditorView(mini: true)
+          @tr =>
             @td "URL", {class: "text-highlight", style: "width:40%"}
-            @td "sftp://", {outlet: "url"}
+            @td "sftp://", {outlet: "url", style: "padding-bottom: 0.5em"}
           @tr =>
             @td "Host", {class: "text-highlight", style: "width:40%"}
             @td =>
@@ -84,18 +88,19 @@ class SFTPDialog extends View
         @span {class: "message", outlet: "message"}
 
   initialize: ->
-    @serverEditor.attr("tabindex", 1);
-    @portEditor.attr("tabindex", 2);
-    @folderEditor.attr("tabindex", 3);
-    @usernameEditor.attr("tabindex", 4);
-    @passwordEditor.attr("tabindex", 5);
-    @privateKeyPathEditor.attr("tabindex", 6);
-    @usePassphraseCheckBox.attr("tabindex", 7);
-    @passphraseEditor.attr("tabindex", 8);
-    @storeCheckBox.attr("tabindex", 9);
-    @testButton.attr("tabindex", 10);
-    @okButton.attr("tabindex", 11);
-    @cancelButton.attr("tabindex", 12);
+    @nameEditor.attr("tabindex", 1);
+    @serverEditor.attr("tabindex", 2);
+    @portEditor.attr("tabindex", 3);
+    @folderEditor.attr("tabindex", 4);
+    @usernameEditor.attr("tabindex", 5);
+    @passwordEditor.attr("tabindex", 6);
+    @privateKeyPathEditor.attr("tabindex", 7);
+    @usePassphraseCheckBox.attr("tabindex", 8);
+    @passphraseEditor.attr("tabindex", 9);
+    @storeCheckBox.attr("tabindex", 10);
+    @testButton.attr("tabindex", 11);
+    @okButton.attr("tabindex", 12);
+    @cancelButton.attr("tabindex", 13);
 
     @passwordEditor.addClass("password-editor");
     @passphraseEditor.addClass("password-editor");
@@ -156,6 +161,7 @@ class SFTPDialog extends View
     if !passphrase?
       passphrase = '';
 
+    @nameEditor.getModel().setText(config.name);
     @serverEditor.getModel().setText(config.host);
     @portEditor.getModel().setText(config.port + "");
     @folderEditor.getModel().setText(config.folder);
@@ -257,6 +263,9 @@ class SFTPDialog extends View
     id = "sftp_"+server+"_"+port+"_"+username;
     return @parentDialog.serverExists(id);
 
+  getName: ->
+    return @nameEditor.getModel().getText().trim();
+
   getServer: ->
     return @serverEditor.getModel().getText().trim();
 
@@ -318,6 +327,7 @@ class SFTPDialog extends View
     config = {};
 
     config.protocol = "sftp";
+    config.name = @getName();
     config.host = @getServer();
     config.port = @getPort();
     config.folder = @getFolder();
@@ -336,7 +346,7 @@ class SFTPDialog extends View
     return config;
 
   selected: ->
-    @serverEditor.focus();
+    @nameEditor.focus();
   # attach: ->
   #   @panel = atom.workspace.addModalPanel(item: this.element);
   #   @serverEditor.focus();

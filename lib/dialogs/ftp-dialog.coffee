@@ -18,8 +18,12 @@ class FTPDialog extends View
       @table =>
         @tbody =>
           @tr =>
+            @td "Name", {class: "text-highlight", style: "width:40%"}
+            @td =>
+              @subview "nameEditor", new TextEditorView(mini: true)
+          @tr =>
             @td "URL", {class: "text-highlight", style: "width:40%"}
-            @td "ftp://", {outlet: "url"}
+            @td "ftp://", {outlet: "url", style: "padding-bottom: 0.5em"}
           @tr =>
             @td "Host", {class: "text-highlight", style: "width:40%"}
             @td =>
@@ -64,16 +68,17 @@ class FTPDialog extends View
         @span {class: "message", outlet: "message"}
 
   initialize: ->
-    @serverEditor.attr("tabindex", 1);
-    @portEditor.attr("tabindex", 2);
-    @folderEditor.attr("tabindex", 3);
-    @anonymous.attr("tabindex", 4);
-    @usernameEditor.attr("tabindex", 5);
-    @passwordEditor.attr("tabindex", 6);
-    @storeCheckBox.attr("tabindex", 7);
-    @testButton.attr("tabindex", 8);
-    @okButton.attr("tabindex", 9);
-    @cancelButton.attr("tabindex", 10);
+    @nameEditor.attr("tabindex", 1);
+    @serverEditor.attr("tabindex", 2);
+    @portEditor.attr("tabindex", 3);
+    @folderEditor.attr("tabindex", 4);
+    @anonymous.attr("tabindex", 5);
+    @usernameEditor.attr("tabindex", 6);
+    @passwordEditor.attr("tabindex", 7);
+    @storeCheckBox.attr("tabindex", 8);
+    @testButton.attr("tabindex", 9);
+    @okButton.attr("tabindex", 10);
+    @cancelButton.attr("tabindex", 11);
 
     @passwordEditor.addClass("password-editor");
 
@@ -117,6 +122,7 @@ class FTPDialog extends View
     if !password?
       password = "";
 
+    @nameEditor.getModel().setText(config.name);
     @serverEditor.getModel().setText(config.host);
     @portEditor.getModel().setText(config.port + "");
     @usernameEditor.getModel().setText(config.user);
@@ -236,6 +242,9 @@ class FTPDialog extends View
     id = "ftp_"+server+"_"+port+"_"+username;
     return @parentDialog.serverExists(id);
 
+  getName: ->
+    return @nameEditor.getModel().getText().trim();
+
   getServer: ->
     return @serverEditor.getModel().getText().trim();
 
@@ -246,6 +255,7 @@ class FTPDialog extends View
     config = {};
 
     config.protocol = "ftp";
+    config.name = @getName();
     config.host = @getServer();
     config.port = @getPort();
     config.folder = @getFolder();
@@ -265,7 +275,7 @@ class FTPDialog extends View
     return config;
 
   selected: ->
-    @serverEditor.focus();
+    @nameEditor.focus();
 
   # attach: ->
   #   @panel = atom.workspace.addModalPanel(item: this.element);

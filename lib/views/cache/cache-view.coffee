@@ -21,7 +21,7 @@ class CacheView extends View
           @li "The cache is empty"
 
   getTitle: ->
-    return "Cache: "+@server.getDescription();
+    return "Cache: " + @server.getDisplayName();
 
   getLocalFileSystem: ->
     return @server.getMain().getLocalFileSystem();
@@ -30,10 +30,16 @@ class CacheView extends View
     return @fileSystem.getTaskManager();
 
   initialize: ->
+    name = @server.getName();
+    title = @server.getDescription();
+
+    if name.length > 0
+      title = name + " : " + title;
+
     @syncItems = [];
     @disposables = new CompositeDisposable();
 
-    @titlePanel.text("Local cache for "+@server.getDescription());
+    @titlePanel.text("Local cache for "+title);
     @refreshButton.on 'mousedown', (e) -> e.preventDefault();
 
     @header = new CacheItemView();

@@ -233,7 +233,7 @@ module.exports = AtomCommander =
       state.visible = visible;
       state.bookmarks = @bookmarkManager.serialize();
       state.servers = @serverManager.serialize();
-      state.version = 3;
+      state.version = 4;
       return state;
 
     return @state;

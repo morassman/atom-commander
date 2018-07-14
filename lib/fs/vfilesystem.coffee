@@ -128,6 +128,9 @@ class VFileSystem
   getInitialDirectory: ->
     return @getDirectory("/");
 
+  getDisplayName: ->
+    return @getName();
+
   isLocal: ->
 
   getFile: (path) ->

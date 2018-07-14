@@ -177,6 +177,15 @@ class SFTPFileSystem extends VFileSystem
         callback(null);
 
   getName: ->
+    return @config.name;
+
+  getDisplayName: ->
+    if @config.name and @config.name.trim().length > 0
+      return @config.name;
+
+    return @config.host;
+
+  getHost: ->
     return @config.host;
 
   getUsername: ->

@@ -31,6 +31,9 @@ class Server
   getName: ->
     return @fileSystem.getName();
 
+  getDisplayName: ->
+    return @fileSystem.getDisplayName();
+
   getUsername: ->
     return @fileSystem.getUsername();
 

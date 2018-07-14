@@ -184,6 +184,15 @@ class FTPFileSystem extends VFileSystem
         callback(null);
 
   getName: ->
+    return @config.name;
+
+  getHost: ->
+    return @config.host;
+
+  getDisplayName: ->
+    if @config.name and @config.name.trim().length > 0
+      return @config.name;
+
     return @config.host;
 
   getUsername: ->

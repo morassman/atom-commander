@@ -1,3 +1,6 @@
+## 0.12.0 - 15 July 2018
+- Added ability to give servers names.
+
 ## 0.11.0 - 24 February 2018
 - Added buttons for toggling menu bar and alternative buttons.
 - Added short descriptions of all menu items under menu bar.
