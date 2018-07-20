@@ -493,12 +493,19 @@ class ContainerView extends View
     @getEntries(newDirectory, snapShot, callback);
 
     fileSystem = @directory.getFileSystem();
-    @username.text(fileSystem.getUsername());
 
     if fileSystem.isLocal()
       @lastLocalPath = @directory.getPath();
+      @username.text("");
       @username.hide();
     else
+      displayName = fileSystem.getDisplayName();
+      un = fileSystem.getUsername();
+
+      if displayName and displayName.length > 0
+        un = displayName + "  -  " + un;
+
+      @username.text(un);
       @username.show();
 
   resetItemViews: ->
