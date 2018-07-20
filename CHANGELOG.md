@@ -1,5 +1,6 @@
 ## 0.12.0 - 20 July 2018
 - Added ability to give servers names.
+- Fixed bug that prevented one from selecting text in the directory input.
 
 ## 0.11.0 - 24 February 2018
 - Added buttons for toggling menu bar and alternative buttons.
