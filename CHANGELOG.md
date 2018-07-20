@@ -1,4 +1,4 @@
-## 0.12.0 - 15 July 2018
+## 0.12.0 - 20 July 2018
 - Added ability to give servers names.
 
 ## 0.11.0 - 24 February 2018
