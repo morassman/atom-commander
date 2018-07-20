@@ -45,7 +45,7 @@ class ContainerView extends View
 
     @username.hide();
 
-    @directoryEditor.focusout =>
+    @directoryEditor.blur =>
       @directoryEditorCancel();
 
     @disposables.add atom.commands.add @directoryEditor[0],
