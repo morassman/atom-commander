@@ -14,7 +14,7 @@ class TabbedView extends View
   @content: (left) ->
     @div {}, =>
       @subview "tabsView", new TabsView()
-      @div {style: "display: flex; flex:1", outlet: "container"}
+      @div {style: "display: flex; flex:1; overflow: auto", outlet: "container"}
 
   setMainView: (@mainView) ->
 

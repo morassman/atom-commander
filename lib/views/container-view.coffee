@@ -70,7 +70,7 @@ class ContainerView extends View
       'atom-commander:select-item': => @spacePressed()
 
   @content: ->
-    @div {tabindex: -1, style: 'display: flex; flex-direction: column; flex: 1'}, =>
+    @div {tabindex: -1, style: 'display: flex; flex-direction: column; flex: 1; overflow: auto'}, =>
       @div =>
         @span '', {class: 'highlight-info username', outlet: 'username'}
         # @span '', {class: 'history icon icon-clock', outlet: 'history', click: 'toggleHistory' }

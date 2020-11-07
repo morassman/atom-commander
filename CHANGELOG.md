@@ -1,3 +1,6 @@
+## 0.12.1 - 7 November 2020
+- Fix file list scrolling bug.
+
 ## 0.12.0 - 20 July 2018
 - Added ability to give servers names.
 - Fixed bug that prevented one from selecting text in the directory input.
