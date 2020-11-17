@@ -223,13 +223,14 @@ class CacheItemView extends HTMLElement
     if @transferInProgress
       return;
 
-    option = atom.confirm
+    p = atom.confirm
       message: "Remove"
       detailedMessage: "Remove #{@path} from the cache?"
       buttons: ["No", "Yes"]
 
-    if option == 1
-      @delete();
+    p.then ({response}) =>
+      if response == 1
+        @delete();
 
   delete: ->
     if @transferInProgress

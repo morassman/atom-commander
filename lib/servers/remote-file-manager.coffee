@@ -59,18 +59,18 @@ class RemoteFileManager
       message += "Opening the remote file will replace the one in the cache.\n";
       message += "Would you like to open the cached file instead?";
 
-      option = atom.confirm
+      p = atom.confirm
         message: "Open cached file"
         detailedMessage: message
         buttons: ["Cancel", "No", "Yes"]
 
-      if option == 0
-        return;
-      else if option == 2
-        atom.workspace.open(localFilePath);
-        return;
-
-    @downloadAndOpen(file, cachePath, localFilePath);
+      p.then ({response}) =>
+        if response == 1
+          @downloadAndOpen(file, cachePath, localFilePath);
+        else if option == 2
+          atom.workspace.open(localFilePath);
+    else
+      @downloadAndOpen(file, cachePath, localFilePath);
 
   downloadAndOpen: (file, cachePath, localFilePath) ->
     fse.ensureDirSync(PathUtil.dirname(localFilePath));

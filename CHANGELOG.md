@@ -1,3 +1,6 @@
+## 0.12.2 - 17 November 2020
+- Fix calling `atom.confirm` to work with promises.
+
 ## 0.12.1 - 7 November 2020
 - Fix file list scrolling bug.
 

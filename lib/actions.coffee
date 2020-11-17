@@ -377,20 +377,21 @@ class Actions
       atom.notifications.addInfo(editor.getPath()+" doesn't have a server associated with it.");
       return;
 
-    option = atom.confirm
+    p = atom.confirm
       message: "Download"
       detailedMessage: "Replace the cached file with the remote one?"
       buttons: ["No", "Yes"]
 
-    if option == 0
-      return;
+    p.then ({response}) =>
+      if response == 0
+        return;
 
-    file = watcher.getFile();
-    file.download editor.getPath(), (err) =>
-      if err?
-        Utils.showErrorWarning("Download failed", "Error downloading "+file.getURI(), null, err, true);
-      else
-        atom.notifications.addSuccess("Downloaded "+file.getURI());
+      file = watcher.getFile();
+      file.download editor.getPath(), (err) =>
+        if err?
+          Utils.showErrorWarning("Download failed", "Error downloading "+file.getURI(), null, err, true);
+        else
+          atom.notifications.addSuccess("Downloaded "+file.getURI());
 
   compareWithServer: =>
     editor = atom.workspace.getActiveTextEditor();

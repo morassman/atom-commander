@@ -487,31 +487,32 @@ class AtomCommanderView extends View
       else
         detailedMessage = "Delete the folder '" + itemView.getName() + "'?";
 
-    option = atom.confirm
+    p = atom.confirm
       message: "Delete"
       detailedMessage: detailedMessage
       buttons: ["No", "Yes"]
 
-    if option == 0
-      return;
+    p.then ({response}) =>
+      if response == 0
+        return;
 
-    index = 0;
-    callback = (err) =>
-      if err?
-        title = "Error deleting " + itemViews[index].getItem().getPath();
-        post = null;
-        if itemViews[index].getItem().isDirectory()
-          post = "Make sure the folder is empty before deleting it.";
-        Utils.showErrorWarning(title, null, post, err, true);
+      index = 0;
+      callback = (err) =>
+        if err?
+          title = "Error deleting " + itemViews[index].getItem().getPath();
+          post = null;
+          if itemViews[index].getItem().isDirectory()
+            post = "Make sure the folder is empty before deleting it.";
+          Utils.showErrorWarning(title, null, post, err, true);
 
-      index++;
+        index++;
 
-      if index == itemViews.length
-        @focusedView.refreshDirectory();
-      else
-        itemViews[index].getItem().delete(callback);
+        if index == itemViews.length
+          @focusedView.refreshDirectory();
+        else
+          itemViews[index].getItem().delete(callback);
 
-    itemViews[0].getItem().delete(callback);
+      itemViews[0].getItem().delete(callback);
 
   newDirectoryButton: ->
     directory = @getFocusedViewDirectory();

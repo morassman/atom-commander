@@ -104,19 +104,24 @@ class ServersView extends SelectListView
     @actions.goDirectory(item.server.getInitialDirectory());
 
   confirmClose: (item) ->
+    confirmed = () =>
+      item.server.close();
+      items = @refreshItems();
+      if items.length == 0
+        @cancel();
+
     if item.server.getTaskCount() > 0
-      option = atom.confirm
+      p = atom.confirm
         message: "Close"
         detailedMessage: "Files on this server are still being accessed. Are you sure you want to close the connection?"
         buttons: ["No", "Yes"]
 
-      if option == 0
-        return;
+      p.then ({response}) =>
+        if response == 1
+          confirmed()
+    else
+      confirmed()
 
-    item.server.close();
-    items = @refreshItems();
-    if items.length == 0
-      @cancel();
 
   confirmRemove: (item) ->
     if item.server.getOpenFileCount() > 0
@@ -131,20 +136,24 @@ class ServersView extends SelectListView
     else if taskCount > 0
       question = "Files on this server are still being accessed. Removing the server will also clear the cache."
 
+    confirmed = () =>
+      @serverManager.removeServer(item.server);
+      if @serverManager.getServerCount() == 0
+        @cancel();
+      else
+        @refreshItems();
+
     if question != null
-      option = atom.confirm
+      p = atom.confirm
         message: "Remove"
         detailedMessage: question+" Are you sure you want to remove the server?"
         buttons: ["No", "Yes"]
 
-      if option == 0
-        return;
-
-    @serverManager.removeServer(item.server);
-    if @serverManager.getServerCount() == 0
-      @cancel();
+      p.then ({response}) =>
+        if response == 1
+          confirmed()
     else
-      @refreshItems();
+      confirmed()
 
   confirmCache: (item) ->
     @cancel();

@@ -112,17 +112,18 @@ class CacheView extends View
     if @countChecked() == 0
       return;
 
-    option = atom.confirm
+    p = atom.confirm
       message: 'Remove'
       detailedMessage: 'Remove the selected files from the cache?'
       buttons: ["No", "Yes"]
 
-    if option == 0
-      return;
+    p.then ({response}) =>
+      if response == 0
+        return;
 
-    for syncItem in @syncItems.slice()
-      if syncItem.isChecked()
-        syncItem.delete();
+      for syncItem in @syncItems.slice()
+        if syncItem.isChecked()
+          syncItem.delete();
 
   removeItem: (item) ->
     item.remove();
