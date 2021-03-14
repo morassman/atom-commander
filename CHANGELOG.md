@@ -1,3 +1,6 @@
+## 0.12.3 - 14 March 2021
+- Fix responding to result from confirm modals.
+
 ## 0.12.2 - 17 November 2020
 - Fix calling `atom.confirm` to work with promises.
 
