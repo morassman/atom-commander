@@ -111,14 +111,13 @@ class ServersView extends SelectListView
         @cancel();
 
     if item.server.getTaskCount() > 0
-      p = atom.confirm
+      response = atom.confirm
         message: "Close"
         detailedMessage: "Files on this server are still being accessed. Are you sure you want to close the connection?"
         buttons: ["No", "Yes"]
 
-      p.then ({response}) =>
-        if response == 1
-          confirmed()
+      if response == 1
+        confirmed()
     else
       confirmed()
 
@@ -144,14 +143,13 @@ class ServersView extends SelectListView
         @refreshItems();
 
     if question != null
-      p = atom.confirm
+      response = atom.confirm
         message: "Remove"
         detailedMessage: question+" Are you sure you want to remove the server?"
         buttons: ["No", "Yes"]
 
-      p.then ({response}) =>
-        if response == 1
-          confirmed()
+      if response == 1
+        confirmed()
     else
       confirmed()
 
