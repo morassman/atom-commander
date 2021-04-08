@@ -1,49 +1,53 @@
-/*
- * decaffeinate suggestions:
- * DS002: Fix invalid constructor
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let LocalFile;
-const VFile = require('../vfile');
-const fs = require('fs');
+const fs = require('fs')
 
-module.exports =
-(LocalFile = class LocalFile extends VFile {
+import { File } from 'atom'
+import { VFile } from '../'
+import { LocalDirectory, LocalFileSystem } from './'
 
-  constructor(fileSystem, file) {
-    let stats;
-    this.file = file;
-    super(fileSystem);
+export class LocalFile extends VFile {
+
+  constructor(fileSystem: LocalFileSystem, public file: File) {
+    super(fileSystem)
+    this.file = file
+
+    let stats: any
+
     if (this.file.isSymbolicLink()) {
-      stats = fs.lstatSync(this.file.getRealPathSync());
+      stats = fs.lstatSync(this.file.getRealPathSync())
     } else {
-      stats = fs.statSync(this.file.getRealPathSync());
+      stats = fs.statSync(this.file.getRealPathSync())
     }
-    this.modifyDate = stats.mtime;
-    this.size = stats.size;
+
+    this.modifyDate = stats.mtime
+    this.size = stats.size
   }
 
-  existsSync() {
-    return this.file.existsSync();
+  getFileSystem(): LocalFileSystem {
+    return super.getFileSystem() as LocalFileSystem
   }
 
-  getRealPathSync() {
-    return this.file.getRealPathSync();
+  existsSync(): boolean {
+    return this.file.existsSync()
   }
 
-  getBaseName() {
-    return this.file.getBaseName();
+  getRealPathSync(): string {
+    return this.file.getRealPathSync()
   }
 
-  getParent() {
-    return this.fileSystem.getDirectory(this.file.getParent().getRealPathSync());
+  getBaseName(): string {
+    return this.file.getBaseName()
   }
 
-  isWritable() {
-    return true;
+  getParent(): LocalDirectory | undefined {
+    return this.getFileSystem().getDirectory(this.file.getParent().getRealPathSync())
   }
 
-  isLink() {
-    return this.file.isSymbolicLink();
+  isWritable(): boolean {
+    return true
   }
-});
+
+  isLink(): boolean {
+    return this.file.isSymbolicLink()
+  }
+
+}

@@ -1,76 +1,69 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let ServerManager;
-const Server = require('./server');
-const fsp = require('fs-plus');
+import { main } from '../main'
+import { Server } from './server'
 
-module.exports =
-(ServerManager = class ServerManager {
+const fsp = require('fs-plus')
 
-  constructor(main, state) {
-    this.main = main;
-    this.servers = [];
-    this.uploadCount = 0;
-    this.downloadCount = 0;
+
+export class ServerManager {
+
+  servers: Server[]
+  uploadCount: number
+  downloadCount: number
+
+  constructor(state: any) {
+    this.servers = []
+    this.uploadCount = 0
+    this.downloadCount = 0
 
     if (state != null) {
-      for (let config of Array.from(state)) {
-        this.addServer(config, false);
+      for (let config of state) {
+        this.addServer(config, false)
       }
     }
   }
 
-  getMain() {
-    return this.main;
+  getUploadCount(): number {
+    return this.uploadCount
   }
 
-  getUploadCount() {
-    return this.uploadCount;
-  }
-
-  getDownloadCount() {
-    return this.downloadCount;
+  getDownloadCount(): number {
+    return this.downloadCount
   }
 
   addServer(config, save) {
-    if (save == null) { save = true; }
-    const server = new Server(this, config);
-    this.servers.push(server);
+    if (save == null) { save = true }
+    const server = new Server(this, config)
+    this.servers.push(server)
 
     if (save) {
-      this.main.saveState();
+      main.saveState()
     }
 
-    return server;
+    return server
   }
 
   removeServer(server) {
-    return this.removeServerImpl(server, true, true);
+    return this.removeServerImpl(server, true, true)
   }
 
   removeServerImpl(server, deleteLocalDirectory, save) {
-    const index = this.servers.indexOf(server);
+    const index = this.servers.indexOf(server)
 
     if (index >= 0) {
-      this.servers.splice(index, 1);
+      this.servers.splice(index, 1)
     }
 
-    const fileSystem = server.getFileSystem();
+    const fileSystem = server.getFileSystem()
 
     if (deleteLocalDirectory) {
-      server.deleteLocalDirectory();
+      server.deleteLocalDirectory()
     }
 
-    server.dispose();
-    this.main.fileSystemRemoved(fileSystem);
+    server.dispose()
+    main.fileSystemRemoved(fileSystem)
 
     if (save) {
-      return this.main.saveState();
+      return main.saveState()
     }
   }
 
@@ -82,99 +75,99 @@ module.exports =
   changeServerConfig(server, config) {
     // By removing the server its bookmarks will be removed as well.
     // It is therefore necessary to get its bookmarks before removing it.
-    const oldFSID = server.getFileSystem().getID();
-    const bookmarks = this.main.bookmarkManager.getBookmarksWithFileSystemId(oldFSID);
+    const oldFSID = server.getFileSystem().getID()
+    const bookmarks = main.bookmarkManager.getBookmarksWithFileSystemId(oldFSID)
 
-    this.removeServerImpl(server, false, false);
-    const newServer = this.addServer(config, false);
+    this.removeServerImpl(server, false, false)
+    const newServer = this.addServer(config, false)
 
-    const oldPath = server.getLocalDirectoryPath();
-    const newPath = newServer.getLocalDirectoryPath();
+    const oldPath = server.getLocalDirectoryPath()
+    const newPath = newServer.getLocalDirectoryPath()
 
     if (fsp.existsSync(oldPath) && (oldPath !== newPath)) {
-      fsp.moveSync(oldPath, newPath);
+      fsp.moveSync(oldPath, newPath)
     }
 
     // Update bookmarks.
-    const newFS = newServer.getFileSystem();
+    const newFS = newServer.getFileSystem()
 
     for (let bookmark of Array.from(bookmarks)) {
-      const item = newFS.getItemWithPathDescription(bookmark.pathDescription);
-      bookmark.pathDescription = item.getPathDescription();
+      const item = newFS.getItemWithPathDescription(bookmark.pathDescription)
+      bookmark.pathDescription = item.getPathDescription()
     }
 
-    this.main.bookmarkManager.addBookmarks(bookmarks);
-    return this.main.saveState();
+    main.bookmarkManager.addBookmarks(bookmarks)
+    return main.saveState()
   }
 
   getServers() {
-    return this.servers;
+    return this.servers
   }
 
   getServerCount() {
-    return this.servers.length;
+    return this.servers.length
   }
 
-  getServerWithLocalDirectoryName(localDirectoryName) {
-    for (let server of Array.from(this.servers)) {
+  getServerWithLocalDirectoryName(localDirectoryName: string) {
+    for (let server of this.servers) {
       if (server.getLocalDirectoryName() === localDirectoryName) {
-        return server;
+        return server
       }
     }
 
-    return null;
+    return null
   }
 
-  getFileSystemWithID(fileSystemId) {
-    for (let server of Array.from(this.servers)) {
-      const fileSystem = server.getFileSystem();
+  getFileSystemWithID(fileSystemId: string) {
+    for (let server of this.servers) {
+      const fileSystem = server.getFileSystem()
 
       if (fileSystem.getID() === fileSystemId) {
-        return fileSystem;
+        return fileSystem
       }
     }
 
-    return null;
+    return null
   }
 
-  getWatcherWithLocalFilePath(localFilePath) {
-    for (let server of Array.from(this.servers)) {
-      const watcher = server.getWatcherWithLocalFilePath(localFilePath);
+  getWatcherWithLocalFilePath(localFilePath: string): Watcher | null {
+    for (let server of this.servers) {
+      const watcher = server.getWatcherWithLocalFilePath(localFilePath)
 
       if (watcher !== null) {
-        return watcher;
+        return watcher
       }
     }
 
-    return null;
+    return null
   }
 
-  uploadCountChanged(old, current) {
-    this.uploadCount += current - old;
-    return this.main.refreshStatus();
+  uploadCountChanged(old: number, current: number) {
+    this.uploadCount += current - old
+    main.refreshStatus()
   }
 
-  downloadCountChanged(old, current) {
-    this.downloadCount += current - old;
-    return this.main.refreshStatus();
+  downloadCountChanged(old: number, current: number) {
+    this.downloadCount += current - old
+    main.refreshStatus()
   }
 
-  serverClosed(server) {
-    return this.main.serverClosed(server);
+  serverClosed(server: Server) {
+    main.serverClosed(server)
   }
 
   dispose() {
-    return Array.from(this.servers).map((server) =>
-      server.dispose());
+    this.servers.forEach((server) => server.dispose())
   }
 
   serialize() {
-    const state = [];
+    const state = []
 
-    for (let server of Array.from(this.servers)) {
-      state.push(server.serialize());
+    for (let server of this.servers) {
+      state.push(server.serialize())
     }
 
-    return state;
+    return state
   }
-});
+
+}

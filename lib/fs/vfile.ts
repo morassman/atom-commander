@@ -1,15 +1,8 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let VFile;
-const VItem = require('./vitem');
+import { ErrorCallback, VFileSystem, VItem } from '.';
 
-module.exports =
-(VFile = class VFile extends VItem {
+export abstract class VFile extends VItem {
 
-  constructor(fileSystem) {
+  constructor(fileSystem: VFileSystem) {
     super(fileSystem);
   }
 
@@ -21,14 +14,20 @@ module.exports =
     return false;
   }
 
-  download(localPath, callback) {
-    const taskManager = this.getFileSystem().getTaskManager();
-    return taskManager.getFileSystem().download(this.getPath(), localPath, callback);
+  download(localPath: string, callback: ErrorCallback) {
+    const taskManager = this.getFileSystem().getTaskManager()
+
+    if (taskManager) {
+      taskManager.getFileSystem().download(this.getPath(), localPath, callback)
+    }
   }
 
-  upload(localPath, callback) {
-    const taskManager = this.getFileSystem().getTaskManager();
-    return taskManager.getFileSystem().upload(localPath, this.getPath(), callback);
+  upload(localPath: string, callback: ErrorCallback) {
+    const taskManager = this.getFileSystem().getTaskManager()
+
+    if (taskManager) {
+      taskManager.getFileSystem().upload(localPath, this.getPath(), callback)
+    }
   }
 
   open() {
@@ -38,7 +37,8 @@ module.exports =
   // Callback receives two arguments:
   // 1.) err : String with error message. null if no error.
   // 2.) stream : A ReadableStream.
-  createReadStream(callback) {
-    return this.fileSystem.createReadStream(this.getPath(), callback);
+  createReadStream(callback: (error: string | null, stream: ReadableStream | null) => void) {
+    this.fileSystem.createReadStream(this.getPath(), callback);
   }
-});
+
+}

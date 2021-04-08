@@ -1,7 +1,8 @@
 import { VFileSystem } from './vfilesystem';
 import { VItem } from './vitem'
+import { VFile } from './vfile'
 
-export class VSymLink extends VItem {
+export abstract class VSymLink extends VItem {
 
   targetItem: VItem
 
@@ -29,37 +30,44 @@ export class VSymLink extends VItem {
     return this.targetItem ? this.targetItem.isDirectory() : false
   }
 
-  existsSync() {
+  existsSync(): boolean {
     return true;
   }
 
-  isLink() {
+  isLink(): boolean {
     return true;
   }
 
-  setModifyDate(modifyDate) {
+  setModifyDate(modifyDate: Date) {
     this.modifyDate = modifyDate;
-    return (this.controller != null ? this.controller.refresh() : undefined);
+
+    if (this.controller) {
+      this.controller.refresh()
+    }
   }
 
-  setSize(size) {
+  setSize(size: number) {
     this.size = size;
-    return (this.controller != null ? this.controller.refresh() : undefined);
+
+    if (this.controller) {
+      this.controller.refresh()
+    }
   }
 
   // This is called once it is known that the symlink points to file.
-  setTargetFilePath(targetPath) {
-    return this.setTargetItem(this.createFileItem(targetPath));
+  setTargetFilePath(targetPath: string) {
+    this.setTargetItem(this.createFileItem(targetPath));
   }
 
   // This is called once it is known that the symlink points to directory.
-  setTargetDirectoryPath(targetPath) {
+  setTargetDirectoryPath(targetPath: string) {
     return this.setTargetItem(this.createDirectoryItem(targetPath));
   }
 
   // Overwrite to create a VFile for the file pointed to by this symlink.
-  createFileItem(targetPath) { }
+  abstract createFileItem(targetPath: string): VFile
 
   // Overwrite to create a VDirectory for the directory pointed to by this symlink.
-  createDirectoryItem(targetPath) { }
-});
+  abstract createDirectoryItem(targetPath: string): VFile
+
+}

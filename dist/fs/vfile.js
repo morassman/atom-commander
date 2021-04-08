@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -13,42 +14,43 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-var VFile;
-var VItem = require('./vitem');
-module.exports =
-    (VFile = /** @class */ (function (_super) {
-        __extends(VFile, _super);
-        function VFile(fileSystem) {
-            return _super.call(this, fileSystem) || this;
+exports.__esModule = true;
+exports.VFile = void 0;
+var _1 = require(".");
+var VFile = /** @class */ (function (_super) {
+    __extends(VFile, _super);
+    function VFile(fileSystem) {
+        return _super.call(this, fileSystem) || this;
+    }
+    VFile.prototype.isFile = function () {
+        return true;
+    };
+    VFile.prototype.isDirectory = function () {
+        return false;
+    };
+    VFile.prototype.download = function (localPath, callback) {
+        var taskManager = this.getFileSystem().getTaskManager();
+        if (taskManager) {
+            taskManager.getFileSystem().download(this.getPath(), localPath, callback);
         }
-        VFile.prototype.isFile = function () {
-            return true;
-        };
-        VFile.prototype.isDirectory = function () {
-            return false;
-        };
-        VFile.prototype.download = function (localPath, callback) {
-            var taskManager = this.getFileSystem().getTaskManager();
-            return taskManager.getFileSystem().download(this.getPath(), localPath, callback);
-        };
-        VFile.prototype.upload = function (localPath, callback) {
-            var taskManager = this.getFileSystem().getTaskManager();
-            return taskManager.getFileSystem().upload(localPath, this.getPath(), callback);
-        };
-        VFile.prototype.open = function () {
-            return this.fileSystem.openFile(this);
-        };
-        // Callback receives two arguments:
-        // 1.) err : String with error message. null if no error.
-        // 2.) stream : A ReadableStream.
-        VFile.prototype.createReadStream = function (callback) {
-            return this.fileSystem.createReadStream(this.getPath(), callback);
-        };
-        return VFile;
-    }(VItem)));
+    };
+    // TODO: callback type
+    VFile.prototype.upload = function (localPath, callback) {
+        var taskManager = this.getFileSystem().getTaskManager();
+        if (taskManager) {
+            taskManager.getFileSystem().upload(localPath, this.getPath(), callback);
+        }
+    };
+    VFile.prototype.open = function () {
+        return this.fileSystem.openFile(this);
+    };
+    // Callback receives two arguments:
+    // 1.) err : String with error message. null if no error.
+    // 2.) stream : A ReadableStream.
+    VFile.prototype.createReadStream = function (callback) {
+        this.fileSystem.createReadStream(this.getPath(), callback);
+    };
+    return VFile;
+}(_1.VItem));
+exports.VFile = VFile;
 //# sourceMappingURL=vfile.js.map

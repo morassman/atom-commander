@@ -1,6 +1,6 @@
 {
   "name": "atom-commander",
-  "main": "./lib/atom-commander",
+  "main": "./dist/atom-commander",
   "version": "0.12.3",
   "description": "Dual-pane file manager with FTP support and much more.",
   "keywords": [
@@ -47,7 +47,7 @@
     "ssh2": ">=0.5.4",
     "simple-encryptor": "3.0.0",
     "q": "1.4.1",
-    "queue": "3.1.0",
+    "queue": "6.0.2",
     "filesize": ">=3.3.0"
   },
   "devDependencies": {

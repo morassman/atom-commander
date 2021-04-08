@@ -1,24 +1,19 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let Callback;
-module.exports =
-(Callback = class Callback {
+export class Callback {
 
-  constructor(wrappedCallback) {
-    this.wrappedCallback = wrappedCallback;
+  cancelled: boolean
+
+  constructor(public wrappedCallback: any) {
     this.cancelled = false;
   }
 
   cancel() {
-    return this.cancelled = true;
+    return this.cancelled = true
   }
 
-  callback(...args){
+  callback(...args: any[]) {
     if (!this.cancelled) {
-      return this.wrappedCallback(args);
+      return this.wrappedCallback(args)
     }
   }
-});
+
+}

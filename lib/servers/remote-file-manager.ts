@@ -1,165 +1,171 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let RemoteFileManager;
-const fsp = require('fs-plus');
-const fse = require('fs-extra');
-const PathUtil = require('path');
-const Watcher = require('./watcher');
-const {CompositeDisposable, Directory, File} = require('atom');
+const fsp = require('fs-plus')
+const fse = require('fs-extra')
+const PathUtil = require('path')
+import { Watcher } from './watcher'
+import { CompositeDisposable, Directory, File, NotificationOptions, TextEditor } from 'atom'
+import { Server } from './server'
+import { VFile } from '../fs'
 
-module.exports =
-(RemoteFileManager = class RemoteFileManager {
+export class RemoteFileManager {
 
-  constructor(server) {
-    this.server = server;
-    this.watchers = [];
-    this.disposables = new CompositeDisposable();
+  watchers: Watcher[]
+
+  disposables: CompositeDisposable
+
+  constructor(private readonly server: Server) {
+    this.watchers = []
+    this.disposables = new CompositeDisposable()
     this.disposables.add(atom.workspace.observeTextEditors(textEditor => {
-      return this.textEditorAdded(textEditor);
+      this.textEditorAdded(textEditor)
     })
-    );
+    )
   }
 
   getServer() {
-    return this.server;
+    return this.server
   }
 
-  textEditorAdded(textEditor) {
-    const cachePath = this.server.getCachePath();
-    const localFilePath = textEditor.getPath();
-    const dir = new Directory(cachePath);
+  textEditorAdded(textEditor: TextEditor) {
+    const cachePath = this.server.getCachePath()
+    const localFilePath = textEditor.getPath()
+    const dir = new Directory(cachePath)
+
+    if (!localFilePath) {
+      return
+    }
 
     // Check to see if the file is in the cache directory.
     if (!dir.contains(localFilePath)) {
-      return;
+      return
     }
 
     // Ensure that the file exists. An editor can exist for a file path if Atom
     // was closed with the file open, but then the file was deleted before Atom
     // was launched again.
     if (!fsp.isFileSync(localFilePath)) {
-      return;
+      return
     }
 
     // See if the file is already being watched. This will be the case if the
     // file was opened directly from the remote file system instead of locally.
     if (this.getWatcherWithLocalFilePath(localFilePath) !== null) {
-      return;
-    }
+      return
+    }   
 
-    const fileSystem = this.server.getFileSystem();
-    let remotePath = dir.relativize(localFilePath);
-    remotePath = remotePath.split("\\").join("/");
-    const file = fileSystem.getFile("/"+remotePath);
-    const watcher = this.addWatcher(cachePath, localFilePath, file, textEditor);
-    return watcher.setOpenedRemotely(false);
+    let remotePath = dir.relativize(localFilePath)
+    remotePath = remotePath.split("\\").join("/")
+
+    const fileSystem = this.server.getFileSystem()
+    const file = fileSystem.getFile("/" + remotePath)
+
+    if (file) {
+      const watcher = this.addWatcher(cachePath, localFilePath, file, textEditor)
+      watcher.setOpenedRemotely(false)
+    }
   }
 
-  openFile(file) {
-    const cachePath = this.server.getCachePath();
-    const localFilePath = PathUtil.join(cachePath, file.getPath());
+  openFile(file: VFile) {
+    const cachePath = this.server.getCachePath()
+    const localFilePath = PathUtil.join(cachePath, file.getPath())
 
-    const pane = atom.workspace.paneForURI(localFilePath);
+    const pane = atom.workspace.paneForURI(localFilePath)
 
     if (pane != null) {
-      pane.activateItemForURI(localFilePath);
-      return;
+      pane.activateItemForURI(localFilePath)
+      return
     }
 
     // See if the file is already in the cache.
     if (fsp.isFileSync(localFilePath)) {
-      let message = "The file "+file.getURI()+" is already in the cache. ";
-      message += "Opening the remote file will replace the one in the cache.\n";
-      message += "Would you like to open the cached file instead?";
+      let message = "The file " + file.getURI() + " is already in the cache. "
+      message += "Opening the remote file will replace the one in the cache.\n"
+      message += "Would you like to open the cached file instead?"
 
       const response = atom.confirm({
         message: "Open cached file",
         detailedMessage: message,
-        buttons: ["Cancel", "No", "Yes"]});
+        buttons: ["Cancel", "No", "Yes"]
+      })
 
       if (response === 1) {
-        return this.downloadAndOpen(file, cachePath, localFilePath);
+        this.downloadAndOpen(file, cachePath, localFilePath)
       } else if (response === 2) {
-        return atom.workspace.open(localFilePath);
+        atom.workspace.open(localFilePath)
       }
     } else {
-      return this.downloadAndOpen(file, cachePath, localFilePath);
+      this.downloadAndOpen(file, cachePath, localFilePath)
     }
   }
 
-  downloadAndOpen(file, cachePath, localFilePath) {
-    fse.ensureDirSync(PathUtil.dirname(localFilePath));
+  downloadAndOpen(file: VFile, cachePath: string, localFilePath: string) {
+    fse.ensureDirSync(PathUtil.dirname(localFilePath))
 
-    return file.download(localFilePath, err => {
+    file.download(localFilePath, err => {
       if (err != null) {
-        this.handleDownloadError(file, err);
-        return;
+        this.handleDownloadError(file, err)
+        return
       }
 
-      return atom.workspace.open(localFilePath).then(textEditor => {
-        let watcher = this.getWatcherWithLocalFilePath(localFilePath);
+      atom.workspace.open(localFilePath).then(textEditor => {
+        let watcher = this.getWatcherWithLocalFilePath(localFilePath)
 
         if (watcher === null) {
-          watcher = this.addWatcher(cachePath, localFilePath, file, textEditor);
+          watcher = this.addWatcher(cachePath, localFilePath, file, textEditor as TextEditor)
         }
 
-        watcher.setOpenedRemotely(true);
-        return this.server.getFileSystem().fileOpened(file);
-      });
-    });
+        watcher.setOpenedRemotely(true)
+        this.server.getFileSystem().fileOpened(file)
+      })
+    })
   }
 
-  handleDownloadError(file, err) {
-    let message = "The file "+file.getPath()+" could not be downloaded.";
+  handleDownloadError(file: VFile, err: any) {
+    let message = "The file " + file.getPath() + " could not be downloaded."
 
     if (err.message != null) {
-      message += "\nReason : "+err.message;
+      message += "\nReason : " + err.message
     }
 
-    const options = {};
-    options["dismissable"] = true;
-    options["detail"] = message;
-    return atom.notifications.addWarning("Unable to download file.", options);
+    const options: NotificationOptions = {
+      dismissable: true,
+      detail: message
+    }
+
+    atom.notifications.addWarning("Unable to download file.", options)
   }
 
-  getWatcherWithLocalFilePath(localFilePath) {
-    for (let watcher of Array.from(this.watchers)) {
+  getWatcherWithLocalFilePath(localFilePath: string) {
+    for (let watcher of this.watchers) {
       if (watcher.getLocalFilePath() === localFilePath) {
-        return watcher;
+        return watcher
       }
     }
 
-    return null;
+    return null
   }
 
-  addWatcher(cachePath, localFilePath, file, textEditor) {
-    const watcher = new Watcher(this, cachePath, localFilePath, file, textEditor);
-    this.watchers.push(watcher);
-    return watcher;
+  addWatcher(cachePath: string, localFilePath: string, file: VFile, textEditor: TextEditor) {
+    const watcher = new Watcher(this, cachePath, localFilePath, file, textEditor)
+    this.watchers.push(watcher)
+    return watcher
   }
 
-  removeWatcher(watcher) {
-    watcher.destroy();
-    const index = this.watchers.indexOf(watcher);
+  removeWatcher(watcher: Watcher) {
+    watcher.destroy()
+    const index = this.watchers.indexOf(watcher)
 
     if (index >= 0) {
-      return this.watchers.splice(index, 1);
+      this.watchers.splice(index, 1)
     }
   }
 
-  getOpenFileCount() {
-    return this.watchers.length;
+  getOpenFileCount(): number {
+    return this.watchers.length
   }
 
   destroy() {
-    this.disposables.dispose();
-
-    return Array.from(this.watchers).map((watcher) =>
-      watcher.destroy());
+    this.disposables.dispose()
+    this.watchers.forEach(watcher => watcher.destroy())
   }
-});
+
+}

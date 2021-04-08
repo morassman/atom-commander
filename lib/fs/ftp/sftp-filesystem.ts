@@ -1,12 +1,6 @@
-/*
- * decaffeinate suggestions:
- * DS002: Fix invalid constructor
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let SFTPFileSystem;
+import { Server } from "../../servers/server";
+import { RemoteFileSystem } from "./remote-filesystem";
+
 const fs = require('fs');
 const fsp = require('fs-plus');
 const PathUtil = require('path').posix;
@@ -17,13 +11,10 @@ const FTPSymLink = require('./ftp-symlink');
 const SFTPSession = require('./sftp-session');
 const Utils = require('../../utils');
 
-module.exports =
-(SFTPFileSystem = class SFTPFileSystem extends VFileSystem {
+export class SFTPFileSystem extends RemoteFileSystem {
 
-  constructor(main, server, config) {
-    this.server = server;
-    this.config = config;
-    super(main);
+  constructor(server: Server, config: any) {
+    super(server, config)
     this.session = null;
     this.client = null;
 
@@ -41,13 +32,9 @@ module.exports =
   }
 
   clone() {
-    const cloneFS = new SFTPFileSystem(this.getMain(), this.server, this.config);
+    const cloneFS = new SFTPFileSystem(this.server, this.config);
     cloneFS.clientConfig = this.clientConfig;
     return cloneFS;
-  }
-
-  isLocal() {
-    return false;
   }
 
   connectImpl() {
@@ -239,10 +226,6 @@ module.exports =
     });
   }
 
-  getName() {
-    return this.config.name;
-  }
-
   getDisplayName() {
     if (this.config.name && (this.config.name.trim().length > 0)) {
       return this.config.name;
@@ -259,9 +242,6 @@ module.exports =
     return this.config.username;
   }
 
-  getID() {
-    return this.getLocalDirectoryName();
-  }
 
   getLocalDirectoryName() {
     return this.config.protocol+"_"+this.config.host+"_"+this.config.port+"_"+this.config.username;
@@ -389,4 +369,5 @@ module.exports =
       });
     });
   }
-});
+
+}

@@ -6,7 +6,11 @@ export abstract class VItem {
 
   controller: ItemController
 
-  constructor(public fileSystem: VFileSystem) {
+  modifyDate: Date | null
+
+  size: number | null
+
+  constructor(public readonly fileSystem: VFileSystem) {
     this.modifyDate = null;
     this.size = null;
   }
@@ -81,6 +85,6 @@ export abstract class VItem {
 
   abstract getBaseName(): string
 
-  // TODO : Return type?
+  // TODO : Return type
   abstract getParent(): any
 }

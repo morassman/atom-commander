@@ -1,11 +1,6 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-var AtomCommander;
+"use strict";
+exports.__esModule = true;
+var atom_1 = require("atom");
 var Actions = require('./actions');
 var Schemas = require('./schemas');
 var ListView = require('./views/list-view');
@@ -15,9 +10,8 @@ var AtomCommanderView = require('./atom-commander-view');
 var BookmarkManager = require('./bookmark-manager');
 var ServerManager = require('./servers/server-manager');
 var LocalFileSystem = require('./fs/local/local-filesystem');
-var _a = require('atom'), CompositeDisposable = _a.CompositeDisposable, File = _a.File, Directory = _a.Directory;
-var fsp = null;
-module.exports = (AtomCommander = {
+var fsp = require('fsp');
+exports["default"] = {
     config: {
         panel: {
             type: "object",
@@ -80,7 +74,7 @@ module.exports = (AtomCommander = {
         this.serverManager = new ServerManager(this, this.state.servers);
         // @mainView = new AtomCommanderView(@, @state);
         // @element = @mainView.getElement();
-        this.subscriptions = new CompositeDisposable();
+        this.subscriptions = new atom_1.CompositeDisposable();
         this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:toggle-visible': function () { return _this.toggle(); } }));
         this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:toggle-focus': function () { return _this.toggleFocus(); } }));
         this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-all': function () { return _this.actions.selectAll(); } }));
@@ -120,22 +114,26 @@ module.exports = (AtomCommander = {
         this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-size': function () { return _this.actions.sortBySize(); } }));
         this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-date': function () { return _this.actions.sortByDate(); } }));
         this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-default': function () { return _this.actions.sortByDefault(); } }));
-        this.subscriptions.add(atom.commands.add('atom-text-editor', { 'atom-commander:upload-file': function (event) {
+        this.subscriptions.add(atom.commands.add('atom-text-editor', {
+            'atom-commander:upload-file': function (event) {
                 event.stopPropagation();
                 return _this.actions.uploadFile();
             }
         }));
-        this.subscriptions.add(atom.commands.add('atom-text-editor', { 'atom-commander:download-file': function (event) {
+        this.subscriptions.add(atom.commands.add('atom-text-editor', {
+            'atom-commander:download-file': function (event) {
                 event.stopPropagation();
                 return _this.actions.downloadFile();
             }
         }));
-        this.subscriptions.add(atom.commands.add('atom-text-editor', { 'atom-commander:compare-with-server': function (event) {
+        this.subscriptions.add(atom.commands.add('atom-text-editor', {
+            'atom-commander:compare-with-server': function (event) {
                 event.stopPropagation();
                 return _this.actions.compareWithServer();
             }
         }));
-        this.subscriptions.add(atom.commands.add('atom-text-editor', { 'atom-commander:add-bookmark': function (event) {
+        this.subscriptions.add(atom.commands.add('atom-text-editor', {
+            'atom-commander:add-bookmark': function (event) {
                 event.stopPropagation();
                 return _this.actions.bookmarksAddEditor();
             }
@@ -174,10 +172,8 @@ module.exports = (AtomCommander = {
         }
     },
     getMainView: function (createLazy) {
-        if (createLazy == null) {
-            createLazy = false;
-        }
-        if ((this.mainView == null) && createLazy) {
+        if (createLazy === void 0) { createLazy = false; }
+        if (!this.mainView && createLazy) {
             this.mainView = new AtomCommanderView(this, this.state);
             this.element = this.mainView.getElement();
         }
@@ -196,7 +192,7 @@ module.exports = (AtomCommander = {
         return this.serverManager;
     },
     getSaveFile: function () {
-        var configFile = new File(atom.config.getUserConfigPath());
+        var configFile = new atom_1.File(atom.config.getUserConfigPath());
         var directory = configFile.getParent();
         return directory.getFile("atom-commander.json");
     },
@@ -208,9 +204,6 @@ module.exports = (AtomCommander = {
         if (!file.existsSync()) {
             return;
         }
-        if (fsp == null) {
-            fsp = require('fs-plus');
-        }
         try {
             this.state = JSON.parse(fsp.readFileSync(file.getPath()));
             return this.state = Schemas.upgrade(this.state);
@@ -221,9 +214,6 @@ module.exports = (AtomCommander = {
         }
     },
     saveState: function () {
-        if (fsp == null) {
-            fsp = require('fs-plus');
-        }
         var state = this.serialize();
         var file = this.getSaveFile();
         try {
@@ -352,9 +342,6 @@ module.exports = (AtomCommander = {
         }
     },
     show: function (focus, location) {
-        if (location == null) {
-            location = undefined;
-        }
         if (this.bottomPanel != null) {
             this.showPanel(focus);
         }
@@ -373,7 +360,7 @@ module.exports = (AtomCommander = {
     showDock: function (focus, location) {
         var _this = this;
         var paneContainer = atom.workspace.paneContainerForURI(AtomCommanderView.ATOM_COMMANDER_URI);
-        if (paneContainer != null) {
+        if (paneContainer) {
             paneContainer.show();
             if (focus) {
                 return this.focus();
@@ -387,7 +374,7 @@ module.exports = (AtomCommander = {
                 location: location
             }).then(function () {
                 paneContainer = atom.workspace.paneContainerForURI(AtomCommanderView.ATOM_COMMANDER_URI);
-                if (paneContainer != null) {
+                if (paneContainer) {
                     paneContainer.show();
                     if (focus) {
                         return _this.focus();
@@ -407,10 +394,14 @@ module.exports = (AtomCommander = {
         return this.saveState();
     },
     focus: function () {
-        return __guard__(this.getMainView(), function (x) { return x.refocusLastView(); });
+        var mainView = this.getMainView();
+        if (mainView) {
+            mainView.refocusLastView();
+        }
     },
     unfocus: function () {
-        return atom.workspace.getCenter().activate();
+        // TODO    
+        // return atom.workspace.getCenter().activate();
     },
     hasFocus: function () {
         if ((this.mainView == null)) {
@@ -450,8 +441,5 @@ module.exports = (AtomCommander = {
         }
         return this.serverManager.getFileSystemWithID(fileSystemId);
     }
-});
-function __guard__(value, transform) {
-    return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
-}
+};
 //# sourceMappingURL=atom-commander.js.map

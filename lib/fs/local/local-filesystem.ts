@@ -1,51 +1,46 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let LocalFileSystem;
-const fsp = require('fs-plus');
-const fse = require('fs-extra');
-const VFileSystem = require('../vfilesystem');
-const LocalFile = require('./local-file');
-const LocalDirectory = require('./local-directory');
-const {Directory, File} = require('atom');
-const PathUtil = require('path');
+const fsp = require('fs-plus')
+const fse = require('fs-extra')
+const PathUtil = require('path')
 
-module.exports =
-(LocalFileSystem = class LocalFileSystem extends VFileSystem {
+import { Directory, File } from 'atom'
+import { EntriesCallback, ErrorCallback, NewFileCallback, ReadStreamCallback, VFileSystem, VItem } from '../'
+import { PathDescription } from '../path-description'
+import { LocalDirectory, LocalFile } from './'
 
-  constructor(main) {
-    super(main);
+export class LocalFileSystem extends VFileSystem {
+
+  constructor() {
+    super()
   }
 
-  clone() {
-    return new LocalFileSystem(this.getMain());
+  clone(): LocalFileSystem {
+    return new LocalFileSystem()
   }
 
-  isLocal() {
+  isLocal(): boolean {
     return true;
   }
 
   connectImpl() {
-    return this.setConnected(true);
+    this.setConnected(true);
   }
 
-  getSafeConfig() {
-    return {};
+  disconnectImpl() {
   }
 
-  getFile(path) {
+  getSafeConfig(): any {
+    return {}
+  }
+
+  getFile(path: string): LocalFile {
     return new LocalFile(this, new File(path));
   }
 
-  getDirectory(path) {
+  getDirectory(path: string): LocalDirectory {
     return new LocalDirectory(this, new Directory(path));
   }
 
-  getItemWithPathDescription(pathDescription) {
+  getItemWithPathDescription(pathDescription: PathDescription) {
     if (pathDescription.isFile) {
       return this.getFile(pathDescription.path);
     }
@@ -53,34 +48,34 @@ module.exports =
     return this.getDirectory(pathDescription.path);
   }
 
-  getURI(item) {
+  getURI(item: VItem) {
     return item.getRealPathSync();
   }
 
-  getName() {
-    return "local";
+  getName(): string {
+    return 'local'
   }
 
-  getID() {
-    return "local";
+  getID(): string {
+    return 'local'
   }
 
-  getUsername() {
-    return "";
+  getUsername(): string {
+    return ''
   }
 
   getPathUtil() {
     return PathUtil;
   }
 
-  renameImpl(oldPath, newPath, callback) {
+  renameImpl(oldPath: string, newPath: string, callback: ErrorCallback) {
     fsp.moveSync(oldPath, newPath);
     if (callback !== null) {
       return callback(null);
     }
   }
 
-  makeDirectoryImpl(path, callback) {
+  makeDirectoryImpl(path: string, callback: ErrorCallback) {
     const directory = new Directory(path);
 
     return directory.create().then(created => {
@@ -96,7 +91,7 @@ module.exports =
     });
   }
 
-  deleteFileImpl(path, callback) {
+  deleteFileImpl(path: string, callback: ErrorCallback) {
     fse.removeSync(path);
 
     if (callback != null) {
@@ -104,47 +99,47 @@ module.exports =
     }
   }
 
-  deleteDirectoryImpl(path, callback) {
+  deleteDirectoryImpl(path: string, callback: ErrorCallback) {
     fse.removeSync(path);
 
     if (callback != null) {
-      return callback(null);
+      callback(null);
     }
   }
 
-  downloadImpl(path, localPath, callback) {
-    return fse.copy(path, localPath, callback);
+  downloadImpl(path: string, localPath: string, callback: ErrorCallback) {
+    fse.copy(path, localPath, callback);
   }
 
-  upload(localPath, path, callback) {
-    return fse.copy(localPath, path, callback);
+  // TODO : callback type
+  uploadImpl(localPath: string, path: string, callback: any) {
+    fse.copy(localPath, path, callback);
   }
 
-  openFile(file) {
+  openFile(file: LocalFile) {
     atom.workspace.open(file.getRealPathSync());
-    return this.fileOpened(file);
+    this.fileOpened(file);
   }
 
-  createReadStreamImpl(path, callback) {
-    return callback(null, fse.createReadStream(path));
+  createReadStreamImpl(path: string, callback: ReadStreamCallback) {
+    callback(null, fse.createReadStream(path));
   }
 
-  newFileImpl(path, callback) {
+  newFileImpl(path: string, callback: NewFileCallback) {
     const file = new File(path);
 
     const p = file.create().then(created => {
       if (created) {
-        return callback(this.getFile(path), null);
+        callback(this.getFile(path), null);
       } else {
-        return callback(null, 'File could not be created.');
+        callback(null, 'File could not be created.');
       }
-    });
-    return p.catch(error => {
-      return callback(null, error);
+    }).catch((error: any) => {
+      callback(null, error);
     });
   }
 
-  getEntriesImpl(directory, callback) {
+  getEntriesImpl(directory: LocalDirectory, callback: EntriesCallback) {
     return directory.directory.getEntries((err, entries) => {
       if (err != null) {
         return callback(directory, err, []);
@@ -154,12 +149,12 @@ module.exports =
     });
   }
 
-  wrapEntries(entries) {
+  wrapEntries(entries: (Directory | File)[]) {
     const result = [];
 
     for (let entry of Array.from(entries)) {
       // Added a try/catch, because it was found that there are sometimes
-      // temporary files created by the OS in the list of entries that no
+      // temporary files created by the OS in the list of entries that no longer
       // exist by the time they get here. Reading them then threw an error.
       try {
         if (entry.isDirectory()) {
@@ -174,4 +169,5 @@ module.exports =
 
     return result;
   }
-});
+
+}

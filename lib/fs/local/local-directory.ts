@@ -1,58 +1,60 @@
-/*
- * decaffeinate suggestions:
- * DS002: Fix invalid constructor
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let LocalDirectory;
-const VDirectory = require('../vdirectory');
-const LocalFile = require('./local-file');
-const fs = require('fs');
+const fs = require('fs')
 
-module.exports =
-(LocalDirectory = class LocalDirectory extends VDirectory {
+import { Directory } from 'atom'
+import { VDirectory } from '../'
+import { LocalFileSystem } from './'
 
-  constructor(fileSystem, directory) {
-    let stats;
-    this.directory = directory;
+export class LocalDirectory extends VDirectory {
+
+  constructor(fileSystem: LocalFileSystem, public directory: Directory) {
     super(fileSystem);
+    let stats: any
+
     if (this.directory.isSymbolicLink()) {
-      stats = fs.lstatSync(this.directory.getRealPathSync());
+      stats = fs.lstatSync(this.directory.getRealPathSync())
     } else {
-      stats = fs.statSync(this.directory.getRealPathSync());
+      stats = fs.statSync(this.directory.getRealPathSync())
     }
-    this.modifyDate = stats.mtime;
-    this.size = stats.size;
+
+    this.modifyDate = stats.mtime
+    this.size = stats.size
+  }
+
+  getFileSystem(): LocalFileSystem {
+    return super.getFileSystem() as LocalFileSystem
   }
 
   existsSync() {
-    return this.directory.existsSync();
+    return this.directory.existsSync()
   }
 
   getRealPathSync() {
-    return this.directory.getRealPathSync();
+    return this.directory.getRealPathSync()
   }
 
   getBaseName() {
-    return this.directory.getBaseName();
+    return this.directory.getBaseName()
   }
 
   getParent() {
-    return new LocalDirectory(this.fileSystem, this.directory.getParent());
+    return new LocalDirectory(this.getFileSystem(), this.directory.getParent())
   }
 
   isRoot() {
-    return this.directory.isRoot();
+    return this.directory.isRoot()
   }
 
   isWritable() {
-    return true;
+    return true
   }
 
   isLink() {
-    return this.directory.isSymbolicLink();
+    return this.directory.isSymbolicLink()
   }
 
-  onDidChange(callback) {
-    return this.directory.onDidChange(callback);
+  // TODO: callback type
+  onDidChange(callback: any) {
+    return this.directory.onDidChange(callback)
   }
-});
+
+}

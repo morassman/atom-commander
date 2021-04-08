@@ -1,27 +1,35 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let BookmarkManager;
+import { Disposable } from 'atom'
+import { PathDescription } from "./fs/path-description";
+
 const fsp = require('fs-plus');
 
-module.exports =
-(BookmarkManager = class BookmarkManager {
+export interface Bookmark {
 
-  constructor(main, state) {
-    this.main = main;
+  name: string
+
+  pathDescription: PathDescription
+
+}
+
+export class BookmarkManager {
+
+  bookmarks: Bookmark[]
+
+  contextMenuDisposable: Disposable | null
+
+  commandsDisposable: Disposable | null
+
+  constructor(public readonly main: any, public readonly state: any) {
     this.bookmarks = [];
     this.contextMenuDisposable = null;
     this.commandsDisposable = null;
 
-    if (state != null) {
-      for (let bookmark of Array.from(state)) {
-        if (bookmark instanceof Array) {
-          bookmark = this.convertArrayBookmarkToObject(bookmark);
+    if (state) {
+      for (let bookmark of state) {
+        if (Array.isArray(bookmark)) {
+          bookmark = this.convertArrayBookmarkToObject(bookmark)
         }
+
         this.bookmarks.push(bookmark);
       }
     }
@@ -29,10 +37,7 @@ module.exports =
     this.bookmarksChanged();
   }
 
-  convertArrayBookmarkToObject(bookmark) {
-    let item;
-    const result = {};
-    result.name = bookmark[0];
+  convertArrayBookmarkToObject(bookmark: string[]): Bookmark {
     const localFileSystem = this.main.getLocalFileSystem();
 
     if (fsp.isFileSync(bookmark[1])) {
@@ -41,9 +46,10 @@ module.exports =
       item = localFileSystem.getDirectory(bookmark[1]);
     }
 
-    result.pathDescription = item.getPathDescription();
-
-    return result;
+    return {
+      name: bookmark[0],
+      pathDescription: item.getPathDescription()
+    }
   }
 
   addBookmark(name, item) {
@@ -157,4 +163,5 @@ module.exports =
   serialize() {
     return this.bookmarks;
   }
-});
+
+}

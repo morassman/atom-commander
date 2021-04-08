@@ -1,12 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS002: Fix invalid constructor
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let FTPFileSystem;
 const fs = require('fs');
 const FTPClient = require('ftp');
 const PathUtil = require('path').posix;
@@ -15,13 +6,13 @@ const FTPFile = require('./ftp-file');
 const FTPDirectory = require('./ftp-directory');
 const Utils = require('../../utils');
 
-module.exports =
-(FTPFileSystem = class FTPFileSystem extends VFileSystem {
+import { Server } from '../../servers/server';
+import { RemoteFileSystem } from './remote-filesystem'
 
-  constructor(server, config) {
-    this.server = server;
-    this.config = config;
-    super(this.server.getMain());
+export class FTPFileSystem extends RemoteFileSystem {
+
+  constructor(server: Server, config: any) {
+    super(server, config)
     this.client = null;
 
     if ((this.config.password != null) && (this.config.passwordDecrypted == null)) {
@@ -36,10 +27,6 @@ module.exports =
     const cloneFS = new FTPFileSystem(this.server, this.config);
     cloneFS.clientConfig = this.clientConfig;
     return cloneFS;
-  }
-
-  isLocal() {
-    return false;
   }
 
   connectImpl() {
@@ -244,10 +231,6 @@ module.exports =
     });
   }
 
-  getName() {
-    return this.config.name;
-  }
-
   getHost() {
     return this.config.host;
   }
@@ -262,10 +245,6 @@ module.exports =
 
   getUsername() {
     return this.config.user;
-  }
-
-  getID() {
-    return this.getLocalDirectoryName();
   }
 
   getLocalDirectoryName() {
@@ -377,4 +356,5 @@ module.exports =
 
     return item;
   }
-});
+
+}

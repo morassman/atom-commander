@@ -1,197 +1,196 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let Server;
-const fsp = require('fs-plus');
-const fse = require('fs-extra');
-const PathUtil = require('path');
-const FTPFileSystem = require('../fs/ftp/ftp-filesystem');
-const SFTPFileSystem = require('../fs/ftp/sftp-filesystem');
-const RemoteFileManager = require('./remote-file-manager');
-const {CompositeDisposable} = require('atom');
+const fsp = require('fs-plus')
+const fse = require('fs-extra')
+const PathUtil = require('path')
+import { FTPFileSystem } from '../fs/ftp/ftp-filesystem'
+import { SFTPFileSystem } from '../fs/ftp/sftp-filesystem'
+import { RemoteFileManager } from './remote-file-manager'
+import { CompositeDisposable } from 'atom'
+import { main } from "../main"
+import { VDirectory, VFile, VFileSystem } from '../fs'
+import { Watcher } from './watcher'
+import { ServerManager } from "./server-manager"
 
-module.exports =
-(Server = class Server {
+export class Server {
 
-  constructor(serverManager, config) {
-    this.serverManager = serverManager;
-    this.config = config;
-    this.main = this.serverManager.getMain();
-    this.fileSystem = this.createFileSystem();
-    this.localDirectoryName = this.fileSystem.getLocalDirectoryName();
-    this.remoteFileManager = new RemoteFileManager(this);
-    this.disposables = new CompositeDisposable();
+  fileSystem: VFileSystem
 
-    const taskManager = this.fileSystem.getTaskManager();
+  localDirectoryName: string
+
+  remoteFileManager: RemoteFileManager
+
+  disposables: CompositeDisposable
+
+  constructor(private readonly serverManager: ServerManager, private readonly config: any) {
+    this.config = config
+    this.fileSystem = this.createFileSystem()
+    this.localDirectoryName = this.fileSystem.getLocalDirectoryName()
+    this.remoteFileManager = new RemoteFileManager(this)
+    this.disposables = new CompositeDisposable()
+
+    const taskManager = this.fileSystem.getTaskManager()
+
     this.disposables.add(taskManager.onUploadCount(change => {
-      return this.serverManager.uploadCountChanged(change[0], change[1]);
-    })
-    );
+      this.serverManager.uploadCountChanged(change[0], change[1])
+    }))
+
     this.disposables.add(taskManager.onDownloadCount(change => {
-      return this.serverManager.downloadCountChanged(change[0], change[1]);
-    })
-    );
+      this.serverManager.downloadCountChanged(change[0], change[1])
+    }))
   }
 
   getServerManager() {
-    return this.serverManager;
+    return this.serverManager
   }
 
   getConfig() {
-    return this.config;
+    return this.config
   }
 
   getName() {
-    return this.fileSystem.getName();
+    return this.fileSystem.getName()
   }
 
   getDisplayName() {
-    return this.fileSystem.getDisplayName();
+    return this.fileSystem.getDisplayName()
   }
 
   getUsername() {
-    return this.fileSystem.getUsername();
+    return this.fileSystem.getUsername()
   }
 
   serialize() {
-    return this.fileSystem.getSafeConfig();
-  }
-
-  getMain() {
-    return this.main;
+    return this.fileSystem.getSafeConfig()
   }
 
   getLocalDirectoryPath() {
-    return PathUtil.join(this.getServersPath(), this.localDirectoryName);
+    return PathUtil.join(this.getServersPath(), this.localDirectoryName)
   }
 
   getCachePath() {
-    return PathUtil.join(this.getLocalDirectoryPath(), "cache");
+    return PathUtil.join(this.getLocalDirectoryPath(), "cache")
   }
 
   getLocalDirectoryName() {
-    return this.localDirectoryName;
+    return this.localDirectoryName
   }
 
   getRemoteFileManager() {
-    return this.remoteFileManager;
+    return this.remoteFileManager
   }
 
   getFileSystem() {
-    return this.fileSystem;
+    return this.fileSystem
   }
 
   dispose() {
-    this.close();
-    this.fileSystem.dispose();
-    return this.disposables.dispose();
+    this.close()
+    this.fileSystem.dispose()
+    return this.disposables.dispose()
   }
 
   createFileSystem() {
     if (this.config.protocol === "ftp") {
-      return new FTPFileSystem(this, this.config);
-    } else if (this.config.protocol === "sftp") {
-      return new SFTPFileSystem(this.main, this, this.config);
+      return new FTPFileSystem(this, this.config)
     }
 
-    return this.main.getLocalFileSystem();
+    return new SFTPFileSystem(this, this.config)
   }
 
-  isFTP() {
-    return this.config.protocol === "ftp";
+  isFTP(): boolean {
+    return this.config.protocol === "ftp"
   }
 
-  isSFTP() {
-    return this.config.protocol === "sftp";
+  isSFTP(): boolean {
+    return this.config.protocol === "sftp"
   }
 
   // Return a string that will be used when selecting a server from a list.
-  getDescription() {
-    return this.fileSystem.getDescription();
+  getDescription(): string {
+    return this.fileSystem.getDescription()
   }
 
-  getRootDirectory() {
-    return this.fileSystem.getDirectory("/");
+  getRootDirectory(): VDirectory | undefined {
+    return this.fileSystem.getDirectory("/")
   }
 
-  getInitialDirectory() {
-    return this.fileSystem.getInitialDirectory();
+  getInitialDirectory(): VDirectory | undefined {
+    return this.fileSystem.getInitialDirectory()
   }
 
   deleteLocalDirectory() {
-    return fse.removeSync(this.getLocalDirectoryPath());
+    return fse.removeSync(this.getLocalDirectoryPath())
   }
 
-  openFile(file) {
-    return this.remoteFileManager.openFile(file);
+  openFile(file: VFile) {
+    this.remoteFileManager.openFile(file)
   }
 
-  getOpenFileCount() {
-    return this.remoteFileManager.getOpenFileCount();
+  getOpenFileCount(): number {
+    return this.remoteFileManager.getOpenFileCount()
   }
 
   // Return the number of files in the cache.
-  getCacheFileCount() {
-    let result = 0;
+  getCacheFileCount(): number {
+    let result = 0
 
-    const onFile = filePath => {
-      return result++;
-    };
-    const onDirectory = directoryPath => {
-      return true;
-    };
+    const onFile = (filePath: string) => {
+      return result++
+    }
+    const onDirectory = (directoryPath: string) => {
+      return true
+    }
 
-    fsp.traverseTreeSync(this.getCachePath(), onFile, onDirectory);
+    fsp.traverseTreeSync(this.getCachePath(), onFile, onDirectory)
 
-    return result;
+    return result
   }
 
-  getTaskCount() {
-    return this.fileSystem.getTaskCount();
+  getTaskCount(): number {
+    return this.fileSystem.getTaskCount()
   }
 
-  getServersPath() {
-    return PathUtil.join(fsp.getHomeDirectory(), ".atom-commander", "servers");
+  getServersPath(): string {
+    return PathUtil.join(fsp.getHomeDirectory(), ".atom-commander", "servers")
   }
 
-  getCachedFilePaths() {
-    const result = [];
+  getCachedFilePaths(): string[] {
+    const result: string[] = []
 
-    const onFile = filePath => {
-      return result.push(filePath);
-    };
-    const onDirectory = directoryPath => {
-      return true;
-    };
+    const onFile = (filePath: string) => {
+      return result.push(filePath)
+    }
+    const onDirectory = (directoryPath: string) => {
+      return true
+    }
 
-    fsp.traverseTreeSync(this.getCachePath(), onFile, onDirectory);
+    fsp.traverseTreeSync(this.getCachePath(), onFile, onDirectory)
 
-    return result;
+    return result
   }
 
-  getWatcherWithLocalFilePath(localFilePath) {
-    return this.remoteFileManager.getWatcherWithLocalFilePath(localFilePath);
+  getWatcherWithLocalFilePath(localFilePath: string): Watcher | null {
+    return this.remoteFileManager.getWatcherWithLocalFilePath(localFilePath)
   }
 
   // Return true if the connection to the server is open.
-  isOpen() {
-    return this.fileSystem.isConnected();
+  isOpen(): boolean {
+    return this.fileSystem.isConnected()
   }
 
-  isClosed() {
-    return !this.isOpen();
+  isClosed(): boolean {
+    return !this.isOpen()
   }
 
   // Closes the connection to the server.
   close() {
-    const taskManager = this.fileSystem.getTaskManager(false);
-    if (taskManager != null) {
-      taskManager.clearTasks();
+    const taskManager = this.fileSystem.getTaskManager(false)
+
+    if (taskManager !== null) {
+      taskManager.clearTasks()
     }
-    this.fileSystem.disconnect();
-    return this.serverManager.serverClosed(this);
+
+    this.fileSystem.disconnect()
+    this.serverManager.serverClosed(this)
   }
-});
+
+}

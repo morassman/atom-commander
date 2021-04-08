@@ -1,77 +1,71 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let Schemas;
-module.exports =
-(Schemas = class Schemas {
+export class Schemas {
 
   // Creates a new state for the current version.
   static newState() {
-    const state = {};
-    state.version = 4;
-    state.bookmarks = [];
-    state.servers = [];
-    state.visible = false;
-    state.height = 200;
-    state.left = {};
-    state.left.tabs = [];
-    state.right = {};
-    state.right.tabs = [];
+    const state: any = {}
 
-    return state;
+    state.version = 4
+    state.bookmarks = []
+    state.servers = []
+    state.visible = false
+    state.height = 200
+    state.left = {}
+    state.left.tabs = []
+    state.right = {}
+    state.right.tabs = []
+
+    return state
   }
 
-  static upgrade(state) {
+  static upgrade(state: any) {
     if ((state.version === 1) || (state.version === 2)) {
-      this.upgradeTo3(state);
+      this.upgradeTo3(state)
     }
 
     if (state.version === 3) {
-      this.upgradeTo4(state);
+      this.upgradeTo4(state)
     }
 
-    return state;
+    return state
   }
 
-  static upgradeTo3(state) {
-    state.version = 3;
-    return this.upgradeServersTo3(state.servers);
+  static upgradeTo3(state: any) {
+    state.version = 3
+    return this.upgradeServersTo3(state.servers)
   }
 
-  static upgradeServersTo3(servers) {
+  static upgradeServersTo3(servers: any[]) {
     if (!servers) {
-      return;
+      return
     }
 
     return Array.from(servers).map((server) =>
-      this.upgradeServerTo3(server));
+      this.upgradeServerTo3(server))
   }
 
-  static upgradeServerTo3(server) {
+  static upgradeServerTo3(server: any) {
     if (server.protocol !== 'sftp') {
-      return;
+      return
     }
 
-    server.privateKeyPath = '';
-    server.passphrase = '';
-    server.loginWithPassword = true;
-    return server.usePassphrase = false;
+    server.privateKeyPath = ''
+    server.passphrase = ''
+    server.loginWithPassword = true
+    return server.usePassphrase = false
   }
 
-  static upgradeTo4(state) {
-    state.version = 4;
-    return this.upgradeServersTo4(state.servers);
+  static upgradeTo4(state: any) {
+    state.version = 4
+    return this.upgradeServersTo4(state.servers)
   }
 
-  static upgradeServersTo4(servers) {
+  static upgradeServersTo4(servers: any[]) {
     if (!servers) {
-      return;
+      return
     }
 
     return Array.from(servers).map((server) =>
-      (server.name = ''));
+      (server.name = ''))
   }
-});
+
+}

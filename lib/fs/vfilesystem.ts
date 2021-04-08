@@ -1,26 +1,29 @@
 const q = require('q');
 import { CompositeDisposable, Disposable, Emitter } from 'atom'
-const Main = require('../atom-commander')
+import { VFile } from './vfile'
+import { VDirectory } from './vdirectory'
 import { TaskManager } from './task-manager'
+import { VItem } from '.';
+import { main } from '../main'
+
+export type EmitterCallback = (value?: any) => void
+export type ErrorCallback = (err: any) => void
+export type NewFileCallback = (file: VFile | null, error: any) => void
+export type ReadStreamCallback = (error: any, stream: ReadableStream | null) => void
+export type EntriesCallback = (directory: VDirectory, err: any, items: VItem[]) => void
 
 export abstract class VFileSystem {
 
-  main: any
   emitter: Emitter
   taskManager: TaskManager | null
   connecting: boolean
   connected: boolean
 
-  constructor(main: any) {
-    this.main = main;
+  constructor() {
     this.emitter = new Emitter();
     this.taskManager = null;
     this.connecting = false;
     this.connected = false;
-  }
-
-  getMain() {
-    return this.main;
   }
 
   getTaskManager(create = true) {
@@ -66,16 +69,16 @@ export abstract class VFileSystem {
     return deferred.promise;
   }
 
-  onConnected(callback: (value?: any) => void): Disposable {
+  onConnected(callback: EmitterCallback): Disposable {
     return this.emitter.on("connected", callback);
   }
 
-  onDisconnected(callback: (value?: any) => void): Disposable {
+  onDisconnected(callback: EmitterCallback): Disposable {
     return this.emitter.on("disconnected", callback);
   }
 
   // Callback receives a single 'err' parameter.
-  onError(callback: (value?: any) => void): Disposable {
+  onError(callback: EmitterCallback): Disposable {
     return this.emitter.on("error", callback);
   }
 
@@ -179,7 +182,7 @@ export abstract class VFileSystem {
   abstract getUsername(): string
 
   // Callback receives a single string argument with error message. null if no error.
-  rename(oldPath: string, newPath: string, callback: (error: string | null) => void) {
+  rename(oldPath: string, newPath: string, callback: ErrorCallback) {
     const successCallback = () => {
       this.renameImpl(oldPath, newPath, callback);
     };
@@ -187,10 +190,10 @@ export abstract class VFileSystem {
     this.connectPromise().then(successCallback, callback);
   }
 
-  abstract renameImpl(oldPath: string, newPath: string, callback: (error: string | null) => void): void
+  abstract renameImpl(oldPath: string, newPath: string, callback: ErrorCallback): void
 
   // Callback receives a single string argument with error message. null if no error.
-  makeDirectory(path: string, callback: (error: string | null) => void) {
+  makeDirectory(path: string, callback: ErrorCallback) {
     const successCallback = () => {
       return this.makeDirectoryImpl(path, callback);
     };
@@ -198,10 +201,10 @@ export abstract class VFileSystem {
     return this.connectPromise().then(successCallback, callback);
   }
 
-  abstract makeDirectoryImpl(path: string, callback: (error: string | null) => void): void
+  abstract makeDirectoryImpl(path: string, callback: ErrorCallback): void
 
   // Callback receives a single string argument with error message. null if no error.
-  deleteFile(path: string, callback: (error: string | null) => void) {
+  deleteFile(path: string, callback: ErrorCallback) {
     const successCallback = () => {
       this.deleteFileImpl(path, callback);
     };
@@ -209,10 +212,10 @@ export abstract class VFileSystem {
     this.connectPromise().then(successCallback, callback);
   }
 
-  abstract deleteFileImpl(path: string, callback: (error: string | null) => void): void
+  abstract deleteFileImpl(path: string, callback: ErrorCallback): void
 
   // Callback receives a single string argument with error message. null if no error.
-  deleteDirectory(path: string, callback: (error: string | null) => void) {
+  deleteDirectory(path: string, callback: ErrorCallback) {
     const successCallback = () => {
       this.deleteDirectoryImpl(path, callback);
     };
@@ -220,10 +223,10 @@ export abstract class VFileSystem {
     this.connectPromise().then(successCallback, callback);
   }
 
-  abstract deleteDirectoryImpl(path: string, callback: (error: string | null) => void): void
+  abstract deleteDirectoryImpl(path: string, callback: ErrorCallback): void
 
   // Callback receives a single string argument with error message. null if no error.
-  download(path: string, localPath: string, callback: (error: string | null) => void) {
+  download(path: string, localPath: string, callback: ErrorCallback) {
     const successCallback = () => {
       this.downloadImpl(path, localPath, callback);
     };
@@ -231,22 +234,22 @@ export abstract class VFileSystem {
     this.connectPromise().then(successCallback, callback);
   }
 
-  abstract downloadImpl(path: string, localPath: string, callback: (error: string | null) => void): void
+  abstract downloadImpl(path: string, localPath: string, callback: ErrorCallback): void
 
-  abstract openFile(file: any): void
+  abstract openFile(file: VFile): void
 
   fileOpened(file: any) {
     const hideOnOpen = atom.config.get('atom-commander.panel.hideOnOpen');
 
     if (hideOnOpen) {
-      return this.main.hide();
+      return main.hide();
     }
   }
 
   // Callback receives two arguments:
   // 1.) err : String with error message. null if no error.
   // 2.) stream : A ReadableStream.
-  createReadStream(path: string, callback: (error: string | null, stream: ReadableStream | null) => void) {
+  createReadStream(path: string, callback: ReadStreamCallback) {
     const successCallback = () => {
       this.createReadStreamImpl(path, callback);
     };
@@ -258,12 +261,12 @@ export abstract class VFileSystem {
     this.connectPromise().then(successCallback, errorCallback);
   }
 
-  abstract createReadStreamImpl(path: string, callback: (error: string | null, stream: ReadableStream | null) => void): void
+  abstract createReadStreamImpl(path: string, callback: ReadStreamCallback): void
 
   // The callback receives two parameters :
   // 1.) file : The file that was created. null if it could not be created.
   // 2.) err : The error if the file could not be created.
-  newFile(path: string, callback: (file: VFile | null, error: string | null) => void) {
+  newFile(path: string, callback: NewFileCallback) {
     const successCallback = () => {
       return this.newFileImpl(path, callback);
     };
@@ -275,13 +278,13 @@ export abstract class VFileSystem {
     return this.connectPromise().then(successCallback, errorCallback);
   }
 
-  abstract newFileImpl(path: string, callback: (file: VFile | null, error: string | null) => void): void
+  abstract newFileImpl(path: string, callback: NewFileCallback): void
 
   // The callback received three parameters :
   // 1.) The directory.
   // 2.) err if there is an error. null if not.
   // 3.) The list of entries containing VFile and VDirectory instances.
-  getEntries(directory: VDirectory, callback: (directory: VDirectory, err: string | null, items: VItem[]) => void) {
+  getEntries(directory: VDirectory, callback: EntriesCallback) {
     const successCallback = () => {
       this.getEntriesImpl(directory, callback);
     };
@@ -293,9 +296,10 @@ export abstract class VFileSystem {
     this.connectPromise().then(successCallback, errorCallback);
   }
 
-  abstract getEntriesImpl(directory: VDirectory, callback: (directory: VDirectory, err: string | null, items: VItem[]) => void): void
+  abstract getEntriesImpl(directory: VDirectory, callback: EntriesCallback): void
 
-  upload(localPath: string, path: string, callback) {
+  // TODO : callback type
+  upload(localPath: string, path: string, callback: any) {
     const successCallback = () => {
       return this.uploadImpl(localPath, path, callback);
     };
@@ -303,6 +307,7 @@ export abstract class VFileSystem {
     return this.connectPromise().then(successCallback, callback);
   }
 
-  uploadImpl(localPath: string, path: string, callback) { }
+  // TODO : callback type
+  abstract uploadImpl(localPath: string, path: string, callback: any): void
 
 }

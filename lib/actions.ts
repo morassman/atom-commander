@@ -1,13 +1,5 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let Actions;
+import { Main } from "./atom-commander";
+
 const Utils = require('./utils');
 const FileController = require('./controllers/file-controller');
 const DirectoryController = require('./controllers/directory-controller');
@@ -23,49 +15,9 @@ const fsp = require('fs-plus');
 const ChildProcess = require('child_process');
 const shell = require('shell');
 
-module.exports =
-(Actions = class Actions {
+export class Actions {
 
-  constructor(main) {
-    this.selectAll = this.selectAll.bind(this);
-    this.selectNone = this.selectNone.bind(this);
-    this.selectAdd = this.selectAdd.bind(this);
-    this.selectRemove = this.selectRemove.bind(this);
-    this.selectInvert = this.selectInvert.bind(this);
-    this.selectFolders = this.selectFolders.bind(this);
-    this.selectFiles = this.selectFiles.bind(this);
-    this.goHome = this.goHome.bind(this);
-    this.goRoot = this.goRoot.bind(this);
-    this.goEditor = this.goEditor.bind(this);
-    this.goPath = this.goPath.bind(this);
-    this.goFile = this.goFile.bind(this);
-    this.goDirectory = this.goDirectory.bind(this);
-    this.goDrive = this.goDrive.bind(this);
-    this.goProject = this.goProject.bind(this);
-    this.goBookmark = this.goBookmark.bind(this);
-    this.viewRefresh = this.viewRefresh.bind(this);
-    this.viewMirror = this.viewMirror.bind(this);
-    this.viewSwap = this.viewSwap.bind(this);
-    this.compareFolders = this.compareFolders.bind(this);
-    this.compareFiles = this.compareFiles.bind(this);
-    this.bookmarksAddEditor = this.bookmarksAddEditor.bind(this);
-    this.bookmarksAddLocalFilePath = this.bookmarksAddLocalFilePath.bind(this);
-    this.bookmarksAdd = this.bookmarksAdd.bind(this);
-    this.bookmarksRemove = this.bookmarksRemove.bind(this);
-    this.bookmarksOpen = this.bookmarksOpen.bind(this);
-    this.serversAdd = this.serversAdd.bind(this);
-    this.serversRemove = this.serversRemove.bind(this);
-    this.serversOpen = this.serversOpen.bind(this);
-    this.serversClose = this.serversClose.bind(this);
-    this.serversCache = this.serversCache.bind(this);
-    this.serversEdit = this.serversEdit.bind(this);
-    this.uploadFile = this.uploadFile.bind(this);
-    this.downloadFile = this.downloadFile.bind(this);
-    this.compareWithServer = this.compareWithServer.bind(this);
-    this.openTerminal = this.openTerminal.bind(this);
-    this.openFileSystem = this.openFileSystem.bind(this);
-    this.openSystem = this.openSystem.bind(this);
-    this.openNative = this.openNative.bind(this);
+  constructor(public readonly main: Main) {
     this.main = main;
   }
 

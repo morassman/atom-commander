@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -13,57 +14,55 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-/*
- * decaffeinate suggestions:
- * DS002: Fix invalid constructor
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-var LocalDirectory;
-var VDirectory = require('../vdirectory');
-var LocalFile = require('./local-file');
+exports.__esModule = true;
+exports.LocalDirectory = void 0;
 var fs = require('fs');
-module.exports =
-    (LocalDirectory = /** @class */ (function (_super) {
-        __extends(LocalDirectory, _super);
-        function LocalDirectory(fileSystem, directory) {
-            var _this = this;
-            var stats;
-            _this.directory = directory;
-            _this = _super.call(this, fileSystem) || this;
-            if (_this.directory.isSymbolicLink()) {
-                stats = fs.lstatSync(_this.directory.getRealPathSync());
-            }
-            else {
-                stats = fs.statSync(_this.directory.getRealPathSync());
-            }
-            _this.modifyDate = stats.mtime;
-            _this.size = stats.size;
-            return _this;
+var __1 = require("../");
+var LocalDirectory = /** @class */ (function (_super) {
+    __extends(LocalDirectory, _super);
+    function LocalDirectory(fileSystem, directory) {
+        var _this = _super.call(this, fileSystem) || this;
+        _this.directory = directory;
+        var stats;
+        if (_this.directory.isSymbolicLink()) {
+            stats = fs.lstatSync(_this.directory.getRealPathSync());
         }
-        LocalDirectory.prototype.existsSync = function () {
-            return this.directory.existsSync();
-        };
-        LocalDirectory.prototype.getRealPathSync = function () {
-            return this.directory.getRealPathSync();
-        };
-        LocalDirectory.prototype.getBaseName = function () {
-            return this.directory.getBaseName();
-        };
-        LocalDirectory.prototype.getParent = function () {
-            return new LocalDirectory(this.fileSystem, this.directory.getParent());
-        };
-        LocalDirectory.prototype.isRoot = function () {
-            return this.directory.isRoot();
-        };
-        LocalDirectory.prototype.isWritable = function () {
-            return true;
-        };
-        LocalDirectory.prototype.isLink = function () {
-            return this.directory.isSymbolicLink();
-        };
-        LocalDirectory.prototype.onDidChange = function (callback) {
-            return this.directory.onDidChange(callback);
-        };
-        return LocalDirectory;
-    }(VDirectory)));
+        else {
+            stats = fs.statSync(_this.directory.getRealPathSync());
+        }
+        _this.modifyDate = stats.mtime;
+        _this.size = stats.size;
+        return _this;
+    }
+    LocalDirectory.prototype.getFileSystem = function () {
+        return _super.prototype.getFileSystem.call(this);
+    };
+    LocalDirectory.prototype.existsSync = function () {
+        return this.directory.existsSync();
+    };
+    LocalDirectory.prototype.getRealPathSync = function () {
+        return this.directory.getRealPathSync();
+    };
+    LocalDirectory.prototype.getBaseName = function () {
+        return this.directory.getBaseName();
+    };
+    LocalDirectory.prototype.getParent = function () {
+        return new LocalDirectory(this.getFileSystem(), this.directory.getParent());
+    };
+    LocalDirectory.prototype.isRoot = function () {
+        return this.directory.isRoot();
+    };
+    LocalDirectory.prototype.isWritable = function () {
+        return true;
+    };
+    LocalDirectory.prototype.isLink = function () {
+        return this.directory.isSymbolicLink();
+    };
+    // TODO: callback type
+    LocalDirectory.prototype.onDidChange = function (callback) {
+        return this.directory.onDidChange(callback);
+    };
+    return LocalDirectory;
+}(__1.VDirectory));
+exports.LocalDirectory = LocalDirectory;
 //# sourceMappingURL=local-directory.js.map
