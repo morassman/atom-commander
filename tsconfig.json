@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
     "sourceMap": true,
     "jsx": "react",
-    "outDir": "./dist",
+    "jsxFactory": "etch.dom",
+    "outDir": "./lib",
     "noImplicitAny": true,
     "strictNullChecks": true,
   },
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules"
   ]
