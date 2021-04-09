@@ -92,14 +92,14 @@ export default {
     return atom.notifications.addWarning(title, options)
   },
 
-  showErrorWarning(title: string, pre: string, post: string, err: Error, dismissable: boolean) {
+  showErrorWarning(title: string, pre: string|null, post: string|null, err: Error|null, dismissable: boolean) {
     let message = ''
 
-    if (pre != null) {
+    if (pre !== null) {
       message = pre
     }
 
-    if ((err != null) && (err.message != null)) {
+    if ((err !== null) && (err.message !== null)) {
       if (message.length > 0) {
         message += '\n'
       }
@@ -107,7 +107,7 @@ export default {
       message += err.message
     }
 
-    if (post != null) {
+    if (post !== null) {
       message += '\n' + post
     }
 

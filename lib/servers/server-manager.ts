@@ -1,8 +1,9 @@
-import { main } from '../main'
+import { RemoteConfig } from '../fs/ftp/remote-config'
+import { Main, main } from '../main'
 import { Server } from './server'
+import { Watcher } from './watcher'
 
 const fsp = require('fs-plus')
-
 
 export class ServerManager {
 
@@ -10,7 +11,7 @@ export class ServerManager {
   uploadCount: number
   downloadCount: number
 
-  constructor(state: any) {
+  constructor(public readonly main: Main, state: RemoteConfig[]) {
     this.servers = []
     this.uploadCount = 0
     this.downloadCount = 0
@@ -30,8 +31,7 @@ export class ServerManager {
     return this.downloadCount
   }
 
-  addServer(config, save) {
-    if (save == null) { save = true }
+  addServer(config: RemoteConfig, save=true) {
     const server = new Server(this, config)
     this.servers.push(server)
 
@@ -42,11 +42,11 @@ export class ServerManager {
     return server
   }
 
-  removeServer(server) {
+  removeServer(server: Server) {
     return this.removeServerImpl(server, true, true)
   }
 
-  removeServerImpl(server, deleteLocalDirectory, save) {
+  removeServerImpl(server: Server, deleteLocalDirectory: boolean, save: boolean) {
     const index = this.servers.indexOf(server)
 
     if (index >= 0) {
@@ -72,7 +72,7 @@ export class ServerManager {
   // removed, but its cache will not be deleted. The name of the
   // cache's folder will be renamed based on the new config and
   // a new server will be created with the new config.
-  changeServerConfig(server, config) {
+  changeServerConfig(server: Server, config: RemoteConfig) {
     // By removing the server its bookmarks will be removed as well.
     // It is therefore necessary to get its bookmarks before removing it.
     const oldFSID = server.getFileSystem().getID()
@@ -93,7 +93,10 @@ export class ServerManager {
 
     for (let bookmark of Array.from(bookmarks)) {
       const item = newFS.getItemWithPathDescription(bookmark.pathDescription)
-      bookmark.pathDescription = item.getPathDescription()
+      
+      if (item) {
+        bookmark.pathDescription = item.getPathDescription()
+      }
     }
 
     main.bookmarkManager.addBookmarks(bookmarks)

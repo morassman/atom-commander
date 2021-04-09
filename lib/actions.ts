@@ -1,4 +1,4 @@
-import { Main } from "./atom-commander";
+import { Main } from './main';
 
 const Utils = require('./utils');
 const FileController = require('./controllers/file-controller');

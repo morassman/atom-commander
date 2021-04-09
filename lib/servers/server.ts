@@ -5,14 +5,17 @@ import { FTPFileSystem } from '../fs/ftp/ftp-filesystem'
 import { SFTPFileSystem } from '../fs/ftp/sftp-filesystem'
 import { RemoteFileManager } from './remote-file-manager'
 import { CompositeDisposable } from 'atom'
-import { main } from "../main"
 import { VDirectory, VFile, VFileSystem } from '../fs'
 import { Watcher } from './watcher'
-import { ServerManager } from "./server-manager"
+import { ServerManager } from './server-manager'
+import { RemoteConfig } from '../fs/ftp/remote-config'
+import { FTPConfig } from '../fs/ftp/ftp-config'
+import { SFTPConfig } from '../fs/ftp/sftp-config'
+import { RemoteFileSystem } from '../fs/ftp/remote-filesystem'
 
 export class Server {
 
-  fileSystem: VFileSystem
+  fileSystem: RemoteFileSystem<RemoteConfig>
 
   localDirectoryName: string
 
@@ -20,8 +23,7 @@ export class Server {
 
   disposables: CompositeDisposable
 
-  constructor(private readonly serverManager: ServerManager, private readonly config: any) {
-    this.config = config
+  constructor(public readonly serverManager: ServerManager, public readonly config: RemoteConfig) {
     this.fileSystem = this.createFileSystem()
     this.localDirectoryName = this.fileSystem.getLocalDirectoryName()
     this.remoteFileManager = new RemoteFileManager(this)
@@ -29,13 +31,15 @@ export class Server {
 
     const taskManager = this.fileSystem.getTaskManager()
 
-    this.disposables.add(taskManager.onUploadCount(change => {
-      this.serverManager.uploadCountChanged(change[0], change[1])
-    }))
+    if (taskManager) {
+      this.disposables.add(taskManager.onUploadCount(change => {
+        this.serverManager.uploadCountChanged(change[0], change[1])
+      }))
 
-    this.disposables.add(taskManager.onDownloadCount(change => {
-      this.serverManager.downloadCountChanged(change[0], change[1])
-    }))
+      this.disposables.add(taskManager.onDownloadCount(change => {
+        this.serverManager.downloadCountChanged(change[0], change[1])
+      }))
+    }
   }
 
   getServerManager() {
@@ -67,7 +71,7 @@ export class Server {
   }
 
   getCachePath() {
-    return PathUtil.join(this.getLocalDirectoryPath(), "cache")
+    return PathUtil.join(this.getLocalDirectoryPath(), 'cache')
   }
 
   getLocalDirectoryName() {
@@ -89,19 +93,19 @@ export class Server {
   }
 
   createFileSystem() {
-    if (this.config.protocol === "ftp") {
-      return new FTPFileSystem(this, this.config)
+    if (this.config.protocol === 'ftp') {
+      return new FTPFileSystem(this, this.config as FTPConfig)
     }
 
-    return new SFTPFileSystem(this, this.config)
+    return new SFTPFileSystem(this, this.config as SFTPConfig)
   }
 
   isFTP(): boolean {
-    return this.config.protocol === "ftp"
+    return this.config.protocol === 'ftp'
   }
 
   isSFTP(): boolean {
-    return this.config.protocol === "sftp"
+    return this.config.protocol === 'sftp'
   }
 
   // Return a string that will be used when selecting a server from a list.
@@ -110,7 +114,7 @@ export class Server {
   }
 
   getRootDirectory(): VDirectory | undefined {
-    return this.fileSystem.getDirectory("/")
+    return this.fileSystem.getDirectory('/')
   }
 
   getInitialDirectory(): VDirectory | undefined {
@@ -150,7 +154,7 @@ export class Server {
   }
 
   getServersPath(): string {
-    return PathUtil.join(fsp.getHomeDirectory(), ".atom-commander", "servers")
+    return PathUtil.join(fsp.getHomeDirectory(), '.atom-commander', 'servers')
   }
 
   getCachedFilePaths(): string[] {

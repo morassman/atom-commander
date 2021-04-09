@@ -77,21 +77,21 @@ export class RemoteFileManager {
 
     // See if the file is already in the cache.
     if (fsp.isFileSync(localFilePath)) {
-      let message = "The file " + file.getURI() + " is already in the cache. "
-      message += "Opening the remote file will replace the one in the cache.\n"
-      message += "Would you like to open the cached file instead?"
+      let detail = "The file " + file.getURI() + " is already in the cache. "
+      detail += "Opening the remote file will replace the one in the cache.\n"
+      detail += "Would you like to open the cached file instead?"
 
-      const response = atom.confirm({
+      atom.confirm({
         message: "Open cached file",
-        detailedMessage: message,
+        detail,
         buttons: ["Cancel", "No", "Yes"]
+      }, (response: number) => {
+        if (response === 1) {
+          this.downloadAndOpen(file, cachePath, localFilePath)
+        } else if (response === 2) {
+          atom.workspace.open(localFilePath)
+        }
       })
-
-      if (response === 1) {
-        this.downloadAndOpen(file, cachePath, localFilePath)
-      } else if (response === 2) {
-        atom.workspace.open(localFilePath)
-      }
     } else {
       this.downloadAndOpen(file, cachePath, localFilePath)
     }

@@ -1,5 +1,6 @@
 import { Disposable } from 'atom'
 import { PathDescription } from "./fs/path-description";
+import { Main } from './main';
 
 const fsp = require('fs-plus');
 
@@ -19,7 +20,7 @@ export class BookmarkManager {
 
   commandsDisposable: Disposable | null
 
-  constructor(public readonly main: any, public readonly state: any) {
+  constructor(public readonly main: Main, public readonly state: Bookmark[]) {
     this.bookmarks = [];
     this.contextMenuDisposable = null;
     this.commandsDisposable = null;

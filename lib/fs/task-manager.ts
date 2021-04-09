@@ -1,14 +1,20 @@
-import { CompositeDisposable, Emitter } from 'atom'
-
-import Queue from 'queue'
-import { VDirectory, VFile, VItem, EmitterCallback, VFileSystem, ErrorCallback } from '.'
 const PathUtil = require('path')
 const fse = require('fs-extra')
-const fs = require('fs')
-const Utils = require('../utils')
 
-export type UploadCallback = (err: any | null, item: VItem) => void
-export type DownloadCallback = (err: any | null, item: VItem) => void
+import { CompositeDisposable, Disposable, Emitter } from 'atom'
+import Queue from 'queue'
+import { QueueWorker } from 'queue'
+import { VDirectory, VFile, VItem, EmitterCallback, VFileSystem, ErrorCallback } from '.'
+import Utils from '../utils'
+
+export type TaskCallback = (err: any | null, item: VItem) => void
+
+export interface Task extends QueueWorker {
+  upload: boolean
+  download: boolean
+  item: any
+  callback?: TaskCallback
+}
 
 export class TaskManager {
 
@@ -44,10 +50,7 @@ export class TaskManager {
     this.taskQueue.on('end', err => {
       this.setUploadCount(0)
       this.setDownloadCount(0)
-
-      if (this.emitter !== null) {
-        return this.emitter.emit('end', err)
-      }
+      this.emitter.emit('end', err)
     })
 
     this.disposables.add(this.fileSystem.onError(err => {
@@ -64,32 +67,28 @@ export class TaskManager {
     )
   }
 
-  onUploadCount(callback: EmitterCallback) {
-    if (this.emitter) {
-      this.emitter.on('uploadcount', callback)
-    }
+  onUploadCount(callback: EmitterCallback): Disposable {
+    return this.emitter.on('uploadcount', callback)
   }
 
-  onDownloadCount(callback: EmitterCallback) {
-    if (this.emitter) {
-      this.emitter.on('downloadcount', callback)
-    }
+  onDownloadCount(callback: EmitterCallback): Disposable {
+    return this.emitter.on('downloadcount', callback)
   }
 
-  onEnd(callback: EmitterCallback) {
-    if (this.emitter) {
-      this.emitter.on('end', callback)
-    }
+  onEnd(callback: EmitterCallback): Disposable {
+    return this.emitter.on('end', callback)
   }
 
-  jobEnded(job, canceled, err) {
+  jobEnded(job: Task, canceled: boolean, err: any) {
     if (job.upload) {
       this.adjustUploadCount(-1)
     } else if (job.download) {
       this.adjustDownloadCount(-1)
     }
 
-    return (typeof job.callback === 'function' ? job.callback(canceled, err, job.item) : undefined)
+    if (job.callback) {
+      job.callback(err, job.item)
+    }
   }
 
   adjustUploadCount(diff: number) {
@@ -114,17 +113,17 @@ export class TaskManager {
     this.downloadCount = downloadCount
 
     if (this.emitter !== null) {
-      return this.emitter.emit('downloadcount', [old, this.downloadCount])
+      this.emitter.emit('downloadcount', [old, this.downloadCount])
     }
   }
 
   clearTasks() {
-    return this.taskQueue.end()
+    this.taskQueue.end()
   }
 
   dispose() {
     this.taskQueue.end()
-    return this.fileSystem.disconnect()
+    this.fileSystem.disconnect()
   }
 
   getFileSystem() {
@@ -138,16 +137,16 @@ export class TaskManager {
   // callback receives two parameters:
   // 1.) err - null if there was no error.
   // 2.) item - The item that was uploaded.
-  uploadItem(remoteParentPath: string, item: VItem, callback: UploadCallback) {
-    return this.uploadItems(remoteParentPath, [item], callback)
+  uploadItem(remoteParentPath: string, item: VItem, callback?: TaskCallback) {
+    this.uploadItems(remoteParentPath, [item], callback)
   }
 
-  uploadItems(remoteParentPath: string, items: VItem[], callback: UploadCallback) {
+  uploadItems(remoteParentPath: string, items: VItem[], callback?: TaskCallback) {
     this.uploadItemsWithQueue(remoteParentPath, items, callback)
-    return this.taskQueue.start()
+    this.taskQueue.start()
   }
 
-  uploadItemsWithQueue(remoteParentPath: string, items: VItem[], callback: UploadCallback) {
+  uploadItemsWithQueue(remoteParentPath: string, items: VItem[], callback?: TaskCallback) {
     for (let item of Array.from(items)) {
       if (!item.isLink()) {
         if (item.isFile()) {
@@ -159,17 +158,17 @@ export class TaskManager {
     }
   }
 
-  uploadFileWithQueue(remoteParentPath: string, file: VFile, callback: UploadCallback) {
+  uploadFileWithQueue(remoteParentPath: string, file: VFile, callback?: TaskCallback) {
     const remoteFilePath = PathUtil.posix.join(remoteParentPath, file.getBaseName())
 
-    const task = cb => {
-      return this.fileSystem.upload(file.getPath(), remoteFilePath, cb)
+    const task = (cb: any) => {
+      this.fileSystem.upload(file.getPath(), remoteFilePath, cb)
     }
 
-    return this.addUploadTask(task, file, callback)
+    this.addUploadTask(task, file, callback)
   }
 
-  uploadDirectoryWithQueue(remoteParentPath: string, directory: VDirectory, callback: UploadCallback) {
+  uploadDirectoryWithQueue(remoteParentPath: string, directory: VDirectory, callback?: TaskCallback) {
     const remoteFolderPath = PathUtil.posix.join(remoteParentPath, directory.getBaseName())
 
     const task1 = (cb: ErrorCallback) => {
@@ -178,61 +177,55 @@ export class TaskManager {
 
     this.addUploadTask(task1, directory, callback)
 
-    const task2 = cb => {
-      return directory.getEntries((dir, err, entries) => {
+    const task2 = (cb: any) => {
+      directory.getEntries((dir, err, entries) => {
         if (err != null) {
-          return cb(err)
+          cb(err)
         } else {
           this.uploadItemsWithQueue(remoteFolderPath, entries)
-          return cb()
+          cb()
         }
       })
     }
 
-    return this.addUploadTask(task2, directory, callback)
+    this.addUploadTask(task2, directory, callback)
   }
 
   // callback receives two parameters:
   // 1.) err - null if there was no error.
   // 2.) item - The item that was downloaded.
-  downloadItem(localParentPath: string, item: VItem, callback: DownloadCallback) {
-    return this.downloadItems(localParentPath, [item], callback)
+  downloadItem(localParentPath: string, item: VItem, callback: TaskCallback) {
+    this.downloadItems(localParentPath, [item], callback)
   }
 
-  downloadItems(localParentPath: string, items: VItem[], callback: DownloadCallback) {
+  downloadItems(localParentPath: string, items: VItem[], callback: TaskCallback) {
     this.downloadItemsWithQueue(localParentPath, items, callback)
-    return this.taskQueue.start()
+    this.taskQueue.start()
   }
 
-  downloadItemsWithQueue(localParentPath: string, items: VItem[], callback: DownloadCallback) {
-    return (() => {
-      const result = []
-      for (let item of Array.from(items)) {
-        if (!item.isLink()) {
-          if (item.isFile()) {
-            result.push(this.downloadFileWithQueue(localParentPath, item, callback))
-          } else {
-            result.push(this.downloadDirectoryWithQueue(localParentPath, item, callback))
-          }
+  downloadItemsWithQueue(localParentPath: string, items: VItem[], callback: TaskCallback) {
+    for (let item of items) {
+      if (!item.isLink()) {
+        if (item.isFile()) {
+          this.downloadFileWithQueue(localParentPath, item as VFile, callback)
         } else {
-          result.push(undefined)
+          this.downloadDirectoryWithQueue(localParentPath, item as VDirectory, callback)
         }
       }
-      return result
-    })()
+    }
   }
 
-  downloadFileWithQueue(localParentPath: string, file: VFile, callback: DownloadCallback) {
+  downloadFileWithQueue(localParentPath: string, file: VFile, callback: TaskCallback) {
     const localFilePath = PathUtil.join(localParentPath, file.getBaseName())
 
     const task = (cb: ErrorCallback) => {
-      return file.download(localFilePath, cb)
+      file.download(localFilePath, cb)
     }
 
-    return this.addDownloadTask(task, file, callback)
+    this.addDownloadTask(task, file, callback)
   }
 
-  downloadDirectoryWithQueue(localParentPath: string, directory: VDirectory, callback: DownloadCallback) {
+  downloadDirectoryWithQueue(localParentPath: string, directory: VDirectory, callback: TaskCallback) {
     const localFolderPath = PathUtil.join(localParentPath, directory.getBaseName())
 
     const task1 = (cb: ErrorCallback) => {
@@ -256,20 +249,22 @@ export class TaskManager {
     return this.addDownloadTask(task2, directory, callback)
   }
 
-  addUploadTask(task, item, callback) {
-    task.upload = true
-    task.item = item
-    task.callback = callback
+  addUploadTask(task: QueueWorker, item: VItem, callback?: TaskCallback) {
+    const t = task as Task
+    t.upload = true
+    t.item = item
+    t.callback = callback
     this.adjustUploadCount(1)
-    return this.taskQueue.push(task)
+    this.taskQueue.push(task)
   }
 
-  addDownloadTask(task, item, callback) {
-    task.download = true
-    task.item = item
-    task.callback = callback
+  addDownloadTask(task: QueueWorker, item: VItem, callback?: TaskCallback) {
+    const t = task as Task
+    t.download = true
+    t.item = item
+    t.callback = callback
     this.adjustDownloadCount(1)
-    return this.taskQueue.push(task)
+    this.taskQueue.push(task)
   }
 
 }
