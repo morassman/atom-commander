@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-import { Directory } from 'atom'
+import { Directory, Disposable } from 'atom'
 import { VDirectory } from '../'
 import { LocalFileSystem } from './'
 
@@ -40,7 +40,7 @@ export class LocalDirectory extends VDirectory {
     return new LocalDirectory(this.getFileSystem(), this.directory.getParent())
   }
 
-  isRoot() {
+  isRoot(): boolean {
     return this.directory.isRoot()
   }
 
@@ -52,8 +52,7 @@ export class LocalDirectory extends VDirectory {
     return this.directory.isSymbolicLink()
   }
 
-  // TODO: callback type
-  onDidChange(callback: any) {
+  onDidChange(callback: any): Disposable {
     return this.directory.onDidChange(callback)
   }
 

@@ -1,3 +1,4 @@
+import { Disposable } from 'atom';
 import { VFile, VFileSystem, VItem } from './'
 
 export abstract class VDirectory extends VItem {
@@ -14,11 +15,15 @@ export abstract class VDirectory extends VItem {
     return true;
   }
 
+  abstract isRoot(): boolean
+
+  abstract onDidChange(callback: any): Disposable
+
   // The callback received three parameters :
   // 1.) This directory.
   // 2.) err. null if no error.
   // 3.) The list of entries containing VFile and VDirectory instances.
-  getEntries(callback: (directory: VDirectory, err: string | null, entries: VItem[]) => void) {
+  getEntries(callback: (directory: VDirectory, err: any | null, entries: VItem[]) => void) {
     return this.fileSystem.getEntries(this, callback);
   }
 

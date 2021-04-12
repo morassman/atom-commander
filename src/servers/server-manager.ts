@@ -11,12 +11,12 @@ export class ServerManager {
   uploadCount: number
   downloadCount: number
 
-  constructor(public readonly main: Main, state: RemoteConfig[]) {
+  constructor(public readonly main: Main, state?: RemoteConfig[]) {
     this.servers = []
     this.uploadCount = 0
     this.downloadCount = 0
 
-    if (state != null) {
+    if (state) {
       for (let config of state) {
         this.addServer(config, false)
       }
@@ -75,32 +75,32 @@ export class ServerManager {
   changeServerConfig(server: Server, config: RemoteConfig) {
     // By removing the server its bookmarks will be removed as well.
     // It is therefore necessary to get its bookmarks before removing it.
-    const oldFSID = server.getFileSystem().getID()
-    const bookmarks = main.bookmarkManager.getBookmarksWithFileSystemId(oldFSID)
+    // const oldFSID = server.getFileSystem().getID()
+    // const bookmarks = main.bookmarkManager.getBookmarksWithFileSystemId(oldFSID)
 
-    this.removeServerImpl(server, false, false)
-    const newServer = this.addServer(config, false)
+    // this.removeServerImpl(server, false, false)
+    // const newServer = this.addServer(config, false)
 
-    const oldPath = server.getLocalDirectoryPath()
-    const newPath = newServer.getLocalDirectoryPath()
+    // const oldPath = server.getLocalDirectoryPath()
+    // const newPath = newServer.getLocalDirectoryPath()
 
-    if (fsp.existsSync(oldPath) && (oldPath !== newPath)) {
-      fsp.moveSync(oldPath, newPath)
-    }
+    // if (fsp.existsSync(oldPath) && (oldPath !== newPath)) {
+    //   fsp.moveSync(oldPath, newPath)
+    // }
 
-    // Update bookmarks.
-    const newFS = newServer.getFileSystem()
+    // // Update bookmarks.
+    // const newFS = newServer.getFileSystem()
 
-    for (let bookmark of Array.from(bookmarks)) {
-      const item = newFS.getItemWithPathDescription(bookmark.pathDescription)
+    // for (let bookmark of Array.from(bookmarks)) {
+    //   const item = newFS.getItemWithPathDescription(bookmark.pathDescription)
       
-      if (item) {
-        bookmark.pathDescription = item.getPathDescription()
-      }
-    }
+    //   if (item) {
+    //     bookmark.pathDescription = item.getPathDescription()
+    //   }
+    // }
 
-    main.bookmarkManager.addBookmarks(bookmarks)
-    return main.saveState()
+    // main.bookmarkManager.addBookmarks(bookmarks)
+    // return main.saveState()
   }
 
   getServers() {

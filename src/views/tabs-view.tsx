@@ -1,0 +1,198 @@
+const etch = require('etch')
+
+import { View, ViewProps } from './view'
+import { TabView } from './tab-view'
+import { TabbedView } from './tabbed-view'
+import { ContainerView } from './container-view'
+import { VFileSystem } from '../fs'
+
+type TabsViewProps = ViewProps & {
+
+  tabbedView: TabbedView
+
+}
+
+type Refs = {
+  buttonView: HTMLElement
+}
+
+export class TabsView extends View<TabsViewProps, Refs> {
+
+  tabs: TabView[]
+
+  constructor(props: TabsViewProps) {
+    super(props, true)
+    this.tabs = []
+  }
+
+  render() {
+    return <div className='atom-commander-tabs-view inline-block-tight'>
+      <div ref='buttonView' className='btn-group btn-group-xs' />
+    </div>
+  }
+
+  // getTabViews() {
+  //   return this.tabs
+  // }
+
+  getTabCount(): number {
+    return this.tabs.length
+  }
+
+  addTab(view: ContainerView, select=false, requestFocus=false, index:number|null=null): TabView {
+    if (index === null) {
+      index = this.tabs.length
+    }
+
+    const tabView = new TabView(this, view)
+
+    if (index === this.tabs.length) {
+      this.tabs.push(tabView)
+      this.refs.buttonView.append(tabView.element)
+    } else {
+      const afterTab = this.tabs[index-1]
+      this.tabs.splice(index, 0, tabView)
+      afterTab.element.after(tabView.element)
+    }
+
+    if (select) {
+      this.selectTab(tabView, requestFocus)
+    }
+
+    return tabView
+  }
+
+  removeSelectedTab() {
+    if (this.getTabCount() === 1) {
+      return
+    }
+
+    let index = this.getSelectedIndex()
+
+    if (index === null) {
+      return
+    }
+
+    const tab = this.tabs[index]
+    this.tabs.splice(index, 1)
+
+    if (index >= this.tabs.length) {
+      index--
+    }
+
+    this.selectIndex(index, true)
+    return tab.destroy()
+  }
+
+  previousTab() {
+    return this.adjustTab(-1)
+  }
+
+  nextTab() {
+    return this.adjustTab(1)
+  }
+
+  adjustTab(change: number) {
+    let index = this.getSelectedIndex()
+
+    if (index === null) {
+      return
+    }
+
+    index += change
+
+    if (index < 0) {
+      index = this.tabs.length - 1
+    } else if (index >= this.tabs.length) {
+      index = 0
+    }
+
+    this.selectTab(this.tabs[index])
+  }
+
+  shiftLeft() {
+    this.shiftTab(-1)
+  }
+
+  shiftRight() {
+    this.shiftTab(1)
+  }
+
+  shiftTab(change: number) {
+    if (this.tabs.length <= 1) {
+      return
+    }
+
+    const index = this.getSelectedIndex()
+
+    if (index === null) {
+      return
+    }
+
+    const tab = this.tabs[index]
+    this.tabs.splice(index, 1)
+
+    const newIndex = index + change
+    tab.element.remove()
+
+    if (newIndex < 0) {
+      this.tabs.push(tab)
+      this.refs.buttonView.append(tab.element)
+    } else if (newIndex > this.tabs.length) {
+      this.tabs.unshift(tab)
+      this.refs.buttonView.prepend(tab.element)
+    } else {
+      this.tabs.splice(newIndex, 0, tab)
+      if (newIndex === 0) {
+        this.tabs[newIndex+1].element.before(tab.element)
+      } else {
+        this.tabs[newIndex-1].element.after(tab.element)
+      }
+    }
+
+    return tab.scrollIntoView()
+  }
+
+  getSelectedIndex() {
+    let index = 0
+
+    for (let tab of Array.from(this.tabs)) {
+      if (tab.isSelected()) {
+        return index
+      }
+      index++
+    }
+
+    return null
+  }
+
+  selectIndex(index: number, requestFocus=false) {
+    this.selectTab(this.tabs[index], requestFocus)
+  }
+
+  selectTab(tab: TabView, requestFocus=true) {
+    for (let temp of this.tabs) {
+      temp.setSelected(false)
+    }
+
+    tab.setSelected(true)
+    this.props.tabbedView.selectView(tab.getView(), requestFocus)
+  }
+
+  adjustContentHeight(change: number) {
+    this.tabs.forEach((tabView) => tabView.getView().adjustContentHeight(change))
+  }
+
+  setContentHeight(contentHeight: number) {
+    this.tabs.forEach((tabView) => tabView.getView().setContentHeight(contentHeight))
+  }
+
+  fileSystemRemoved(fileSystem: VFileSystem) {
+    this.tabs.forEach((tabView) => tabView.getView().fileSystemRemoved(fileSystem))
+  }
+
+  serverClosed(server: any) {
+    this.tabs.forEach((tabView) => tabView.getView().serverClosed(server))
+  }
+
+}

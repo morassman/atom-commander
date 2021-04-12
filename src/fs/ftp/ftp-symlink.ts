@@ -1,18 +1,11 @@
-/*
- * decaffeinate suggestions:
- * DS002: Fix invalid constructor
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let FTPSymLink;
 const VSymLink = require('../vsymlink');
 const PathUtil = require('path').posix;
 const FTPFile = require('./ftp-file');
 const FTPDirectory = require('./ftp-directory');
 
-module.exports =
-(FTPSymLink = class FTPSymLink extends VSymLink {
+export class FTPSymLink extends VSymLink {
 
-  constructor(fileSystem, path, baseName = null) {
+  constructor(public readonly fileSystem, path, baseName = null) {
     this.path = path;
     this.baseName = baseName;
     super(fileSystem);

@@ -4,7 +4,7 @@ import { PathDescription } from './path-description'
 
 export abstract class VItem {
 
-  controller: ItemController
+  controller: ItemController<VItem>
 
   modifyDate: Date | null
 
@@ -15,11 +15,11 @@ export abstract class VItem {
     this.size = null;
   }
 
-  setController(controller: ItemController) {
+  setController(controller: ItemController<VItem>) {
     this.controller = controller;
   }
 
-  getController(): ItemController {
+  getController(): ItemController<VItem> {
     return this.controller;
   }
 

@@ -34,7 +34,7 @@ export class FTPDirectory extends VDirectory {
     return new FTPDirectory(this.getFileSystem(), false, PathUtil.dirname(this.path))
   }
 
-  isRoot() {
+  isRoot(): boolean {
     return PathUtil.dirname(this.path) === this.path
   }
 

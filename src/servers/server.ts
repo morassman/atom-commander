@@ -33,11 +33,11 @@ export class Server {
     const taskManager = this.fileSystem.getTaskManager()
 
     if (taskManager) {
-      this.disposables.add(taskManager.onUploadCount(change => {
+      this.disposables.add(taskManager.onUploadCount((change: any) => {
         this.serverManager.uploadCountChanged(change[0], change[1])
       }))
 
-      this.disposables.add(taskManager.onDownloadCount(change => {
+      this.disposables.add(taskManager.onDownloadCount((change: any) => {
         this.serverManager.downloadCountChanged(change[0], change[1])
       }))
     }

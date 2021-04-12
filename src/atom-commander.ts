@@ -4,13 +4,6 @@ const config = {
   panel: {
     type: 'object',
     properties: {
-      showInDock: {
-        title: 'Show In Dock',
-        description: 'Show the panel in the dock. Disable to limit the panel to the bottom of the screen.',
-        type: 'boolean',
-        default: true,
-        order: 1
-      },
       onlyOneWhenVertical: {
         title: 'Single Browser When Docked Left Or Right',
         description: 'Show only one browser at a time when the panel is docked on the left or right. Tabbing will toggle between them.',

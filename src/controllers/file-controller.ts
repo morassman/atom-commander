@@ -1,44 +1,42 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let FileController;
-const ItemController = require('./item-controller');
+import { VFile } from '../fs'
+import { ItemController } from './item-controller'
 
-module.exports =
-(FileController = class FileController extends ItemController {
+export class FileController extends ItemController<VFile> {
 
-  constructor(file) {
-    super(file);
+  namePart: string
+
+  extensionPart: string
+
+  constructor(file: VFile) {
+    super(file)
   }
 
-  getFile() {
-    return this.item;
+  getFile(): VFile {
+    return this.item as VFile
   }
 
   getNamePart() {
     if ((this.namePart == null)) {
-      this.refreshNameExtension();
+      this.refreshNameExtension()
     }
-    return this.namePart;
+    return this.namePart
   }
 
   getExtensionPart() {
     if ((this.extensionPart == null)) {
-      this.refreshNameExtension();
+      this.refreshNameExtension()
     }
-    return this.extensionPart;
+    return this.extensionPart
   }
 
   refreshNameExtension() {
-    const ne = this.getNameExtension();
-    this.namePart = ne[0];
-    return this.extensionPart = ne[1];
+    const ne = this.getNameExtension()
+    this.namePart = ne[0]
+    return this.extensionPart = ne[1]
   }
 
   performOpenAction() {
-    return this.getFile().open();
+    return this.getFile().open()
   }
-});
+
+}

@@ -1,74 +1,78 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-let SymLinkController;
-const ItemController = require('./item-controller');
-const FileController = require('./file-controller');
-const DirectoryController = require('./directory-controller');
+import { VDirectory, VFile, VItem, VSymLink } from '../fs'
+import { DirectoryController } from './directory-controller'
+import { FileController } from './file-controller'
+import { ItemController } from './item-controller'
 
-module.exports =
-(SymLinkController = class SymLinkController extends ItemController {
+export class SymLinkController extends ItemController<VSymLink> {
 
-  constructor(symLink) {
-    super(symLink);
-    this.targetController = null;
+  targetController: ItemController<VItem> | null
+
+  namePart: string | null
+
+  extensionPart: string | null
+
+  constructor(symLink: VSymLink) {
+    super(symLink)
+    this.targetController = null
   }
 
-  getNamePart() {
+  getNamePart(): string {
     if (this.namePart != null) {
-      return this.namePart;
+      return this.namePart
     }
-    return super.getNamePart();
+    return super.getNamePart()
   }
 
-  getExtensionPart() {
+  getExtensionPart(): string {
     if (this.extensionPart != null) {
-      return this.extensionPart;
+      return this.extensionPart
     }
-    return super.getExtensionPart();
+    return super.getExtensionPart()
   }
 
-  getTargetController() {
-    return this.targetController;
+  getTargetController(): ItemController<VItem> | null {
+    return this.targetController
   }
 
-  getTargetItem() {
-    return this.item.getTargetItem();
+  getTargetItem(): VItem {
+    return this.item.getTargetItem()
   }
 
   refresh() {
-    this.refreshTargetController();
-    return super.refresh();
+    this.refreshTargetController()
+    return super.refresh()
   }
 
   refreshTargetController() {
-    const targetItem = this.getTargetItem();
+    const targetItem = this.getTargetItem()
 
     if ((targetItem == null)) {
-      return;
+      return
     }
 
     if (targetItem.isFile()) {
-      this.targetController = new FileController(targetItem);
-      const ne = this.getNameExtension();
-      this.namePart = ne[0];
-      this.extensionPart = ne[1];
+      this.targetController = new FileController(targetItem as VFile)
+      const ne = this.getNameExtension()
+      this.namePart = ne[0]
+      this.extensionPart = ne[1]
     } else if (targetItem.isDirectory()) {
-      this.targetController = new DirectoryController(targetItem);
-      this.namePart = this.item.getBaseName();
-      this.extensionPart = null;
+      this.targetController = new DirectoryController(targetItem as VDirectory)
+      this.namePart = this.item.getBaseName()
+      this.extensionPart = null
     } else {
-      this.namePart = null;
-      this.extensionPart = null;
+      this.namePart = null
+      this.extensionPart = null
     }
 
-    return (this.targetController != null ? this.targetController.initialize(this.getItemView()) : undefined);
+    if (this.targetController) {
+      this.targetController.initialize(this.getItemView())
+    }
   }
 
   performOpenAction() {
-    return (this.targetController != null ? this.targetController.performOpenAction() : undefined);
+    if (this.targetController) {
+      this.targetController.performOpenAction()
+    }
   }
-});
+
+}
