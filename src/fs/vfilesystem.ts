@@ -1,9 +1,9 @@
-const q = require('q');
+const q = require('q')
 import { CompositeDisposable, Disposable, Emitter } from 'atom'
 import { VFile } from './vfile'
 import { VDirectory } from './vdirectory'
 import { TaskManager } from './task-manager'
-import { VItem } from '.';
+import { VItem } from '.'
 import { main } from '../main'
 
 export type EmitterCallback = (value?: any) => void
@@ -20,18 +20,18 @@ export abstract class VFileSystem {
   connected: boolean
 
   constructor() {
-    this.emitter = new Emitter();
-    this.taskManager = null;
-    this.connecting = false;
-    this.connected = false;
+    this.emitter = new Emitter()
+    this.taskManager = null
+    this.connecting = false
+    this.connected = false
   }
 
   getTaskManager(create = true) {
     if (!this.taskManager && create) {
-      this.taskManager = new TaskManager(this.clone());
+      this.taskManager = new TaskManager(this.clone())
     }
 
-    return this.taskManager;
+    return this.taskManager
   }
 
   getTaskCount() {
@@ -39,101 +39,101 @@ export abstract class VFileSystem {
   }
 
   dispose() {
-    this.emitter.dispose();
+    this.emitter.dispose()
   }
 
   connectPromise() {
-    const deferred = q.defer();
+    const deferred = q.defer()
 
     if (this.isConnected()) {
-      deferred.resolve();
-      return deferred.promise;
+      deferred.resolve()
+      return deferred.promise
     }
 
-    let disposables = new CompositeDisposable();
+    let disposables = new CompositeDisposable()
 
     disposables.add(this.onConnected(() => {
-      disposables.dispose();
-      deferred.resolve();
+      disposables.dispose()
+      deferred.resolve()
     })
-    );
+    )
 
     disposables.add(this.onError(err => {
-      disposables.dispose();
-      deferred.reject(err);
+      disposables.dispose()
+      deferred.reject(err)
     })
-    );
+    )
 
-    this.connect();
+    this.connect()
 
-    return deferred.promise;
+    return deferred.promise
   }
 
   onConnected(callback: EmitterCallback): Disposable {
-    return this.emitter.on("connected", callback);
+    return this.emitter.on('connected', callback)
   }
 
   onDisconnected(callback: EmitterCallback): Disposable {
-    return this.emitter.on("disconnected", callback);
+    return this.emitter.on('disconnected', callback)
   }
 
   // Callback receives a single 'err' parameter.
   onError(callback: EmitterCallback): Disposable {
-    return this.emitter.on("error", callback);
+    return this.emitter.on('error', callback)
   }
 
   emitConnected() {
-    this.emitter.emit("connected");
+    this.emitter.emit('connected')
   }
 
   emitDisconnected() {
-    this.emitter.emit("disconnected");
+    this.emitter.emit('disconnected')
   }
 
   emitError(err: any) {
-    this.emitter.emit("error", err);
+    this.emitter.emit('error', err)
   }
 
   isRemote() {
-    return !this.isLocal();
+    return !this.isLocal()
   }
 
   isConnecting() {
-    return this.connecting;
+    return this.connecting
   }
 
   connect() {
     if (!this.isConnected() && !this.isConnecting()) {
-      this.connecting = true;
-      return this.connectImpl();
+      this.connecting = true
+      return this.connectImpl()
     }
   }
 
   disconnect(err?: any) {
-    this.disconnectImpl();
+    this.disconnectImpl()
 
     if (err) {
-      this.emitError(err);
+      this.emitError(err)
     }
   }
 
   isConnected() {
-    return this.connected;
+    return this.connected
   }
 
   setConnected(connected: boolean) {
-    this.connecting = false;
+    this.connecting = false
 
     if (this.connected === connected) {
-      return;
+      return
     }
 
-    this.connected = connected;
+    this.connected = connected
 
     if (this.connected) {
-      this.emitConnected();
+      this.emitConnected()
     } else {
-      this.emitDisconnected();
+      this.emitDisconnected()
     }
   }
 
@@ -147,17 +147,17 @@ export abstract class VFileSystem {
 
   // Returns the path part of the URI relative to this file system. null if this
   // URI doesn't match this file system.
-  // Example : "sftp://localhost/Test/Path" => "/Test/Path"
-  getPathFromURI(uri: string) {
-    return uri;
+  // Example : 'sftp://localhost/Test/Path' => '/Test/Path'
+  getPathFromURI(uri: string): string | null {
+    return uri
   }
 
-  getInitialDirectory() {
-    return this.getDirectory("/");
+  getInitialDirectory(): VDirectory | undefined {
+    return this.getDirectory('/')
   }
 
   getDisplayName() {
-    return this.getName();
+    return this.getName()
   }
 
   abstract isLocal(): boolean
@@ -184,10 +184,10 @@ export abstract class VFileSystem {
   // Callback receives a single string argument with error message. null if no error.
   rename(oldPath: string, newPath: string, callback: ErrorCallback) {
     const successCallback = () => {
-      this.renameImpl(oldPath, newPath, callback);
-    };
+      this.renameImpl(oldPath, newPath, callback)
+    }
 
-    this.connectPromise().then(successCallback, callback);
+    this.connectPromise().then(successCallback, callback)
   }
 
   abstract renameImpl(oldPath: string, newPath: string, callback: ErrorCallback): void
@@ -195,10 +195,10 @@ export abstract class VFileSystem {
   // Callback receives a single string argument with error message. null if no error.
   makeDirectory(path: string, callback: ErrorCallback) {
     const successCallback = () => {
-      return this.makeDirectoryImpl(path, callback);
-    };
+      return this.makeDirectoryImpl(path, callback)
+    }
 
-    return this.connectPromise().then(successCallback, callback);
+    return this.connectPromise().then(successCallback, callback)
   }
 
   abstract makeDirectoryImpl(path: string, callback: ErrorCallback): void
@@ -206,10 +206,10 @@ export abstract class VFileSystem {
   // Callback receives a single string argument with error message. null if no error.
   deleteFile(path: string, callback: ErrorCallback) {
     const successCallback = () => {
-      this.deleteFileImpl(path, callback);
-    };
+      this.deleteFileImpl(path, callback)
+    }
 
-    this.connectPromise().then(successCallback, callback);
+    this.connectPromise().then(successCallback, callback)
   }
 
   abstract deleteFileImpl(path: string, callback: ErrorCallback): void
@@ -217,10 +217,10 @@ export abstract class VFileSystem {
   // Callback receives a single string argument with error message. null if no error.
   deleteDirectory(path: string, callback: ErrorCallback) {
     const successCallback = () => {
-      this.deleteDirectoryImpl(path, callback);
-    };
+      this.deleteDirectoryImpl(path, callback)
+    }
 
-    this.connectPromise().then(successCallback, callback);
+    this.connectPromise().then(successCallback, callback)
   }
 
   abstract deleteDirectoryImpl(path: string, callback: ErrorCallback): void
@@ -228,10 +228,10 @@ export abstract class VFileSystem {
   // Callback receives a single string argument with error message. null if no error.
   download(path: string, localPath: string, callback: ErrorCallback) {
     const successCallback = () => {
-      this.downloadImpl(path, localPath, callback);
-    };
+      this.downloadImpl(path, localPath, callback)
+    }
 
-    this.connectPromise().then(successCallback, callback);
+    this.connectPromise().then(successCallback, callback)
   }
 
   abstract downloadImpl(path: string, localPath: string, callback: ErrorCallback): void
@@ -239,10 +239,10 @@ export abstract class VFileSystem {
   abstract openFile(file: VFile): void
 
   fileOpened(file: any) {
-    const hideOnOpen = atom.config.get('atom-commander.panel.hideOnOpen');
+    const hideOnOpen = atom.config.get('atom-commander.panel.hideOnOpen')
 
     if (hideOnOpen) {
-      return main.hide();
+      return main.hide()
     }
   }
 
@@ -251,14 +251,14 @@ export abstract class VFileSystem {
   // 2.) stream : A ReadableStream.
   createReadStream(path: string, callback: ReadStreamCallback) {
     const successCallback = () => {
-      this.createReadStreamImpl(path, callback);
-    };
+      this.createReadStreamImpl(path, callback)
+    }
 
     const errorCallback = (err: string) => {
-      callback(err, null);
-    };
+      callback(err, null)
+    }
 
-    this.connectPromise().then(successCallback, errorCallback);
+    this.connectPromise().then(successCallback, errorCallback)
   }
 
   abstract createReadStreamImpl(path: string, callback: ReadStreamCallback): void
@@ -268,14 +268,14 @@ export abstract class VFileSystem {
   // 2.) err : The error if the file could not be created.
   newFile(path: string, callback: NewFileCallback) {
     const successCallback = () => {
-      return this.newFileImpl(path, callback);
-    };
+      return this.newFileImpl(path, callback)
+    }
 
     const errorCallback = (err: string) => {
-      return callback(null, err);
-    };
+      return callback(null, err)
+    }
 
-    return this.connectPromise().then(successCallback, errorCallback);
+    return this.connectPromise().then(successCallback, errorCallback)
   }
 
   abstract newFileImpl(path: string, callback: NewFileCallback): void
@@ -286,14 +286,14 @@ export abstract class VFileSystem {
   // 3.) The list of entries containing VFile and VDirectory instances.
   getEntries(directory: VDirectory, callback: EntriesCallback) {
     const successCallback = () => {
-      this.getEntriesImpl(directory, callback);
-    };
+      this.getEntriesImpl(directory, callback)
+    }
 
     const errorCallback = (err: string) => {
-      callback(directory, err, []);
-    };
+      callback(directory, err, [])
+    }
 
-    this.connectPromise().then(successCallback, errorCallback);
+    this.connectPromise().then(successCallback, errorCallback)
   }
 
   abstract getEntriesImpl(directory: VDirectory, callback: EntriesCallback): void
@@ -301,10 +301,10 @@ export abstract class VFileSystem {
   // TODO : callback type
   upload(localPath: string, path: string, callback: any) {
     const successCallback = () => {
-      return this.uploadImpl(localPath, path, callback);
-    };
+      return this.uploadImpl(localPath, path, callback)
+    }
 
-    return this.connectPromise().then(successCallback, callback);
+    return this.connectPromise().then(successCallback, callback)
   }
 
   // TODO : callback type

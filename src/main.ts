@@ -5,12 +5,13 @@ import { VFileSystem } from './fs/vfilesystem'
 import { Actions } from './actions'
 import { Schemas } from './schemas'
 import { BookmarkManager } from './bookmark-manager'
-// import { ServerManager } from './servers/server-manager'
-// import { RemoteConfig } from './fs/ftp/remote-config'
-// import { Server } from './servers/server'
+import { ServerManager } from './servers/server-manager'
+import { RemoteConfig } from './fs/ftp/remote-config'
+import { Server } from './servers/server'
 
 import * as fsp from 'fs-plus'
 import { MainView, ATOM_COMMANDER_URI } from './views/main-view'
+import { ContainerState } from './views/container-view'
 
 // const ListView = require('./views/list-view')
 // const DiffView = require('./views/diff/diff-view')
@@ -18,21 +19,33 @@ import { MainView, ATOM_COMMANDER_URI } from './views/main-view'
 
 // const fsp = require('fsp')
 
+export interface SideState {
+ 
+  tabs: ContainerState[]
+
+  selectedTab: number | null
+
+}
+
 export interface State {
 
   bookmarks?: Bookmark[]
 
-  // servers?: RemoteConfig[]
+  servers?: RemoteConfig[]
 
   visible?: boolean
 
-  version?: number
+  version: number
 
   sizeColumnVisible: boolean
 
   dateColumnVisible: boolean
 
   extensionColumnVisible: boolean
+
+  leftPath?: string
+
+  rightPath?: string
 
   left?: any
 
@@ -55,7 +68,7 @@ export class Main {
 
   bookmarkManager: BookmarkManager
 
-  // serverManager: ServerManager
+  serverManager: ServerManager
 
   subscriptions: CompositeDisposable
 
@@ -79,7 +92,7 @@ export class Main {
     this.localFileSystem = new LocalFileSystem()
     this.actions = new Actions(this)
     this.bookmarkManager = new BookmarkManager(this, this.state.bookmarks)
-    // this.serverManager = new ServerManager(this, this.state.servers)
+    this.serverManager = new ServerManager(this, this.state.servers)
     // this.mainView = new MainView(this, state)
     // @element = @mainView.getElement()
 
@@ -201,9 +214,9 @@ export class Main {
     // })
     // )
 
-    // if (this.state.visible) {
-    //   return this.show(false)
-    // }
+    if (this.state.visible) {
+      return this.show(false)
+    }
   }
 
   getMainView(createLazy: boolean = false): MainView {
@@ -227,18 +240,18 @@ export class Main {
     return this.bookmarkManager
   }
 
-  // getServerManager() {
-  //   return this.serverManager
-  // }
+  getServerManager() {
+    return this.serverManager
+  }
 
-  getSaveFile() {
+  getSaveFile(): File {
     const configFile = new File(atom.config.getUserConfigPath())
     const directory = configFile.getParent()
     return directory.getFile('atom-commander.json')
   }
 
   loadState() {
-    if ((this.state == null)) {
+    if (!this.state) {
       this.state = Schemas.newState()
     }
 
@@ -250,10 +263,10 @@ export class Main {
 
     try {
       this.state = JSON.parse(fsp.readFileSync(file.getPath()).toString())
-      return this.state = Schemas.upgrade(this.state)
+      this.state = Schemas.upgrade(this.state)
     } catch (error) {
       console.log('Error loading Atom Commander state.')
-      return console.log(error)
+      console.log(error)
     }
   }
 
@@ -273,7 +286,7 @@ export class Main {
     this.saveState()
 
     this.subscriptions.dispose()
-    // this.serverManager.dispose()
+    this.serverManager.dispose()
 
     if (this.mainView) {
       this.mainView.destroy()
@@ -295,13 +308,13 @@ export class Main {
       extensionColumnVisible: this.extensionColumnVisible,
       visible: this.isVisible(),
       bookmarks: this.bookmarkManager.serialize(),
-      // servers: this.serverManager.serialize(),
+      servers: this.serverManager.serialize(),
       version: 4
     }
 
-    // if (this.mainView) {
-    //   this.mainView.serialize(state)
-    // }
+    if (this.mainView) {
+      this.mainView.serialize(state)
+    }
 
     return state
   }
@@ -388,14 +401,14 @@ export class Main {
     }
 
     this.state.visible = true
-    return this.saveState()
+    this.saveState()
   }
 
   showPanel(focus: boolean) {
     this.bottomPanel.show()
 
     if (focus) {
-      return this.focus()
+      this.focus()
     }
   }
 
@@ -406,10 +419,10 @@ export class Main {
       paneContainer.show()
 
       if (focus) {
-        return this.focus()
+        this.focus()
       }
     } else {
-      return atom.workspace.open(this.getMainView(true), {
+      atom.workspace.open(this.getMainView(true), {
         searchAllPanes: true,
         activatePane: true,
         activateItem: true,
@@ -421,7 +434,7 @@ export class Main {
           paneContainer.show()
 
           if (focus) {
-            return this.focus()
+            this.focus()
           }
         }
       })
@@ -429,9 +442,9 @@ export class Main {
   }
 
   hide() {
-    if (this.bottomPanel != null) {
+    if (this.bottomPanel) {
       this.bottomPanel.hide()
-    } else if (this.mainView != null) {
+    } else if (this.mainView) {
       atom.workspace.hide(this.mainView)
     }
 
@@ -440,11 +453,11 @@ export class Main {
   }
 
   focus() {
-    // const mainView = this.getMainView()
+    const mainView = this.getMainView()
 
-    // if (mainView) {
-    //   mainView.refocusLastView()
-    // }
+    if (mainView) {
+      mainView.refocusLastView()
+    }
   }
 
   unfocus() {
@@ -453,19 +466,19 @@ export class Main {
   }
 
   hasFocus() {
-    // if ((this.mainView == null)) {
-    //   return false
-    // }
+    if (!this.mainView) {
+      return false
+    }
 
-    // return (this.mainView.focusedView !== null) && this.mainView.focusedView.hasFocus()
+    return this.mainView.focusedView && this.mainView.focusedView.hasFocus()
   }
 
   toggleFocus() {
-    // if (this.hasFocus()) {
-    //   return this.unfocus()
-    // } else {
-    //   return this.show(true)
-    // }
+    if (this.hasFocus()) {
+      this.unfocus()
+    } else {
+      this.show(true)
+    }
   }
 
   consumeStatusBar(statusBar: any) {
@@ -483,21 +496,26 @@ export class Main {
   }
 
   fileSystemRemoved(fileSystem: VFileSystem) {
-    // this.bookmarkManager.fileSystemRemoved(fileSystem)
-    // return (this.mainView != null ? this.mainView.fileSystemRemoved(fileSystem) : undefined)
+    this.bookmarkManager.fileSystemRemoved(fileSystem)
+    
+    if (this.mainView) {
+      this.mainView.fileSystemRemoved(fileSystem)
+    }
   }
 
-  // serverClosed(server: Server) {
-  //   return (this.mainView != null ? this.mainView.serverClosed(server) : undefined)
-  // }
+  serverClosed(server: Server) {
+    if (this.mainView) {
+      this.mainView.serverClosed(server)
+    }
+  }
 
-  // getFileSystemWithID(fileSystemId: string) {
-  //   if (this.localFileSystem.getID() === fileSystemId) {
-  //     return this.localFileSystem
-  //   }
+  getFileSystemWithID(fileSystemId: string) {
+    if (this.localFileSystem.getID() === fileSystemId) {
+      return this.localFileSystem
+    }
 
-  //   return this.serverManager.getFileSystemWithID(fileSystemId)
-  // }
+    return this.serverManager.getFileSystemWithID(fileSystemId)
+  }
 }
 
 export const main = new Main()

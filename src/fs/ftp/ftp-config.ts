@@ -14,4 +14,6 @@ export interface FTPConfig extends RemoteConfig {
 
   storePassword: boolean
 
+  folder: string
+
 }

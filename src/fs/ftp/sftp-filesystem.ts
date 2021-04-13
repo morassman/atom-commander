@@ -2,17 +2,31 @@ import { Server } from '../../servers/server'
 import { RemoteFileSystem } from './remote-filesystem'
 import { SFTPConfig } from './sftp-config'
 import * as fsp from 'fs-plus'
+import Utils from '../../utils'
+import { EntriesCallback, ErrorCallback, NewFileCallback, ReadStreamCallback, VFile, VItem } from '..'
+import { SFTPSession } from './sftp-session'
+import { FTPFile } from './ftp-file'
+import { FTPDirectory } from './ftp-directory'
+import { PathDescription } from '../path-description'
+import { VDirectory } from '../vdirectory'
+import { FTPSymLink } from './ftp-symlink'
+import { SFTPFile } from './sftp-file'
+import { SFTPDirectory } from './sftp-directory'
+import { SFTPSymLink } from './sftp-symlink'
 
 const fs = require('fs')
 const PathUtil = require('path').posix
-const VFileSystem = require('../vfilesystem')
-const FTPFile = require('./ftp-file')
-const FTPDirectory = require('./ftp-directory')
-const FTPSymLink = require('./ftp-symlink')
-const SFTPSession = require('./sftp-session')
-const Utils = require('../../utils')
 
 export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
+
+  // TODO Type
+  session: any
+
+  // TODO Type
+  client: any
+
+  // TODO Type
+  clientConfig: any
 
   constructor(server: Server, config: SFTPConfig) {
     super(server, config)
@@ -32,7 +46,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     this.clientConfig = this.getClientConfig()
   }
 
-  clone() {
+  clone(): SFTPFileSystem {
     const cloneFS = new SFTPFileSystem(this.server, this.config)
     cloneFS.clientConfig = this.clientConfig
     return cloneFS
@@ -49,30 +63,30 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     }
   }
 
-  sessionOpened(session) {
+  sessionOpened(session: SFTPSession) {
     if (session === this.session) {
       this.client = session.getClient()
-      return this.setConnected(true)
+      this.setConnected(true)
     }
   }
 
-  sessionCanceled(session) {
+  sessionCanceled(session: SFTPSession) {
     if (session === this.session) {
       this.session = null
-      return this.setConnected(false)
+      this.setConnected(false)
     }
   }
 
-  sessionClosed(session) {
+  sessionClosed(session: SFTPSession) {
     if (session === this.session) {
       this.session = null
       this.client = null
-      return this.setConnected(false)
+      this.setConnected(false)
     }
   }
 
   getClientConfig() {
-    const result = {}
+    const result: any = {}
 
     result.host = this.config.host
     result.port = this.config.port
@@ -93,7 +107,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return result
   }
 
-  getPrivateKey(path) {
+  getPrivateKey(path: string): string {
     if (!path || (path.length === 0)) {
       return ''
     }
@@ -107,13 +121,12 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return fs.readFileSync(path, 'utf8')
   }
 
-  getSafeConfig() {
-    const result = {}
+  getSafeConfig(): any {
+    const result: any = {}
 
-    for (let key in this.config) {
-      const val = this.config[key]
-      result[key] = val
-    }
+    Object.entries(this.config).forEach(entry => {
+      result[entry[0]] = entry[1]
+    })
 
     if (this.config.storePassword) {
       if ((this.config.password != null) && (this.config.password.length > 0)) {
@@ -133,35 +146,35 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return result
   }
 
-  getFile(path) {
-    return new FTPFile(this, false, path)
+  getFile(path: string): SFTPFile {
+    return new SFTPFile(this, false, path)
   }
 
-  getDirectory(path) {
-    return new FTPDirectory(this, false, path)
+  getDirectory(path: string): SFTPDirectory {
+    return new SFTPDirectory(this, false, path)
   }
 
-  getItemWithPathDescription(pathDescription) {
+  getItemWithPathDescription(pathDescription: PathDescription): VItem | undefined {
     if (pathDescription.isFile) {
-      return new FTPFile(this, pathDescription.isLink, pathDescription.path, pathDescription.name)
+      return new SFTPFile(this, pathDescription.isLink, pathDescription.path, pathDescription.name)
     }
 
-    return new FTPDirectory(this, pathDescription.isLink, pathDescription.path)
+    return new SFTPDirectory(this, pathDescription.isLink, pathDescription.path)
   }
 
-  getInitialDirectory() {
+  getInitialDirectory(): SFTPDirectory | undefined {
     return this.getDirectory(this.config.folder)
   }
 
-  getURI(item) {
-    return this.config.protocol+'://' + PathUtil.join(this.config.host, item.path)
+  getURI(item: VItem): string {
+    return this.config.protocol+'://' + PathUtil.join(this.config.host, item.getPath())
   }
 
   getPathUtil() {
     return PathUtil
   }
 
-  getPathFromURI(uri) {
+  getPathFromURI(uri: string): string | null {
     const root = this.config.protocol+'://'+this.config.host
 
     if (uri.substring(0, root.length) === root) {
@@ -171,63 +184,63 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return null
   }
 
-  renameImpl(oldPath, newPath, callback) {
-    return this.client.rename(oldPath, newPath, err => {
-      if ((callback == null)) {
+  renameImpl(oldPath: string, newPath: string, callback: ErrorCallback) {
+    return this.client.rename(oldPath, newPath, (err: any) => {
+      if (!callback) {
         return
       }
 
-      if (err != null) {
-        return callback(err)
+      if (err) {
+        callback(err)
       } else {
-        return callback(null)
+        callback(null)
       }
     })
   }
 
-  makeDirectoryImpl(path, callback) {
-    return this.client.mkdir(path, [], err => {
-      if ((callback == null)) {
+  makeDirectoryImpl(path: string, callback: ErrorCallback) {
+    return this.client.mkdir(path, [], (err: any) => {
+      if (!callback) {
         return
       }
 
-      if (err != null) {
-        return callback(err)
+      if (err) {
+        callback(err)
       } else {
-        return callback(null)
+        callback(null)
       }
     })
   }
 
-  deleteFileImpl(path, callback) {
-    return this.client.unlink(path, err => {
-      if ((callback == null)) {
+  deleteFileImpl(path: string, callback: ErrorCallback) {
+    this.client.unlink(path, (err: any) => {
+      if (!callback) {
         return
       }
 
-      if (err != null) {
-        return callback(err)
+      if (err) {
+        callback(err)
       } else {
-        return callback(null)
+        callback(null)
       }
     })
   }
 
-  deleteDirectoryImpl(path, callback) {
-    return this.client.rmdir(path, err => {
-      if ((callback == null)) {
+  deleteDirectoryImpl(path: string, callback: ErrorCallback) {
+    return this.client.rmdir(path, (err: any) => {
+      if (!callback) {
         return
       }
 
-      if (err != null) {
-        return callback(err)
+      if (err) {
+        callback(err)
       } else {
-        return callback(null)
+        callback(null)
       }
     })
   }
 
-  getDisplayName() {
+  getDisplayName(): string {
     if (this.config.name && (this.config.name.trim().length > 0)) {
       return this.config.name
     }
@@ -235,64 +248,64 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return this.config.host
   }
 
-  getHost() {
+  getHost(): string {
     return this.config.host
   }
 
-  getUsername() {
+  getUsername(): string {
     return this.config.username
   }
 
 
-  getLocalDirectoryName() {
+  getLocalDirectoryName(): string {
     return this.config.protocol+'_'+this.config.host+'_'+this.config.port+'_'+this.config.username
   }
 
-  downloadImpl(path, localPath, callback) {
+  downloadImpl(path: string, localPath: string, callback: ErrorCallback) {
     return this.client.fastGet(path, localPath, {}, callback)
   }
 
-  uploadImpl(localPath, path, callback) {
+  uploadImpl(localPath: string, path: string, callback: ErrorCallback) {
     return this.client.fastPut(localPath, path, {}, callback)
   }
 
-  openFile(file) {
+  openFile(file: VFile) {
     return this.server.getRemoteFileManager().openFile(file)
   }
 
-  createReadStreamImpl(path, callback) {
+  createReadStreamImpl(path: string, callback: ReadStreamCallback) {
     const rs = this.client.createReadStream(path)
-    return callback(null, rs)
+    callback(null, rs)
   }
 
-  getDescription() {
+  getDescription(): string {
     return this.config.protocol+'://'+this.config.host+':'+this.config.port
   }
 
-  getEntriesImpl(directory, callback) {
-    return this.list(directory.getPath(), (err, entries) => {
-      return callback(directory, err, entries)
+  getEntriesImpl(directory: VDirectory, callback: EntriesCallback) {
+    this.list(directory.getPath(), (err: any, entries: VItem[]) => {
+      callback(directory, err, entries)
     })
   }
 
-  list(path, callback) {
-    return this.client.readdir(path, (err, entries) => {
-      if (err != null) {
-        return callback(err, [])
+  list(path: string, callback: any) {
+    return this.client.readdir(path, (err: any, entries: any[]) => {
+      if (err) {
+        callback(err, [])
       } else {
-        return callback(null, this.wrapEntries(path, entries))
+        callback(null, this.wrapEntries(path, entries))
       }
     })
   }
 
-  wrapEntries(path, entries) {
-    const directories = []
-    const files = []
+  wrapEntries(path: string, entries: any[]): VItem[] {
+    const directories: VItem[] = []
+    const files: VItem[] = []
 
-    for (let entry of Array.from(entries)) {
+    for (let entry of entries) {
       const wrappedEntry = this.wrapEntry(path, entry)
 
-      if (wrappedEntry !== null) {
+      if (wrappedEntry) {
         if (wrappedEntry.isFile()) {
           files.push(wrappedEntry)
         } else {
@@ -307,18 +320,18 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return directories.concat(files)
   }
 
-  wrapEntry(path, entry) {
+  wrapEntry(path: string, entry: any): VItem | null {
     let item = null
 
     if (entry.attrs.isDirectory()) {
-      item = new FTPDirectory(this, false, PathUtil.join(path, entry.filename))
+      item = new SFTPDirectory(this, false, PathUtil.join(path, entry.filename))
     } else if (entry.attrs.isFile()) {
-      item = new FTPFile(this, false, PathUtil.join(path, entry.filename))
+      item = new SFTPFile(this, false, PathUtil.join(path, entry.filename))
     } else if (entry.attrs.isSymbolicLink()) {
       item = this.wrapSymLinkEntry(path, entry)
     }
 
-    if (item != null) {
+    if (item) {
       item.modifyDate = new Date(entry.attrs.mtime*1000)
       item.size = entry.attrs.size
     }
@@ -326,19 +339,19 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return item
   }
 
-  wrapSymLinkEntry(path, entry) {
+  wrapSymLinkEntry(path: string, entry: any): SFTPSymLink {
     const fullPath = PathUtil.join(path, entry.filename)
-    const result = new FTPSymLink(this, fullPath)
-    this.client.stat(fullPath, (err, stat) => {
-      if (err != null) {
+    const result = new SFTPSymLink(this, fullPath)
+    this.client.stat(fullPath, (err: any, stat: any) => {
+      if (err) {
         return
       }
 
       result.setModifyDate(new Date(entry.attrs.mtime*1000))
       result.setSize(entry.attrs.size)
 
-      return this.client.readlink(fullPath, (err, target) => {
-        if (err != null) {
+      return this.client.readlink(fullPath, (err: any, target: string) => {
+        if (err) {
           return
         }
 
@@ -353,20 +366,20 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return result
   }
 
-  newFileImpl(path, callback) {
-    return this.client.open(path, 'w', {}, (err, handle) => {
+  newFileImpl(path: string, callback: NewFileCallback) {
+    return this.client.open(path, 'w', {}, (err: any, handle: any) => {
       if (err != null) {
         callback(null, err)
         return
       }
 
-      return this.client.close(handle, err => {
+      return this.client.close(handle, (err: any) => {
         if (err != null) {
           callback(null, err)
           return
         }
 
-        return callback(this.getFile(path), null)
+        callback(this.getFile(path), null)
       })
     })
   }

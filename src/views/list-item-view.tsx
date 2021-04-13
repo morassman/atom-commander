@@ -1,6 +1,5 @@
 const etch = require('etch')
 
-import { FileController } from '../controllers/file-controller'
 import { ItemController } from '../controllers/item-controller'
 import { VItem } from '../fs'
 import { BaseItemView } from './base-item-view'

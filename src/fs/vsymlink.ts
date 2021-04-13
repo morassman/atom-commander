@@ -1,6 +1,7 @@
 import { VFileSystem } from './vfilesystem';
 import { VItem } from './vitem'
 import { VFile } from './vfile'
+import { VDirectory } from '.';
 
 export abstract class VSymLink extends VItem {
 
@@ -68,6 +69,6 @@ export abstract class VSymLink extends VItem {
   abstract createFileItem(targetPath: string): VFile
 
   // Overwrite to create a VDirectory for the directory pointed to by this symlink.
-  abstract createDirectoryItem(targetPath: string): VFile
+  abstract createDirectoryItem(targetPath: string): VDirectory
 
 }

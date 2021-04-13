@@ -1,11 +1,5 @@
 const etch = require('etch')
 
-export type ViewProps = {
-
-  ref?: string
-
-}
-
 export class Style {
 
   constructor(private display: string|undefined=undefined, private style: any={}, private onChange: ()=>void) {
@@ -119,6 +113,8 @@ export abstract class View<P extends Props = Props, R extends object = {}> {
   }
 
   initialize() {
+    console.log('initialize')
+    console.log(this)
     this.initialized = true
     etch.initialize(this)
   }

@@ -1,4 +1,5 @@
-import { VFile } from './fs'
+import { Bookmark } from './bookmark-manager'
+import { VDirectory, VFile } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
 
@@ -214,16 +215,16 @@ export class Actions {
     }
   }
 
-  // goDirectory(directory) {
-  //   this.main.show(true)
-  //   const view = this.getFocusedView()
+  goDirectory(directory: VDirectory) {
+    this.main.show(true)
+    const view = this.getFocusedView()
 
-  //   if (view != null) {
-  //     this.main.show(true)
-  //     // view.requestFocus()
-  //     return view.openDirectory(directory)
-  //   }
-  // }
+    if (view) {
+      this.main.show(true)
+      // view.requestFocus()
+      view.openDirectory(directory)
+    }
+  }
 
   // goDrive(fromView) {
   //   let view
@@ -249,21 +250,25 @@ export class Actions {
   //   }
   // }
 
-  // goBookmark(bookmark) {
-  //   const fileSystem = this.main.getFileSystemWithID(bookmark.pathDescription.fileSystemId)
+  goBookmark(bookmark: Bookmark) {
+    const fileSystem = this.main.getFileSystemWithID(bookmark.pathDescription.fileSystemId)
 
-  //   if (fileSystem === null) {
-  //     return
-  //   }
+    if (fileSystem === null) {
+      return
+    }
 
-  //   const item = fileSystem.getItemWithPathDescription(bookmark.pathDescription)
+    const item = fileSystem.getItemWithPathDescription(bookmark.pathDescription)
 
-  //   if (item.isFile()) {
-  //     return this.goFile(item, true)
-  //   } else {
-  //     return this.goDirectory(item)
-  //   }
-  // }
+    if (!item) {
+      return
+    }
+
+    if (item.isFile()) {
+      this.goFile(item as VFile, true)
+    } else {
+      this.goDirectory(item as VDirectory)
+    }
+  }
 
   // viewRefresh() {
   //   const view = this.getFocusedView()

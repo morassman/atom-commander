@@ -1,42 +1,47 @@
-const VSymLink = require('../vsymlink');
+import { FTPFile } from './ftp-file'
+import { FTPDirectory } from './ftp-directory';
+import { FTPFileSystem } from './ftp-filesystem';
+import { VSymLink } from '../'
+
 const PathUtil = require('path').posix;
-const FTPFile = require('./ftp-file');
-const FTPDirectory = require('./ftp-directory');
 
 export class FTPSymLink extends VSymLink {
 
-  constructor(public readonly fileSystem, path, baseName = null) {
-    this.path = path;
-    this.baseName = baseName;
-    super(fileSystem);
-    this.writable = true;
+  baseName: string
 
-    if (this.baseName === null) {
-      this.baseName = PathUtil.basename(this.path);
-    }
+  writable: boolean
+
+  constructor(public readonly fileSystem: FTPFileSystem, public readonly path: string, baseName = null) {
+    super(fileSystem)
+    this.baseName = baseName == null ? PathUtil.basename(this.path) : baseName
+    this.writable = true;
   }
 
-  getRealPathSync() {
+  getFileSystem(): FTPFileSystem {
+    return this.fileSystem as FTPFileSystem
+  }
+
+  getRealPathSync(): string {
     return this.path;
   }
 
-  getBaseName() {
+  getBaseName(): string {
     return this.baseName;
   }
 
-  getParent() {
+  getParent(): FTPDirectory {
     return this.fileSystem.getDirectory(PathUtil.dirname(this.path));
   }
 
-  isWritable() {
+  isWritable(): boolean {
     return this.writable;
   }
 
-  createFileItem(targetPath) {
+  createFileItem(targetPath: string): FTPFile {
     return new FTPFile(this.getFileSystem(), false, targetPath);
   }
 
-  createDirectoryItem(targetPath) {
+  createDirectoryItem(targetPath: string): FTPDirectory {
     return new FTPDirectory(this.getFileSystem(), false, targetPath);
   }
-});
+}

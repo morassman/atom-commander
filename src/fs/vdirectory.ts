@@ -17,7 +17,7 @@ export abstract class VDirectory extends VItem {
 
   abstract isRoot(): boolean
 
-  abstract onDidChange(callback: any): Disposable
+  abstract onDidChange(callback: any): Disposable | null
 
   // The callback received three parameters :
   // 1.) This directory.

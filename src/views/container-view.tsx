@@ -1,7 +1,7 @@
 const etch = require('etch')
 
 import { main } from '../main'
-import { CompositeDisposable, Directory, Disposable, TextEditor } from 'atom'
+import { CompositeDisposable, Directory, Disposable } from 'atom'
 import { DirectoryController } from '../controllers/directory-controller'
 import { FileController } from '../controllers/file-controller'
 import { ItemController } from '../controllers/item-controller'
@@ -11,7 +11,7 @@ import { LocalFileSystem } from '../fs/local'
 import { BaseItemView } from './base-item-view'
 import { MainView } from './main-view'
 import { TabView } from './tab-view'
-import { Props, View, ViewProps } from './view'
+import { Props, View } from './view'
 import Utils from '../utils'
 import * as fsp from 'fs-plus'
 import { Server } from '../servers/server'
@@ -82,7 +82,7 @@ class SpinnerPanel extends View {
 
 }
 
-export type ContainerViewProps = ViewProps & {
+export type ContainerViewProps = Props & {
 
   left: boolean
 
@@ -152,12 +152,14 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     this.lastLocalPath = null
     this.sortBy = null
     this.sortAscending = true
-
-    this.initialize()
   }
 
   initialize() {
     super.initialize()
+
+    const container = this.container()
+
+    this.refs.containerView.append(container.element)
 
     this.refs.directoryEditor.classList.add('directory-editor')
 
@@ -198,15 +200,12 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   }
 
   render() {
-    const container = this.container()
-
     return <div tabindex={-1} attributes={{style: 'display: flex; flex-direction: column; flex: 1; overflow: auto'}}>
       <div>
-        <span ref='username' className='highlight-info username'/>
+        <UsernameView ref='username' />
         <input ref='directoryEditor' className='input-text' type='text' on={{blur: () => this.directoryEditorCancel()}}/>
       </div>
       <div ref='containerView' className='atom-commander-container-view'>
-        {container.element}
       </div>
       <SearchPanel ref='searchPanel'/>
       <SpinnerPanel ref='spinnerPanel'/>
@@ -748,7 +747,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   tryOpenDirectory(newDirectory: VDirectory, snapShot: Snapshot|null = null, callback?: ()=>void) {
     this.directory = newDirectory
     
-    if (this.tabView !== null) {
+    if (this.tabView ) {
       this.tabView.directoryChanged()
     }
 
@@ -973,6 +972,10 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
       return
     }
 
+    if (!this.directory) {
+      return
+    }
+
     const fileSystem = this.directory.getFileSystem()
 
     if (fileSystem.isLocal()) {
@@ -982,7 +985,11 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     const path = fileSystem.getPathFromURI(uri)
 
     if (path !== null) {
-      return this.openDirectory(fileSystem.getDirectory(path), null, () => this.focus())
+      const dir = fileSystem.getDirectory(path)
+
+      if (dir) {
+        this.openDirectory(dir, null, () => this.focus())
+      }
     }
   }
 
@@ -993,7 +1000,9 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     //   @openDirectory(directory)
 
   directoryEditorCancel() {
-    return this.directoryEditor.setText(this.directory.getURI())
+    if (this.directory) {
+      this.refs.directoryEditor.value = this.directory.getURI()
+    }
   }
 
   addProject() {
@@ -1064,8 +1073,8 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     })
   }
 
-  getInitialDirectory(suggestedPath: string | null) {
-    if ((suggestedPath !== null) && fsp.isDirectorySync(suggestedPath)) {
+  getInitialDirectory(suggestedPath?: string | null) {
+    if (suggestedPath&& fsp.isDirectorySync(suggestedPath)) {
       return this.localFileSystem.getDirectory(suggestedPath)
     }
 
@@ -1188,7 +1197,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     }
   }
 
-  deserialize(path: string, state: ContainerState) {
+  deserialize(path: string | null, state: ContainerState) {
     if (!state) {
       this.openDirectory(this.getInitialDirectory(path))
       return

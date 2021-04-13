@@ -3,6 +3,7 @@ import { PathDescription } from './fs/path-description'
 import { Main } from './main'
 
 import * as fsp from 'fs-plus'
+import { VFileSystem } from './fs'
 
 export interface Bookmark {
 
@@ -54,65 +55,62 @@ export class BookmarkManager {
   // }
 
   addBookmark(name: string, item: any) {
-    // const bookmark = {}
-    // bookmark.name = name
-    // bookmark.pathDescription = item.getPathDescription()
+    const bookmark: Bookmark = {
+      name,
+      pathDescription: item.getPathDescription()
+    }
 
-    // this.bookmarks.push(bookmark)
-    // this.main.saveState()
-    // return this.bookmarksChanged()
+    this.bookmarks.push(bookmark)
+    this.main.saveState()
+    this.bookmarksChanged()
   }
 
   // Adds multiple bookmarks.
   // bookmarks : Array of bookmarks to add.
-  // addBookmarks(bookmarks) {
-  //   for (let bookmark of Array.from(bookmarks)) {
-  //     this.bookmarks.push(bookmark)
-  //   }
+  addBookmarks(bookmarks: Bookmark[]) {
+    this.bookmarks = this.bookmarks.concat(bookmarks)
+    this.main.saveState()
+    this.bookmarksChanged()
+  }
 
-  //   this.main.saveState()
-  //   return this.bookmarksChanged()
-  // }
+  removeBookmark(bookmark: Bookmark, save=true) {
+    const index = this.bookmarks.indexOf(bookmark)
 
-  // removeBookmark(bookmark, save) {
-  //   if (save == null) { save = true }
-  //   const index = this.bookmarks.indexOf(bookmark)
+    if (index >= 0) {
+      this.bookmarks.splice(index, 1)
+      this.bookmarksChanged()
+    }
 
-  //   if (index >= 0) {
-  //     this.bookmarks.splice(index, 1)
-  //     this.bookmarksChanged()
-  //   }
+    if (save) {
+      this.main.saveState()
+    }
+  }
 
-  //   if (save) {
-  //     return this.main.saveState()
-  //   }
-  // }
+  getBookmarksWithFileSystemId(fileSystemId: string) {
+    const result = []
 
-  // getBookmarksWithFileSystemId(fileSystemId) {
-  //   const result = []
+    for (let bookmark of this.bookmarks) {
+      if (bookmark.pathDescription.fileSystemId === fileSystemId) {
+        result.push(bookmark)
+      }
+    }
 
-  //   for (let bookmark of Array.from(this.bookmarks)) {
-  //     if (bookmark.pathDescription.fileSystemId === fileSystemId) {
-  //       result.push(bookmark)
-  //     }
-  //   }
+    return result
+  }
 
-  //   return result
-  // }
+  fileSystemRemoved(fileSystem: VFileSystem) {
+    const bs = this.getBookmarksWithFileSystemId(fileSystem.getID())
 
-  // fileSystemRemoved(fileSystem) {
-  //   const bs = this.getBookmarksWithFileSystemId(fileSystem.getID())
+    if (bs.length === 0) {
+      return
+    }
 
-  //   if (bs.length === 0) {
-  //     return
-  //   }
+    for (let b of bs) {
+      this.removeBookmark(b, false)
+    }
 
-  //   for (let b of Array.from(bs)) {
-  //     this.removeBookmark(b, false)
-  //   }
-
-  //   return this.main.saveState()
-  // }
+    return this.main.saveState()
+  }
 
   bookmarksChanged() {
     // const commands = {}
@@ -157,9 +155,9 @@ export class BookmarkManager {
     // return this.commandsDisposable = atom.commands.add('atom-workspace', commands)
   }
 
-  // openBookmark(bookmark) {
-  //   return this.main.actions.goBookmark(bookmark)
-  // }
+  openBookmark(bookmark: Bookmark) {
+    this.main.actions.goBookmark(bookmark)
+  }
 
   serialize() {
     return this.bookmarks

@@ -15,7 +15,9 @@ export abstract class ItemController<I extends VItem> {
 
   // Called if anything about the item changed.
   refresh() {
-    return (this.itemView != null ? this.itemView.refresh() : undefined)
+    if (this.itemView) {
+      this.itemView.refresh()
+    }
   }
 
   getItem(): I {

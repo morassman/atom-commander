@@ -23,6 +23,10 @@ export class ListFileView extends ListItemView<FileController> {
     this.refs.extension.textContent = this.itemController.getExtensionPart()
   }
 
+  isForParentDirectory(): boolean {
+    return false
+  }
+
   getName(): string {
     return this.itemController.getName()
   }

@@ -1,22 +1,22 @@
 import { Disposable } from 'atom'
 import { posix as PathUtil } from 'path'
 import { VDirectory } from '../'
-import { FTPFileSystem } from './ftp-filesystem'
+import { SFTPFileSystem } from './sftp-filesystem'
 
-export class FTPDirectory extends VDirectory {
+export class SFTPDirectory extends VDirectory {
 
   writable: boolean
 
   baseName: string
 
-  constructor(fileSystem: FTPFileSystem, public readonly link: boolean, public readonly path: string, baseName?: string) {
+  constructor(fileSystem: SFTPFileSystem, public readonly link: boolean, public readonly path: string, baseName?: string) {
     super(fileSystem)
     this.writable = true
     this.baseName = baseName || PathUtil.basename(this.path)
   }
 
-  getFileSystem(): FTPFileSystem {
-    return super.getFileSystem() as FTPFileSystem
+  getFileSystem(): SFTPFileSystem {
+    return super.getFileSystem() as SFTPFileSystem
   }
 
   existsSync(): boolean {
@@ -32,7 +32,7 @@ export class FTPDirectory extends VDirectory {
   }
 
   getParent() {
-    return new FTPDirectory(this.getFileSystem(), false, PathUtil.dirname(this.path))
+    return new SFTPDirectory(this.getFileSystem(), false, PathUtil.dirname(this.path))
   }
 
   isRoot(): boolean {

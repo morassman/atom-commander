@@ -17,6 +17,8 @@ import { DirectoryController } from '../controllers/directory-controller'
 import Utils from '../utils'
 import { TabbedView } from './tabbed-view'
 import { ContainerView } from './container-view'
+import { Server } from '../servers/server'
+import { VFileSystem } from '../fs'
 
 export const ATOM_COMMANDER_URI = 'atom://atom-commander'
 
@@ -38,7 +40,7 @@ export class MainView extends View<Props, Refs> implements ViewModel {
 
   extensionColumnVisible: boolean
 
-  focusedView: ContainerView
+  focusedView: ContainerView | null
 
   horizontal: boolean
 
@@ -59,11 +61,11 @@ export class MainView extends View<Props, Refs> implements ViewModel {
     // this.leftTabbedView.addClass('left')
     // this.rightTabbedView.addClass('right')
 
-    // this.leftTabbedView.deserialize(state.version, state.leftPath, state.left)
-    // this.rightTabbedView.deserialize(state.version, state.rightPath, state.right)
+    this.refs.leftTabbedView.deserialize(state.version, state.leftPath || null, state.left)
+    this.refs.rightTabbedView.deserialize(state.version, state.rightPath || null, state.right)
 
-    // this.leftView = this.leftTabbedView.getSelectedView()
-    // this.rightView = this.rightTabbedView.getSelectedView()
+    // this.leftView = this.refs.leftTabbedView.getSelectedView()
+    // this.rightView = this.refs.rightTabbedView.getSelectedView()
 
     this.horizontal = true
     // this.customHeight = state.height
@@ -72,7 +74,7 @@ export class MainView extends View<Props, Refs> implements ViewModel {
     //   this.setHeight(state.height)
     // }
 
-    // this.focusedView = this.getLeftView()
+    this.focusedView = this.getLeftView()
   }
 
   render(): any {
@@ -179,12 +181,12 @@ export class MainView extends View<Props, Refs> implements ViewModel {
   // //   return this.keypress(e => this.handleKeyPress(e))
   // // }
 
-  // destroy() {
-  //   super.destroy()
-  //   this.leftView.dispose()
-  //   this.rightView.dispose()
-  //   this.menuBar.dispose()
-  // }
+  destroy() {
+    super.destroy()
+    this.refs.leftTabbedView.destroy()
+    this.refs.rightTabbedView.destroy()
+    // this.refs.menuBar.dispose()
+  }
 
   getTitle(): string {
     return 'Atom Commander'
@@ -420,13 +422,9 @@ export class MainView extends View<Props, Refs> implements ViewModel {
   //   }
   // }
 
-  // getFocusedViewDirectory() {
-  //   if (this.focusedView === null) {
-  //     return null
-  //   }
-
-  //   return this.focusedView.directory
-  // }
+  getFocusedViewDirectory() {
+    return this.focusedView ? this.focusedView.directory : null
+  }
 
   // menuButton() {
   //   return this.toggleMenuBar()
@@ -706,25 +704,29 @@ export class MainView extends View<Props, Refs> implements ViewModel {
   //   return otherView.requestFocus()
   // }
 
-  // refocusLastView() {
-  //   if (this.focusedView !== null) {
-  //     return this.focusView(this.focusedView)
-  //   } else {
-  //     return this.focusView(this.getLeftView())
-  //   }
-  // }
+  refocusLastView() {
+    if (this.focusedView !== null) {
+      this.focusView(this.focusedView)
+    } else {
+      const leftView = this.getLeftView()
 
-  // getFocusedTabbedView() {
-  //   if (this.focusedView === null) {
-  //     return null
-  //   }
+      if (leftView) {
+        this.focusView(leftView)
+      }
+    }
+  }
 
-  //   if (this.focusedView.isLeft()) {
-  //     return this.leftTabbedView
-  //   }
+  getFocusedTabbedView(): TabbedView | null {
+    if (!this.focusedView) {
+      return null
+    }
 
-  //   return this.rightTabbedView
-  // }
+    if (this.focusedView.isLeft()) {
+      return this.refs.leftTabbedView
+    }
+
+    return this.refs.rightTabbedView
+  }
 
   // addTab() {
   //   const focusedTabbedView = this.getFocusedTabbedView()
@@ -807,33 +809,33 @@ export class MainView extends View<Props, Refs> implements ViewModel {
   //   }
   // }
 
-  // tabCountChanged() {
-  //   const totalTabs = this.leftTabbedView.getTabCount() + this.rightTabbedView.getTabCount()
-  //   this.leftTabbedView.setTabsVisible(totalTabs > 2)
-  //   return this.rightTabbedView.setTabsVisible(totalTabs > 2)
-  // }
+  tabCountChanged() {
+    const totalTabs = this.refs.leftTabbedView.getTabCount() + this.refs.rightTabbedView.getTabCount()
+    this.refs.leftTabbedView.setTabsVisible(totalTabs > 2)
+    this.refs.rightTabbedView.setTabsVisible(totalTabs > 2)
+  }
 
-  // fileSystemRemoved(fileSystem) {
-  //   this.leftTabbedView.fileSystemRemoved(fileSystem)
-  //   return this.rightTabbedView.fileSystemRemoved(fileSystem)
-  // }
+  fileSystemRemoved(fileSystem: VFileSystem) {
+    this.refs.leftTabbedView.fileSystemRemoved(fileSystem)
+    this.refs.rightTabbedView.fileSystemRemoved(fileSystem)
+  }
 
-  // serverClosed(server) {
-  //   this.leftTabbedView.serverClosed(server)
-  //   return this.rightTabbedView.serverClosed(server)
-  // }
+  serverClosed(server: Server) {
+    this.refs.leftTabbedView.serverClosed(server)
+    this.refs.rightTabbedView.serverClosed(server)
+  }
 
-  // isSizeColumnVisible() {
-  //   return this.sizeColumnVisible
-  // }
+  isSizeColumnVisible() {
+    return this.sizeColumnVisible
+  }
 
-  // isDateColumnVisible() {
-  //   return this.dateColumnVisible
-  // }
+  isDateColumnVisible() {
+    return this.dateColumnVisible
+  }
 
-  // isExtensionColumnVisible() {
-  //   return this.extensionColumnVisible
-  // }
+  isExtensionColumnVisible() {
+    return this.extensionColumnVisible
+  }
 
   // toggleSizeColumn() {
   //   this.sizeColumnVisible = !this.sizeColumnVisible
@@ -859,14 +861,14 @@ export class MainView extends View<Props, Refs> implements ViewModel {
   //   }
   // }
 
-  // serialize(state: State) {
-  //   // TODO
-  //   // state.left = this.leftTabbedView.serialize()
-  //   // state.right = this.rightTabbedView.serialize()
-  //   state.sizeColumnVisible = this.sizeColumnVisible
-  //   state.dateColumnVisible = this.dateColumnVisible
-  //   state.extensionColumnVisible = this.extensionColumnVisible
-  //   state.height = this.customHeight
-  // }
+  serialize(state: State) {
+    // TODO
+    state.left = this.refs.leftTabbedView.serialize()
+    state.right = this.refs.rightTabbedView.serialize()
+    state.sizeColumnVisible = this.sizeColumnVisible
+    state.dateColumnVisible = this.dateColumnVisible
+    state.extensionColumnVisible = this.extensionColumnVisible
+    // state.height = this.customHeight
+  }
 }
 

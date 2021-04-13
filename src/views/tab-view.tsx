@@ -2,14 +2,14 @@ const etch = require('etch')
 
 import { View } from './view'
 import { TabsView } from './tabs-view'
-import { ContainerView } from './container-view'
+import { ContainerState, ContainerView } from './container-view'
 
 export class TabView extends View {
 
   constructor(public readonly tabsView: TabsView, public readonly view: ContainerView) {
     super({}, false)
-    this.view.setTabView(this)
     this.initialize()
+    this.view.setTabView(this)
   }
 
   render() {
@@ -31,7 +31,7 @@ export class TabView extends View {
       directory
     } = this.view
 
-    if (directory === null) {
+    if (!directory) {
       return
     }
 
@@ -47,7 +47,7 @@ export class TabView extends View {
       }
     }
 
-    return this.text(name)
+    this.element.textContent = name
   }
 
   removeButtonPressed() {}
@@ -80,12 +80,12 @@ export class TabView extends View {
     return this.hasClass('atom-commander-tab-view-selected')
   }
 
-  serialize() {
+  serialize(): ContainerState {
     return this.view.serialize()
   }
 
-  deserialize(state) {
-    return this.view.deserialize(null, state)
+  deserialize(state: ContainerState) {
+    this.view.deserialize(null, state)
   }
 
 }

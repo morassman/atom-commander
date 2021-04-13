@@ -1,12 +1,12 @@
 const etch = require('etch')
 
-import { View, ViewProps } from './view'
+import { View, Props } from './view'
 import { TabView } from './tab-view'
 import { TabbedView } from './tabbed-view'
 import { ContainerView } from './container-view'
 import { VFileSystem } from '../fs'
 
-type TabsViewProps = ViewProps & {
+type TabsViewProps = Props & {
 
   tabbedView: TabbedView
 
@@ -31,9 +31,9 @@ export class TabsView extends View<TabsViewProps, Refs> {
     </div>
   }
 
-  // getTabViews() {
-  //   return this.tabs
-  // }
+  getTabViews() {
+    return this.tabs
+  }
 
   getTabCount(): number {
     return this.tabs.length
@@ -153,7 +153,7 @@ export class TabsView extends View<TabsViewProps, Refs> {
     return tab.scrollIntoView()
   }
 
-  getSelectedIndex() {
+  getSelectedIndex(): number | null {
     let index = 0
 
     for (let tab of Array.from(this.tabs)) {

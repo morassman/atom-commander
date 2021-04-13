@@ -6,17 +6,24 @@ const FTPFile = require('./ftp-file')
 const FTPDirectory = require('./ftp-directory')
 const Utils = require('../../utils')
 
+import { EntriesCallback, VFile, VItem } from '..'
 import { Server } from '../../servers/server'
+import { PathDescription } from '../path-description'
+import { VDirectory } from '../vdirectory'
 import { FTPConfig } from './ftp-config'
 import { RemoteFileSystem } from './remote-filesystem'
 
 export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
 
+  client: any
+
+  clientConfig: any
+
   constructor(server: Server, config: FTPConfig) {
     super(server, config)
     this.client = null
 
-    if ((this.config.password != null) && (this.config.passwordDecrypted == null)) {
+    if (this.config.password && !this.config.passwordDecrypted) {
       this.config.password = Utils.decrypt(this.config.password, this.getDescription())
       this.config.passwordDecrypted = true
     }
@@ -24,15 +31,15 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     this.clientConfig = this.getClientConfig()
   }
 
-  clone() {
+  clone(): FTPFileSystem {
     const cloneFS = new FTPFileSystem(this.server, this.config)
     cloneFS.clientConfig = this.clientConfig
     return cloneFS
   }
 
   connectImpl() {
-    if ((this.clientConfig.password != null) && (this.clientConfig.password.length > 0)) {
-      return this.connectWithPassword(this.clientConfig.password)
+    if (this.clientConfig.password && (this.clientConfig.password.length > 0)) {
+      this.connectWithPassword(this.clientConfig.password)
     } else {
       let prompt = 'Enter password for '
       prompt += this.clientConfig.user
@@ -40,20 +47,21 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
       prompt += this.clientConfig.host
       prompt += ':'
 
-      return Utils.promptForPassword(prompt, password => {
-        if (password != null) {
-          return this.connectWithPassword(password)
+      Utils.promptForPassword(prompt, (password: string) => {
+        if (password) {
+          this.connectWithPassword(password)
         } else {
-          const err = {}
-          err.canceled = true
-          err.message = 'Incorrect credentials for '+this.clientConfig.host
-          return this.disconnect(err)
+          const err = {
+            canceled: true,
+            message: 'Incorrect credentials for '+this.clientConfig.host
+          }
+          this.disconnect(err)
         }
       })
     }
   }
 
-  connectWithPassword(password) {
+  connectWithPassword(password: string) {
     this.client = new FTPClient()
 
     this.client.on('ready', () => {
@@ -71,7 +79,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
       return this.disconnect()
     })
 
-    this.client.on('error', err => {
+    this.client.on('error', (err: any) => {
       if (err.code === 530) {
         delete this.clientConfig.password
         atom.notifications.addWarning('Incorrect credentials for '+this.clientConfig.host)
@@ -85,7 +93,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
       return this.disconnect()
     })
 
-    const connectConfig = {}
+    const connectConfig: any = {}
 
     for (let key in this.clientConfig) {
       const val = this.clientConfig[key]
@@ -109,7 +117,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
   }
 
   getClientConfig() {
-    const result = {}
+    const result: any = {}
 
     result.host = this.config.host
     result.port = this.config.port
@@ -120,12 +128,11 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
   }
 
   getSafeConfig() {
-    const result = {}
+    const result: any = {}
 
-    for (let key in this.config) {
-      const val = this.config[key]
-      result[key] = val
-    }
+    Object.entries(this.config).forEach(entry => {
+      result[entry[0]] = entry[1]
+    })
 
     if (this.config.storePassword) {
       result.password = Utils.encrypt(result.password, this.getDescription())
@@ -138,15 +145,15 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return result
   }
 
-  getFile(path) {
+  getFile(path: string) {
     return new FTPFile(this, false, path)
   }
 
-  getDirectory(path) {
+  getDirectory(path: string) {
     return new FTPDirectory(this, false, path)
   }
 
-  getItemWithPathDescription(pathDescription) {
+  getItemWithPathDescription(pathDescription: PathDescription) {
     if (pathDescription.isFile) {
       return new FTPFile(this, pathDescription.isLink, pathDescription.path, pathDescription.name)
     }
@@ -158,15 +165,15 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return this.getDirectory(this.config.folder)
   }
 
-  getURI(item) {
-    return this.config.protocol+'://' + PathUtil.join(this.config.host, item.path)
+  getURI(item: VItem): string {
+    return this.config.protocol+'://' + PathUtil.join(this.config.host, item.getPath())
   }
 
   getPathUtil() {
     return PathUtil
   }
 
-  getPathFromURI(uri) {
+  getPathFromURI(uri: string): string | null {
     const root = this.config.protocol+'://'+this.config.host
 
     if (uri.substring(0, root.length) === root) {
@@ -176,67 +183,67 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return null
   }
 
-  renameImpl(oldPath, newPath, callback) {
-    return this.client.rename(oldPath, newPath, err => {
-      if ((callback == null)) {
+  renameImpl(oldPath: string, newPath: string, callback: any) {
+    return this.client.rename(oldPath, newPath, (err: any) => {
+      if (!callback) {
         return
       }
 
-      if (err != null) {
-        return callback(err.message)
+      if (err) {
+        callback(err.message)
       } else {
-        return callback(null)
+        callback(null)
       }
     })
   }
 
-  makeDirectoryImpl(path, callback) {
-    return this.client.mkdir(path, true, err => {
-      if ((callback == null)) {
+  makeDirectoryImpl(path: string, callback: any) {
+    return this.client.mkdir(path, true, (err: any) => {
+      if (!callback) {
         return
       }
 
-      if (err != null) {
-        return callback(err.message)
+      if (err) {
+        callback(err.message)
       } else {
-        return callback(null)
+        callback(null)
       }
     })
   }
 
-  deleteFileImpl(path, callback) {
-    return this.client.delete(path, err => {
-      if ((callback == null)) {
+  deleteFileImpl(path: string, callback: any) {
+    return this.client.delete(path, (err: any) => {
+      if (!callback) {
         return
       }
 
-      if (err != null) {
-        return callback(err.message)
+      if (err) {
+        callback(err.message)
       } else {
-        return callback(null)
+        callback(null)
       }
     })
   }
 
-  deleteDirectoryImpl(path, callback) {
-    return this.client.rmdir(path, err => {
-      if ((callback == null)) {
+  deleteDirectoryImpl(path: string, callback: any) {
+    return this.client.rmdir(path, (err: any) => {
+      if (!callback) {
         return
       }
 
-      if (err != null) {
-        return callback(err.message)
+      if (err) {
+        callback(err.message)
       } else {
-        return callback(null)
+        callback(null)
       }
     })
   }
 
-  getHost() {
+  getHost(): string {
     return this.config.host
   }
 
-  getDisplayName() {
+  getDisplayName(): string {
     if (this.config.name && (this.config.name.trim().length > 0)) {
       return this.config.name
     }
@@ -244,78 +251,78 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return this.config.host
   }
 
-  getUsername() {
+  getUsername(): string {
     return this.config.user
   }
 
-  getLocalDirectoryName() {
+  getLocalDirectoryName(): string {
     return this.config.protocol+'_'+this.config.host+'_'+this.config.port+'_'+this.config.user
   }
 
-  downloadImpl(path, localPath, callback) {
-    return this.client.get(path, (err, stream) => {
-      if (err != null) {
+  downloadImpl(path: string, localPath: string, callback: any) {
+    return this.client.get(path, (err: any, stream: any) => {
+      if (err) {
         callback(err)
         return
       }
 
       stream.on('error', callback)
       stream.on('end', callback)
-      return stream.pipe(fs.createWriteStream(localPath))
+      stream.pipe(fs.createWriteStream(localPath))
     })
   }
 
-  uploadImpl(localPath, path, callback) {
-    return this.client.put(localPath, path, false, callback)
+  uploadImpl(localPath: string, path: string, callback: any) {
+    this.client.put(localPath, path, false, callback)
   }
 
-  newFileImpl(path, callback) {
+  newFileImpl(path: string, callback: any) {
     const buffer = new Buffer('', 'utf8')
-    return this.client.put(buffer, path, err => {
-      if (err != null) {
-        return callback(null, err)
+    this.client.put(buffer, path, (err: any) => {
+      if (err) {
+        callback(null, err)
       } else {
-        return callback(this.getFile(path), null)
+        callback(this.getFile(path), null)
       }
     })
   }
 
-  openFile(file) {
-    return this.server.openFile(file)
+  openFile(file: VFile) {
+    this.server.openFile(file)
   }
 
-  createReadStreamImpl(path, callback) {
-    return this.client.get(path, callback)
+  createReadStreamImpl(path: string, callback: any) {
+    this.client.get(path, callback)
   }
 
-  getDescription() {
+  getDescription(): string {
     return this.config.protocol+'://'+this.config.host+':'+this.config.port
   }
 
-  getEntriesImpl(directory, callback) {
-    return this.list(directory.getPath(), (err, entries) => {
-      return callback(directory, err, entries)
+  getEntriesImpl(directory: VDirectory, callback: EntriesCallback) {
+    this.list(directory.getPath(), (err: any, entries: VItem[]) => {
+      callback(directory, err, entries)
     })
   }
 
-  list(path, callback) {
-    return this.client.list(path, (err, entries) => {
+  list(path: string, callback: any) {
+    this.client.list(path, (err: any, entries: any[]) => {
       if (err != null) {
-        return callback(err, [])
+        callback(err, [])
       } else {
-        return callback(null, this.wrapEntries(path, entries))
+        callback(null, this.wrapEntries(path, entries))
       }
     })
   }
 
-  wrapEntries(path, entries) {
+  wrapEntries(path: string, entries: any[]): VItem[] {
     const directories = []
     const files = []
 
-    for (let entry of Array.from(entries)) {
+    for (let entry of entries) {
       const wrappedEntry = this.wrapEntry(path, entry)
 
-      if (wrappedEntry !== null) {
+      if (wrappedEntry) {
         if (wrappedEntry.isFile()) {
           files.push(wrappedEntry)
         } else {
@@ -330,7 +337,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return directories.concat(files)
   }
 
-  wrapEntry(path, entry) {
+  wrapEntry(path: string, entry: any): VItem | null {
     if ((entry.name === '.') || (entry.name === '..')) {
       return null
     }
@@ -350,7 +357,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
       }
     }
 
-    if (item != null) {
+    if (item) {
       item.modifyDate = entry.date
       item.size = entry.size
     }

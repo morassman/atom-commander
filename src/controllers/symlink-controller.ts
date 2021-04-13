@@ -17,14 +17,14 @@ export class SymLinkController extends ItemController<VSymLink> {
   }
 
   getNamePart(): string {
-    if (this.namePart != null) {
+    if (this.namePart) {
       return this.namePart
     }
     return super.getNamePart()
   }
 
   getExtensionPart(): string {
-    if (this.extensionPart != null) {
+    if (this.extensionPart) {
       return this.extensionPart
     }
     return super.getExtensionPart()

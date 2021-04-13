@@ -12,10 +12,20 @@ export interface SFTPConfig extends RemoteConfig {
 
   passphrase: string
 
+  folder: string
+
   tryKeyboard: boolean
 
   keepaliveInterval: number
   
   privateKeyPath: string
+
+  passwordDecrypted: boolean
+
+  loginWithPassword: boolean
+
+  usePassphrase: boolean
+
+  storePassword: boolean
 
 }

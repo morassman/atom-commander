@@ -88,6 +88,7 @@ export class ListView extends ContainerView {
   constructor(left: boolean) {
     super({left})
     this.body = new BodyView(() => this.requestFocus())
+    this.initialize()
   }
 
   container(): BodyView {
@@ -119,19 +120,19 @@ export class ListView extends ContainerView {
     this.setDateColumnVisible(this.isDateColumnVisible())
   }
 
-  createParentView(index: number, directoryController: DirectoryController) {
+  createParentView(index: number, directoryController: DirectoryController): ListDirectoryView {
     return new ListDirectoryView(this, index, true, directoryController)
   }
 
-  createFileView(index: number, fileController: FileController) {
+  createFileView(index: number, fileController: FileController): ListFileView {
     return new ListFileView(this, index, fileController)
   }
 
-  createDirectoryView(index: number, directoryController: DirectoryController) {
+  createDirectoryView(index: number, directoryController: DirectoryController): ListDirectoryView {
     return new ListDirectoryView(this, index, false, directoryController)
   }
 
-  createSymLinkView(index: number, symLinkController: SymLinkController) {
+  createSymLinkView(index: number, symLinkController: SymLinkController): ListSymLinkView {
     return new ListSymLinkView(this, index, symLinkController)
   }
 

@@ -58,7 +58,7 @@ export class TaskManager {
         return
       }
 
-      if (err != null) {
+      if (err) {
         Utils.showErrorWarning('Transfer failed', null, null, err, true)
       }
 
@@ -179,7 +179,7 @@ export class TaskManager {
 
     const task2 = (cb: any) => {
       directory.getEntries((dir, err, entries) => {
-        if (err != null) {
+        if (err) {
           cb(err)
         } else {
           this.uploadItemsWithQueue(remoteFolderPath, entries)
@@ -236,17 +236,17 @@ export class TaskManager {
     this.addDownloadTask(task1, directory, callback)
 
     const task2 = (cb: ErrorCallback) => {
-      return directory.getEntries((dir, err, entries) => {
-        if (err != null) {
-          return cb(err)
+      directory.getEntries((dir, err, entries) => {
+        if (err) {
+          cb(err)
         } else {
           this.downloadItemsWithQueue(localFolderPath, entries, callback)
-          return cb(null)
+          cb(null)
         }
       })
     }
 
-    return this.addDownloadTask(task2, directory, callback)
+    this.addDownloadTask(task2, directory, callback)
   }
 
   addUploadTask(task: QueueWorker, item: VItem, callback?: TaskCallback) {

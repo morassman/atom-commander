@@ -37,6 +37,10 @@ export class ListSymLinkView extends ListItemView<SymLinkController> {
     }
   }
 
+  isForParentDirectory(): boolean {
+    return false
+  }
+
   getName(): string {
     return this.itemController.getName()
   }

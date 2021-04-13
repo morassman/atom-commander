@@ -35,29 +35,30 @@ export default {
   //   return null
   // },
 
-  // sortItems(items) {
-  //   return items.sort(function(item1, item2) {
-  //     const name1 = item1.getBaseName()
-  //     const name2 = item2.getBaseName()
+  sortItems(items: VItem[]) {
+    return items.sort(function(item1: VItem, item2: VItem) {
+      const name1 = item1.getBaseName()
+      const name2 = item2.getBaseName()
 
-  //     if (name1 < name2) {
-  //       return -1
-  //     } else if (name1 > name2) {
-  //       return 1
-  //     }
+      if (name1 < name2) {
+        return -1
+      } else if (name1 > name2) {
+        return 1
+      }
 
-  //     return 0
-  //   })
-  // },
+      return 0
+    })
+  },
 
   getServersPath() {
     return PathUtil.join(fsp.getHomeDirectory(), '.atom-commander', 'servers')
   },
 
-  // promptForPassword(prompt, callback) {
-  //   const dialog = new InputDialog(prompt, null, true, callback)
-  //   return dialog.attach()
-  // },
+  promptForPassword(prompt: string, callback: any) {
+    // TODO
+    // const dialog = new InputDialog(prompt, null, true, callback)
+    // return dialog.attach()
+  },
 
   encrypt(text: string, key: string) {
     if (!text || (text.length === 0)) {
@@ -87,7 +88,7 @@ export default {
     const options: any = {}
     options['dismissable'] = dismissable
 
-    if (message != null) {
+    if (message) {
       options['detail'] = message
     }
 
