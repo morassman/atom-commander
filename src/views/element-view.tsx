@@ -2,20 +2,21 @@ const etch = require('etch')
 
 import { Props, View } from './view'
 
-type ElementType = 'div' | 'span'
+type Tag = 'div' | 'span'
 
-function getElementDisplay(type: ElementType): string {
+function getTagDisplay(type?: Tag): string {
   return 'block'
 }
 
 type ElementViewProps = Props & {
-  type: ElementType
+  tag?: Tag
 }
 
 export class ElementView extends View<ElementViewProps> {
 
-  constructor(props: ElementViewProps) {
-    super(props, true, getElementDisplay(props.type))
+  constructor(props: ElementViewProps, private children: any[]) {
+    super(props, false, getTagDisplay(props.tag))
+    this.initialize()
   }
 
   render() {
@@ -40,7 +41,23 @@ export class ElementView extends View<ElementViewProps> {
       attributes
     }
 
-    return etch.dom(this.props.type, props)
+    return etch.dom(this.props.tag || 'div', props, this.children)
+  }
+
+}
+
+export class Div extends ElementView {
+
+  constructor(props: Props, children: any[]) {
+    super({tag: 'div', ...props}, children)
+  }
+
+}
+
+export class Span extends ElementView {
+
+  constructor(props: Props, children: any[]) {
+    super({tag: 'span', ...props}, children)
   }
 
 }

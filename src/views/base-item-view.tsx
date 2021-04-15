@@ -27,7 +27,6 @@ export abstract class BaseItemView<C extends ItemController<VItem>, R extends ob
 
     this.itemName = this.getName()
     this.itemController.initialize(this)
-
   }
 
   getContainerView(): ContainerView {

@@ -20,7 +20,7 @@ import { ItemController } from '../controllers/item-controller'
 class TableBodyView extends View {
 
   render() {
-    return <tbody className='atom-commander-list-view list' tabindex={-1}/>
+    return <tbody className='atom-commander-list-view list'/>
   }
 }
 
@@ -58,7 +58,7 @@ class BodyView extends View<Props, BodyViewRefs> {
 
   render() {
     return <div ref='scroller' className='atom-commander-list-view-scroller' on={{click: () => this.requestFocus()}}>
-      <table ref='table' className='atom-commander-list-view-table'>
+      <table ref='table' className='atom-commander-list-view-table' attributes={{tabindex:-1}}>
         <thead>
           <tr>
             <th ref='nameHeader' on={{click: () => main.actions.sortByName()}}>
@@ -75,7 +75,7 @@ class BodyView extends View<Props, BodyViewRefs> {
             </th>
           </tr>
         </thead>
-        <TableBodyView ref='tableBody' className='atom-commander-list-view list' tabindex={-1}/>
+        <TableBodyView ref='tableBody' className='atom-commander-list-view list'/>
       </table>
     </div>
   }
@@ -151,12 +151,12 @@ export class ListView extends ContainerView {
   }
 
   focus() {
-    this.body.refs.tableBody.element.focus()
+    this.body.refs.table.focus()
     super.focus()
   }
 
   hasContainerFocus() {
-    return document.activeElement === this.body.refs.tableBody.element
+    return document.activeElement === this.body.refs.table
   }
 
   pageUp() {

@@ -19,6 +19,8 @@ import { TabbedView } from './tabbed-view'
 import { ContainerView } from './container-view'
 import { Server } from '../servers/server'
 import { VFileSystem } from '../fs'
+import { MenuBarView } from './menu/menu-bar-view'
+import { Div } from './element-view'
 
 export const ATOM_COMMANDER_URI = 'atom://atom-commander'
 
@@ -27,6 +29,8 @@ type Refs = {
   leftTabbedView: TabbedView
 
   rightTabbedView: TabbedView
+
+  menuBar: Div
 
 }
 
@@ -47,27 +51,22 @@ export class MainView extends View<Props, Refs> implements ViewModel {
   constructor(public readonly main: Main, state: State) {
     super({}, false)
 
+    this.horizontal = true
     this.alternateButtons = false
+    
     this.sizeColumnVisible = state.sizeColumnVisible
     this.dateColumnVisible = state.dateColumnVisible
     this.extensionColumnVisible = state.extensionColumnVisible
 
     this.initialize()
 
-    // this.menuBar.setMainView(this)
+    // this.refs.menuBar.setMainView(this)
     // this.leftTabbedView.setMainView(this)
     // this.rightTabbedView.setMainView(this)
-
-    // this.leftTabbedView.addClass('left')
-    // this.rightTabbedView.addClass('right')
 
     this.refs.leftTabbedView.deserialize(state.version, state.leftPath || null, state.left)
     this.refs.rightTabbedView.deserialize(state.version, state.rightPath || null, state.right)
 
-    // this.leftView = this.refs.leftTabbedView.getSelectedView()
-    // this.rightView = this.refs.rightTabbedView.getSelectedView()
-
-    this.horizontal = true
     // this.customHeight = state.height
 
     // if (!atom.config.get('atom-commander.panel.showInDock')) {
@@ -77,12 +76,47 @@ export class MainView extends View<Props, Refs> implements ViewModel {
     this.focusedView = this.getLeftView()
   }
 
+  initialize() {
+    super.initialize()
+
+    this.refs.leftTabbedView.addClass('left')
+    this.refs.rightTabbedView.addClass('right')
+
+    this.refs.menuBar.hide()
+
+    atom.commands.add(this.element, {
+      'atom-commander:focus-other-view': () => this.focusOtherView(),
+      'atom-commander:rename': () => this.renameButton(),
+      'atom-commander:add-project': () => this.addProjectButton(),
+      'atom-commander:remove-project': () => this.removeProjectButton(),
+      'atom-commander:new-file': () => this.newFileButton(),
+      'atom-commander:copy': () => this.copyButton(),
+      'atom-commander:duplicate': () => this.duplicateButton(),
+      'atom-commander:move': () => this.moveButton(),
+      'atom-commander:new-folder': () => this.newDirectoryButton(),
+      'atom-commander:delete': () => this.deleteButton(),
+      'atom-commander:focus': () => this.focusButton(),
+      'atom-commander:hide': () => this.hideButton(),
+      'atom-commander:mirror': () => this.mirror(),
+      'atom-commander:add-tab': () => this.addTab(),
+      'atom-commander:remove-tab': () => this.removeTab(),
+      'atom-commander:previous-tab': () => this.previousTab(),
+      'atom-commander:next-tab': () => this.nextTab(),
+      'atom-commander:shift-tab-left': () => this.shiftTabLeft(),
+      'atom-commander:shift-tab-right': () => this.shiftTabRight(),
+      'atom-commander:copy-paths': () => this.copyPaths(false),
+      'atom-commander:copy-path-names': () => this.copyPaths(true)
+    })
+  }
+
   render(): any {
-    return <div className='atom-commander'>
+    // TODO menuBar
+    return <div className='atom-commander' on={{keyup: (e: KeyboardEvent) => this.handleKeyUp(e), keydown: (e: KeyboardEvent) => this.handleKeyDown(e), keypress: (e: KeyboardEvent) => this.handleKeyPress(e)}}>
       {/* <MenuBarView ref='menuBar'/> */}
+      <Div ref='menuBar'/>
       <div ref='contentView' className='content'>
         <TabbedView ref='leftTabbedView' mainView={this} left={true} />
-        <TabbedView ref='rightTabbedView' mainView={this} left={true} />
+        <TabbedView ref='rightTabbedView' mainView={this} left={false} />
       </div>
     </div>
   }
@@ -147,45 +181,16 @@ export class MainView extends View<Props, Refs> implements ViewModel {
   // }
 
   // // initialize() {
-  // //   this.menuBar.hide()
-
-  // //   atom.commands.add(this.element, {
-  // //     'atom-commander:focus-other-view': () => this.focusOtherView(),
-  // //     'atom-commander:rename': () => this.renameButton(),
-  // //     'atom-commander:add-project': () => this.addProjectButton(),
-  // //     'atom-commander:remove-project': () => this.removeProjectButton(),
-  // //     'atom-commander:new-file': () => this.newFileButton(),
-  // //     'atom-commander:copy': () => this.copyButton(),
-  // //     'atom-commander:duplicate': () => this.duplicateButton(),
-  // //     'atom-commander:move': () => this.moveButton(),
-  // //     'atom-commander:new-folder': () => this.newDirectoryButton(),
-  // //     'atom-commander:delete': () => this.deleteButton(),
-  // //     'atom-commander:focus': () => this.focusButton(),
-  // //     'atom-commander:hide': () => this.hideButton(),
-  // //     'atom-commander:mirror': () => this.mirror(),
-  // //     'atom-commander:add-tab': () => this.addTab(),
-  // //     'atom-commander:remove-tab': () => this.removeTab(),
-  // //     'atom-commander:previous-tab': () => this.previousTab(),
-  // //     'atom-commander:next-tab': () => this.nextTab(),
-  // //     'atom-commander:shift-tab-left': () => this.shiftTabLeft(),
-  // //     'atom-commander:shift-tab-right': () => this.shiftTabRight(),
-  // //     'atom-commander:copy-paths': () => this.copyPaths(false),
-  // //     'atom-commander:copy-path-names': () => this.copyPaths(true)
-  // //   }
-  // //   )
 
   // //   this.on('mousedown', '.atom-commander-resize-handle', e => this.resizeStarted(e))
 
-  // //   this.keyup(e => this.handleKeyUp(e))
-  // //   this.keydown(e => this.handleKeyDown(e))
-  // //   return this.keypress(e => this.handleKeyPress(e))
   // // }
 
   destroy() {
     super.destroy()
     this.refs.leftTabbedView.destroy()
     this.refs.rightTabbedView.destroy()
-    // this.refs.menuBar.dispose()
+    this.refs.menuBar.destroy()
   }
 
   getTitle(): string {
@@ -212,80 +217,87 @@ export class MainView extends View<Props, Refs> implements ViewModel {
     return this.element
   }
 
-  // handleKeyDown(e?) {
-  //   if (e.altKey && !e.ctrlKey && !e.metaKey && this.menuBar.isHidden()) {
-  //     this.showMenuBar()
-  //     e.preventDefault()
-  //     return e.stopPropagation()
-  //   } else if (this.menuBar.isVisible()) {
-  //     this.menuBar.handleKeyDown(e)
-  //     e.preventDefault()
-  //     return e.stopPropagation()
-  //   } else if (e.shiftKey) {
-  //     return this.showAlternateButtons()
-  //   }
-  // }
+  handleKeyDown(e: KeyboardEvent) {
+    if (e.altKey && !e.ctrlKey && !e.metaKey && this.refs.menuBar.isHidden()) {
+      this.showMenuBar()
+      e.preventDefault()
+      e.stopPropagation()
+    } else if (this.refs.menuBar.isVisible()) {
+      // TODO
+      // this.refs.menuBar.handleKeyDown(e)
+      e.preventDefault()
+      e.stopPropagation()
+    } else if (e.shiftKey) {
+      this.showAlternateButtons()
+    }
+  }
 
-  // handleKeyUp(e?) {
-  //   if (e.altKey) {
-  //     this.menuBar.handleKeyUp(e)
-  //     e.preventDefault()
-  //     return e.stopPropagation()
-  //   } else if (this.menuBar.isVisible()) {
-  //     this.hideMenuBar()
-  //     e.preventDefault()
-  //     return e.stopPropagation()
-  //   } else if (!e.shiftKey) {
-  //     return this.hideAlternateButtons()
-  //   }
-  // }
+  handleKeyUp(e: KeyboardEvent) {
+    if (e.altKey) {
+      // TODO
+      // this.refs.menuBar.handleKeyUp(e)
+      e.preventDefault()
+      e.stopPropagation()
+    } else if (this.refs.menuBar.isVisible()) {
+      this.hideMenuBar()
+      e.preventDefault()
+      e.stopPropagation()
+    } else if (!e.shiftKey) {
+      this.hideAlternateButtons()
+    }
+  }
 
-  // handleKeyPress(e?) {
-  //   if (this.menuBar.isVisible()) {
-  //     this.menuBar.handleKeyUp(e)
-  //     e.preventDefault()
-  //     return e.stopPropagation()
-  //   }
-  // }
+  handleKeyPress(e: KeyboardEvent) {
+    if (this.refs.menuBar.isVisible()) {
+      // TODO
+      // this.refs.menuBar.handleKeyUp(e)
+      e.preventDefault()
+      e.stopPropagation()
+    }
+  }
 
-  // toggleMenuBar() {
-  //   if (this.menuBar.isVisible()) {
-  //     return this.hideMenuBar()
-  //   } else {
-  //     return this.showMenuBar()
-  //   }
-  // }
+  toggleMenuBar() {
+    if (this.refs.menuBar.isVisible()) {
+      this.hideMenuBar()
+    } else {
+      this.showMenuBar()
+    }
+  }
 
-  // showMenuBar() {
-  //   this.menuBar.reset()
-  //   return this.menuBar.show()
-  // }
+  showMenuBar() {
+    // TODO
+    // this.refs.menuBar.reset()
+    this.refs.menuBar.show()
+  }
 
-  // hideMenuBar() {
-  //   this.menuBar.hide()
-  //   this.menuBar.reset()
-  //   return this.refocusLastView()
-  // }
+  hideMenuBar() {
+    this.refs.menuBar.hide()
+    // TODO
+    // this.refs.menuBar.reset()
+    this.refocusLastView()
+  }
 
-  // toggleAlternateButtons() {
-  //   if (this.alternateButtons) {
-  //     return this.hideAlternateButtons()
-  //   } else {
-  //     return this.showAlternateButtons()
-  //   }
-  // }
+  toggleAlternateButtons() {
+    if (this.alternateButtons) {
+      this.hideAlternateButtons()
+    } else {
+      this.showAlternateButtons()
+    }
+  }
 
-  // showAlternateButtons() {
-  //   this.alternateButtons = true
-  //   this.F3ButtonLabel.text('Remove Project')
-  //   return this.F5ButtonLabel.text('Duplicate')
-  // }
+  showAlternateButtons() {
+    this.alternateButtons = true
+    // TODO
+    // this.F3ButtonLabel.text('Remove Project')
+    // this.F5ButtonLabel.text('Duplicate')
+  }
 
-  // hideAlternateButtons() {
-  //   this.alternateButtons = false
-  //   this.F3ButtonLabel.text('Add Project')
-  //   return this.F5ButtonLabel.text('Copy')
-  // }
+  hideAlternateButtons() {
+    this.alternateButtons = false
+    // TODO
+    // this.F3ButtonLabel.text('Add Project')
+    // this.F5ButtonLabel.text('Copy')
+  }
 
   // resizeStarted() {
   //   $(document).on('mousemove', this.resizeView)
@@ -327,12 +339,12 @@ export class MainView extends View<Props, Refs> implements ViewModel {
     return this.refs.rightTabbedView.getSelectedView()
   }
 
-  getOtherView(view: ContainerView) {
-    if (view.isLeft()) {
-      return this.getRightView()
+  getOtherView(view: ContainerView | null): ContainerView | null {
+    if (!view) {
+      return null
     }
 
-    return this.getLeftView()
+    return view.isLeft() ? this.getRightView() : this.getLeftView()
   }
 
   // setHorizontal(horizontal) {
@@ -352,16 +364,24 @@ export class MainView extends View<Props, Refs> implements ViewModel {
   //   return this.applyVisibility()
   // }
 
-  focusView(focusedView: ContainerView) {
+  focusView(focusedView: ContainerView | null) {
+    if (!focusedView) {
+      return
+    }
+
+    const otherView = focusedView ? this.getOtherView(focusedView) : null
+
     this.focusedView = focusedView
-    const otherView = this.getOtherView(this.focusedView)
+
+    if (this.focusedView) {
+      this.focusedView.focus()
+    }
 
     if (otherView) {
       otherView.unfocus()
     }
 
     this.applyVisibility()
-    this.focusedView.focus()
   }
 
   // showInDockChanged(height) {}
@@ -394,213 +414,214 @@ export class MainView extends View<Props, Refs> implements ViewModel {
     }
   }
 
-  // focusOtherView() {
-  //   if (this.getLeftView().hasFocus()) {
-  //     return this.focusView(this.getRightView())
-  //   } else {
-  //     return this.focusView(this.getLeftView())
-  //   }
-  // }
+  focusOtherView() {
+    this.focusView(this.getOtherView(this.focusedView))
+  }
 
-  // addRemoveProjectButton() {
-  //   if (this.alternateButtons) {
-  //     return this.removeProjectButton()
-  //   } else {
-  //     return this.addProjectButton()
-  //   }
-  // }
+  addRemoveProjectButton() {
+    if (this.alternateButtons) {
+      this.removeProjectButton()
+    } else {
+      this.addProjectButton()
+    }
+  }
 
-  // addProjectButton() {
-  //   if (this.focusedView !== null) {
-  //     return this.focusedView.addProject()
-  //   }
-  // }
+  addProjectButton() {
+    if (this.focusedView !== null) {
+      this.focusedView.addProject()
+    }
+  }
 
-  // removeProjectButton() {
-  //   if (this.focusedView !== null) {
-  //     return this.focusedView.removeProject()
-  //   }
-  // }
+  removeProjectButton() {
+    if (this.focusedView !== null) {
+      this.focusedView.removeProject()
+    }
+  }
 
   getFocusedViewDirectory() {
     return this.focusedView ? this.focusedView.directory : null
   }
 
-  // menuButton() {
-  //   return this.toggleMenuBar()
-  // }
+  menuButton() {
+    this.toggleMenuBar()
+  }
 
-  // shiftButton() {
-  //   return this.toggleAlternateButtons()
-  // }
+  shiftButton() {
+    this.toggleAlternateButtons()
+  }
 
-  // renameButton() {
-  //   let dialog
-  //   if (this.focusedView === null) {
-  //     return
-  //   }
+  renameButton() {
+    // TODO
+    // let dialog
+    // if (this.focusedView === null) {
+    //   return
+    // }
 
-  //   const itemView = this.focusedView.getHighlightedItem()
+    // const itemView = this.focusedView.getHighlightedItem()
 
-  //   if ((itemView === null) || !itemView.canRename()) {
-  //     return
-  //   }
+    // if ((itemView === null) || !itemView.canRename()) {
+    //   return
+    // }
 
-  //   if (itemView.itemController instanceof FileController) {
-  //     dialog = new RenameDialog(this.focusedView, itemView.itemController.getFile())
-  //     return dialog.attach()
-  //   } else if (itemView.itemController instanceof DirectoryController) {
-  //     dialog = new RenameDialog(this.focusedView, itemView.itemController.getDirectory())
-  //     return dialog.attach()
-  //   }
-  // }
+    // if (itemView.itemController instanceof FileController) {
+    //   dialog = new RenameDialog(this.focusedView, itemView.itemController.getFile())
+    //   return dialog.attach()
+    // } else if (itemView.itemController instanceof DirectoryController) {
+    //   dialog = new RenameDialog(this.focusedView, itemView.itemController.getDirectory())
+    //   return dialog.attach()
+    // }
+  }
 
-  // newFileButton() {
-  //   const directory = this.getFocusedViewDirectory()
+  newFileButton() {
+    // TODO
+    // const directory = this.getFocusedViewDirectory()
 
-  //   if (directory === null) {
-  //     return
-  //   }
+    // if (directory === null) {
+    //   return
+    // }
 
-  //   const dialog = new NewFileDialog(this.focusedView, directory, this.focusedView.getNames())
-  //   return dialog.attach()
-  // }
+    // const dialog = new NewFileDialog(this.focusedView, directory, this.focusedView.getNames())
+    // return dialog.attach()
+  }
 
-  // copyDuplicateButton() {
-  //   if (this.alternateButtons) {
-  //     return this.duplicateButton()
-  //   } else {
-  //     return this.copyButton()
-  //   }
-  // }
+  copyDuplicateButton() {
+    if (this.alternateButtons) {
+      this.duplicateButton()
+    } else {
+      this.copyButton()
+    }
+  }
 
-  // copyButton() {
-  //   return this.copyOrMoveButton(false)
-  // }
+  copyButton() {
+    this.copyOrMoveButton(false)
+  }
 
-  // moveButton() {
-  //   return this.copyOrMoveButton(true)
-  // }
+  moveButton() {
+    this.copyOrMoveButton(true)
+  }
 
-  // copyOrMoveButton(move?) {
-  //   let items, srcItemView
-  //   if (this.focusedView === null) {
-  //     return
-  //   }
+  copyOrMoveButton(move: boolean) {
+    // TODO
+    // let items, srcItemView
+    // if (this.focusedView === null) {
+    //   return
+    // }
 
-  //   const srcView = this.focusedView
-  //   const dstView = this.getOtherView(srcView)
+    // const srcView = this.focusedView
+    // const dstView = this.getOtherView(srcView)
 
-  //   // Do nothing if the src and dst folders are the same.
-  //   if (srcView.getURI() === dstView.getURI()) {
-  //     return
-  //   }
+    // // Do nothing if the src and dst folders are the same.
+    // if (srcView.getURI() === dstView.getURI()) {
+    //   return
+    // }
 
-  //   // Do nothing if nothing is selected.
-  //   const srcItemViews = srcView.getSelectedItemViews(true)
+    // // Do nothing if nothing is selected.
+    // const srcItemViews = srcView.getSelectedItemViews(true)
 
-  //   if (srcItemViews.length === 0) {
-  //     return
-  //   }
+    // if (srcItemViews.length === 0) {
+    //   return
+    // }
 
-  //   const srcFileSystem = srcView.directory.fileSystem
-  //   const dstFileSystem = dstView.directory.fileSystem
+    // const srcFileSystem = srcView.directory.fileSystem
+    // const dstFileSystem = dstView.directory.fileSystem
 
-  //   if (move) {
-  //     if (srcFileSystem.isRemote() || dstFileSystem.isRemote()) {
-  //       atom.notifications.addWarning('Move to/from remote file systems is not yet supported.')
-  //       return
-  //     }
-  //   } else if (srcFileSystem.isRemote() && dstFileSystem.isRemote()) {
-  //     atom.notifications.addWarning('Copy between remote file systems is not yet supported.')
-  //     return
-  //   }
+    // if (move) {
+    //   if (srcFileSystem.isRemote() || dstFileSystem.isRemote()) {
+    //     atom.notifications.addWarning('Move to/from remote file systems is not yet supported.')
+    //     return
+    //   }
+    // } else if (srcFileSystem.isRemote() && dstFileSystem.isRemote()) {
+    //   atom.notifications.addWarning('Copy between remote file systems is not yet supported.')
+    //   return
+    // }
 
-  //   const srcPath = srcView.getPath()
-  //   const dstPath = dstView.getPath()
+    // const srcPath = srcView.getPath()
+    // const dstPath = dstView.getPath()
 
-  //   if (srcFileSystem.isRemote()) {
-  //     items = []
+    // if (srcFileSystem.isRemote()) {
+    //   items = []
 
-  //     for (srcItemView of Array.from(srcItemViews)) {
-  //       items.push(srcItemView.getItem())
-  //     }
+    //   for (srcItemView of Array.from(srcItemViews)) {
+    //     items.push(srcItemView.getItem())
+    //   }
 
-  //     srcFileSystem.getTaskManager().downloadItems(dstPath, items, function(canceled, err, item) {
-  //       if (!canceled && (err != null)) {
-  //         const message = 'Error downloading '+item.getURI()
-  //         return Utils.showErrorWarning('Download failed', message, null, err, true)
-  //       }
-  //     })
+    //   srcFileSystem.getTaskManager().downloadItems(dstPath, items, function(canceled, err, item) {
+    //     if (!canceled && (err != null)) {
+    //       const message = 'Error downloading '+item.getURI()
+    //       return Utils.showErrorWarning('Download failed', message, null, err, true)
+    //     }
+    //   })
 
-  //     return
-  //   }
+    //   return
+    // }
 
-  //   if (dstFileSystem.isRemote()) {
-  //     items = []
+    // if (dstFileSystem.isRemote()) {
+    //   items = []
 
-  //     for (srcItemView of Array.from(srcItemViews)) {
-  //       items.push(srcItemView.getItem())
-  //     }
+    //   for (srcItemView of Array.from(srcItemViews)) {
+    //     items.push(srcItemView.getItem())
+    //   }
 
-  //     dstFileSystem.getTaskManager().uploadItems(dstPath, items, function(canceled, err, item) {
-  //       if (!canceled && (err != null)) {
-  //         const message = 'Error uploading '+item.getURI()
-  //         return Utils.showErrorWarning('Upload failed', message, null, err, true)
-  //       }
-  //     })
+    //   dstFileSystem.getTaskManager().uploadItems(dstPath, items, function(canceled, err, item) {
+    //     if (!canceled && (err != null)) {
+    //       const message = 'Error uploading '+item.getURI()
+    //       return Utils.showErrorWarning('Upload failed', message, null, err, true)
+    //     }
+    //   })
 
-  //     return
-  //   }
+    //   return
+    // }
 
-  //   const srcNames = []
+    // const srcNames = []
 
-  //   for (srcItemView of Array.from(srcItemViews)) {
-  //     srcNames.push(srcItemView.getName())
-  //   }
+    // for (srcItemView of Array.from(srcItemViews)) {
+    //   srcNames.push(srcItemView.getName())
+    // }
 
-  //   const task = Task.once(require.resolve('./tasks/copy-task'), srcPath, srcNames, dstPath, move, function() {
-  //     if (move) {
-  //       srcView.refreshDirectory()
-  //     }
+    // const task = Task.once(require.resolve('./tasks/copy-task'), srcPath, srcNames, dstPath, move, function() {
+    //   if (move) {
+    //     srcView.refreshDirectory()
+    //   }
 
-  //     return dstView.refreshDirectory()
-  //   })
+    //   return dstView.refreshDirectory()
+    // })
 
-  //   return task.on('success', data => {
-  //     return srcItemViews[data.index].select(false)
-  //   })
-  // }
+    // return task.on('success', data => {
+    //   return srcItemViews[data.index].select(false)
+    // })
+  }
 
-  // duplicateButton() {
-  //   if (this.focusedView === null) {
-  //     return
-  //   }
+  duplicateButton() {
+    // TODO
+    // if (this.focusedView === null) {
+    //   return
+    // }
 
-  //   const {
-  //     fileSystem
-  //   } = this.focusedView.directory
+    // const {
+    //   fileSystem
+    // } = this.focusedView.directory
 
-  //   if (fileSystem.isRemote()) {
-  //     atom.notifications.addWarning('Duplicate on remote file systems is not yet supported.')
-  //     return
-  //   }
+    // if (fileSystem.isRemote()) {
+    //   atom.notifications.addWarning('Duplicate on remote file systems is not yet supported.')
+    //   return
+    // }
 
-  //   const itemView = this.focusedView.getHighlightedItem()
+    // const itemView = this.focusedView.getHighlightedItem()
 
-  //   if ((itemView === null) || !itemView.isSelectable()) {
-  //     return
-  //   }
+    // if ((itemView === null) || !itemView.isSelectable()) {
+    //   return
+    // }
 
-  //   const item = itemView.getItem()
+    // const item = itemView.getItem()
 
-  //   if (item.isFile() || item.isDirectory()) {
-  //     const dialog = new DuplicateFileDialog(this.focusedView, item)
-  //     return dialog.attach()
-  //   }
-  // }
+    // if (item.isFile() || item.isDirectory()) {
+    //   const dialog = new DuplicateFileDialog(this.focusedView, item)
+    //   return dialog.attach()
+    // }
+  }
 
-  // deleteButton() {
+  deleteButton() {
+    // TODO
   //   if (this.focusedView === null) {
   //     return
   //   }
@@ -655,54 +676,56 @@ export class MainView extends View<Props, Refs> implements ViewModel {
   //   }
 
   //   return itemViews[0].getItem().delete(callback)
-  // }
+  }
 
-  // newDirectoryButton() {
-  //   const directory = this.getFocusedViewDirectory()
+  newDirectoryButton() {
+    // TODO
+    // const directory = this.getFocusedViewDirectory()
 
-  //   if (directory === null) {
-  //     return
-  //   }
+    // if (directory === null) {
+    //   return
+    // }
 
-  //   const dialog = new NewDirectoryDialog(this.focusedView, directory)
-  //   return dialog.attach()
-  // }
+    // const dialog = new NewDirectoryDialog(this.focusedView, directory)
+    // return dialog.attach()
+  }
 
-  // focusButton() {
-  //   return this.main.toggleFocus()
-  // }
+  focusButton() {
+    this.main.toggleFocus()
+  }
 
-  // hideButton() {
-  //   return this.main.hide()
-  // }
+  hideButton() {
+    this.main.hide()
+  }
 
-  // mirror() {
-  //   if (this.focusedView !== null) {
-  //     const snapShot = this.focusedView.captureSnapShot()
-  //     return this.getOtherView(this.focusedView).openDirectory(this.focusedView.directory, snapShot)
-  //   }
-  // }
+  mirror() {
+    const otherView = this.getOtherView(this.focusedView)
+    
+    if (otherView && this.focusedView && this.focusedView.directory) {
+      const snapShot = this.focusedView.captureSnapShot()
+      otherView.openDirectory(this.focusedView.directory, snapShot)
+    }
+  }
 
-  // swap() {
-  //   if (this.focusedView === null) {
-  //     return
-  //   }
+  swap() {
+    const otherView = this.getOtherView(this.focusedView)
 
-  //   const otherView = this.getOtherView(this.focusedView)
+    if (!this.focusedView || !otherView) {
+      return
+    }
 
-  //   const snapShot = this.focusedView.captureSnapShot()
-  //   const otherSnapShot = otherView.captureSnapShot()
+    const snapShot = this.focusedView.captureSnapShot()
+    const otherSnapShot = otherView.captureSnapShot()
 
-  //   const {
-  //     directory
-  //   } = this.focusedView
-  //   const otherDirectory = otherView.directory
+    const { directory } = this.focusedView
+    const otherDirectory = otherView.directory
 
-  //   this.focusedView.openDirectory(otherDirectory, otherSnapShot)
-  //   otherView.openDirectory(directory, snapShot)
-
-  //   return otherView.requestFocus()
-  // }
+    if (directory && otherDirectory) {
+      this.focusedView.openDirectory(otherDirectory, otherSnapShot)
+      otherView.openDirectory(directory, snapShot)
+      otherView.requestFocus()
+    }
+  }
 
   refocusLastView() {
     if (this.focusedView !== null) {
@@ -728,86 +751,82 @@ export class MainView extends View<Props, Refs> implements ViewModel {
     return this.refs.rightTabbedView
   }
 
-  // addTab() {
-  //   const focusedTabbedView = this.getFocusedTabbedView()
+  addTab() {
+    const focusedTabbedView = this.getFocusedTabbedView()
 
-  //   if (focusedTabbedView === null) {
-  //     return
-  //   }
+    if (focusedTabbedView) {
+      focusedTabbedView.insertTab()
+    }
+  }
 
-  //   return focusedTabbedView.insertTab()
-  // }
+  removeTab() {
+    const focusedTabbedView = this.getFocusedTabbedView()
 
-  // removeTab() {
-  //   const focusedTabbedView = this.getFocusedTabbedView()
+    if (focusedTabbedView) {
+      focusedTabbedView.removeSelectedTab()
+    }
+  }
 
-  //   if (focusedTabbedView === null) {
-  //     return
-  //   }
+  previousTab() {
+    const focusedTabbedView = this.getFocusedTabbedView()
 
-  //   return focusedTabbedView.removeSelectedTab()
-  // }
+    if (focusedTabbedView) {
+      focusedTabbedView.previousTab()
+    }
+  }
 
-  // previousTab() {
-  //   const focusedTabbedView = this.getFocusedTabbedView()
+  nextTab() {
+    const focusedTabbedView = this.getFocusedTabbedView()
 
-  //   if (focusedTabbedView !== null) {
-  //     return focusedTabbedView.previousTab()
-  //   }
-  // }
+    if (focusedTabbedView) {
+      focusedTabbedView.nextTab()
+    }
+  }
 
-  // nextTab() {
-  //   const focusedTabbedView = this.getFocusedTabbedView()
+  shiftTabLeft() {
+    const focusedTabbedView = this.getFocusedTabbedView()
 
-  //   if (focusedTabbedView !== null) {
-  //     return focusedTabbedView.nextTab()
-  //   }
-  // }
+    if (focusedTabbedView) {
+      focusedTabbedView.shiftLeft()
+    }
+  }
 
-  // shiftTabLeft() {
-  //   const focusedTabbedView = this.getFocusedTabbedView()
+  shiftTabRight() {
+    const focusedTabbedView = this.getFocusedTabbedView()
 
-  //   if (focusedTabbedView !== null) {
-  //     return focusedTabbedView.shiftLeft()
-  //   }
-  // }
+    if (focusedTabbedView) {
+      focusedTabbedView.shiftRight()
+    }
+  }
 
-  // shiftTabRight() {
-  //   const focusedTabbedView = this.getFocusedTabbedView()
-
-  //   if (focusedTabbedView !== null) {
-  //     return focusedTabbedView.shiftRight()
-  //   }
-  // }
-
-  // copyPaths(namesOnly?) {
-  //   if (this.focusedView !== null) {
-  //     const itemViews = this.focusedView.getSelectedItemViews(true)
-  //     if (itemViews.length > 0) {
-  //       let paths
-  //       if (namesOnly) {
-  //         paths = itemViews.map(i => i.getName())
-  //       } else {
-  //         paths = itemViews.map(i => i.getPath())
-  //       }
-  //       const text = paths.join('\n')
-  //       atom.clipboard.write(text)
-  //       if (paths.length === 1) {
-  //         if (namesOnly) {
-  //           return atom.notifications.addInfo('Copied name \'' + paths[0] + '\' to clipboard.')
-  //         } else {
-  //           return atom.notifications.addInfo('Copied path \'' + paths[0] + '\' to clipboard.')
-  //         }
-  //       } else {
-  //         if (namesOnly) {
-  //           return atom.notifications.addInfo('Copied ' + paths.length + ' names to clipboard.')
-  //         } else {
-  //           return atom.notifications.addInfo('Copied ' + paths.length + ' paths to clipboard.')
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+  copyPaths(namesOnly: boolean) {
+    if (this.focusedView !== null) {
+      const itemViews = this.focusedView.getSelectedItemViews(true)
+      if (itemViews.length > 0) {
+        let paths
+        if (namesOnly) {
+          paths = itemViews.map(i => i.getName())
+        } else {
+          paths = itemViews.map(i => i.getPath())
+        }
+        const text = paths.join('\n')
+        atom.clipboard.write(text)
+        if (paths.length === 1) {
+          if (namesOnly) {
+            atom.notifications.addInfo('Copied name \'' + paths[0] + '\' to clipboard.')
+          } else {
+            atom.notifications.addInfo('Copied path \'' + paths[0] + '\' to clipboard.')
+          }
+        } else {
+          if (namesOnly) {
+            atom.notifications.addInfo('Copied ' + paths.length + ' names to clipboard.')
+          } else {
+            atom.notifications.addInfo('Copied ' + paths.length + ' paths to clipboard.')
+          }
+        }
+      }
+    }
+  }
 
   tabCountChanged() {
     const totalTabs = this.refs.leftTabbedView.getTabCount() + this.refs.rightTabbedView.getTabCount()
@@ -862,6 +881,9 @@ export class MainView extends View<Props, Refs> implements ViewModel {
   // }
 
   serialize(state: State) {
+    if (!state) {
+      return
+    }
     // TODO
     state.left = this.refs.leftTabbedView.serialize()
     state.right = this.refs.rightTabbedView.serialize()

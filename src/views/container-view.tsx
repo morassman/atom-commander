@@ -15,6 +15,7 @@ import { Props, View } from './view'
 import Utils from '../utils'
 import * as fsp from 'fs-plus'
 import { Server } from '../servers/server'
+import { Div } from './element-view'
 
 const minimatch = require('minimatch')
 const Scheduler = require('nschedule')
@@ -52,36 +53,6 @@ export interface ContainerState {
 
 }
 
-class UsernameView extends View<Props, {username: HTMLElement}> {
-
-  constructor() {
-    super({}, false)
-    this.addClasses(['highlight-info', 'username'])
-    this.initialize()
-  }
-
-  render() {
-    return <span className={this.getClassName()} attributes={this.getAttributes()}/>
-  }
-
-}
-
-class SearchPanel extends View {
-
-  render() {
-    return <div className='search-panel'/>
-  }
-
-}
-
-class SpinnerPanel extends View {
-
-  render() {
-    return <div className='loading-panel'>Loading...</div>
-  }
-
-}
-
 export type ContainerViewProps = Props & {
 
   left: boolean
@@ -89,15 +60,15 @@ export type ContainerViewProps = Props & {
 }
 
 type Refs = {
-  username: UsernameView
+  username: Div
 
   directoryEditor: HTMLInputElement
 
   containerView: HTMLElement
 
-  searchPanel: SearchPanel
+  searchPanel: Div
 
-  spinnerPanel: SpinnerPanel
+  spinnerPanel: Div
 }
 
 export abstract class ContainerView extends View<ContainerViewProps, Refs> {
@@ -174,6 +145,8 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
       // @history.addClass('right-history')
 
     this.refs.username.hide()
+    this.refs.searchPanel.hide()
+    this.refs.spinnerPanel.hide()
 
     this.disposables.add(atom.commands.add(this.refs.directoryEditor, {
       'core:confirm': () => this.directoryEditorConfirm(),
@@ -181,8 +154,8 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     }))
 
     this.disposables.add(atom.commands.add(this.refs.containerView, {
-      'core:move-up': this.moveUp.bind(this),
-      'core:move-down': this.moveDown.bind(this),
+      'core:move-up': () => this.moveUp(),
+      'core:move-down': () => this.moveDown(),
       'core:page-up': () => this.pageUp(),
       'core:page-down': () => this.pageDown(),
       'core:move-to-top': () => this.highlightFirstItem(),
@@ -200,15 +173,15 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   }
 
   render() {
-    return <div tabindex={-1} attributes={{style: 'display: flex; flex-direction: column; flex: 1; overflow: auto'}}>
+    return <div attributes={{style: 'display: flex; flex-direction: column; flex: 1; overflow: auto'}}>
       <div>
-        <UsernameView ref='username' />
-        <input ref='directoryEditor' className='input-text' type='text' on={{blur: () => this.directoryEditorCancel()}}/>
+        <Div ref='username' className='highlight-info username' />
+        <input ref='directoryEditor' className='directory-editor input-text' type='text' on={{blur: () => this.directoryEditorCancel(), focus: () => this.onDirectoryEditorFocus()}}/>
       </div>
-      <div ref='containerView' className='atom-commander-container-view'>
+      <div ref='containerView' className='atom-commander-container-view' on={{dblclick: (e:MouseEvent) => this.onDoubleClick(e), mousedown: (e: MouseEvent) => this.onMouseDown(e), keypress: (e: KeyboardEvent) => this.handleKeyPress(e)}}>
       </div>
-      <SearchPanel ref='searchPanel'/>
-      <SpinnerPanel ref='spinnerPanel'/>
+      <Div ref='searchPanel' className='search-panel'/>
+      <Div ref='spinnerPanel' className='loading-panel'>Loading...</Div>
     </div>
   }
 
@@ -278,25 +251,57 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
 
   //   this.directoryEditor.addClass('directory-editor')
   //   this.directoryEditor.on('focus', e => {
-  //     this.mainView.focusedView = this
-  //     // @historyView.close()
-  //     this.mainView.getOtherView(this).refreshHighlight()
-  //     return this.refreshHighlight()
+
   //   })
 
-  //   this.on('dblclick', '.item', e => {
-  //     this.requestFocus()
-  //     this.highlightIndex(e.currentTarget.index, false)
-  //     return this.openHighlightedItem()
-  //   })
-
-  //   this.on('mousedown', '.item', e => {
-  //     this.requestFocus()
-  //     return this.highlightIndex(e.currentTarget.index, false)
-  //   })
-
-  //   return this.keypress(e => this.handleKeyPress(e))
   // }
+
+  onDirectoryEditorFocus() {
+    this.mainView.focusedView = this
+    // @historyView.close()
+
+    // this.mainView.focusView(this)
+    const otherView = this.mainView.getOtherView(this)
+
+    if (otherView) {
+      otherView.refreshHighlight()
+    }
+
+    this.refreshHighlight()
+  }
+
+  onDoubleClick(e: MouseEvent) {
+    this.requestFocus()
+    const index = this.getItemIndexUnderMouse(e)
+
+    if (index !== null) {
+      this.highlightIndex(index, false)
+      this.openHighlightedItem()
+    }
+  }
+
+  onMouseDown(e: MouseEvent) {
+    this.requestFocus()
+    const index = this.getItemIndexUnderMouse(e)
+
+    if (index !== null) {
+      this.highlightIndex(index, false)
+    }
+  }
+
+  getItemIndexUnderMouse(e: any) {
+    for (let p of e.path) {
+      if (p.tagName === 'TR' && p.classList.contains('item')) {
+        const index = p.rowIndex
+        
+        if (Number.isFinite(index) && index <= this.itemViews.length) {
+          return Math.max(0, index - 1)
+        }
+      }
+    }
+
+    return null
+  }
 
   setHorizontal(horizontal: boolean) {
     this.refs.username.removeClass('vertical-username')
@@ -376,7 +381,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
       this.refs.searchPanel.element.textContent = text.slice(0, -1)
       this.search(text)
     } else {
-      return this.openParentDirectory()
+      this.openParentDirectory()
     }
   }
 
@@ -390,7 +395,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     }
   }
 
-  handleKeyPress(e: any) {
+  handleKeyPress(e: KeyboardEvent) {
     if (!this.hasContainerFocus()) {
       return
     }
@@ -420,7 +425,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
       this.timeKeyPressed = Date.now()
     }
 
-    this.refs.searchPanel.append(sCode)
+    this.refs.searchPanel.appendTextContent(sCode)
 
     const text = this.refs.searchPanel.element.textContent
 
@@ -538,7 +543,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   }
 
   requestFocus() {
-    return this.mainView.focusView(this)
+    this.mainView.focusView(this)
   }
 
   focus() {
@@ -587,13 +592,13 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
 
   moveUp() {
     if (this.highlightedIndex !== null) {
-      return this.highlightIndex(this.highlightedIndex-1)
+      this.highlightIndex(this.highlightedIndex-1)
     }
   }
 
   moveDown() {
     if (this.highlightedIndex !== null) {
-      return this.highlightIndex(this.highlightedIndex+1)
+      this.highlightIndex(this.highlightedIndex+1)
     }
   }
 
@@ -639,7 +644,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
       this.highlightedIndex = index
     }
 
-    return this.refreshHighlight(scroll)
+    this.refreshHighlight(scroll)
   }
 
   refreshHighlight(scroll=false) {
@@ -649,8 +654,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
       itemView.highlight(true, focused)
 
       if (focused && scroll) {
-        // TODO
-        // itemView.scrollIntoViewIfNeeded(true)
+        itemView.element.scrollIntoView({block: "nearest", inline: "nearest"})
       }
     }
   }
@@ -803,7 +807,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
 
   getEntries(newDirectory: VDirectory, snapShot: Snapshot|null, callback: any) {
     this.showSpinner()
-    return newDirectory.getEntries((newDirectory, err, entries) => {
+    newDirectory.getEntries((newDirectory, err, entries) => {
       if (err === null) {
         this.entriesCallback(newDirectory, entries, snapShot, callback)
       } else if ((err.canceled == null)) {
@@ -814,7 +818,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
       } else {
         this.openLastLocalDirectory()
       }
-      return this.hideSpinner()
+      this.hideSpinner()
     })
   }
 
@@ -1006,11 +1010,11 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   }
 
   addProject() {
-    return this.addRemoveProject(true)
+    this.addRemoveProject(true)
   }
 
   removeProject() {
-    return this.addRemoveProject(false)
+    this.addRemoveProject(false)
   }
 
   addRemoveProject(add: boolean) {

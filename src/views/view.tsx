@@ -113,15 +113,11 @@ export abstract class View<P extends Props = Props, R extends object = {}> {
   }
 
   initialize() {
-    console.log('initialize')
-    console.log(this)
     this.initialized = true
     etch.initialize(this)
   }
 
-  render(): any {
-    return <div></div>
-  }
+  abstract render(): any
 
   update(props?: any, children?: any) {
     if (this.initialized) {
@@ -175,6 +171,21 @@ export abstract class View<P extends Props = Props, R extends object = {}> {
     return this.classes.includes(c)
   }
 
+  setTextContent(textContent: string) {
+    if (this.element) {
+      this.element.textContent = textContent
+    }
+  }
+
+  getTextContent(): string | null{
+    return this.element ? this.element.textContent : null
+  }
+
+  appendTextContent(textContent: string) {
+    const current = this.getTextContent()
+    this.setTextContent(current ? current + textContent : textContent)
+  }
+
   getClassName(): string {
     return this.classes.join(' ')
   }
@@ -182,6 +193,13 @@ export abstract class View<P extends Props = Props, R extends object = {}> {
   getAttributes(): any {
     return {
       style: this.style.toString()
+    }
+  }
+
+  getRenderProps(): any {
+    return {
+      className: this.getClassName(),
+      attributes: this.getAttributes()
     }
   }
 

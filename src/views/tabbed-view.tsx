@@ -48,10 +48,13 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
   selectedView: ContainerView | null
 
   constructor(props: TabbedViewProps) {
-    super(props, false)
+    super(props, false, 'flex')
     this.mainView = props.mainView
     this.left = props.left
     this.selectedView = null
+
+    this.addClass('atom-commander-tabbed-view')
+
     this.initialize()
   }
 
@@ -61,7 +64,7 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
   }
 
   render() {
-    return <div>
+    return <div className={this.getClassName()} attributes={this.getAttributes()}>
       <TabsView ref='tabsView' tabbedView={this}/>
       <BodyView ref='container'/>
     </div>

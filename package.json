@@ -40,7 +40,6 @@
     "minimatch": "3.0.4",
     "nschedule": "0.4.0",
     "fuzzaldrin": "2.1.0",
-    "drivelist": "9.2.4",
     "ftp": "0.3.10",
     "ssh2": "0.8.9",
     "simple-encryptor": "4.0.0",
@@ -58,7 +57,6 @@
     "@types/diff": "5.0.0",
     "@types/minimatch": "3.0.4",
     "@types/fuzzaldrin": "2.1.3",
-    "@types/drivelist": "6.4.1",
     "@types/ftp": "0.3.31",
     "@types/ssh2": "0.5.46",
     "@types/q": "1.5.4"

@@ -21,12 +21,16 @@ export class TabsView extends View<TabsViewProps, Refs> {
   tabs: TabView[]
 
   constructor(props: TabsViewProps) {
-    super(props, true)
+    super(props, false)
     this.tabs = []
+
+    this.addClasses(['atom-commander-tabs-view', 'inline-block-tight'])
+
+    this.initialize()
   }
 
   render() {
-    return <div className='atom-commander-tabs-view inline-block-tight'>
+    return <div className={this.getClassName()} attributes={this.getAttributes()}>
       <div ref='buttonView' className='btn-group btn-group-xs' />
     </div>
   }
@@ -81,15 +85,15 @@ export class TabsView extends View<TabsViewProps, Refs> {
     }
 
     this.selectIndex(index, true)
-    return tab.destroy()
+    tab.destroy()
   }
 
   previousTab() {
-    return this.adjustTab(-1)
+    this.adjustTab(-1)
   }
 
   nextTab() {
-    return this.adjustTab(1)
+    this.adjustTab(1)
   }
 
   adjustTab(change: number) {
@@ -150,7 +154,7 @@ export class TabsView extends View<TabsViewProps, Refs> {
       }
     }
 
-    return tab.scrollIntoView()
+    tab.scrollIntoView()
   }
 
   getSelectedIndex(): number | null {
