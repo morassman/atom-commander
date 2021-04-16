@@ -94,6 +94,8 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
 
   classes: string[]
 
+  attributes: any
+
   initialized: boolean
   
   destroyed: boolean
@@ -102,6 +104,7 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
 
   constructor(props: P, init=true) {
     this.props = props
+    this.attributes = {}
     this.style = new Style(props.style, () => this.attributesChanged())
     this.classes = []
     this.initialized = false
@@ -202,6 +205,7 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
 
   getAttributes(): any {
     let attributes: any = {
+      ...this.attributes,
       class: this.getClassName(),
       style: this.style.toString()
     }
@@ -225,6 +229,24 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
     delete props.className
 
     return props
+  }
+
+  mergeAttributes(attributes: any) {
+    this.attributes = {
+      ...this.attributes,
+      ...attributes
+    }
+    this.attributesChanged()
+  }
+
+  setAttribute(key: string, value: any) {
+    this.attributes[key] = value
+    this.attributesChanged()
+  }
+
+  removeAttribute(key: string) {
+    delete this.attributes[key]
+    this.attributesChanged()
   }
 
   attributesChanged() {

@@ -1,6 +1,6 @@
 const etch = require('etch')
 
-import { Props, View } from './view'
+import { Props as MainViewProps, View } from './view'
 import * as fs from 'fs-plus'
 import { Directory, Task, ViewModel } from 'atom'
 import { Main, State } from '../main'
@@ -26,7 +26,39 @@ export const ATOM_COMMANDER_URI = 'atom://atom-commander'
 
 etch.setScheduler(atom.views)
 
-type Refs = {
+type KeyButtonProps = MainViewProps & {
+
+  key: string
+
+  label: string
+
+}
+
+type KeyButtonRefs = {
+
+  label: HTMLElement
+
+}
+
+class KeyButton extends View<KeyButtonProps, KeyButtonRefs> {
+
+  constructor(props: KeyButtonProps) {
+    super(props, false)
+    this.addClass('btn')
+    this.setAttribute('tabindex', -1)
+    this.initialize()
+  }
+
+  render() {
+    return <button {...this.getProps()}>
+      <span className='key text-highlight'>{this.props.key}</span>
+      <span ref='label'>{this.props.label}</span>
+    </button>
+  }
+
+}
+
+type MainViewRefs = {
 
   leftTabbedView: TabbedView
 
@@ -34,9 +66,13 @@ type Refs = {
 
   menuBar: Div
 
+  f3Button: KeyButton
+
+  f5Button: KeyButton
+
 }
 
-export class MainView extends View<Props, Refs> implements ViewModel {
+export class MainView extends View<MainViewProps, MainViewRefs> implements ViewModel {
 
   alternateButtons: boolean
 
@@ -120,73 +156,21 @@ export class MainView extends View<Props, Refs> implements ViewModel {
         <TabbedView ref='leftTabbedView' mainView={this} left={true} />
         <TabbedView ref='rightTabbedView' mainView={this} left={false} />
       </div>
+      <Div className='atom-commander-button-bar btn-group-xs' attributes={{tabindex: -1}}>
+        <KeyButton key='Alt' label='Menu' onClick={() => this.menuButton()}/>
+        <KeyButton key='F2' label='Rename' onClick={() => this.renameButton()}/>
+        <KeyButton ref='f3Button' key='F3' label='Add Project' onClick={() => this.addRemoveProjectButton()}/>
+        <KeyButton key='F4' label='New File' onClick={() => this.newFileButton()}/>
+        <KeyButton ref='f5Button' key='F5' label='Copy' onClick={() => this.copyDuplicateButton()}/>
+        <KeyButton key='F6' label='Move' onClick={() => this.moveButton()}/>
+        <KeyButton key='F7' label='New Folder' onClick={() => this.newDirectoryButton()}/>
+        <KeyButton key='F8' label='Delete' onClick={() => this.deleteButton()}/>
+        <KeyButton key='F9' label='Focus' onClick={() => this.focusButton()}/>
+        <KeyButton key='F10' label='Hide' onClick={() => this.hideButton()}/>
+        <KeyButton key='Shift' label='More...' onClick={() => this.shiftButton()}/>
+      </Div>
     </div>
   }
-
-  // static content() {
-  //   const buttonStyle = ''
-
-  //   return this.div({class: 'atom-commander'}, () => {
-  //     this.div({class: 'atom-commander-resize-handle', outlet: 'resizeHandle'})
-  //     this.subview('menuBar', new MenuBarView())
-  //     this.div({class: 'content', outlet: 'contentView'}, () => {
-  //       this.subview('leftTabbedView', new TabbedView(true))
-  //       return this.subview('rightTabbedView', new TabbedView(false))
-  //     })
-  //     return this.div({tabindex: -1, class: 'atom-commander-button-bar btn-group-xs'}, () => {
-  //       this.button({tabindex: -1, class: 'btn', style: buttonStyle, click: 'menuButton'}, () => {
-  //         this.span('Alt', {class: 'key text-highlight'})
-  //         return this.span('Menu')
-  //       })
-  //       this.button({tabindex: -1, class: 'btn', style: buttonStyle, click: 'renameButton'}, () => {
-  //         this.span('F2', {class: 'key text-highlight'})
-  //         return this.span('Rename')
-  //       })
-  //       this.button({tabindex: -1, class: 'btn', style: buttonStyle, click: 'addRemoveProjectButton'}, () => {
-  //         this.span('F3', {class: 'key text-highlight'})
-  //         return this.span('Add Project', {outlet: 'F3ButtonLabel'})
-  //     })
-  //       this.button({tabindex: -1, class: 'btn', style: buttonStyle, click: 'newFileButton'}, () => {
-  //         this.span('F4', {class: 'key text-highlight'})
-  //         return this.span('New File')
-  //       })
-  //       this.button({tabindex: -1, class: 'btn', style: buttonStyle, click: 'copyDuplicateButton'}, () => {
-  //         this.span('F5', {class: 'key text-highlight'})
-  //         return this.span('Copy', {outlet: 'F5ButtonLabel'})
-  //     })
-  //       this.button({tabindex: -1, class: 'btn', style: buttonStyle, click: 'moveButton'}, () => {
-  //         this.span('F6', {class: 'key text-highlight'})
-  //         return this.span('Move')
-  //       })
-  //       this.button({tabindex: -1, class: 'btn', style: buttonStyle, click: 'newDirectoryButton'}, () => {
-  //         this.span('F7', {class: 'key text-highlight'})
-  //         return this.span('New Folder')
-  //       })
-  //       this.button({tabindex: -1, class: 'btn', style: buttonStyle, click: 'deleteButton'}, () => {
-  //         this.span('F8', {class: 'key text-highlight'})
-  //         return this.span('Delete')
-  //       })
-  //       this.button({tabindex: -1, class: 'btn', style: buttonStyle, click: 'focusButton'}, () => {
-  //         this.span('F9', {class: 'key text-highlight'})
-  //         return this.span('Focus')
-  //       })
-  //       this.button({tabindex: -1, class: 'btn', style: buttonStyle, click: 'hideButton'}, () => {
-  //         this.span('F10', {class: 'key text-highlight'})
-  //         return this.span('Hide')
-  //       })
-  //       return this.button({tabindex: -1, class: 'btn', style: buttonStyle, click: 'shiftButton'}, () => {
-  //         this.span('Shift', {class: 'key text-highlight'})
-  //         return this.span('More...')
-  //       })
-  //     })
-  //   })
-  // }
-
-  // // initialize() {
-
-  // //   this.on('mousedown', '.atom-commander-resize-handle', e => this.resizeStarted(e))
-
-  // // }
 
   async destroy() {
     await this.refs.leftTabbedView.destroy()
@@ -289,16 +273,14 @@ export class MainView extends View<Props, Refs> implements ViewModel {
 
   showAlternateButtons() {
     this.alternateButtons = true
-    // TODO
-    // this.F3ButtonLabel.text('Remove Project')
-    // this.F5ButtonLabel.text('Duplicate')
+    this.refs.f3Button.refs.label.textContent = 'Remove Project'
+    this.refs.f5Button.refs.label.textContent = 'Duplicate'
   }
 
   hideAlternateButtons() {
     this.alternateButtons = false
-    // TODO
-    // this.F3ButtonLabel.text('Add Project')
-    // this.F5ButtonLabel.text('Copy')
+    this.refs.f3Button.refs.label.textContent = 'Add Project'
+    this.refs.f5Button.refs.label.textContent = 'Copy'
   }
 
   // resizeStarted() {
@@ -445,6 +427,7 @@ export class MainView extends View<Props, Refs> implements ViewModel {
   }
 
   menuButton() {
+    console.log('menuButton')
     this.toggleMenuBar()
   }
 
