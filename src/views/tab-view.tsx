@@ -8,12 +8,13 @@ export class TabView extends View {
 
   constructor(public readonly tabsView: TabsView, public readonly view: ContainerView) {
     super({}, false)
+    this.addClasses(['atom-commander-tab-view', 'inline-block-tight'])
     this.initialize()
     this.view.setTabView(this)
   }
 
   render() {
-    return <div className='atom-commander-tab-view inline-block-tight' on={{click: () => this.select()}}/>
+    return <div attributes={this.getAttributes()} onClick={() => this.select()}/>
   }
 
   getView(): ContainerView {

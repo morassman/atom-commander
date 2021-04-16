@@ -9,19 +9,7 @@ import { TabView } from './tab-view'
 import { VDirectory, VFileSystem, VItem } from '../fs'
 import { ListView } from './list-view'
 import { Server } from '../servers/server'
-
-class BodyView extends View {
-
-  constructor() {
-    super({}, false, 'flex')
-    this.style.merge({flex: 1, overflow: 'auto'})
-    this.initialize()
-  }
-
-  render() {
-    return <div attributes={this.getAttributes()}></div>
-  }
-}
+import { Div } from './element-view'
 
 type TabbedViewProps = Props & {
   
@@ -48,7 +36,7 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
   selectedView: ContainerView | null
 
   constructor(props: TabbedViewProps) {
-    super(props, false, 'flex')
+    super(props, false)
     this.mainView = props.mainView
     this.left = props.left
     this.selectedView = null
@@ -64,9 +52,9 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
   }
 
   render() {
-    return <div className={this.getClassName()} attributes={this.getAttributes()}>
+    return <div {...this.getProps()}>
       <TabsView ref='tabsView' tabbedView={this}/>
-      <BodyView ref='container'/>
+      <Div ref='container' style={{display: 'flex', flex: 1, overflow: 'auto'}}/>
     </div>
   }
 

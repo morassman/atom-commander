@@ -24,7 +24,7 @@ export abstract class ListItemView<C extends ItemController<VItem>> extends Base
   }
 
   render() {
-    return <tr className={this.getClassName()} attribute={this.getAttributes()}>
+    return <tr {...this.getProps()}>
       <td ref='name'/>
       <td ref='extension' className='align-right'/>
       <td ref='size' className='align-right'/>

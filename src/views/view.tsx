@@ -1,74 +1,27 @@
+import { Style } from './style'
+
 const etch = require('etch')
 
-export class Style {
+type Tag = 'div' | 'span' | 'input' | 'table' | 'thead' | 'tbody' | 'tr' | 'td' | 'input'
 
-  constructor(private display: string|undefined=undefined, private style: any={}, private onChange: ()=>void) {
-    this.display = display
-    this.style = {}
-    this.onChange = onChange
-
-    if (display) {
-      this.style.display = display
-    }
-
-    if (style) {
-      this.style = {
-        ...this.style,
-        ...style
-      }
-    }
+function getTagDisplay(type?: Tag): string {
+  if (!type) {
+    return 'block'
   }
 
-  changed() {
-    if (this.onChange) {
-      this.onChange()
-    }
+  switch (type) {
+    case 'div': return 'block'
+    case 'span': return 'inline'
+    case 'table': return 'table'
+    case 'thead': return 'table-header-group'
+    case 'tbody': return 'table-row-group'
+    case 'tr': return 'table-row'
+    case 'td': return 'table-cell' 
+    case 'input': return 'inline-block'
+    default: break
   }
 
-  merge(style: any) {
-    this.style = {
-      ...this.style,
-      ...style
-    }
-    this.changed()
-  }
-
-  set(key: string, value: any) {
-    this.style[key] = value
-    this.changed()
-  }
-
-  remove(key: string) {
-    delete this.style[key]
-    this.changed()
-  }
-
-  show() {
-    if (this.display) {
-      this.style.display = this.display
-    } else {
-      delete this.style.display
-    }
-
-    this.changed()
-  }
-
-  hide() {
-    this.style.display = 'none'
-    this.changed()
-  }
-
-  isHidden() {
-    return this.style.display === 'none'
-  }
-
-  isVisible() {
-    return this.style.display !== 'none'
-  }
-
-  toString() {
-    return Object.entries(this.style).map(e => `${e[0]}:${e[1]}`).join(';')
-  }
+  return 'block'
 }
 
 export type Props = {
@@ -78,6 +31,8 @@ export type Props = {
   className?: string
 
   attributes?: any
+
+  style?: any
 
   onKeyDown?: (e: KeyboardEvent) => void
   
@@ -145,9 +100,9 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
 
   element: E
 
-  constructor(props: P, init=true, display='block') {
+  constructor(props: P, init=true) {
     this.props = props
-    this.style = new Style(display, {}, () => this.attributesChanged())
+    this.style = new Style(props.style, () => this.attributesChanged())
     this.classes = []
     this.initialized = false
     this.destroyed = false
@@ -170,6 +125,10 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
     } else {
       return Promise.resolve()
     }
+  }
+
+  readAfterUpdate() {
+    this.style.setElement(this.element)
   }
 
   getElement(): any {
@@ -232,20 +191,40 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
   }
 
   getClassName(): string {
-    return this.classes.join(' ')
+    let className = this.classes.join(' ')
+
+    if (this.props.className) {
+      className = `${className} ${this.props.className}`
+    }
+
+    return className.trim()
   }
 
   getAttributes(): any {
-    return {
+    let attributes: any = {
+      class: this.getClassName(),
       style: this.style.toString()
     }
+
+    if (this.props.attributes) {
+      attributes = {
+        ...attributes,
+        ...this.props.attributes
+      }
+    }
+
+    return attributes
   }
 
-  getRenderProps(): any {
-    return {
-      className: this.getClassName(),
+  getProps(): any {
+    let props = {
+      ...this.props,
       attributes: this.getAttributes()
     }
+
+    delete props.className
+
+    return props
   }
 
   attributesChanged() {

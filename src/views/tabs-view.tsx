@@ -30,7 +30,7 @@ export class TabsView extends View<TabsViewProps, Refs> {
   }
 
   render() {
-    return <div className={this.getClassName()} attributes={this.getAttributes()}>
+    return <div {...this.getProps()}>
       <div ref='buttonView' className='btn-group btn-group-xs' />
     </div>
   }
