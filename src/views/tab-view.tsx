@@ -20,9 +20,9 @@ export class TabView extends View {
     return this.view
   }
 
-  destroy() {
-    this.view.destroy()
-    super.destroy()
+  async destroy() {
+    await this.view.destroy()
+    await super.destroy()
   }
 
   // Called by the view when the directory has changed.

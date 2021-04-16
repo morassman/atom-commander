@@ -24,6 +24,8 @@ import { Div } from './element-view'
 
 export const ATOM_COMMANDER_URI = 'atom://atom-commander'
 
+etch.setScheduler(atom.views)
+
 type Refs = {
 
   leftTabbedView: TabbedView
@@ -186,11 +188,11 @@ export class MainView extends View<Props, Refs> implements ViewModel {
 
   // // }
 
-  destroy() {
-    super.destroy()
-    this.refs.leftTabbedView.destroy()
-    this.refs.rightTabbedView.destroy()
-    this.refs.menuBar.destroy()
+  async destroy() {
+    await this.refs.leftTabbedView.destroy()
+    await this.refs.rightTabbedView.destroy()
+    await this.refs.menuBar.destroy()
+    await super.destroy()
   }
 
   getTitle(): string {

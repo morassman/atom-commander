@@ -79,12 +79,57 @@ export type Props = {
 
   attributes?: any
 
-  on?: any
+  onKeyDown?: (e: KeyboardEvent) => void
+  
+  onKeyPress?: (e: KeyboardEvent) => void
 
-  tabindex?: number
+  onKeyUp?: (e: KeyboardEvent) => void
+
+  onClick?: (e: MouseEvent) => void
+
+  onDoubleClick?: (e: MouseEvent) => void
+
+  onMouseDown?: (e: MouseEvent) => void
+
+  onMouseUp?: (e: MouseEvent) => void
+
+  onBlur?: (e: FocusEvent) => void
+
+  onDrag?: (e: DragEvent) => void
+
+  onDragEnd?: (e: DragEvent) => void
+
+  onDragEnter?: (e: DragEvent) => void
+
+  onDragLeave?: (e: DragEvent) => void
+
+  onDragOver?: (e: DragEvent) => void
+
+  onDragStart?: (e: DragEvent) => void
+
+  onDrop?: (e: DragEvent) => void
+
+  onFocus?: (e: FocusEvent) => void
+
+  onInput?: (e: Event) => void
+
+  onMouseEnter?: (e: MouseEvent) => void
+
+  onMouseLeave?: (e: MouseEvent) => void
+
+  onMouseMove?: (e: MouseEvent) => void
+
+  onMouseOut?: (e: MouseEvent) => void
+
+  onMouseOver?: (e: MouseEvent) => void
+
+  onWheel?: (e: MouseEvent) => void
+
+  onScroll?: (e: Event) => void
+
 }
 
-export abstract class View<P extends Props = Props, R extends object = {}> {
+export abstract class View<P extends Props = Props, R extends object = {}, E extends HTMLElement = HTMLElement> {
 
   props: P
 
@@ -98,7 +143,7 @@ export abstract class View<P extends Props = Props, R extends object = {}> {
   
   destroyed: boolean
 
-  element: HTMLElement
+  element: E
 
   constructor(props: P, init=true, display='block') {
     this.props = props
@@ -156,7 +201,7 @@ export abstract class View<P extends Props = Props, R extends object = {}> {
     }
 
     if (child) {
-      this.element.appendChild(child)
+      this.element.append(child)
     }
   }
 
@@ -247,10 +292,11 @@ export abstract class View<P extends Props = Props, R extends object = {}> {
     }
   }
 
-  destroy() {
+  async destroy() {
     if (!this.destroyed) {
       this.remove()
       this.destroyed = true
+      return await etch.destroy(this)
     }
   }
 

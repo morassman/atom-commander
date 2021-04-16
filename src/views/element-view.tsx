@@ -2,20 +2,32 @@ const etch = require('etch')
 
 import { Props, View } from './view'
 
-type Tag = 'div' | 'span'
+type Tag = 'div' | 'span' | 'input' | 'table' | 'thead' | 'tbody' | 'tr' | 'td' | 'input'
 
 function getTagDisplay(type?: Tag): string {
+  if (!type) {
+    return 'block'
+  }
+
+  switch (type) {
+    case 'div': return 'block'
+    case 'span': return 'inline'
+    case 'table': return 'table'
+    case 'thead': return 'table-header-group'
+    case 'tbody': return 'table-row-group'
+    case 'tr': return 'table-row'
+    case 'td': return 'table-cell' 
+    case 'input': return 'inline-block'
+    default: break
+  }
+
   return 'block'
 }
 
-type ElementViewProps = Props & {
-  tag?: Tag
-}
+export class ElementView<P extends Props = Props, R extends object = {}, E extends HTMLElement = HTMLElement> extends View<P, R, E> {
 
-export class ElementView extends View<ElementViewProps> {
-
-  constructor(props: ElementViewProps, private children: any[]) {
-    super(props, false, getTagDisplay(props.tag))
+  constructor(public readonly tag: Tag, props: P, private children?: any[]) {
+    super(props, false, getTagDisplay(tag))
     this.initialize()
   }
 
@@ -41,23 +53,35 @@ export class ElementView extends View<ElementViewProps> {
       attributes
     }
 
-    return etch.dom(this.props.tag || 'div', props, this.children)
+    return etch.dom(this.tag || 'div', props, this.children || [])
   }
 
 }
 
-export class Div extends ElementView {
+export class Div<P extends Props = Props, R extends object = {}> extends ElementView<P, R> {
 
-  constructor(props: Props, children: any[]) {
-    super({tag: 'div', ...props}, children)
+  constructor(props: P, children: any[]) {
+    super('div', props, children)
   }
 
 }
 
-export class Span extends ElementView {
+export class Span<P extends Props = Props, R extends object = {}> extends ElementView <P, R> {
 
-  constructor(props: Props, children: any[]) {
-    super({tag: 'span', ...props}, children)
+  constructor(props: P, children: any[]) {
+    super('span', props, children)
+  }
+
+}
+
+type InputProps = Props & {
+  type: string
+}
+
+export class Input extends ElementView<InputProps, {}, HTMLInputElement> {
+
+  constructor(props: InputProps) {
+    super('input', props)
   }
 
 }

@@ -64,7 +64,7 @@ type Refs = {
 
   directoryEditor: HTMLInputElement
 
-  containerView: HTMLElement
+  containerView: Div
 
   searchPanel: Div
 
@@ -132,8 +132,6 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
 
     this.refs.containerView.append(container.element)
 
-    this.refs.directoryEditor.classList.add('directory-editor')
-
     // @disposables.add(atom.tooltips.add(@history, {title: 'History'}))
 
     if (this.left) {
@@ -153,7 +151,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
       'core:cancel': () => this.directoryEditorCancel()
     }))
 
-    this.disposables.add(atom.commands.add(this.refs.containerView, {
+    this.disposables.add(atom.commands.add(this.refs.containerView.element, {
       'core:move-up': () => this.moveUp(),
       'core:move-down': () => this.moveDown(),
       'core:page-up': () => this.pageUp(),
@@ -178,8 +176,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
         <Div ref='username' className='highlight-info username' />
         <input ref='directoryEditor' className='directory-editor input-text' type='text' on={{blur: () => this.directoryEditorCancel(), focus: () => this.onDirectoryEditorFocus()}}/>
       </div>
-      <div ref='containerView' className='atom-commander-container-view' on={{dblclick: (e:MouseEvent) => this.onDoubleClick(e), mousedown: (e: MouseEvent) => this.onMouseDown(e), keypress: (e: KeyboardEvent) => this.handleKeyPress(e)}}>
-      </div>
+      <Div ref='containerView' className='atom-commander-container-view' on={{dblclick: (e:MouseEvent) => this.onDoubleClick(e), mousedown: (e: MouseEvent) => this.onMouseDown(e), keypress: (e: KeyboardEvent) => this.handleKeyPress(e)}}/>
       <Div ref='searchPanel' className='search-panel'/>
       <Div ref='spinnerPanel' className='loading-panel'>Loading...</Div>
     </div>
