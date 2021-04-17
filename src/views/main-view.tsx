@@ -49,6 +49,10 @@ class KeyButton extends View<KeyButtonProps, KeyButtonRefs> {
     this.initialize()
   }
 
+  setAvailable(available: boolean) {
+    this.style.set('visibility', available ? 'visible' : 'hidden')
+  }
+
   render() {
     return <button {...this.getProps()}>
       <span className='key text-highlight'>{this.props.key}</span>
@@ -66,9 +70,23 @@ type MainViewRefs = {
 
   menuBar: MenuBarView
 
+  f2Button: KeyButton
+
   f3Button: KeyButton
 
+  f4Button: KeyButton
+
   f5Button: KeyButton
+
+  f6Button: KeyButton
+
+  f7Button: KeyButton
+
+  f8Button: KeyButton
+
+  f9Button: KeyButton
+
+  f10Button: KeyButton
 
 }
 
@@ -156,15 +174,15 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
       </div>
       <Div className='atom-commander-button-bar btn-group-xs' attributes={{tabindex: -1}}>
         <KeyButton key='Alt' label='Menu' onClick={() => this.menuButton()}/>
-        <KeyButton key='F2' label='Rename' onClick={() => this.renameButton()}/>
+        <KeyButton ref='f2Button' key='F2' label='Rename' onClick={() => this.renameButton()}/>
         <KeyButton ref='f3Button' key='F3' label='Add Project' onClick={() => this.addRemoveProjectButton()}/>
-        <KeyButton key='F4' label='New File' onClick={() => this.newFileButton()}/>
+        <KeyButton ref='f4Button' key='F4' label='New File' onClick={() => this.newFileButton()}/>
         <KeyButton ref='f5Button' key='F5' label='Copy' onClick={() => this.copyDuplicateButton()}/>
-        <KeyButton key='F6' label='Move' onClick={() => this.moveButton()}/>
-        <KeyButton key='F7' label='New Folder' onClick={() => this.newDirectoryButton()}/>
-        <KeyButton key='F8' label='Delete' onClick={() => this.deleteButton()}/>
-        <KeyButton key='F9' label='Focus' onClick={() => this.focusButton()}/>
-        <KeyButton key='F10' label='Hide' onClick={() => this.hideButton()}/>
+        <KeyButton ref='f6Button' key='F6' label='Move' onClick={() => this.moveButton()}/>
+        <KeyButton ref='f7Button' key='F7' label='New Folder' onClick={() => this.newDirectoryButton()}/>
+        <KeyButton ref='f8Button' key='F8' label='Delete' onClick={() => this.deleteButton()}/>
+        <KeyButton ref='f9Button' key='F9' label='Focus' onClick={() => this.focusButton()}/>
+        <KeyButton ref='f10Button' key='F10' label='Hide' onClick={() => this.hideButton()}/>
         <KeyButton key='Shift' label='More...' onClick={() => this.shiftButton()}/>
       </Div>
     </div>
@@ -266,14 +284,28 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
   showAlternateButtons() {
     this.alternateButtons = true
+    this.refs.f2Button.setAvailable(false)
     this.refs.f3Button.refs.label.textContent = 'Remove Project'
+    this.refs.f4Button.setAvailable(false)
     this.refs.f5Button.refs.label.textContent = 'Duplicate'
+    this.refs.f6Button.setAvailable(false)
+    this.refs.f7Button.setAvailable(false)
+    this.refs.f8Button.setAvailable(false)
+    this.refs.f9Button.setAvailable(false)
+    this.refs.f10Button.setAvailable(false)
   }
 
   hideAlternateButtons() {
     this.alternateButtons = false
+    this.refs.f2Button.setAvailable(true)
     this.refs.f3Button.refs.label.textContent = 'Add Project'
+    this.refs.f4Button.setAvailable(true)
     this.refs.f5Button.refs.label.textContent = 'Copy'
+    this.refs.f6Button.setAvailable(true)
+    this.refs.f7Button.setAvailable(true)
+    this.refs.f8Button.setAvailable(true)
+    this.refs.f9Button.setAvailable(true)
+    this.refs.f10Button.setAvailable(true)
   }
 
   // resizeStarted() {
