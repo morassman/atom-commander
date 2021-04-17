@@ -2,7 +2,7 @@ const etch = require('etch')
 
 import { Props as MainViewProps, View } from './view'
 import * as fs from 'fs-plus'
-import { Directory, Task, ViewModel } from 'atom'
+import { CompositeDisposable, Directory, Task, ViewModel } from 'atom'
 import { Main, State } from '../main'
 
 // const ListView = require('./views/list-view')
@@ -70,6 +70,8 @@ type MainViewRefs = {
 
   menuBar: MenuBarView
 
+  contentView: HTMLElement
+
   f2Button: KeyButton
 
   f3Button: KeyButton
@@ -104,15 +106,17 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
   horizontal: boolean
 
+  commandsDisposable: CompositeDisposable
+
   constructor(public readonly main: Main, state: State) {
     super({}, false)
 
     this.horizontal = true
     this.alternateButtons = false
     
-    this.sizeColumnVisible = state.sizeColumnVisible
-    this.dateColumnVisible = state.dateColumnVisible
-    this.extensionColumnVisible = state.extensionColumnVisible
+    this.sizeColumnVisible = state.sizeColumnVisible === true || state.sizeColumnVisible === undefined
+    this.dateColumnVisible = state.dateColumnVisible === true || state.dateColumnVisible === undefined
+    this.extensionColumnVisible = state.extensionColumnVisible === true || state.extensionColumnVisible === undefined
 
     this.initialize()
 
@@ -140,7 +144,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
     this.refs.menuBar.hide()
 
-    atom.commands.add(this.element, {
+    this.commandsDisposable = atom.commands.add(this.element, {
       'atom-commander:focus-other-view': () => this.focusOtherView(),
       'atom-commander:rename': () => this.renameButton(),
       'atom-commander:add-project': () => this.addProjectButton(),
@@ -186,13 +190,6 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
         <KeyButton key='Shift' label='More...' onClick={() => this.shiftButton()}/>
       </Div>
     </div>
-  }
-
-  async destroy() {
-    await this.refs.leftTabbedView.destroy()
-    await this.refs.rightTabbedView.destroy()
-    await this.refs.menuBar.destroy()
-    await super.destroy()
   }
 
   getTitle(): string {
@@ -356,22 +353,30 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     return view.isLeft() ? this.getRightView() : this.getLeftView()
   }
 
-  // setHorizontal(horizontal) {
-  //   this.horizontal = horizontal
+  setHorizontal(horizontal: boolean) {
+    this.horizontal = horizontal
 
-  //   if (this.horizontal) {
-  //     this.contentView.addClass('content-horizontal')
-  //     this.contentView.removeClass('content-vertical')
-  //   } else {
-  //     this.contentView.addClass('content-vertical')
-  //     this.contentView.removeClass('content-horizontal')
-  //   }
+    if (this.horizontal) {
+      this.refs.contentView.classList.add('content-horizontal')
+      this.refs.contentView.classList.remove('content-vertical')
+    } else {
+      this.refs.contentView.classList.add('content-vertical')
+      this.refs.contentView.classList.remove('content-horizontal')
+    }
 
-  //   this.getLeftView().setHorizontal(horizontal)
-  //   this.getRightView().setHorizontal(horizontal)
+    const leftView= this.getLeftView()
+    const rightView = this.getRightView()
 
-  //   return this.applyVisibility()
-  // }
+    if (leftView) {
+      leftView.setHorizontal(horizontal)
+    }
+
+    if (rightView) {
+      rightView.setHorizontal(horizontal)
+    }
+
+    this.applyVisibility()
+  }
 
   focusView(focusedView: ContainerView | null) {
     if (!focusedView) {
@@ -391,6 +396,12 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     }
 
     this.applyVisibility()
+
+    setTimeout(() => {
+      if (this.focusedView) {
+      this.focusedView.focus()
+      }
+    }, 1)
   }
 
   // showInDockChanged(height) {}
@@ -893,7 +904,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     if (!state) {
       return
     }
-    // TODO
+    
     state.left = this.refs.leftTabbedView.serialize()
     state.right = this.refs.rightTabbedView.serialize()
     state.sizeColumnVisible = this.sizeColumnVisible
@@ -901,5 +912,24 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     state.extensionColumnVisible = this.extensionColumnVisible
     // state.height = this.customHeight
   }
+
+  deactivate() {
+    console.log('MainView.deactivate')
+    this.destroy(true)
+  }
+
+  async destroy(dispose=false) {
+    if (dispose) {
+      if (this.commandsDisposable) {
+        this.commandsDisposable.dispose()
+      }
+      
+      await this.refs.leftTabbedView.destroy()
+      await this.refs.rightTabbedView.destroy()
+      await this.refs.menuBar.destroy()
+      await super.destroy()
+    }
+  }
+
 }
 

@@ -1,4 +1,4 @@
-import { CompositeDisposable, Directory, Dock, File, Panel } from 'atom'
+import { CompositeDisposable, Directory, Dock, File, PaneItemObservedEvent, Panel } from 'atom'
 import { Bookmark } from './bookmark-manager'
 import { LocalFileSystem } from './fs/local'
 import { VFileSystem } from './fs/vfilesystem'
@@ -29,19 +29,19 @@ export interface SideState {
 
 export interface State {
 
+  version: number
+
   bookmarks?: Bookmark[]
 
   servers?: RemoteConfig[]
 
   visible?: boolean
 
-  version: number
+  sizeColumnVisible?: boolean
 
-  sizeColumnVisible: boolean
+  dateColumnVisible?: boolean
 
-  dateColumnVisible: boolean
-
-  extensionColumnVisible: boolean
+  extensionColumnVisible?: boolean
 
   leftPath?: string
 
@@ -55,6 +55,11 @@ export interface State {
 
 }
 
+function newState(): State {
+  return {
+    version: 4
+  }
+}
 
 export class Main {
 
@@ -72,11 +77,9 @@ export class Main {
 
   subscriptions: CompositeDisposable
 
-  bottomPanel: Panel<any>
-
   mainView: MainView
 
-  element: any
+  element: HTMLElement
 
   sizeColumnVisible: boolean
   
@@ -85,7 +88,7 @@ export class Main {
   extensionColumnVisible: boolean
 
   activate(state: State) {
-    this.state = state
+    this.state = state || newState()
     this.loadState()
     this.bookmarks = []
 
@@ -93,126 +96,117 @@ export class Main {
     this.actions = new Actions(this)
     this.bookmarkManager = new BookmarkManager(this, this.state.bookmarks)
     this.serverManager = new ServerManager(this, this.state.servers)
-    // this.mainView = new MainView(this, state)
-    // @element = @mainView.getElement()
 
     this.subscriptions = new CompositeDisposable()
 
     this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:toggle-visible': () => this.toggle() }))
     this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:toggle-focus': () => this.toggleFocus() }))
 
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-all': () => this.actions.selectAll() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-none': () => this.actions.selectNone() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-add': () => this.actions.selectAdd() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-remove': () => this.actions.selectRemove() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-invert': () => this.actions.selectInvert() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-folders': () => this.actions.selectFolders() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-files': () => this.actions.selectFiles() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-all': () => this.actions.selectAll() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-none': () => this.actions.selectNone() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-add': () => this.actions.selectAdd() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-remove': () => this.actions.selectRemove() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-invert': () => this.actions.selectInvert() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-folders': () => this.actions.selectFolders() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:select-files': () => this.actions.selectFiles() }))
 
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:refresh-view': () => this.actions.viewRefresh() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:mirror-view': () => this.actions.viewMirror() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:swap-view': () => this.actions.viewSwap() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:refresh-view': () => this.actions.viewRefresh() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:mirror-view': () => this.actions.viewMirror() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:swap-view': () => this.actions.viewSwap() }))
 
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:compare-folders': () => this.actions.compareFolders() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:compare-files': () => this.actions.compareFiles() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:compare-folders': () => this.actions.compareFolders() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:compare-files': () => this.actions.compareFiles() }))
 
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:go-project': () => this.actions.goProject() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:go-editor': () => this.actions.goEditor() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:go-drive': () => this.actions.goDrive() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:go-root': () => this.actions.goRoot() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:go-home': () => this.actions.goHome() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:go-project': () => this.actions.goProject() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:go-editor': () => this.actions.goEditor() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:go-drive': () => this.actions.goDrive() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:go-root': () => this.actions.goRoot() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:go-home': () => this.actions.goHome() }))
 
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:add-bookmark': () => this.actions.bookmarksAdd(false) }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:remove-bookmark': () => this.actions.bookmarksRemove(false) }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:open-bookmark': () => this.actions.bookmarksOpen(false) }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:add-bookmark': () => this.actions.bookmarksAdd(false) }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:remove-bookmark': () => this.actions.bookmarksRemove(false) }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:open-bookmark': () => this.actions.bookmarksOpen(false) }))
 
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:add-server': () => this.actions.serversAdd(false) }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:remove-server': () => this.actions.serversRemove(false) }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:open-server': () => this.actions.serversOpen(false) }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:close-server': () => this.actions.serversClose(false) }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:edit-server': () => this.actions.serversEdit(false) }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:open-cache': () => this.actions.serversCache(false) }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:add-server': () => this.actions.serversAdd(false) }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:remove-server': () => this.actions.serversRemove(false) }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:open-server': () => this.actions.serversOpen(false) }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:close-server': () => this.actions.serversClose(false) }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:edit-server': () => this.actions.serversEdit(false) }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:open-cache': () => this.actions.serversCache(false) }))
 
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:open-terminal': () => this.actions.openTerminal() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:show-in-file-manager': () => this.actions.openFileSystem() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:open-with-system': () => this.actions.openSystem() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:open-terminal': () => this.actions.openTerminal() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:show-in-file-manager': () => this.actions.openFileSystem() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:open-with-system': () => this.actions.openSystem() }))
 
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:toggle-size-column': () => this.actions.toggleSizeColumn() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:toggle-date-column': () => this.actions.toggleDateColumn() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:toggle-extension-column': () => this.actions.toggleExtensionColumn() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:toggle-size-column': () => this.actions.toggleSizeColumn() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:toggle-date-column': () => this.actions.toggleDateColumn() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:toggle-extension-column': () => this.actions.toggleExtensionColumn() }))
 
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-name': () => this.actions.sortByName() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-extension': () => this.actions.sortByExtension() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-size': () => this.actions.sortBySize() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-date': () => this.actions.sortByDate() }))
-    // this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-default': () => this.actions.sortByDefault() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-name': () => this.actions.sortByName() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-extension': () => this.actions.sortByExtension() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-size': () => this.actions.sortBySize() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-date': () => this.actions.sortByDate() }))
+    this.subscriptions.add(atom.commands.add('atom-workspace', { 'atom-commander:sort-by-default': () => this.actions.sortByDefault() }))
 
-    // this.subscriptions.add(atom.commands.add('atom-text-editor', {
-    //   'atom-commander:upload-file': event => {
-    //     event.stopPropagation()
-    //     return this.actions.uploadFile()
-    //   }
-    // }))
+    this.subscriptions.add(atom.commands.add('atom-text-editor', {
+      'atom-commander:upload-file': event => {
+        event.stopPropagation()
+        this.actions.uploadFile()
+      }
+    }))
 
-    // this.subscriptions.add(atom.commands.add('atom-text-editor', {
-    //   'atom-commander:download-file': event => {
-    //     event.stopPropagation()
-    //     return this.actions.downloadFile()
-    //   }
-    // }))
+    this.subscriptions.add(atom.commands.add('atom-text-editor', {
+      'atom-commander:download-file': event => {
+        event.stopPropagation()
+        this.actions.downloadFile()
+      }
+    }))
 
-    // this.subscriptions.add(atom.commands.add('atom-text-editor', {
-    //   'atom-commander:compare-with-server': event => {
-    //     event.stopPropagation()
-    //     return this.actions.compareWithServer()
-    //   }
-    // })
+    this.subscriptions.add(atom.commands.add('atom-text-editor', {
+      'atom-commander:compare-with-server': event => {
+        event.stopPropagation()
+        this.actions.compareWithServer()
+      }
+    }))
 
-    // this.subscriptions.add(atom.commands.add('atom-text-editor', {
-    //   'atom-commander:add-bookmark': event => {
-    //     event.stopPropagation()
-    //     return this.actions.bookmarksAddEditor()
-    //   }
-    // }
-    // )
-    // )
+    this.subscriptions.add(atom.commands.add('atom-text-editor', {
+      'atom-commander:add-bookmark': event => {
+        event.stopPropagation()
+        this.actions.bookmarksAddEditor()
+      }
+    }))
 
-    // // Monitor active pane item in docks.
-    // this.subscriptions.add(atom.workspace.getLeftDock().onDidChangeActivePaneItem(event => {
-    //   this.onDidChangeActivePaneItem(event)
-    // })
-    // )
+    // Monitor active pane item in docks.
+    this.subscriptions.add(atom.workspace.getLeftDock().onDidChangeActivePaneItem(event => {
+      this.onDidChangeActivePaneItem(event)
+    }))
 
-    // this.subscriptions.add(atom.workspace.getRightDock().onDidChangeActivePaneItem(event => {
-    //   this.onDidChangeActivePaneItem(event)
-    // })
-    // )
+    this.subscriptions.add(atom.workspace.getRightDock().onDidChangeActivePaneItem(event => {
+      this.onDidChangeActivePaneItem(event)
+    }))
 
-    // this.subscriptions.add(atom.workspace.getBottomDock().onDidChangeActivePaneItem(event => {
-    //   this.onDidChangeActivePaneItem(event)
-    // })
-    // )
+    this.subscriptions.add(atom.workspace.getBottomDock().onDidChangeActivePaneItem(event => {
+      this.onDidChangeActivePaneItem(event)
+    }))
 
-    // this.subscriptions.add(atom.workspace.getLeftDock().onWillDestroyPaneItem(event => {
-    //   this.onWillDestroyPaneItem(event)
-    // })
-    // )
+    this.subscriptions.add(atom.workspace.getLeftDock().onWillDestroyPaneItem(event => {
+      this.onWillDestroyPaneItem(event)
+    }))
 
-    // this.subscriptions.add(atom.workspace.getRightDock().onWillDestroyPaneItem(event => {
-    //   this.onWillDestroyPaneItem(event)
-    // })
-    // )
+    this.subscriptions.add(atom.workspace.getRightDock().onWillDestroyPaneItem(event => {
+      this.onWillDestroyPaneItem(event)
+    }))
 
-    // this.subscriptions.add(atom.workspace.getBottomDock().onWillDestroyPaneItem(event => {
-    //   this.onWillDestroyPaneItem(event)
-    // })
-    // )
+    this.subscriptions.add(atom.workspace.getBottomDock().onWillDestroyPaneItem(event => {
+      this.onWillDestroyPaneItem(event)
+    }))
 
-    // // Monitor configuration
-    // this.subscriptions.add(atom.config.onDidChange('atom-commander.panel.onlyOneWhenVertical', () => {
-    //   return (this.mainView != null ? this.mainView.applyVisibility() : undefined)
-    // })
-    // )
+    // Monitor configuration
+    this.subscriptions.add(atom.config.onDidChange('atom-commander.panel.onlyOneWhenVertical', () => {
+      if (this.mainView) {
+        this.mainView.applyVisibility()
+      }
+    }))
 
     if (this.state.visible) {
       return this.show(false)
@@ -252,7 +246,7 @@ export class Main {
 
   loadState() {
     if (!this.state) {
-      this.state = Schemas.newState()
+      this.state = newState()
     }
 
     const file = this.getSaveFile()
@@ -270,8 +264,8 @@ export class Main {
     }
   }
 
-  saveState() {
-    const state = this.serialize()
+  saveState(override?: State) {
+    const state = this.serialize(override)
     const file = this.getSaveFile()
 
     try {
@@ -292,24 +286,29 @@ export class Main {
       this.mainView.destroy()
     }
 
-    if (this.bottomPanel) {
-      this.bottomPanel.destroy()
-    }
-
     // if (this.statusTile) {
     //   this.statusTile.destroy()
     // }
   }
 
-  serialize() {
-    let state: State = {
+  serialize(override?: State) {
+    let state = newState()
+
+    state = {
+      ...state,
       sizeColumnVisible: this.sizeColumnVisible,
       dateColumnVisible: this.dateColumnVisible,
       extensionColumnVisible: this.extensionColumnVisible,
       visible: this.isVisible(),
       bookmarks: this.bookmarkManager.serialize(),
       servers: this.serverManager.serialize(),
-      version: 4
+    }
+
+    if (override) {
+      state = {
+        ...state,
+        ...override
+      }
     }
 
     if (this.mainView) {
@@ -319,97 +318,81 @@ export class Main {
     return state
   }
 
-  onWillDestroyPaneItem(event: any) {
-    // if (event.item === this.mainView) {
-    //   this.state.visible = false
-    //   this.saveState()
-    //   this.mainView.destroy()
-    //   return this.mainView = null
-    // }
+  onWillDestroyPaneItem(event: PaneItemObservedEvent) {
+    if (event.item === this.mainView) {
+      const state = newState()
+      state.visible = false
+      this.saveState(state)
+    }
   }
 
   onDidChangeActivePaneItem(item: any) {
-    // if (item !== this.mainView) {
-    //   return
-    // }
+    if (item !== this.mainView) {
+      return
+    }
 
-    // const dock = this.getDock()
+    const dock = this.getDock()
 
-    // if (dock != null) {
-    //   return this.getMainView().setHorizontal(dock.location === 'bottom')
-    // }
+    if (dock) {
+      this.getMainView().setHorizontal(dock.location === 'bottom')
+    }
   }
 
-  getDock(): Dock | null {
+  getDock(): {dock: Dock, location: 'left' | 'right' | 'bottom'} | null {
     if (atom.workspace.getBottomDock().getPaneItems().indexOf(this.mainView) >= 0) {
-      return atom.workspace.getBottomDock()
+      return {
+        dock: atom.workspace.getBottomDock(),
+        location: 'bottom'
+      }
     }
     if (atom.workspace.getLeftDock().getPaneItems().indexOf(this.mainView) >= 0) {
-      return atom.workspace.getLeftDock()
+      return {
+        dock: atom.workspace.getLeftDock(),
+        location: 'left'
+      }
     }
     if (atom.workspace.getRightDock().getPaneItems().indexOf(this.mainView) >= 0) {
-      return atom.workspace.getRightDock()
+      return {
+        dock: atom.workspace.getRightDock(),
+        location: 'right'
+      }
     }
 
     return null
   }
 
   isVisible() {
-    if (this.bottomPanel) {
-      return this.state.visible
-    } else {
-      return this.isVisibleInDock()
-    }
+    return this.isVisibleInDock()
   }
 
-  isVisibleInDock() {
+  isVisibleInDock(): boolean {
     const dock = this.getDock()
 
-    if ((dock == null) || !dock.isVisible()) {
+    if (!dock || !dock.dock.isVisible()) {
       return false
     }
 
-    if ((dock.getActivePane() == null)) {
+    const activePane = dock.dock.getActivePane()
+
+    if (!activePane) {
       return false
     }
 
-    return dock.getActivePane().getActiveItem() === this.mainView
+    return activePane.getActiveItem() === this.mainView
   }
 
   toggle() {
     if (this.isVisible()) {
-      return this.hide()
+      this.hide()
     } else {
-      return this.show(false)
-    }
-  }
-
-  togglePanelVisible() {
-    if (this.bottomPanel.isVisible()) {
-      this.unfocus()
-      return this.bottomPanel.hide()
-    } else {
-      return this.bottomPanel.show()
+      this.show(false)
     }
   }
 
   show(focus: boolean, location?: any) {
-    if (this.bottomPanel) {
-      this.showPanel(focus)
-    } else {
-      this.showDock(focus, location)
-    }
-
+    this.showDock(focus, location)
     this.state.visible = true
     this.saveState()
-  }
-
-  showPanel(focus: boolean) {
-    this.bottomPanel.show()
-
-    if (focus) {
-      this.focus()
-    }
   }
 
   showDock(focus: boolean, location: any) {
@@ -442,14 +425,12 @@ export class Main {
   }
 
   hide() {
-    if (this.bottomPanel) {
-      this.bottomPanel.hide()
-    } else if (this.mainView) {
+    if (this.mainView) {
       atom.workspace.hide(this.mainView)
     }
 
     this.state.visible = false
-    return this.saveState()
+    this.saveState()
   }
 
   focus() {
@@ -461,8 +442,7 @@ export class Main {
   }
 
   unfocus() {
-    // TODO    
-    // return atom.workspace.getCenter().activate()
+    atom.workspace.getCenter().getActivePane().activate()
   }
 
   hasFocus() {
