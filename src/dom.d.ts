@@ -1,4 +1,66 @@
-interface EtchElement<T extends string, P = any> {
+interface EtchProps {
+
+  ref?: string
+
+  className?: string
+
+  attributes?: any
+
+  onKeyDown?: (e: KeyboardEvent) => void
+  
+  onKeyPress?: (e: KeyboardEvent) => void
+
+  onKeyUp?: (e: KeyboardEvent) => void
+
+  onClick?: (e: MouseEvent) => void
+
+  onDoubleClick?: (e: MouseEvent) => void
+
+  onMouseDown?: (e: MouseEvent) => void
+
+  onMouseUp?: (e: MouseEvent) => void
+
+  onBlur?: (e: FocusEvent) => void
+
+  onDrag?: (e: DragEvent) => void
+
+  onDragEnd?: (e: DragEvent) => void
+
+  onDragEnter?: (e: DragEvent) => void
+
+  onDragLeave?: (e: DragEvent) => void
+
+  onDragOver?: (e: DragEvent) => void
+
+  onDragStart?: (e: DragEvent) => void
+
+  onDrop?: (e: DragEvent) => void
+
+  onFocus?: (e: FocusEvent) => void
+
+  onInput?: (e: Event) => void
+
+  onMouseEnter?: (e: MouseEvent) => void
+
+  onMouseLeave?: (e: MouseEvent) => void
+
+  onMouseMove?: (e: MouseEvent) => void
+
+  onMouseOut?: (e: MouseEvent) => void
+
+  onMouseOver?: (e: MouseEvent) => void
+
+  onWheel?: (e: MouseEvent) => void
+
+  onScroll?: (e: Event) => void
+
+}
+
+interface EtchInputProps extends EtchProps {
+  type?: string
+}
+
+interface EtchElement<T extends string, P extends EtchProps = any> {
   tag: T
   props: P
   children: any[]
@@ -128,115 +190,115 @@ declare global {
   namespace JSX {
     interface Element extends EtchElement<any, any> { }
     interface IntrinsicElements {
-      a: any
-      abbr: any
-      address: any
-      article: any
-      aside: any
-      audio: any
-      b: any
-      bdi: any
-      bdo: any
-      blockquote: any
-      body: any
-      button: any
-      canvas: any
-      caption: any
-      cite: any
-      code: any
-      colgroup: any
-      datalist: any
-      dd: any
-      del: any
-      details: any
-      dfn: any
-      dialog: any
-      div: any
-      dl: any
-      dt: any
-      em: any
-      fieldset: any
-      figcaption: any
-      figure: any
-      footer: any
-      form: any
-      h1: any
-      h2: any
-      h3: any
-      h4: any
-      h5: any
-      h6: any
-      head: any
-      header: any
-      html: any
-      i: any
-      iframe: any
-      ins: any
-      kbd: any
-      label: any
-      legend: any
-      li: any
-      main: any
-      map: any
-      mark: any
-      menu: any
-      meter: any
-      nav: any
-      noscript: any
-      object: any
-      ol: any
-      optgroup: any
-      option: any
-      output: any
-      p: any
-      pre: any
-      progress: any
-      q: any
-      rp: any
-      rt: any
-      ruby: any
-      s: any
-      samp: any
-      script: any
-      section: any
-      select: any
-      small: any
-      span: any
-      strong: any
-      style: any
-      sub: any
-      summary: any
-      sup: any
-      table: any
-      tbody: any
-      td: any
-      textarea: any
-      tfoot: any
-      th: any
-      thead: any
-      time: any
-      title: any
-      tr: any
-      u: any
-      ul: any
-      var: any
-      video: any
-      area: any
-      base: any
-      br: any
-      col: any
-      command: any
-      embed: any
-      hr: any
-      img: any
-      input: any
-      keygen: any
-      link: any
-      meta: any
-      param: any
-      source: any
-      track: any
-      wbr: any
+      a: EtchProps
+      abbr: EtchProps
+      address: EtchProps
+      article: EtchProps
+      aside: EtchProps
+      audio: EtchProps
+      b: EtchProps
+      bdi: EtchProps
+      bdo: EtchProps
+      blockquote: EtchProps
+      body: EtchProps
+      button: EtchProps
+      canvas: EtchProps
+      caption: EtchProps
+      cite: EtchProps
+      code: EtchProps
+      colgroup: EtchProps
+      datalist: EtchProps
+      dd: EtchProps
+      del: EtchProps
+      details: EtchProps
+      dfn: EtchProps
+      dialog: EtchProps
+      div: EtchProps
+      dl: EtchProps
+      dt: EtchProps
+      em: EtchProps
+      fieldset: EtchProps
+      figcaption: EtchProps
+      figure: EtchProps
+      footer: EtchProps
+      form: EtchProps
+      h1: EtchProps
+      h2: EtchProps
+      h3: EtchProps
+      h4: EtchProps
+      h5: EtchProps
+      h6: EtchProps
+      head: EtchProps
+      header: EtchProps
+      html: EtchProps
+      i: EtchProps
+      iframe: EtchProps
+      ins: EtchProps
+      kbd: EtchProps
+      label: EtchProps
+      legend: EtchProps
+      li: EtchProps
+      main: EtchProps
+      map: EtchProps
+      mark: EtchProps
+      menu: EtchProps
+      meter: EtchProps
+      nav: EtchProps
+      noscript: EtchProps
+      object: EtchProps
+      ol: EtchProps
+      optgroup: EtchProps
+      option: EtchProps
+      output: EtchProps
+      p: EtchProps
+      pre: EtchProps
+      progress: EtchProps
+      q: EtchProps
+      rp: EtchProps
+      rt: EtchProps
+      ruby: EtchProps
+      s: EtchProps
+      samp: EtchProps
+      script: EtchProps
+      section: EtchProps
+      select: EtchProps
+      small: EtchProps
+      span: EtchProps
+      strong: EtchProps
+      style: EtchProps
+      sub: EtchProps
+      summary: EtchProps
+      sup: EtchProps
+      table: EtchProps
+      tbody: EtchProps
+      td: EtchProps
+      textarea: EtchProps
+      tfoot: EtchProps
+      th: EtchProps
+      thead: EtchProps
+      time: EtchProps
+      title: EtchProps
+      tr: EtchProps
+      u: EtchProps
+      ul: EtchProps
+      var: EtchProps
+      video: EtchProps
+      area: EtchProps
+      base: EtchProps
+      br: EtchProps
+      col: EtchProps
+      command: EtchProps
+      embed: EtchProps
+      hr: EtchProps
+      img: EtchProps
+      input: EtchInputProps
+      keygen: EtchProps
+      link: EtchProps
+      meta: EtchProps
+      param: EtchProps
+      source: EtchProps
+      track: EtchProps
+      wbr: EtchProps
     }
   }
 }

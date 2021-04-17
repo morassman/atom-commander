@@ -149,7 +149,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
   render(): any {
     // TODO menuBar
-    return <div className='atom-commander' on={{keyup: (e: KeyboardEvent) => this.handleKeyUp(e), keydown: (e: KeyboardEvent) => this.handleKeyDown(e), keypress: (e: KeyboardEvent) => this.handleKeyPress(e)}}>
+    return <div className='atom-commander' onKeyUp={e => this.handleKeyUp(e)} onKeyDown={e => this.handleKeyDown(e)} onKeyPress={e => this.handleKeyPress(e)}>
       {/* <MenuBarView ref='menuBar'/> */}
       <Div ref='menuBar'/>
       <div ref='contentView' className='content'>
@@ -859,11 +859,11 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   //   return this.rightTabbedView.setExtensionColumnVisible(this.extensionColumnVisible)
   // }
 
-  // setSortBy(sortBy) {
-  //   if (this.focusedView !== null) {
-  //     return this.focusedView.setSortBy(sortBy)
-  //   }
-  // }
+  setSortBy(sortBy: string | null) {
+    if (this.focusedView) {
+      this.focusedView.setSortBy(sortBy)
+    }
+  }
 
   serialize(state: State) {
     if (!state) {

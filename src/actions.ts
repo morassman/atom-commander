@@ -2,6 +2,7 @@ import { Bookmark } from './bookmark-manager'
 import { VDirectory, VFile } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
+import { MainView } from './views/main-view'
 
 // const Utils = require('./utils')
 // const FileController = require('./controllers/file-controller')
@@ -20,16 +21,16 @@ import { ContainerView, Snapshot } from './views/container-view'
 // import * as fsp from 'fs-plus'
 
 export class Actions {
-
+  
   constructor(public readonly main: Main) {
     this.main = main
   }
 
   getFocusedView(): ContainerView | null {
-    let focusedView: ContainerView | null = this.main.mainView.focusedView
+    let focusedView: ContainerView | null = this.main.getMainView().focusedView
 
     if (!focusedView) {
-      focusedView = this.main.mainView.getLeftView()
+      focusedView = this.main.getMainView().getLeftView()
     }
 
     return focusedView
@@ -667,28 +668,23 @@ export class Actions {
   // }
 
   sortByName() {
-    // TODO
-    // return __guard__(this.main.getMainView(), x => x.setSortBy('name'))
+    this.main.getMainView().setSortBy('name')
   }
 
   sortByExtension() {
-    // TODO
-    // return __guard__(this.main.getMainView(), x => x.setSortBy('extension'))
+    this.main.getMainView().setSortBy('extension')
   }
 
   sortBySize() {
-    // TODO
-    // return __guard__(this.main.getMainView(), x => x.setSortBy('size'))
+    this.main.getMainView().setSortBy('size')
   }
 
   sortByDate() {
-    // TODO
-    // return __guard__(this.main.getMainView(), x => x.setSortBy('date'))
+    this.main.getMainView().setSortBy('date')
   }
 
   sortByDefault() {
-    // TODO
-    // return __guard__(this.main.getMainView(), x => x.setSortBy(null))
+    this.main.getMainView().setSortBy(null)
   }
 }
 

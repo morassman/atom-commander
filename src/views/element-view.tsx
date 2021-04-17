@@ -32,6 +32,14 @@ export class Span<P extends Props = Props, R extends object = {}> extends Elemen
 
 }
 
+export class TBody<P extends Props = Props, R extends object = {}> extends ElementView <P, R> {
+
+  constructor(props: P, children: any[]) {
+    super('tbody', props, children)
+  }
+
+}
+
 type InputProps = Props & {
   type: string
 }

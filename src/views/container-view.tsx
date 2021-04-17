@@ -171,12 +171,12 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   }
 
   render() {
-    return <div attributes={{style: 'display: flex; flex-direction: column; flex: 1; overflow: auto'}}>
+    return <div className='atom-commander-container-parent-view'>
       <div>
         <Div ref='username' className='highlight-info username' />
-        <input ref='directoryEditor' className='directory-editor input-text' type='text' on={{blur: () => this.directoryEditorCancel(), focus: () => this.onDirectoryEditorFocus()}}/>
+        <input ref='directoryEditor' className='directory-editor input-text' type='text' onBlur={() => this.directoryEditorCancel()} onFocus={() => this.onDirectoryEditorFocus()}/>
       </div>
-      <Div ref='containerView' className='atom-commander-container-view' on={{dblclick: (e:MouseEvent) => this.onDoubleClick(e), mousedown: (e: MouseEvent) => this.onMouseDown(e), keypress: (e: KeyboardEvent) => this.handleKeyPress(e)}}/>
+      <Div ref='containerView' className='atom-commander-container-view' onDoubleClick={e => this.onDoubleClick(e)} onMouseDown={e => this.onMouseDown(e)} onKeyPress={e => this.handleKeyPress(e)}/>
       <Div ref='searchPanel' className='search-panel'/>
       <Div ref='spinnerPanel' className='loading-panel'>Loading...</Div>
     </div>
@@ -1118,7 +1118,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
 
   abstract setExtensionColumnVisible(visible: boolean): void
 
-  setSortBy(sortBy: string) {
+  setSortBy(sortBy: string | null) {
     if (this.sortBy === sortBy) {
       if (sortBy === null) {
         return
@@ -1129,7 +1129,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
       this.sortAscending = true
     }
 
-    if (sortBy === null) {
+    if (!sortBy) {
       this.refreshDirectory()
     } else {
       this.sort(true)

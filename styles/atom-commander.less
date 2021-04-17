@@ -309,6 +309,11 @@
   th {
     text-align: center;
     font-weight: bold;
+    cursor: default;
+  }
+
+  th:hover {
+    color: @text-color-highlight;
   }
 
   #name-header {
@@ -558,6 +563,14 @@
   }
 }
 
+.atom-commander-container-parent-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1; 
+  // overflow: auto
+}
+
 .atom-commander-container-view {
+  flex: 1;
   overflow: auto;
 }

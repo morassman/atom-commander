@@ -12,17 +12,11 @@ import { ListSymLinkView } from './list-symlink-view'
 import { ListItemView } from './list-item-view'
 import { VItem } from '../fs'
 import { ItemController } from '../controllers/item-controller'
+import { TBody } from './element-view'
 // const ListFileView = require('./list-file-view')
 // const ListDirectoryView = require('./list-directory-view')
 // const ListSymLinkView = require('./list-symlink-view')
 // const ContainerView = require('./container-view')
-
-class TableBodyView extends View {
-
-  render() {
-    return <tbody className='atom-commander-list-view list'/>
-  }
-}
 
 type BodyViewRefs = {
   
@@ -30,7 +24,7 @@ type BodyViewRefs = {
   
   table: HTMLElement
 
-  tableBody: TableBodyView
+  tableBody: TBody
 
   nameHeader: HTMLElement
 
@@ -51,33 +45,54 @@ type BodyViewRefs = {
 }
 
 class BodyView extends View<Props, BodyViewRefs> {
-
   constructor(private requestFocus: ()=>void) {
     super({}, true)
   }
 
   render() {
-    return <div ref='scroller' className='atom-commander-list-view-scroller' on={{click: () => this.requestFocus()}}>
+    return <div ref='scroller' className='atom-commander-list-view-scroller' onClick={() => this.requestFocus()}>
       <table ref='table' className='atom-commander-list-view-table' attributes={{tabindex:-1}}>
         <thead>
           <tr>
-            <th ref='nameHeader' on={{click: () => main.actions.sortByName()}}>
+            <th ref='nameHeader' onClick={() => main.actions.sortByName()}>
               <span ref='name' className='sort-icon icon'>Name</span>
             </th>
-            <th ref='extensionHeader' on={{click: () => main.actions.sortByExtension()}}>
+            <th ref='extensionHeader' onClick={() => main.actions.sortByExtension()}>
               <span ref='extension' className='sort-icon icon'>Extension</span>
             </th>
-            <th ref='sizeHeader' on={{click: () => main.actions.sortBySize()}}>
+            <th ref='sizeHeader' onClick={() => main.actions.sortBySize()}>
               <span ref='size' className='sort-icon icon'>Size</span>
             </th>
-            <th ref='dateHeader' on={{click: () => main.actions.sortByDate()}}>
+            <th ref='dateHeader' onClick={() => main.actions.sortByDate()}>
               <span ref='date' className='sort-icon icon'>Date</span>
             </th>
           </tr>
         </thead>
-        <TableBodyView ref='tableBody' className='atom-commander-list-view list'/>
+        <TBody ref='tableBody' className='atom-commander-list-view list'/>
       </table>
     </div>
+  }
+
+  refreshSortIcons(sortBy: string, ascending: boolean) {
+    for (let e of [this.refs.name, this.refs.extension, this.refs.size, this.refs.date]) {
+      e.classList.remove('icon-chevron-up')
+      e.classList.remove('icon-chevron-down')
+    }
+
+    const element = (this.refs as any)[sortBy] as HTMLElement
+
+    if (!element) {
+      return
+    }
+
+    if (ascending) {
+      element.classList.add('icon-chevron-down')
+    } else {
+      element.classList.add('icon-chevron-up')
+    }
+
+    // TODO
+    // element.show()
   }
 }
 
@@ -238,21 +253,6 @@ export class ListView extends ContainerView {
   }
 
   refreshSortIcons(sortBy: string, ascending: boolean) {
-    const element = (this.body.refs as any)[sortBy]
-
-    if (element == null) {
-      return
-    }
-
-    element.removeClass('icon-chevron-up')
-    element.removeClass('icon-chevron-down')
-
-    if (ascending) {
-      element.addClass('icon-chevron-down')
-    } else {
-      element.addClass('icon-chevron-up')
-    }
-
-    element.show()
+    this.body.refreshSortIcons(sortBy, ascending)
   }
 }
