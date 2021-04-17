@@ -157,7 +157,7 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
     }
   }
 
-  append(child: any) {
+  append(child: HTMLElement | View) {
     if (child instanceof View) {
       child = child.element
     }

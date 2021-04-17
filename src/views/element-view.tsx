@@ -16,9 +16,17 @@ export class ElementView<P extends Props = Props, R extends object = {}, E exten
 
 }
 
+export class Button<P extends Props = Props, R extends object = {}> extends ElementView <P, R> {
+
+  constructor(props: P, children?: any[]) {
+    super('button', props, children)
+  }
+
+}
+
 export class Div<P extends Props = Props, R extends object = {}> extends ElementView<P, R> {
 
-  constructor(props: P, children: any[]) {
+  constructor(props: P, children?: any[]) {
     super('div', props, children)
   }
 
@@ -26,7 +34,7 @@ export class Div<P extends Props = Props, R extends object = {}> extends Element
 
 export class Span<P extends Props = Props, R extends object = {}> extends ElementView <P, R> {
 
-  constructor(props: P, children: any[]) {
+  constructor(props: P, children?: any[]) {
     super('span', props, children)
   }
 
@@ -34,7 +42,7 @@ export class Span<P extends Props = Props, R extends object = {}> extends Elemen
 
 export class TBody<P extends Props = Props, R extends object = {}> extends ElementView <P, R> {
 
-  constructor(props: P, children: any[]) {
+  constructor(props: P, children?: any[]) {
     super('tbody', props, children)
   }
 

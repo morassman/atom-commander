@@ -1,4 +1,4 @@
-export type Tag = 'div' | 'span' | 'input' | 'table' | 'thead' | 'tbody' | 'tr' | 'td' | 'input'
+export type Tag = 'button' | 'div' | 'span' | 'input' | 'table' | 'thead' | 'tbody' | 'tr' | 'td' | 'input'
 
 export function getTagDisplay(type?: string): string {
   if (!type) {
@@ -6,7 +6,9 @@ export function getTagDisplay(type?: string): string {
   }
 
   switch (type) {
-    case 'div': return 'block'
+    case 'button':
+    case 'div': 
+      return 'block'
     case 'span': return 'inline'
     case 'table': return 'table'
     case 'thead': return 'table-header-group'
