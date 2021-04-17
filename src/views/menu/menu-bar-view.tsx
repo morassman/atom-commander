@@ -72,6 +72,40 @@ export class MenuBarView extends View<Props, MenuBarRefs> {
             { index: 6, description: 'Folders', onClick: () => this.selectFolders()},
             { index: 7, description: 'Files', onClick: () => this.selectFiles()}
           ])}
+          {this.renderDetailsColumn('2 Go', [
+            { index: 1, description: 'Project - Choose project folder to go to...', onClick: () => this.goProject()},
+            { index: 2, description: 'Editor - Go to focused file in editor', onClick: () => this.goEditor()},
+            { index: 3, description: 'Drive - Choose drive to go to...', onClick: () => this.goDrive()},
+            { index: 4, description: 'Root - Go to current folder\'s root folder', onClick: () => this.goRoot()},
+            { index: 5, description: 'Home - Go to user\'s home folder', onClick: () => this.goHome()}
+          ])}
+          {this.renderDetailsColumn('3 Bookmarks', [
+            { index: 1, description: 'Add', onClick: () => this.bookmarksAdd()},
+            { index: 2, description: 'Remove', onClick: () => this.bookmarksRemove()},
+            { index: 3, description: 'Open', onClick: () => this.bookmarksOpen()}
+          ])}
+          {this.renderDetailsColumn('4 Servers', [
+            { index: 1, description: 'Add', onClick: () => this.serversAdd()},
+            { index: 2, description: 'Remove', onClick: () => this.serversRemove()},
+            { index: 3, description: 'Open', onClick: () => this.serversOpen()},
+            { index: 4, description: 'Close', onClick: () => this.serversClose()},
+            { index: 5, description: 'Edit', onClick: () => this.serversEdit()},
+            { index: 6, description: 'Cache - View cached files', onClick: () => this.serversCache()}
+          ])}
+          {this.renderDetailsColumn('5 Open', [
+            { index: 1, description: 'Terminal - Open terminal in current folder', onClick: () => this.openTerminal()},
+            { index: 2, description: 'File manager - Show highlighted item in system file manager', onClick: () => this.openFileManager()},
+            { index: 3, description: 'System - Open highlighted item with system default', onClick: () => this.openSystem()}
+          ])}
+          {this.renderDetailsColumn('6 View', [
+            { index: 1, description: 'Refresh - Refresh content of focused pane', onClick: () => this.viewRefresh()},
+            { index: 2, description: 'Mirror - Show same content in other pane', onClick: () => this.viewMirror()},
+            { index: 3, description: 'Swap - Swap content of two panes', onClick: () => this.viewSwap()}
+          ])}
+          {this.renderDetailsColumn('7 Compare', [
+            { index: 1, description: 'Folders - Highlight difference between the two panes', onClick: () => this.compareFolders()},
+            { index: 2, description: 'Files - Show difference between content of highlighted files', onClick: () => this.compareFiles()}
+          ])}
         </div>
       </Div>
     </div>
@@ -83,146 +117,6 @@ export class MenuBarView extends View<Props, MenuBarRefs> {
   //     this.div({class: 'extra-buttons'}, () => {
   //       return this.button({tabindex: -1, class: 'btn btn-sm inline-block icon-gear', click: 'settingsPressed'});
   //   });
-  //     return this.div({outlet: 'details'}, () => {
-  //       return this.div({class: 'details'}, () => {
-  //         this.div({class: 'column'}, () => {
-  //           this.div('1 Select', {class: 'title'});
-  //           return this.div({class: 'body'}, () => {
-  //             this.div({class: 'item', click: 'selectAll'}, () => {
-  //               this.div('1');
-  //               return this.div('All', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'selectNone'}, () => {
-  //               this.div('2');
-  //               return this.div('None', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'selectAdd'}, () => {
-  //               this.div('3');
-  //               return this.div('Add to selection...', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'selectRemove'}, () => {
-  //               this.div('4');
-  //               return this.div('Remove from selection...', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'selectInvert'}, () => {
-  //               this.div('5');
-  //               return this.div('Invert selection', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'selectFolders'}, () => {
-  //               this.div('6');
-  //               return this.div('Folders', {class: 'description'});
-  //           });
-  //             return this.div({class: 'item', click: 'selectFiles'}, () => {
-  //               this.div('7');
-  //               return this.div('Files', {class: 'description'});
-  //           });
-  //         });
-  //       });
-  //         this.div({class: 'column'}, () => {
-  //           this.div('2 Go', {class: 'title'});
-  //           return this.div({class: 'body'}, () => {
-  //             this.div({class: 'item', click: 'goProject'}, () => {
-  //               this.div('1');
-  //               return this.div('Project - Choose project folder to go to...', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'goEditor'}, () => {
-  //               this.div('2');
-  //               return this.div('Editor - Go to focused file in editor', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'goDrive'}, () => {
-  //               this.div('3');
-  //               return this.div('Drive - Choose drive to go to...', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'goRoot'}, () => {
-  //               this.div('4');
-  //               return this.div('Root - Go to current folder\'s root folder', {class: 'description'});
-  //           });
-  //             return this.div({class: 'item', click: 'goHome'}, () => {
-  //               this.div('5');
-  //               return this.div('Home - Go to user\'s home folder', {class: 'description'});
-  //           });
-  //         });
-  //       });
-  //         this.div({class: 'column'}, () => {
-  //           this.div('3 Bookmarks', {class: 'title'});
-  //           return this.div({class: 'body'}, () => {
-  //             this.div({class: 'item', click: 'bookmarksAdd'}, () => {
-  //               this.div('1');
-  //               return this.div('Add', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'bookmarksRemove'}, () => {
-  //               this.div('2');
-  //               return this.div('Remove', {class: 'description'});
-  //           });
-  //             return this.div({class: 'item', click: 'bookmarksOpen'}, () => {
-  //               this.div('3');
-  //               return this.div('Open', {class: 'description'});
-  //           });
-  //         });
-  //       });
-  //         this.div({class: 'column'}, () => {
-  //           this.div('4 Servers', {class: 'title'});
-  //           return this.div({class: 'body'}, () => {
-  //             this.div({class: 'item', click: 'serversAdd'}, () => {
-  //               this.div('1');
-  //               return this.div('Add', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'serversRemove'}, () => {
-  //               this.div('2');
-  //               return this.div('Remove', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'serversOpen'}, () => {
-  //               this.div('3');
-  //               return this.div('Open', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'serversClose'}, () => {
-  //               this.div('4');
-  //               return this.div('Close', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'serversEdit'}, () => {
-  //               this.div('5');
-  //               return this.div('Edit', {class: 'description'});
-  //           });
-  //             return this.div({class: 'item', click: 'serversCache'}, () => {
-  //               this.div('6');
-  //               return this.div('Cache - View cached files', {class: 'description'});
-  //           });
-  //         });
-  //       });
-  //         this.div({class: 'column'}, () => {
-  //           this.div('5 Open', {class: 'title'});
-  //           return this.div({class: 'body'}, () => {
-  //             this.div({class: 'item', click: 'openTerminal'}, () => {
-  //               this.div('1');
-  //               return this.div('Terminal - Open terminal in current folder', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'openFileManager'}, () => {
-  //               this.div('2');
-  //               return this.div('File manager - Show highlighted item in system file manager', {class: 'description', outlet: 'fileManagerItem'});
-  //           });
-  //             return this.div({class: 'item', click: 'openSystem'}, () => {
-  //               this.div('3');
-  //               return this.div('System - Open highlighted item with system default', {class: 'description'});
-  //           });
-  //         });
-  //       });
-  //         this.div({class: 'column'}, () => {
-  //           this.div('6 View', {class: 'title'});
-  //           return this.div({class: 'body'}, () => {
-  //             this.div({class: 'item', click: 'viewRefresh'}, () => {
-  //               this.div('1');
-  //               return this.div('Refresh - Refresh content of focused pane', {class: 'description'});
-  //           });
-  //             this.div({class: 'item', click: 'viewMirror'}, () => {
-  //               this.div('2');
-  //               return this.div('Mirror - Show same content in other pane', {class: 'description'});
-  //           });
-  //             return this.div({class: 'item', click: 'viewSwap'}, () => {
-  //               this.div('3');
-  //               return this.div('Swap - Swap content of two panes', {class: 'description'});
-  //           });
-  //         });
-  //       });
   //         return this.div({class: 'column'}, () => {
   //           this.div('7 Compare', {class: 'title'});
   //           return this.div({class: 'body'}, () => {
