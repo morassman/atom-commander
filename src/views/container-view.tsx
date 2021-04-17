@@ -485,7 +485,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   }
 
   // includeHighlightIfEmpty : true if the highlighted name should be included if nothing is selected.
-  getSelectedNames(includeHighlightIfEmpty=false){
+  getSelectedNames(includeHighlightIfEmpty=false): string[] {
     let itemView
     const paths = []
 
@@ -506,28 +506,27 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     return paths
   }
 
-  getSelectedItemViews(includeHighlightIfEmpty=false) {
-    let itemView
-    const paths = []
+  getSelectedItemViews(includeHighlightIfEmpty=false): BaseItemView[] {
+    const result = []
 
-    for (itemView of this.itemViews) {
+    for (let itemView of this.itemViews) {
       if (itemView.selected) {
-        paths.push(itemView)
+        result.push(itemView)
       }
     }
 
-    if (includeHighlightIfEmpty && (paths.length === 0) && (this.highlightedIndex !== null)) {
-      itemView = this.itemViews[this.highlightedIndex]
+    if (includeHighlightIfEmpty && (result.length === 0) && (this.highlightedIndex !== null)) {
+      let itemView = this.itemViews[this.highlightedIndex]
 
       if (itemView.isSelectable()) {
-        paths.push(itemView)
+        result.push(itemView)
       }
     }
 
-    return paths
+    return result
   }
 
-  getItemViewsWithPattern(pattern: string) {
+  getItemViewsWithPattern(pattern: string): BaseItemView[] {
     const result = []
 
     for (let itemView of this.itemViews) {
@@ -587,6 +586,10 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   // Override to refresh the sort icons.
   abstract refreshSortIcons(sortBy: string, ascending: boolean): void
 
+  abstract pageUp(): void
+
+  abstract pageDown(): void
+
   moveUp() {
     if (this.highlightedIndex !== null) {
       this.highlightIndex(this.highlightedIndex-1)
@@ -599,12 +602,6 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     }
   }
 
-  // Override
-  pageUp() {}
-
-  // Override
-  pageDown() {}
-
   selectItem() {
     if (this.highlightedIndex === null) {
       return
@@ -613,16 +610,16 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     const itemView = this.itemViews[this.highlightedIndex]
     itemView.toggleSelect()
 
-    return this.highlightIndex(this.highlightedIndex+1)
+    this.highlightIndex(this.highlightedIndex+1)
   }
 
   highlightFirstItem() {
-    return this.highlightIndex(0)
+    this.highlightIndex(0)
   }
 
   highlightLastItem() {
     if (this.itemViews.length > 0) {
-      return this.highlightIndex(this.itemViews.length - 1)
+      this.highlightIndex(this.itemViews.length - 1)
     }
   }
 
@@ -664,7 +661,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     }
   }
 
-  getItemViewWithName(name: string): BaseItemView<ItemController<VItem>> | null {
+  getItemViewWithName(name: string): BaseItemView | null {
     for (let itemView of this.itemViews) {
       if (itemView.getName() === name) {
         return itemView
@@ -674,7 +671,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     return null
   }
 
-  getHighlightedItem() {
+  getHighlightedItem(): BaseItemView | null {
     if (this.highlightedIndex === null) {
       return null
     }
@@ -682,7 +679,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     return this.itemViews[this.highlightedIndex]
   }
 
-  getHighlightedItemName() {
+  getHighlightedItemName(): string | null {
     if (this.highlightedIndex === null) {
       return null
     }
@@ -704,7 +701,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   }
 
   openLastLocalDirectory() {
-    return this.openDirectory(this.getInitialDirectory(this.lastLocalPath))
+    this.openDirectory(this.getInitialDirectory(this.lastLocalPath))
   }
 
   openParentDirectory() {
@@ -713,11 +710,11 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
         name: this.directory.getBaseName()
       }
 
-      return this.openDirectory(this.directory.getParent(), snapShot)
+      this.openDirectory(this.directory.getParent(), snapShot)
     }
   }
 
-  openDirectory(directory: VDirectory, snapShot:Snapshot | null = null, callback?: ()=>void) {
+  openDirectory(directory: VDirectory | Directory, snapShot:Snapshot | null = null, callback?: ()=>void) {
     if (this.refs.searchPanel.isVisible()) {
       this.refs.searchPanel.hide()
     }
@@ -735,7 +732,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
       console.error(error)
       // If the directory couldn't be opened and one hasn't been opened yet then
       // revert to opening the home folder and finally the PWD.
-      if ((this.directory === null) || !fsp.isDirectorySync(this.directory.getRealPathSync())) {
+      if (!this.directory || !fsp.isDirectorySync(this.directory.getRealPathSync())) {
         try {
           this.tryOpenDirectory(this.localFileSystem.getDirectory(fsp.getHomeDirectory()), null, callback)
         } catch (error2) {

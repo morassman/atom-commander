@@ -5,7 +5,7 @@ import { VItem } from '../fs'
 import { ContainerView } from './container-view'
 import { Props, View } from './view'
 
-export abstract class BaseItemView<C extends ItemController<VItem>, R extends object = {}> extends View<Props, R> {
+export abstract class BaseItemView<C extends ItemController<VItem> = ItemController<VItem>, R extends object = {}> extends View<Props, R> {
 
   selected: boolean
 

@@ -64,7 +64,7 @@ type MainViewRefs = {
 
   rightTabbedView: TabbedView
 
-  menuBar: Div
+  menuBar: MenuBarView
 
   f3Button: KeyButton
 
@@ -148,10 +148,8 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   render(): any {
-    // TODO menuBar
     return <div className='atom-commander' onKeyUp={e => this.handleKeyUp(e)} onKeyDown={e => this.handleKeyDown(e)} onKeyPress={e => this.handleKeyPress(e)}>
-      {/* <MenuBarView ref='menuBar'/> */}
-      <Div ref='menuBar'/>
+      <MenuBarView ref='menuBar' mainView={this}/>
       <div ref='contentView' className='content'>
         <TabbedView ref='leftTabbedView' mainView={this} left={true} />
         <TabbedView ref='rightTabbedView' mainView={this} left={false} />
@@ -209,8 +207,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
       e.preventDefault()
       e.stopPropagation()
     } else if (this.refs.menuBar.isVisible()) {
-      // TODO
-      // this.refs.menuBar.handleKeyDown(e)
+      this.refs.menuBar.handleKeyDown(e)
       e.preventDefault()
       e.stopPropagation()
     } else if (e.shiftKey) {
@@ -220,8 +217,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
   handleKeyUp(e: KeyboardEvent) {
     if (e.altKey) {
-      // TODO
-      // this.refs.menuBar.handleKeyUp(e)
+      this.refs.menuBar.handleKeyUp(e)
       e.preventDefault()
       e.stopPropagation()
     } else if (this.refs.menuBar.isVisible()) {
@@ -235,8 +231,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
   handleKeyPress(e: KeyboardEvent) {
     if (this.refs.menuBar.isVisible()) {
-      // TODO
-      // this.refs.menuBar.handleKeyUp(e)
+      this.refs.menuBar.handleKeyUp(e)
       e.preventDefault()
       e.stopPropagation()
     }
@@ -251,15 +246,13 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   showMenuBar() {
-    // TODO
-    // this.refs.menuBar.reset()
+    this.refs.menuBar.reset()
     this.refs.menuBar.show()
   }
 
   hideMenuBar() {
     this.refs.menuBar.hide()
-    // TODO
-    // this.refs.menuBar.reset()
+    this.refs.menuBar.reset()
     this.refocusLastView()
   }
 
@@ -427,7 +420,6 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   menuButton() {
-    console.log('menuButton')
     this.toggleMenuBar()
   }
 
@@ -841,23 +833,23 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     return this.extensionColumnVisible
   }
 
-  // toggleSizeColumn() {
-  //   this.sizeColumnVisible = !this.sizeColumnVisible
-  //   this.leftTabbedView.setSizeColumnVisible(this.sizeColumnVisible)
-  //   return this.rightTabbedView.setSizeColumnVisible(this.sizeColumnVisible)
-  // }
+  toggleSizeColumn() {
+    this.sizeColumnVisible = !this.sizeColumnVisible
+    this.refs.leftTabbedView.setSizeColumnVisible(this.sizeColumnVisible)
+    this.refs.rightTabbedView.setSizeColumnVisible(this.sizeColumnVisible)
+  }
 
-  // toggleDateColumn() {
-  //   this.dateColumnVisible = !this.dateColumnVisible
-  //   this.leftTabbedView.setDateColumnVisible(this.dateColumnVisible)
-  //   return this.rightTabbedView.setDateColumnVisible(this.dateColumnVisible)
-  // }
+  toggleDateColumn() {
+    this.dateColumnVisible = !this.dateColumnVisible
+    this.refs.leftTabbedView.setDateColumnVisible(this.dateColumnVisible)
+    this.refs.rightTabbedView.setDateColumnVisible(this.dateColumnVisible)
+  }
 
-  // toggleExtensionColumn() {
-  //   this.extensionColumnVisible = !this.extensionColumnVisible
-  //   this.leftTabbedView.setExtensionColumnVisible(this.extensionColumnVisible)
-  //   return this.rightTabbedView.setExtensionColumnVisible(this.extensionColumnVisible)
-  // }
+  toggleExtensionColumn() {
+    this.extensionColumnVisible = !this.extensionColumnVisible
+    this.refs.leftTabbedView.setExtensionColumnVisible(this.extensionColumnVisible)
+    this.refs.rightTabbedView.setExtensionColumnVisible(this.extensionColumnVisible)
+  }
 
   setSortBy(sortBy: string | null) {
     if (this.focusedView) {

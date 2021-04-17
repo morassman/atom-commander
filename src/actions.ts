@@ -1,5 +1,6 @@
+import { Directory, File } from 'atom'
 import { Bookmark } from './bookmark-manager'
-import { VDirectory, VFile } from './fs'
+import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
 import { MainView } from './views/main-view'
@@ -18,7 +19,8 @@ import { MainView } from './views/main-view'
 // const ChildProcess = require('child_process')
 // const shell = require('shell')
 
-// import * as fsp from 'fs-plus'
+import * as ChildProcess from 'child_process'
+import * as fsp from 'fs-plus'
 
 export class Actions {
   
@@ -37,23 +39,21 @@ export class Actions {
   }
 
   selectAll() {
-    // TODO
-    // const view = this.getFocusedView()
+    const view = this.getFocusedView()
 
-    // if (view != null) {
-    //   view.selectAll()
-    //   return view.requestFocus()
-    // }
+    if (view) {
+      view.selectAll()
+      view.requestFocus()
+    }
   }
 
   selectNone() {
-    // TODO
-    // const view = this.getFocusedView()
+    const view = this.getFocusedView()
 
-    // if (view != null) {
-    //   view.selectNone()
-    //   return view.requestFocus()
-    // }
+    if (view) {
+      view.selectNone()
+      view.requestFocus()
+    }
   }
 
   selectAdd() {
@@ -76,107 +76,94 @@ export class Actions {
   }
 
   selectInvert() {
-    // TODO
-    // const view = this.getFocusedView()
+    const view = this.getFocusedView()
 
-    // if (view != null) {
-    //   view.selectInvert()
-    //   return view.requestFocus()
-    // }
+    if (view) {
+      view.selectInvert()
+      view.requestFocus()
+    }
   }
 
   selectFolders() {
-    // TODO
-    // const view = this.getFocusedView()
+    const view = this.getFocusedView()
 
-    // if ((view == null)) {
-    //   return
-    // }
+    if (!view) {
+      return
+    }
 
-    // view.requestFocus()
+    view.requestFocus()
 
-    // return (() => {
-    //   const result = []
-    //   for (let itemView of Array.from(view.itemViews)) {
-    //     if (itemView.isSelectable() && itemView.itemController instanceof DirectoryController) {
-    //       result.push(itemView.select(true))
-    //     } else {
-    //       result.push(undefined)
-    //     }
-    //   }
-    //   return result
-    // })()
+    for (let itemView of view.itemViews) {
+      if (itemView.isSelectable() && itemView.itemController.item.isDirectory()) {
+        itemView.select(true)
+      }
+    }
   }
 
   selectFiles() {
-    // TODO
-    // const view = this.getFocusedView()
+    const view = this.getFocusedView()
 
-    // if ((view == null)) {
-    //   return
-    // }
+    if (!view) {
+      return
+    }
 
-    // view.requestFocus()
+    view.requestFocus()
 
-    // return (() => {
-    //   const result = []
-    //   for (let itemView of Array.from(view.itemViews)) {
-    //     if (itemView.isSelectable() && itemView.itemController instanceof FileController) {
-    //       result.push(itemView.select(true))
-    //     } else {
-    //       result.push(undefined)
-    //     }
-    //   }
-    //   return result
-    // })()
+    for (let itemView of view.itemViews) {
+      if (itemView.isSelectable() && itemView.itemController.item.isFile()) {
+        itemView.select(true)
+      }
+    }
   }
 
-  // goHome() {
-  //   return this.goDirectory(new Directory(fsp.getHomeDirectory()))
-  // }
+  goHome() {
+    this.goDirectory(new Directory(fsp.getHomeDirectory()))
+  }
 
-  // goRoot() {
-  //   this.main.show(true)
-  //   const view = this.getFocusedView()
+  goRoot() {
+    this.main.show(true)
+    const view = this.getFocusedView()
 
-  //   if ((view == null)) {
-  //     return
-  //   }
+    if (!view) {
+      return
+    }
 
-  //   let {
-  //     directory
-  //   } = view
+    let { directory } = view
 
-  //   if ((directory == null)) {
-  //     return
-  //   }
+    if (!directory) {
+      return
+    }
 
-  //   while (!directory.isRoot()) {
-  //     const previousPath = directory.getPath()
-  //     directory = directory.getParent()
+    while (directory && !directory.isRoot()) {
+      const previousPath = directory.getPath()
+      directory = directory.getParent()
 
-  //     // Not sure if this is necessary, but it's just to prevent getting stuck
-  //     // in case the root returns itself on certain platforms.
-  //     if (previousPath === directory.getPath()) {
-  //       break
-  //     }
-  //   }
+      // Not sure if this is necessary, but it's just to prevent getting stuck
+      // in case the root returns itself on certain platforms.
+      if (directory && (previousPath === directory.getPath())) {
+        break
+      }
+    }
 
-  //   return this.goDirectory(directory)
-  // }
+    if (directory) {
+      this.goDirectory(directory)
+    }
+  }
 
-  // goEditor() {
-  //   const editor = atom.workspace.getActiveTextEditor()
+  goEditor() {
+    const editor = atom.workspace.getActiveTextEditor()
 
-  //   if (editor instanceof TextEditor) {
-  //     if (editor.getPath() != null) {
-  //       const file = this.main.getLocalFileSystem().getFile(editor.getPath())
-  //       return this.goFile(file, false)
-  //     }
-  //   }
-  // }
+    if (editor) {
+      const path = editor.getPath()
 
-  // goPath(path, openIfFile?) {
+      if (path) {
+        const file = this.main.getLocalFileSystem().getFile(path)
+        this.goFile(file, false)
+      }
+    }
+  }
+
+  // goPath(path: string, openIfFile: boolean) {
   //   if (fsp.isDirectorySync(path)) {
   //     this.goDirectory(new Directory(path))
   //     return
@@ -192,12 +179,11 @@ export class Actions {
   //   const directory = file.getParent()
 
   //   if (fsp.isDirectorySync(directory.getPath())) {
-  //     return this.goDirectory(directory)
+  //     this.goDirectory(directory)
   //   }
   // }
 
   goFile(file: VFile, open=false) {
-    if (open == null) { open = false }
     this.main.show(true)
     const view = this.getFocusedView()
 
@@ -216,7 +202,7 @@ export class Actions {
     }
   }
 
-  goDirectory(directory: VDirectory) {
+  goDirectory(directory: VDirectory | Directory) {
     this.main.show(true)
     const view = this.getFocusedView()
 
@@ -227,29 +213,30 @@ export class Actions {
     }
   }
 
-  // goDrive(fromView) {
-  //   let view
-  //   if (fromView == null) { fromView = true }
-  //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
-  //   return view = new DriveListView(this, fromView)
-  // }
+  goDrive(fromView=true) {
+    // TODO
+    // let view
+    // if (fromView == null) { fromView = true }
+    // __guard__(this.main.getMainView(), x => x.hideMenuBar())
+    // return view = new DriveListView(this, fromView)
+  }
 
-  // goProject(fromView) {
-  //   if (fromView == null) { fromView = true }
-  //   const projects = atom.project.getDirectories()
+  goProject(fromView=true) {
+    // TODO
+    // const projects = atom.project.getDirectories()
 
-  //   if (projects.length === 0) {
-  //     return
-  //   }
+    // if (projects.length === 0) {
+    //   return
+    // }
 
-  //   if (projects.length === 1) {
-  //     return this.goDirectory(projects[0])
-  //   } else {
-  //     let view
-  //     __guard__(this.main.getMainView(), x => x.hideMenuBar())
-  //     return view = new ProjectListView(this, fromView)
-  //   }
-  // }
+    // if (projects.length === 1) {
+    //   return this.goDirectory(projects[0])
+    // } else {
+    //   let view
+    //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
+    //   return view = new ProjectListView(this, fromView)
+    // }
+  }
 
   goBookmark(bookmark: Bookmark) {
     const fileSystem = this.main.getFileSystemWithID(bookmark.pathDescription.fileSystemId)
@@ -271,23 +258,24 @@ export class Actions {
     }
   }
 
-  // viewRefresh() {
-  //   const view = this.getFocusedView()
+  viewRefresh() {
+    const view = this.getFocusedView()
 
-  //   if (view != null) {
-  //     return view.refreshDirectory()
-  //   }
-  // }
+    if (view) {
+      view.refreshDirectory()
+    }
+  }
 
-  // viewMirror() {
-  //   return __guard__(this.main.getMainView(), x => x.mirror())
-  // }
+  viewMirror() {
+    this.main.getMainView().mirror()
+  }
 
-  // viewSwap() {
-  //   return __guard__(this.main.getMainView(), x => x.swap())
-  // }
+  viewSwap() {
+    this.main.getMainView().swap()
+  }
 
-  // compareFolders() {
+  compareFolders() {
+    // TODO
   //   let itemView
   //   this.main.getMainView().hideMenuBar()
   //   const leftView = __guard__(this.main.getMainView(), x => x.getLeftView())
@@ -317,9 +305,10 @@ export class Actions {
   //     }
   //     return result
   //   })()
-  // }
+  }
 
-  // compareFiles() {
+  compareFiles() {
+    // TODO
   //   this.main.getMainView().hideMenuBar()
   //   const leftView = __guard__(this.main.getMainView(), x => x.getLeftView())
   //   const rightView = __guard__(this.main.getMainView(), x1 => x1.getRightView())
@@ -366,74 +355,75 @@ export class Actions {
   //   const tooltip = leftFile.getPath()+" | "+rightFile.getPath()
 
   //   return Utils.compareFiles(title, tooltip, leftFile, rightFile)
-  // }
+  }
 
-  // bookmarksAddEditor() {
-  //   const editor = atom.workspace.getActiveTextEditor()
+  bookmarksAddEditor() {
+    const editor = atom.workspace.getActiveTextEditor()
+    const path = editor ? editor.getPath() : null
 
-  //   if (editor instanceof TextEditor) {
-  //     if (editor.getPath() != null) {
-  //       return this.bookmarksAddLocalFilePath(editor.getPath())
-  //     }
-  //   }
-  // }
+    if (path) {
+      this.bookmarksAddLocalFilePath(path)
+    }
+  }
 
-  // bookmarksAddLocalFilePath(path) {
-  //   let file = this.main.getLocalFileSystem().getFile(path)
+  bookmarksAddLocalFilePath(path: string) {
+    let file: VFile = this.main.getLocalFileSystem().getFile(path)
 
-  //   // If the file is being watched then add a remote bookmark instead.
-  //   const serverManager = this.main.getServerManager()
-  //   const watcher = serverManager.getWatcherWithLocalFilePath(path)
+    // If the file is being watched then add a remote bookmark instead.
+    const serverManager = this.main.getServerManager()
+    const watcher = serverManager.getWatcherWithLocalFilePath(path)
 
-  //   if (watcher !== null) {
-  //     file = watcher.getFile()
-  //   }
+    if (watcher !== null) {
+      file = watcher.getFile()
+    }
 
-  //   const dialog = new AddBookmarkDialog(this.main, file.getBaseName(), file, false)
-  //   return dialog.attach()
-  // }
+    // TODO
+    // const dialog = new AddBookmarkDialog(this.main, file.getBaseName(), file, false)
+    // dialog.attach()
+  }
 
-  // bookmarksAdd(fromView) {
-  //   if (fromView == null) { fromView = true }
-  //   const view = this.getFocusedView()
+  bookmarksAdd(fromView=true) {
+    const view = this.getFocusedView()
 
-  //   if ((view == null)) {
-  //     return
-  //   }
+    if (!view) {
+      return
+    }
 
-  //   const itemView = view.getHighlightedItem()
+    const itemView = view.getHighlightedItem()
 
-  //   if ((itemView == null)) {
-  //     return
-  //   }
+    if (!itemView) {
+      return
+    }
 
-  //   let item = itemView.getItem()
+    let item: VItem | null = itemView.getItem()
 
-  //   if (!itemView.isSelectable()) {
-  //     item = view.directory
-  //   }
+    if (!itemView.isSelectable()) {
+      item = view.directory
+    }
 
-  //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
-  //   const dialog = new AddBookmarkDialog(this.main, item.getBaseName(), item, fromView)
-  //   return dialog.attach()
-  // }
+    this.main.getMainView().hideMenuBar()
 
-  // bookmarksRemove(fromView) {
+    // TODO
+    // const dialog = new AddBookmarkDialog(this.main, item.getBaseName(), item, fromView)
+    // dialog.attach()
+  }
+
+  bookmarksRemove(fromView=true) {
+    // TODO
   //   let view
-  //   if (fromView == null) { fromView = true }
   //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
   //   return view = new BookmarksView(this, false, fromView)
-  // }
+  }
 
-  // bookmarksOpen(fromView) {
+  bookmarksOpen(fromView=true) {
+    // TODO
   //   let view
-  //   if (fromView == null) { fromView = true }
   //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
   //   return view = new BookmarksView(this, true, fromView)
-  // }
+  }
 
-  // serversAdd(fromView) {
-  //   if (fromView == null) { fromView = true }
+  serversAdd(fromView=true) {
+    // TODO
   //   const view = this.getFocusedView()
 
   //   if ((view == null)) {
@@ -443,44 +433,45 @@ export class Actions {
   //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
   //   const dialog = new NewServerDialog(view)
   //   return dialog.attach()
-  // }
+  }
 
-  // serversRemove(fromView) {
+  serversRemove(fromView=true) {
   //   let view
-  //   if (fromView == null) { fromView = true }
   //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
   //   return view = new ServersView(this, "remove", fromView)
-  // }
+  }
 
-  // serversOpen(fromView) {
+  serversOpen(fromView=true) {
+    // TODO
   //   let view
-  //   if (fromView == null) { fromView = true }
   //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
   //   return view = new ServersView(this, "open", fromView)
-  // }
+  }
 
-  // serversClose(fromView) {
+  serversClose(fromView=true) {
+    // TODO
   //   let view
   //   if (fromView == null) { fromView = true }
   //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
   //   return view = new ServersView(this, "close", fromView)
-  // }
+  }
 
-  // serversCache(fromView) {
+  serversCache(fromView=true) {
+    // TODO
   //   let view
   //   if (fromView == null) { fromView = true }
   //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
   //   return view = new ServersView(this, "cache", fromView)
-  // }
+  }
 
-  // serversEdit(fromView) {
+  serversEdit(fromView=true) {
   //   let view
-  //   if (fromView == null) { fromView = true }
   //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
   //   return view = new ServersView(this, "edit", fromView)
-  // }
+  }
 
-  // uploadFile() {
+  uploadFile() {
+    // TODO
   //   const editor = atom.workspace.getActiveTextEditor()
 
   //   if (!(editor instanceof TextEditor)) {
@@ -505,9 +496,10 @@ export class Actions {
   //   if (!atom.config.get("atom-commander.uploadOnSave")) {
   //     return watcher.upload()
   //   }
-  // }
+  }
 
-  // downloadFile() {
+  downloadFile() {
+    // TODO
   //   const editor = atom.workspace.getActiveTextEditor()
 
   //   if (!(editor instanceof TextEditor)) {
@@ -543,9 +535,10 @@ export class Actions {
   //       return atom.notifications.addSuccess("Downloaded "+file.getURI())
   //     }
   //   })
-  // }
+  }
 
-  // compareWithServer() {
+  compareWithServer() {
+    // TODO
   //   const editor = atom.workspace.getActiveTextEditor()
 
   //   if (!(editor instanceof TextEditor)) {
@@ -567,45 +560,54 @@ export class Actions {
   //   const title = "Diff: "+editor.getTitle()+" | server"
   //   const tooltip = watcher.getFile().getPath()
   //   return Utils.compareFiles(title, tooltip, editor.getText(), watcher.getFile())
-  // }
+  }
 
-  // openTerminal() {
-  //   let command
-  //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
-  //   const view = this.getFocusedView()
+  openTerminal() {
+    this.main.getMainView().hideMenuBar()
+    const view = this.getFocusedView()
 
-  //   if ((view == null)) {
-  //     return
-  //   }
+    if (!view) {
+      return
+    }
 
-  //   const {
-  //     directory
-  //   } = view
-  //   let folder = directory.getPath()
+    const { directory } = view
 
-  //   if (directory.isRemote()) {
-  //     folder = view.getLastLocalPath()
-  //   }
+    if (!directory) {
+      return
+    }
 
-  //   if (process.platform === "darwin") {
-  //     command = "open -a Terminal"
-  //     command += " \""+folder+"\""
-  //   } else if (process.platform === "win32") {
-  //     command = "start C:\\Windows\\System32\\cmd.exe"
-  //     command += " \""+folder+"\""
-  //   } else {
-  //     command = "/usr/bin/x-terminal-emulator"
-  //   }
+    let folder: string | null = directory.getPath()
 
-  //   const options = {}
-  //   options.cwd = folder
+    if (directory.isRemote()) {
+      folder = view.getLastLocalPath()
+    }
 
-  //   return ChildProcess.exec(command, options)
-  // }
+    if (!folder) {
+      folder = fsp.getHomeDirectory()
+    }
 
-  // openFileSystem() {
-  //   return this.openNative(true)
-  // }
+    let command
+
+    if (process.platform === "darwin") {
+      command = "open -a Terminal"
+      command += " \""+folder+"\""
+    } else if (process.platform === "win32") {
+      command = "start C:\\Windows\\System32\\cmd.exe"
+      command += " \""+folder+"\""
+    } else {
+      command = "/usr/bin/x-terminal-emulator"
+    }
+
+    const options = {
+      cwd: folder
+    }
+
+    ChildProcess.exec(command, options)
+  }
+
+  openFileSystem() {
+    this.openNative(true)
+  }
 
   openSystem() {
     this.openNative(false)
@@ -655,17 +657,17 @@ export class Actions {
     // }
   }
 
-  // toggleSizeColumn() {
-  //   return __guard__(this.main.getMainView(), x => x.toggleSizeColumn())
-  // }
+  toggleSizeColumn() {
+    this.main.getMainView().toggleSizeColumn()
+  }
 
-  // toggleDateColumn() {
-  //   return __guard__(this.main.getMainView(), x => x.toggleDateColumn())
-  // }
+  toggleDateColumn() {
+    this.main.getMainView().toggleDateColumn()
+  }
 
-  // toggleExtensionColumn() {
-  //   return __guard__(this.main.getMainView(), x => x.toggleExtensionColumn())
-  // }
+  toggleExtensionColumn() {
+    this.main.getMainView().toggleExtensionColumn()
+  }
 
   sortByName() {
     this.main.getMainView().setSortBy('name')
@@ -687,7 +689,3 @@ export class Actions {
     this.main.getMainView().setSortBy(null)
   }
 }
-
-// function __guard__(value, transform) {
-//   return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined
-// }

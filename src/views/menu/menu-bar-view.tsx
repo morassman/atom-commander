@@ -2,20 +2,79 @@ const etch = require('etch')
 
 import { CompositeDisposable } from 'atom';
 import { main } from '../../main'
+import { Div } from '../element-view';
 import { MainView } from '../main-view';
-import { View } from '../view'
+import { Props, View } from '../view'
 import { MenuItem } from './menu-item';
 
-export class MenuBarView extends View {
+type MenuBarRefs = {
+
+  mainView: MainView
+
+  content: Div
+
+}
+
+interface DetailsRow {
+
+  index: number
+
+  description: string
+
+  onClick: () => void
+
+}
+
+export class MenuBarView extends View<Props, MenuBarRefs> {
 
   configDisposable: CompositeDisposable
+  
+  currentMenuItem: MenuItem
+  
+  rootMenuItem: MenuItem
 
   constructor() {
-    super({});
+    super({}, false)
+    this.addClass('atom-commander-menu-bar')
+    this.initialize()
+  }
+
+  renderDetailsRow(row: DetailsRow) {
+    return  <div className='item' onClick={row.onClick}>
+      <div>{`${row.index}`}</div>
+      <div className='description'>{row.description}</div>
+    </div>
+  }
+
+  renderDetailsColumn(title: string, rows: DetailsRow[]) {
+    return <div className='column'>
+      <div className='title'>{title}</div>
+      <div className='body'>
+        {rows.map(row => this.renderDetailsRow(row))}
+      </div>
+    </div>
   }
 
   render() {
-    throw new Error('Method not implemented.');
+    return <div {...this.getProps()}>
+      <Div ref='content' className='buttons'/>
+      <div className='extra-buttons'>
+        <button className='btn btn-sm inline-block icon-gear' attributes={{tabindex: -1}} onClick={() => this.settingsPressed()}/>
+      </div>
+      <Div ref='details'>
+        <div className='details'>
+          {this.renderDetailsColumn('1 Select', [
+            { index: 1, description: 'All', onClick: () => this.selectAll()},
+            { index: 2, description: 'None', onClick: () => this.selectNone()},
+            { index: 3, description: 'Add to selection...', onClick: () => this.selectAdd()},
+            { index: 4, description: 'Remove from selection...', onClick: () => this.selectRemove()},
+            { index: 5, description: 'Invert selection', onClick: () => this.selectInvert()},
+            { index: 6, description: 'Folders', onClick: () => this.selectFolders()},
+            { index: 7, description: 'Files', onClick: () => this.selectFiles()}
+          ])}
+        </div>
+      </Div>
+    </div>
   }
 
   // static content() {
@@ -194,34 +253,33 @@ export class MenuBarView extends View {
   selectFolders() { return main.actions.selectFolders(); }
   selectFiles() { return main.actions.selectFiles(); }
 
-  // TODO
-  // goProject() { return main.actions.goProject(); }
-  // goEditor() { return main.actions.goEditor(); }
-  // goDrive() { return main.actions.goDrive(); }
-  // goRoot() { return main.actions.goRoot(); }
-  // goHome() { return main.actions.goHome(); }
+  goProject() { return main.actions.goProject(); }
+  goEditor() { return main.actions.goEditor(); }
+  goDrive() { return main.actions.goDrive(); }
+  goRoot() { return main.actions.goRoot(); }
+  goHome() { return main.actions.goHome(); }
 
-  // bookmarksAdd() { return main.actions.bookmarksAdd(); }
-  // bookmarksRemove() { return main.actions.bookmarksRemove(); }
-  // bookmarksOpen() { return main.actions.bookmarksOpen(); }
+  bookmarksAdd() { return main.actions.bookmarksAdd(); }
+  bookmarksRemove() { return main.actions.bookmarksRemove(); }
+  bookmarksOpen() { return main.actions.bookmarksOpen(); }
 
-  // serversAdd() { return main.actions.serversAdd(); }
-  // serversRemove() { return main.actions.serversRemove(); }
-  // serversOpen() { return main.actions.serversOpen(); }
-  // serversClose() { return main.actions.serversClose(); }
-  // serversEdit() { return main.actions.serversEdit(); }
-  // serversCache() { return main.actions.serversCache(); }
+  serversAdd() { return main.actions.serversAdd(); }
+  serversRemove() { return main.actions.serversRemove(); }
+  serversOpen() { return main.actions.serversOpen(); }
+  serversClose() { return main.actions.serversClose(); }
+  serversEdit() { return main.actions.serversEdit(); }
+  serversCache() { return main.actions.serversCache(); }
 
-  // openTerminal() { return main.actions.openTerminal(); }
-  // openFileManager() { return main.actions.openFileSystem(); }
-  // openSystem() { return main.actions.openSystem(); }
+  openTerminal() { return main.actions.openTerminal(); }
+  openFileManager() { return main.actions.openFileSystem(); }
+  openSystem() { return main.actions.openSystem(); }
 
-  // viewRefresh() { return main.actions.viewRefresh(); }
-  // viewMirror() { return main.actions.viewMirror(); }
-  // viewSwap() { return main.actions.viewSwap(); }
+  viewRefresh() { return main.actions.viewRefresh(); }
+  viewMirror() { return main.actions.viewMirror(); }
+  viewSwap() { return main.actions.viewSwap(); }
 
-  // compareFolders() { return main.actions.compareFolders(); }
-  // compareFiles() { return main.actions.compareFiles(); }
+  compareFolders() { return main.actions.compareFolders(); }
+  compareFiles() { return main.actions.compareFiles(); }
 
   // setMainView(mainView: MainView) {
   //   this.mainView = mainView;
@@ -251,30 +309,30 @@ export class MenuBarView extends View {
   //   });
   // }
 
-  // settingsPressed() {
-  //   this.mainView.hideMenuBar();
-  //   return atom.workspace.open('atom://config/packages/atom-commander');
-  // }
+  settingsPressed() {
+    this.refs.mainView.hideMenuBar();
+    atom.workspace.open('atom://config/packages/atom-commander');
+  }
 
-  // buttonClicked(title: string) {
-  //   if (title === "") {
-  //     return this.showParentMenuItem();
-  //   } else {
-  //     return this.handleMenuItem(this.currentMenuItem.getMenuItemWithTitle(title));
-  //   }
-  // }
+  buttonClicked(title: string) {
+    if (title === "") {
+      this.showParentMenuItem();
+    } else if (this.currentMenuItem) {
+      this.handleMenuItem(this.currentMenuItem.getMenuItemWithTitle(title));
+    }
+  }
 
-  // showParentMenuItem() {
-  //   if (this.currentMenuItem.parent === null) {
-  //     return this.mainView.hideMenuBar();
-  //   } else {
-  //     return this.handleMenuItem(this.currentMenuItem.parent);
-  //   }
-  // }
+  showParentMenuItem() {
+    if (this.currentMenuItem.parent === null) {
+      return this.refs.mainView.hideMenuBar();
+    } else {
+      return this.handleMenuItem(this.currentMenuItem.parent);
+    }
+  }
 
-  // reset() {
-  //   return this.showMenuItem(this.rootMenuItem);
-  // }
+  reset() {
+    return this.showMenuItem(this.rootMenuItem);
+  }
 
   // createRootMenuItem() {
   //   const {
@@ -336,58 +394,59 @@ export class MenuBarView extends View {
   //   return root;
   // }
 
-  // showMenuItem(currentMenuItem) {
-  //   this.currentMenuItem = currentMenuItem;
-  //   this.content.empty();
+  showMenuItem(currentMenuItem: MenuItem) {
+    this.currentMenuItem = currentMenuItem;
+    // TODO
+    // this.content.empty();
 
-  //   this.content.append($$(function() {
-  //     return this.button({class: 'btn icon-arrow-up inline-block'});}));
+    // this.content.append($$(function() {
+    //   return this.button({class: 'btn icon-arrow-up inline-block'});}));
 
-  //   return (() => {
-  //     const result = [];
-  //     for (let id of Array.from(this.currentMenuItem.ids)) {
-  //       var subMenuItem = this.currentMenuItem.getMenuItem(id);
+    // return (() => {
+    //   const result = [];
+    //   for (let id of Array.from(this.currentMenuItem.ids)) {
+    //     var subMenuItem = this.currentMenuItem.getMenuItem(id);
 
-  //       result.push(this.content.append($$(function() {
-  //         return this.button(subMenuItem.title, {class: 'btn btn-primary inline-block'});})));
-  //     }
-  //     return result;
-  //   })();
-  // }
+    //     result.push(this.content.append($$(function() {
+    //       return this.button(subMenuItem.title, {class: 'btn btn-primary inline-block'});})));
+    //   }
+    //   return result;
+    // })();
+  }
 
-  // handleKeyDown(event) {
-  //   const charCode = event.which | event.keyCode;
+  handleKeyDown(event: KeyboardEvent) {
+    const charCode = event.which | event.keyCode;
 
-  //   if (event.shiftKey || (charCode === 27)) {
-  //     return this.showParentMenuItem();
-  //   }
-  // }
+    if (event.shiftKey || (charCode === 27)) {
+      this.showParentMenuItem();
+    }
+  }
 
-  // handleKeyUp(event) {
-  //   let charCode = event.which | event.keyCode;
+  handleKeyUp(event: KeyboardEvent) {
+    let charCode = event.which | event.keyCode;
 
-  //   // Not sure if this the right way, but on OSX it allows the keypad to be used.
-  //   if (charCode >= 96) {
-  //     charCode -= 48;
-  //   }
+    // Not sure if this the right way, but on OSX it allows the keypad to be used.
+    if (charCode >= 96) {
+      charCode -= 48;
+    }
 
-  //   const sCode = String.fromCharCode(charCode);
+    const sCode = String.fromCharCode(charCode);
 
-  //   if (sCode === "0") {
-  //     return this.showParentMenuItem();
-  //   } else {
-  //     const subMenuItem = this.currentMenuItem.getMenuItem(sCode);
-  //     return this.handleMenuItem(subMenuItem);
-  //   }
-  // }
+    if (sCode === "0") {
+      this.showParentMenuItem();
+    } else {
+      const subMenuItem = this.currentMenuItem.getMenuItem(sCode);
+      this.handleMenuItem(subMenuItem);
+    }
+  }
 
-  // handleMenuItem(menuItem) {
-  //   if (menuItem) {
-  //     if (menuItem.callback) {
-  //       return menuItem.callback();
-  //     } else {
-  //       return this.showMenuItem(menuItem);
-  //     }
-  //   }
-  // }
+  handleMenuItem(menuItem: MenuItem | null) {
+    if (menuItem) {
+      if (menuItem.callback) {
+        menuItem.callback();
+      } else {
+        this.showMenuItem(menuItem);
+      }
+    }
+  }
 }
