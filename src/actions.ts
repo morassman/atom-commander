@@ -3,7 +3,7 @@ import { Bookmark } from './bookmark-manager'
 import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
-import { showSelectModal } from './views/modals'
+import { showAddBookmarkModal, showOpenBookmarkModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
 
 // const Utils = require('./utils')
 // const FileController = require('./controllers/file-controller')
@@ -406,23 +406,19 @@ export class Actions {
 
     this.main.getMainView().hideMenuBar()
 
-    // TODO
-    // const dialog = new AddBookmarkDialog(this.main, item.getBaseName(), item, fromView)
-    // dialog.attach()
+    if (item) {
+      showAddBookmarkModal(item, fromView)
+    }
   }
 
   bookmarksRemove(fromView=true) {
-    // TODO
-  //   let view
-  //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
-  //   return view = new BookmarksView(this, false, fromView)
+    this.main.getMainView().hideMenuBar()
+    showRemoveBookmarkModal(fromView)
   }
 
   bookmarksOpen(fromView=true) {
-    // TODO
-  //   let view
-  //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
-  //   return view = new BookmarksView(this, true, fromView)
+    this.main.getMainView().hideMenuBar()
+    showOpenBookmarkModal(fromView)
   }
 
   serversAdd(fromView=true) {
