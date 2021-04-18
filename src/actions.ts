@@ -3,7 +3,7 @@ import { Bookmark } from './bookmark-manager'
 import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
-import { MainView } from './views/main-view'
+import { showSelectDialog } from './views/dialogs'
 
 // const Utils = require('./utils')
 // const FileController = require('./controllers/file-controller')
@@ -26,6 +26,10 @@ export class Actions {
   
   constructor(public readonly main: Main) {
     this.main = main
+  }
+
+  hideMenuBar() {
+    this.main.getMainView().hideMenuBar()
   }
 
   getFocusedView(): ContainerView | null {
@@ -57,22 +61,21 @@ export class Actions {
   }
 
   selectAdd() {
-    return this.selectAddRemove(true)
+    this.selectAddRemove(true)
   }
 
   selectRemove() {
-    return this.selectAddRemove(false)
+    this.selectAddRemove(false)
   }
 
   selectAddRemove(add: boolean) {
-    // TODO
-    // const view = this.getFocusedView()
+    this.hideMenuBar()
+    const view = this.getFocusedView()
 
-    // if (view != null) {
-    //   view.requestFocus()
-    //   const dialog = new SelectDialog(this, view, add)
-    //   return dialog.attach()
-    // }
+    if (view) {
+      view.requestFocus()
+      showSelectDialog(view, add)
+    }
   }
 
   selectInvert() {
@@ -193,7 +196,7 @@ export class Actions {
       }
 
       this.main.show(true)
-      // view.requestFocus()
+      view.requestFocus()
       view.openDirectory(file.getParent(), snapShot, () => {
         if (open) {
           file.open()
@@ -208,7 +211,7 @@ export class Actions {
 
     if (view) {
       this.main.show(true)
-      // view.requestFocus()
+      view.requestFocus()
       view.openDirectory(directory)
     }
   }

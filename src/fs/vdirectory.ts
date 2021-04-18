@@ -1,5 +1,5 @@
 import { Disposable } from 'atom';
-import { VFile, VFileSystem, VItem } from './'
+import { NewFileCallback, VFile, VFileSystem, VItem } from './'
 
 export abstract class VDirectory extends VItem {
 
@@ -34,7 +34,7 @@ export abstract class VDirectory extends VItem {
 
   // The callback receives one parameter :
   // 1.) file : The file that was created. null if it could not be created.
-  newFile(name: string, callback: (file: VFile | null) => void) {
+  newFile(name: string, callback: NewFileCallback) {
     const pathUtil = this.fileSystem.getPathUtil();
     this.fileSystem.newFile(pathUtil.join(this.getPath(), name), callback);
   }

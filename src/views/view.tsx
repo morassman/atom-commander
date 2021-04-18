@@ -288,7 +288,7 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
   }
 
   remove() {
-    if (this.element) {
+    if (this.element && this.element.parentElement) {
       this.element.remove()
     }
   }

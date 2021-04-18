@@ -507,15 +507,30 @@
 }
 
 .atom-commander-input-dialog {
-  .bottom-button-panel {
-    text-align: right;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
 
-    button {
-      margin-left: 10px;
-    }
+  &-label {
+    // font-size: small;
+    // color: @text-color-subtle;
+    padding-bottom: 1em;
   }
 
+  input {
+
+  }
+
+  &-warning {
+    color: @text-color-warning;
+    min-height: 1.5em;
+  }
+
+  &-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    padding: 0.25em;
+  }
 }
 
 .atom-commander-sync {

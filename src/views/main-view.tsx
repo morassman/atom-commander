@@ -21,6 +21,7 @@ import { Server } from '../servers/server'
 import { VFileSystem } from '../fs'
 import { MenuBarView } from './menu/menu-bar-view'
 import { Div } from './element-view'
+import { showNewDirectoryDialog, showNewFileDialog, showRenameDialog } from './dialogs'
 
 export const ATOM_COMMANDER_URI = 'atom://atom-commander'
 
@@ -120,18 +121,8 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
     this.initialize()
 
-    // this.refs.menuBar.setMainView(this)
-    // this.leftTabbedView.setMainView(this)
-    // this.rightTabbedView.setMainView(this)
-
     this.refs.leftTabbedView.deserialize(state.version, state.leftPath || null, state.left)
     this.refs.rightTabbedView.deserialize(state.version, state.rightPath || null, state.right)
-
-    // this.customHeight = state.height
-
-    // if (!atom.config.get('atom-commander.panel.showInDock')) {
-    //   this.setHeight(state.height)
-    // }
 
     this.focusedView = this.getLeftView()
   }
@@ -305,38 +296,6 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     this.refs.f10Button.setAvailable(true)
   }
 
-  // resizeStarted() {
-  //   $(document).on('mousemove', this.resizeView)
-  //   return $(document).on('mouseup', this.resizeStopped)
-  // }
-
-  // resizeStopped() {
-  //   $(document).off('mousemove', this.resizeView)
-  //   return $(document).off('mouseup', this.resizeStopped)
-  // }
-
-  // resizeView({pageY, which}?) {
-  //   if (which !== 1) { return this.resizeStopped() }
-
-  //   const change = this.offset().top - pageY
-  //   return this.setHeight(this.outerHeight() + change)
-  // }
-
-  // setHeight(customHeight?) {
-  //   this.customHeight = customHeight
-  //   if ((this.customHeight == null)) {
-  //     this.customHeight = 200
-  //   } else if (this.customHeight < 50) {
-  //     this.customHeight = 50
-  //   }
-
-  //   return this.height(this.customHeight)
-  // }
-
-  // getMain() {
-  //   return this.main
-  // }
-
   getLeftView() {
     return this.refs.leftTabbedView.getSelectedView()
   }
@@ -379,7 +338,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   focusView(focusedView: ContainerView | null) {
-    if (!focusedView) {
+    if (!focusedView || (this.focusedView === focusedView)) {
       return
     }
 
@@ -396,25 +355,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     }
 
     this.applyVisibility()
-
-    setTimeout(() => {
-      if (this.focusedView) {
-      this.focusedView.focus()
-      }
-    }, 1)
   }
-
-  // showInDockChanged(height) {}
-  //   // TODO : Call this when toggling docked mode without recreating main view.
-
-  //   // if atom.config.get('atom-commander.panel.showInDock')
-  //   //   @height('100%')
-  //   //   @resizeHandle.hide()
-  //   //   @applyVisibility()
-  //   // else
-  //   //   @height(height)
-  //   //   @resizeHandle.show()
-  //   //   @setHorizontal(true)
 
   applyVisibility() {
     const onlyOne = atom.config.get('atom-commander.panel.onlyOneWhenVertical')
@@ -436,6 +377,12 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
   focusOtherView() {
     this.focusView(this.getOtherView(this.focusedView))
+
+    setTimeout(() => {
+      if (this.focusedView) {
+        this.focusedView.focus()
+      }
+    }, 1)
   }
 
   addRemoveProjectButton() {
@@ -471,37 +418,27 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   renameButton() {
-    // TODO
-    // let dialog
-    // if (this.focusedView === null) {
-    //   return
-    // }
+    if (!this.focusedView) {
+      return
+    }
 
-    // const itemView = this.focusedView.getHighlightedItem()
+    const itemView = this.focusedView.getHighlightedItem()
 
-    // if ((itemView === null) || !itemView.canRename()) {
-    //   return
-    // }
-
-    // if (itemView.itemController instanceof FileController) {
-    //   dialog = new RenameDialog(this.focusedView, itemView.itemController.getFile())
-    //   return dialog.attach()
-    // } else if (itemView.itemController instanceof DirectoryController) {
-    //   dialog = new RenameDialog(this.focusedView, itemView.itemController.getDirectory())
-    //   return dialog.attach()
-    // }
+    if (itemView && itemView.canRename()) {
+      showRenameDialog(this.focusedView, itemView.getItem())
+    }
   }
 
   newFileButton() {
-    // TODO
-    // const directory = this.getFocusedViewDirectory()
+    if (!this.focusedView) {
+      return
+    }
 
-    // if (directory === null) {
-    //   return
-    // }
+    const directory = this.getFocusedViewDirectory()
 
-    // const dialog = new NewFileDialog(this.focusedView, directory, this.focusedView.getNames())
-    // return dialog.attach()
+    if (directory) {
+      showNewFileDialog(this.focusedView, directory, this.focusedView.getNames())
+    }
   }
 
   copyDuplicateButton() {
@@ -699,15 +636,15 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   newDirectoryButton() {
-    // TODO
-    // const directory = this.getFocusedViewDirectory()
+    if (!this.focusedView) {
+      return
+    }
 
-    // if (directory === null) {
-    //   return
-    // }
+    const directory = this.getFocusedViewDirectory()
 
-    // const dialog = new NewDirectoryDialog(this.focusedView, directory)
-    // return dialog.attach()
+    if (directory) {
+      showNewDirectoryDialog(this.focusedView, directory)
+    }
   }
 
   focusButton() {
