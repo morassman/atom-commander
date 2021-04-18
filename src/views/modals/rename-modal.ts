@@ -1,14 +1,14 @@
-import { InputDialog } from './input-dialog'
+import { InputModal } from './input-modal'
 import { ContainerView } from '../container-view'
 import { VItem } from '../../fs'
 
-export function showRenameDialog(containerView: ContainerView, item: VItem) {
+export function showRenameModal(containerView: ContainerView, item: VItem) {
   const itemName = item.getBaseName()
   const oldPath = item.getRealPathSync()
   const directoryPath = item.getParent().getRealPathSync()
   const pathUtil = item.getFileSystem().getPathUtil()
 
-  const dialog = new InputDialog({
+  const modal = new InputModal({
     label: 'Enter a new name:',
     callback: (text: string | null) => callback(text, containerView, item, pathUtil, oldPath, directoryPath),
     validator: (text: string) => validate(text, containerView, pathUtil, itemName),
@@ -16,7 +16,7 @@ export function showRenameDialog(containerView: ContainerView, item: VItem) {
     value: itemName
   })
 
-  dialog.show()
+  modal.show()
 }
 
 function validate(name: string, containerView: ContainerView, pathUtil: any, itemName: string): string | null {

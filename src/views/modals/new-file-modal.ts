@@ -1,17 +1,17 @@
-import { InputDialog } from './input-dialog'
+import { InputModal } from './input-modal'
 import Utils from '../../utils'
 import { ContainerView } from '../container-view';
 import { VDirectory, VFile } from '../../fs';
 
-export function showNewFileDialog(containerView: ContainerView, directory: VDirectory, existingNames: string[]) {
-  const dialog = new InputDialog({
+export function showNewFileModal(containerView: ContainerView, directory: VDirectory, existingNames: string[]) {
+  const modal = new InputModal({
     label: 'Enter a name for the new file:',
     callback: (text: string | null) => callback(text, containerView, directory),
     validator: (text: string) => validate(text, existingNames),
     hideButtons: true
   })
     
-  dialog.show()
+  modal.show()
 }
 
 function validate(name: string, existingNames: string[]): string | null {

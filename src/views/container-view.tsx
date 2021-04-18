@@ -1109,11 +1109,17 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     return this.mainView.isExtensionColumnVisible()
   }
 
-  abstract setSizeColumnVisible(visible: boolean): void
+  setSizeColumnVisible(visible: boolean) {
+    this.itemViews.forEach(itemView => itemView.setSizeColumnVisible(visible))
+  }
 
-  abstract setDateColumnVisible(visible: boolean): void
+  setDateColumnVisible(visible: boolean) {
+    this.itemViews.forEach(itemView => itemView.setDateColumnVisible(visible))
+  }
 
-  abstract setExtensionColumnVisible(visible: boolean): void
+  setExtensionColumnVisible(visible: boolean) {
+    this.itemViews.forEach(itemView => itemView.setExtensionColumnVisible(visible))
+  }
 
   setSortBy(sortBy: string | null) {
     if (this.sortBy === sortBy) {

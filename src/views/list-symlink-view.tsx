@@ -14,9 +14,9 @@ export class ListSymLinkView extends ListItemView<SymLinkController> {
   }
 
   refresh() {
-    let targetItem
     super.refresh()
 
+    let targetItem
     const targetController = this.itemController.getTargetController()
 
     if (targetController != null) {

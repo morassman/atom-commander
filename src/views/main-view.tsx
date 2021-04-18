@@ -21,7 +21,7 @@ import { Server } from '../servers/server'
 import { VFileSystem } from '../fs'
 import { MenuBarView } from './menu/menu-bar-view'
 import { Div } from './element-view'
-import { showNewDirectoryDialog, showNewFileDialog, showRenameDialog } from './dialogs'
+import { showNewDirectoryModal, showNewFileModal, showRenameModal } from './modals'
 
 export const ATOM_COMMANDER_URI = 'atom://atom-commander'
 
@@ -425,7 +425,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     const itemView = this.focusedView.getHighlightedItem()
 
     if (itemView && itemView.canRename()) {
-      showRenameDialog(this.focusedView, itemView.getItem())
+      showRenameModal(this.focusedView, itemView.getItem())
     }
   }
 
@@ -437,7 +437,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     const directory = this.getFocusedViewDirectory()
 
     if (directory) {
-      showNewFileDialog(this.focusedView, directory, this.focusedView.getNames())
+      showNewFileModal(this.focusedView, directory, this.focusedView.getNames())
     }
   }
 
@@ -643,7 +643,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     const directory = this.getFocusedViewDirectory()
 
     if (directory) {
-      showNewDirectoryDialog(this.focusedView, directory)
+      showNewDirectoryModal(this.focusedView, directory)
     }
   }
 

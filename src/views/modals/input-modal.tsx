@@ -7,7 +7,7 @@ import { CompositeDisposable, Panel } from 'atom'
 type Callback = (text: string | null) => void
 type Validator = (text: string) => string | null
 
-type InputDialogProps = Props & {
+type InputModalProps = Props & {
 
   label: string
 
@@ -23,7 +23,7 @@ type InputDialogProps = Props & {
 
 }
 
-type InputDialogRefs = {
+type InputModalRefs = {
 
   editor: TextEditor
 
@@ -35,7 +35,7 @@ type InputDialogRefs = {
 
 }
 
-export class InputDialog extends View<InputDialogProps, InputDialogRefs> {
+export class InputModal extends View<InputModalProps, InputModalRefs> {
   
   disposables: CompositeDisposable | null
   
@@ -47,7 +47,7 @@ export class InputDialog extends View<InputDialogProps, InputDialogRefs> {
 
   editorElement: HTMLElement
 
-  constructor(props: InputDialogProps) {
+  constructor(props: InputModalProps) {
     super(props)
   }
 
@@ -58,11 +58,11 @@ export class InputDialog extends View<InputDialogProps, InputDialogRefs> {
       editorClassName += ' atom-commander-password'
     }
 
-    return <div className='atom-commander-input-dialog'>
-      <div className='atom-commander-input-dialog-label'>{this.props.label}</div>
+    return <div className='atom-commander-input-modal'>
+      <div className='atom-commander-input-modal-label'>{this.props.label}</div>
       <TextEditor ref='editor' mini={true}/>
-      <div ref='warning' className='atom-commander-input-dialog-warning'/>
-      <div ref='footer' className="atom-commander-input-dialog-footer">
+      <div ref='warning' className='atom-commander-input-modal-warning'/>
+      <div ref='footer' className="atom-commander-input-modal-footer">
         <div />
         <button className="btn" onClick={() => this.cancel(true)}>Cancel</button>
         <button ref='okButton' className="btn btn-primary" onClick={() => this.confirm()}>OK</button>

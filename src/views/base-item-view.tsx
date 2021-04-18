@@ -57,6 +57,10 @@ export abstract class BaseItemView<C extends ItemController<VItem> = ItemControl
 
   abstract setSizeColumnVisible(visible: boolean): void
 
+  abstract setDateColumnVisible(visible: boolean): void
+
+  abstract setExtensionColumnVisible(visible: boolean): void
+
   canRename(): boolean {
     return this.itemController.canRename()
   }

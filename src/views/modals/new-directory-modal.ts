@@ -1,17 +1,17 @@
-import { InputDialog } from './input-dialog'
+import { InputModal } from './input-modal'
 import { ContainerView } from '../container-view'
 import { VDirectory } from '../../fs'
 import * as fsp from 'fs-plus'
 
-export function showNewDirectoryDialog(containerView: ContainerView, directory: VDirectory) {
-  const dialog = new InputDialog({
+export function showNewDirectoryModal(containerView: ContainerView, directory: VDirectory) {
+  const modal = new InputModal({
     label: 'Enter a name for the new folder:',
     callback: (text: string | null) => callback(text, containerView, directory),
     validator: (text: string) => validate(text, directory),
     hideButtons: true
   })
 
-  dialog.show()
+  modal.show()
 }
 
 function validate(name: string, directory: VDirectory): string | null {

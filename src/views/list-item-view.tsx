@@ -61,31 +61,15 @@ export abstract class ListItemView<C extends ItemController<VItem>> extends Base
   }
 
   setSizeColumnVisible(visible: boolean) {
-    // TODO
-    // if (visible) {
-    //   return $(this.size).show()
-    // } else {
-    //   return $(this.size).hide()
-    // }
+    this.refs.size.style.display = visible ? 'table-cell' : 'none'
   }
 
   setDateColumnVisible(visible: boolean) {
-    // TODO
-    // if (visible) {
-    //   return $(this.date).show()
-    // } else {
-    //   return $(this.date).hide()
-    // }
+    this.refs.date.style.display = visible ? 'table-cell' : 'none'
   }
 
   setExtensionColumnVisible(visible: boolean) {
-    // TODO
-    // if (visible) {
-    //   $(this.extension).show()
-    // } else {
-    //   $(this.extension).hide()
-    // }
-
+    this.refs.extension.style.display = visible ? 'table-cell' : 'none'
     this.refresh()
   }
 

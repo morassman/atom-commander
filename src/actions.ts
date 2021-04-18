@@ -3,7 +3,7 @@ import { Bookmark } from './bookmark-manager'
 import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
-import { showSelectDialog } from './views/dialogs'
+import { showSelectModal } from './views/modals'
 
 // const Utils = require('./utils')
 // const FileController = require('./controllers/file-controller')
@@ -74,7 +74,7 @@ export class Actions {
 
     if (view) {
       view.requestFocus()
-      showSelectDialog(view, add)
+      showSelectModal(view, add)
     }
   }
 

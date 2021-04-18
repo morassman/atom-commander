@@ -1,11 +1,11 @@
 import { ContainerView } from '../container-view'
-import { InputDialog } from './input-dialog'
+import { InputModal } from './input-modal'
 
-export function showSelectDialog(containerView: ContainerView, add: boolean) {
+export function showSelectModal(containerView: ContainerView, add: boolean) {
   const label = add ? 'Select items that matches the pattern:' : 'Deselect items that matches the pattern:'
   const validator = (text: string) => text.length === 0 ? 'The pattern may not be empty.' : null
 
-  const dialog = new InputDialog({
+  const modal = new InputModal({
     label,
     callback: (text: string | null) => callback(text, containerView, add),
     validator,
@@ -13,7 +13,7 @@ export function showSelectDialog(containerView: ContainerView, add: boolean) {
     hideButtons: true
   })
     
-  dialog.show()
+  modal.show()
 }
 
 function callback(pattern: string | null, containerView: ContainerView, add: boolean) {

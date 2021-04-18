@@ -224,32 +224,23 @@ export class ListView extends ContainerView {
   }
 
   setExtensionColumnVisible(visible: boolean) {
-    // TODO
-    // if (visible) {
-    //   this.body.refs.table.find('tr :nth-child(2)').show()
-    // } else {
-    //   this.body.refs.table.find('tr :nth-child(2)').hide()
-    // }
-
-    this.refreshItemViews()
+    super.setExtensionColumnVisible(visible)
+    this.setHeaderVisible(this.body.refs.extensionHeader, visible)
+    // this.refreshItemViews()
   }
 
   setSizeColumnVisible(visible: boolean) {
-    // TODO
-    // if (visible) {
-    //   return this.body.refs.table.find('tr :nth-child(3)').show()
-    // } else {
-    //   return this.body.refs.table.find('tr :nth-child(3)').hide()
-    // }
+    super.setSizeColumnVisible(visible)
+    this.setHeaderVisible(this.body.refs.sizeHeader, visible)
   }
 
   setDateColumnVisible(visible: boolean) {
-    // TODO
-    // if (visible) {
-    //   return this.body.refs.table.find('tr :nth-child(4)').show()
-    // } else {
-    //   return this.body.refs.table.find('tr :nth-child(4)').hide()
-    // }
+    super.setDateColumnVisible(visible)
+    this.setHeaderVisible(this.body.refs.dateHeader, visible)
+  }
+
+  setHeaderVisible(header: HTMLElement, visible: boolean) {
+    header.style.display = visible ? 'table-cell' : 'none'
   }
 
   refreshSortIcons(sortBy: string, ascending: boolean) {
