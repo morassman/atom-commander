@@ -1,5 +1,6 @@
 import { posix as PathUtil } from 'path'
 import { VFile } from '../'
+import { SFTPDirectory } from './sftp-directory'
 import { SFTPFileSystem } from './sftp-filesystem'
 
 export class SFTPFile extends VFile {
@@ -12,6 +13,10 @@ export class SFTPFile extends VFile {
     super(fileSystem)
     this.writable = true
     this.baseName = baseName || PathUtil.basename(this.path)
+  }
+
+  getFileSystem(): SFTPFileSystem {
+    return this.fileSystem as SFTPFileSystem
   }
 
   isFile() {
@@ -34,8 +39,8 @@ export class SFTPFile extends VFile {
     return this.baseName
   }
 
-  getParent() {
-    return this.fileSystem.getDirectory(PathUtil.dirname(this.path))
+  getParent(): SFTPDirectory | null {
+    return this.getFileSystem().getDirectory(PathUtil.dirname(this.path))
   }
 
   isWritable() {

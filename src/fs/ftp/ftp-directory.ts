@@ -31,7 +31,7 @@ export class FTPDirectory extends VDirectory {
     return this.baseName
   }
 
-  getParent() {
+  getParent(): FTPDirectory | null {
     return new FTPDirectory(this.getFileSystem(), false, PathUtil.dirname(this.path))
   }
 

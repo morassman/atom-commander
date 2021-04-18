@@ -1,7 +1,7 @@
 import { InputModal } from './input-modal'
 import Utils from '../../utils'
-import { ContainerView } from '../container-view';
-import { VDirectory, VFile } from '../../fs';
+import { ContainerView } from '../container-view'
+import { VDirectory, VFile } from '../../fs'
 
 export function showNewFileModal(containerView: ContainerView, directory: VDirectory, existingNames: string[]) {
   const modal = new InputModal({
@@ -16,14 +16,14 @@ export function showNewFileModal(containerView: ContainerView, directory: VDirec
 
 function validate(name: string, existingNames: string[]): string | null {
   if (name.length === 0) {
-    return 'The file name may not be empty.';
+    return 'The file name may not be empty.'
   }
 
   if (existingNames.indexOf(name) >= 0) {
-    return 'A file or folder with this name already exists.';
+    return 'A file or folder with this name already exists.'
   }
 
-  return null;
+  return null
 }
 
 function callback(name: string | null, containerView: ContainerView, directory: VDirectory) {
@@ -33,11 +33,11 @@ function callback(name: string | null, containerView: ContainerView, directory: 
 
   directory.newFile(name, (file: VFile | null, err: any) => {
     if (file) {
-      containerView.refreshDirectory();
-      containerView.highlightIndexWithName(file.getBaseName());
-      file.open();
+      containerView.refreshDirectory()
+      containerView.highlightIndexWithName(file.getBaseName())
+      file.open()
     } else {
-      Utils.showErrorWarning("Unable to create file "+name, null, null, err, true);
+      Utils.showErrorWarning('Unable to create file '+name, null, null, err, true)
     }
   })
 }

@@ -1,5 +1,6 @@
 import { posix as PathUtil } from 'path'
 import { VFile } from '../'
+import { FTPDirectory } from './ftp-directory'
 import { FTPFileSystem } from './ftp-filesystem'
 
 export class FTPFile extends VFile {
@@ -12,6 +13,10 @@ export class FTPFile extends VFile {
     super(fileSystem)
     this.writable = true
     this.baseName = baseName || PathUtil.basename(this.path)
+  }
+
+  getFileSystem(): FTPFileSystem {
+    return this.fileSystem as FTPFileSystem
   }
 
   isFile() {
@@ -34,8 +39,8 @@ export class FTPFile extends VFile {
     return this.baseName
   }
 
-  getParent() {
-    return this.fileSystem.getDirectory(PathUtil.dirname(this.path))
+  getParent(): FTPDirectory | null {
+    return this.getFileSystem().getDirectory(PathUtil.dirname(this.path))
   }
 
   isWritable() {

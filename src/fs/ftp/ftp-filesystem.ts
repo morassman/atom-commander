@@ -1,17 +1,16 @@
 const fs = require('fs')
 const FTPClient = require('ftp')
 const PathUtil = require('path').posix
-const VFileSystem = require('../vfilesystem')
-const FTPFile = require('./ftp-file')
-const FTPDirectory = require('./ftp-directory')
-const Utils = require('../../utils')
 
 import { EntriesCallback, VFile, VItem } from '..'
 import { Server } from '../../servers/server'
 import { PathDescription } from '../path-description'
 import { VDirectory } from '../vdirectory'
 import { FTPConfig } from './ftp-config'
+import { FTPDirectory } from './ftp-directory'
 import { RemoteFileSystem } from './remote-filesystem'
+import Utils from '../../utils'
+import { FTPFile } from './ftp-file'
 
 export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
 
@@ -149,7 +148,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return new FTPFile(this, false, path)
   }
 
-  getDirectory(path: string) {
+  getDirectory(path: string): FTPDirectory {
     return new FTPDirectory(this, false, path)
   }
 

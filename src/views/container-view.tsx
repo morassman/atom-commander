@@ -706,11 +706,15 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
 
   openParentDirectory() {
     if (this.directory && !this.directory.isRoot()) {
-      const snapShot: Snapshot = {
-        name: this.directory.getBaseName()
-      }
+      const parent = this.directory.getParent()
 
-      this.openDirectory(this.directory.getParent(), snapShot)
+      if (parent) {
+        const snapShot: Snapshot = {
+          name: this.directory.getBaseName()
+        }
+
+        this.openDirectory(parent, snapShot)
+      }
     }
   }
 
@@ -789,9 +793,13 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     this.refs.directoryEditor.value = this.directory.getURI()
 
     if (!this.directory.isRoot()) {
-      const itemView = this.createParentView(0, new DirectoryController(this.directory.getParent()))
-      this.itemViews.push(itemView)
-      this.addItemView(itemView)
+      const parent = this.directory.getParent()
+
+      if (parent) {
+        const itemView = this.createParentView(0, new DirectoryController(parent))
+        this.itemViews.push(itemView)
+        this.addItemView(itemView)
+      }
     }
   }
 

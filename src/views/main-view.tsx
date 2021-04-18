@@ -21,7 +21,7 @@ import { Server } from '../servers/server'
 import { VFileSystem } from '../fs'
 import { MenuBarView } from './menu/menu-bar-view'
 import { Div } from './element-view'
-import { showNewDirectoryModal, showNewFileModal, showRenameModal } from './modals'
+import { showDuplicateItemModal, showNewDirectoryModal, showNewFileModal, showRenameModal } from './modals'
 
 export const ATOM_COMMANDER_URI = 'atom://atom-commander'
 
@@ -549,32 +549,32 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   duplicateButton() {
-    // TODO
-    // if (this.focusedView === null) {
-    //   return
-    // }
+    if (!this.focusedView) {
+      return
+    }
 
-    // const {
-    //   fileSystem
-    // } = this.focusedView.directory
+    const fileSystem = this.focusedView.getFileSystem()
 
-    // if (fileSystem.isRemote()) {
-    //   atom.notifications.addWarning('Duplicate on remote file systems is not yet supported.')
-    //   return
-    // }
+    if (!fileSystem) {
+      return
+    }
 
-    // const itemView = this.focusedView.getHighlightedItem()
+    if (fileSystem.isRemote()) {
+      atom.notifications.addWarning('Duplicate on remote file systems is not yet supported.')
+      return
+    }
 
-    // if ((itemView === null) || !itemView.isSelectable()) {
-    //   return
-    // }
+    const itemView = this.focusedView.getHighlightedItem()
 
-    // const item = itemView.getItem()
+    if (!itemView || !itemView.isSelectable()) {
+      return
+    }
 
-    // if (item.isFile() || item.isDirectory()) {
-    //   const dialog = new DuplicateFileDialog(this.focusedView, item)
-    //   return dialog.attach()
-    // }
+    const item = itemView.getItem()
+
+    if (item.isFile() || item.isDirectory()) {
+      showDuplicateItemModal(this.focusedView, item)
+    }
   }
 
   deleteButton() {

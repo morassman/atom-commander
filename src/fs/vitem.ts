@@ -1,6 +1,7 @@
 import { VFileSystem } from './vfilesystem'
 import { ItemController } from '../controllers/item-controller'
 import { PathDescription } from './path-description'
+import { VDirectory } from './vdirectory'
 
 export abstract class VItem {
 
@@ -85,6 +86,5 @@ export abstract class VItem {
 
   abstract getBaseName(): string
 
-  // TODO : Return type
-  abstract getParent(): any
+  abstract getParent(): VDirectory | null
 }

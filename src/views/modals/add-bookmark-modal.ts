@@ -18,9 +18,9 @@ function callback(name: string | null, item: VItem, fromView: boolean) {
     return
   }
 
-  main.getBookmarkManager().addBookmark(name, item);
+  main.getBookmarkManager().addBookmark(name, item)
 
   if (fromView) {
-    main.mainView.refocusLastView();
+    main.mainView.refocusLastView()
   }
 }

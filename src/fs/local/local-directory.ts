@@ -7,7 +7,7 @@ import { LocalFileSystem } from './'
 export class LocalDirectory extends VDirectory {
 
   constructor(fileSystem: LocalFileSystem, public directory: Directory) {
-    super(fileSystem);
+    super(fileSystem)
     let stats: any
 
     if (this.directory.isSymbolicLink()) {

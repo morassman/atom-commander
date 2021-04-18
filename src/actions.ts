@@ -197,11 +197,16 @@ export class Actions {
 
       this.main.show(true)
       view.requestFocus()
-      view.openDirectory(file.getParent(), snapShot, () => {
-        if (open) {
-          file.open()
-        }
-      })
+
+      const parent = file.getParent()
+
+      if (parent) {
+        view.openDirectory(parent, snapShot, () => {
+          if (open) {
+            file.open()
+          }
+        })
+      }
     }
   }
 

@@ -38,7 +38,7 @@ export class LocalFile extends VFile {
     return this.file.getBaseName()
   }
 
-  getParent(): LocalDirectory | undefined {
+  getParent(): LocalDirectory | null {
     return this.getFileSystem().getDirectory(this.file.getParent().getRealPathSync())
   }
 

@@ -31,7 +31,7 @@ export class SFTPDirectory extends VDirectory {
     return this.baseName
   }
 
-  getParent() {
+  getParent(): SFTPDirectory | null {
     return new SFTPDirectory(this.getFileSystem(), false, PathUtil.dirname(this.path))
   }
 

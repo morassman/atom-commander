@@ -18,11 +18,11 @@ export class LocalFileSystem extends VFileSystem {
   }
 
   isLocal(): boolean {
-    return true;
+    return true
   }
 
   connectImpl() {
-    this.setConnected(true);
+    this.setConnected(true)
   }
 
   disconnectImpl() {
@@ -33,23 +33,23 @@ export class LocalFileSystem extends VFileSystem {
   }
 
   getFile(path: string): LocalFile {
-    return new LocalFile(this, new File(path));
+    return new LocalFile(this, new File(path))
   }
 
   getDirectory(path: string): LocalDirectory {
-    return new LocalDirectory(this, new Directory(path));
+    return new LocalDirectory(this, new Directory(path))
   }
 
   getItemWithPathDescription(pathDescription: PathDescription) {
     if (pathDescription.isFile) {
-      return this.getFile(pathDescription.path);
+      return this.getFile(pathDescription.path)
     }
 
-    return this.getDirectory(pathDescription.path);
+    return this.getDirectory(pathDescription.path)
   }
 
   getURI(item: VItem) {
-    return item.getRealPathSync();
+    return item.getRealPathSync()
   }
 
   getName(): string {
@@ -65,92 +65,92 @@ export class LocalFileSystem extends VFileSystem {
   }
 
   getPathUtil() {
-    return PathUtil;
+    return PathUtil
   }
 
   renameImpl(oldPath: string, newPath: string, callback: ErrorCallback) {
-    fsp.moveSync(oldPath, newPath);
+    fsp.moveSync(oldPath, newPath)
     if (callback !== null) {
-      return callback(null);
+      return callback(null)
     }
   }
 
   makeDirectoryImpl(path: string, callback: ErrorCallback) {
-    const directory = new Directory(path);
+    const directory = new Directory(path)
 
     return directory.create().then(created => {
       if ((callback == null)) {
-        return;
+        return
       }
 
       if (created) {
-        return callback(null);
+        return callback(null)
       } else {
-        return callback("Error creating folder.");
+        return callback('Error creating folder.')
       }
-    });
+    })
   }
 
   deleteFileImpl(path: string, callback: ErrorCallback) {
-    fse.removeSync(path);
+    fse.removeSync(path)
 
     if (callback != null) {
-      return callback(null);
+      return callback(null)
     }
   }
 
   deleteDirectoryImpl(path: string, callback: ErrorCallback) {
-    fse.removeSync(path);
+    fse.removeSync(path)
 
     if (callback != null) {
-      callback(null);
+      callback(null)
     }
   }
 
   downloadImpl(path: string, localPath: string, callback: ErrorCallback) {
-    fse.copy(path, localPath, callback);
+    fse.copy(path, localPath, callback)
   }
 
   // TODO : callback type
   uploadImpl(localPath: string, path: string, callback: any) {
-    fse.copy(localPath, path, callback);
+    fse.copy(localPath, path, callback)
   }
 
   openFile(file: LocalFile) {
-    atom.workspace.open(file.getRealPathSync());
-    this.fileOpened(file);
+    atom.workspace.open(file.getRealPathSync())
+    this.fileOpened(file)
   }
 
   createReadStreamImpl(path: string, callback: ReadStreamCallback) {
-    callback(null, fse.createReadStream(path));
+    callback(null, fse.createReadStream(path))
   }
 
   newFileImpl(path: string, callback: NewFileCallback) {
-    const file = new File(path);
+    const file = new File(path)
 
     const p = file.create().then(created => {
       if (created) {
-        callback(this.getFile(path), null);
+        callback(this.getFile(path), null)
       } else {
-        callback(null, 'File could not be created.');
+        callback(null, 'File could not be created.')
       }
     }).catch((error: any) => {
-      callback(null, error);
-    });
+      callback(null, error)
+    })
   }
 
   getEntriesImpl(directory: LocalDirectory, callback: EntriesCallback) {
     return directory.directory.getEntries((err, entries) => {
       if (err != null) {
-        return callback(directory, err, []);
+        return callback(directory, err, [])
       } else {
-        return callback(directory, null, this.wrapEntries(entries));
+        return callback(directory, null, this.wrapEntries(entries))
       }
-    });
+    })
   }
 
   wrapEntries(entries: (Directory | File)[]) {
-    const result = [];
+    const result = []
 
     for (let entry of Array.from(entries)) {
       // Added a try/catch, because it was found that there are sometimes
@@ -158,16 +158,16 @@ export class LocalFileSystem extends VFileSystem {
       // exist by the time they get here. Reading them then threw an error.
       try {
         if (entry.isDirectory()) {
-          result.push(new LocalDirectory(this, entry));
+          result.push(new LocalDirectory(this, entry))
         } else {
-          result.push(new LocalFile(this, entry));
+          result.push(new LocalFile(this, entry))
         }
       } catch (error) {
-        console.error(error);
+        console.error(error)
       }
     }
 
-    return result;
+    return result
   }
 
 }

@@ -113,6 +113,8 @@ export class InputModal extends View<InputModalProps, InputModalRefs> {
       if (warning) {
         valid = false
         this.refs.warning.textContent = warning
+      } else {
+        this.refs.warning.textContent = ''
       }
     }
 

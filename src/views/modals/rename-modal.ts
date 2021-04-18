@@ -3,9 +3,15 @@ import { ContainerView } from '../container-view'
 import { VItem } from '../../fs'
 
 export function showRenameModal(containerView: ContainerView, item: VItem) {
+  const parent = item.getParent()
+
+  if (!parent) {
+    return
+  }
+
   const itemName = item.getBaseName()
   const oldPath = item.getRealPathSync()
-  const directoryPath = item.getParent().getRealPathSync()
+  const directoryPath = parent.getRealPathSync()
   const pathUtil = item.getFileSystem().getPathUtil()
 
   const modal = new InputModal({
