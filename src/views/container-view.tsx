@@ -4,10 +4,8 @@ import { main } from '../main'
 import { CompositeDisposable, Directory, Disposable } from 'atom'
 import { DirectoryController } from '../controllers/directory-controller'
 import { FileController } from '../controllers/file-controller'
-import { ItemController } from '../controllers/item-controller'
 import { SymLinkController } from '../controllers/symlink-controller'
 import { VDirectory, VFile, VFileSystem, VItem, VSymLink } from '../fs'
-import { LocalFileSystem } from '../fs/local'
 import { ItemView } from './item-view'
 import { MainView } from './main-view'
 import { TabView } from './tab-view'
@@ -15,21 +13,14 @@ import { Props, View } from './view'
 import Utils from '../utils'
 import * as fsp from 'fs-plus'
 import { Server } from '../servers/server'
-import { Div } from './element-view'
+import { Div, TBody } from './element-view'
+import { DirectoryView } from './directory-view'
+import { FileView } from './file-view'
+import { SymLinkView } from './symlink-view'
 
 const minimatch = require('minimatch')
 const Scheduler = require('nschedule')
 const { filter } = require('fuzzaldrin')
-// const {View, TextEditorView} = require('atom-space-pen-views')
-// const {CompositeDisposable, Directory} = require('atom')
-// const FileController = require('../controllers/file-controller')
-// const DirectoryController = require('../controllers/directory-controller')
-// const SymLinkController = require('../controllers/symlink-controller')
-// const VFile = require('../fs/vfile')
-// const VDirectory = require('../fs/vdirectory')
-// const VSymLink = require('../fs/vsymlink')
-// const ListDirectoryView = require('./list-directory-view')
-// HistoryView = require './history-view'
 
 export interface Snapshot {
 
@@ -53,13 +44,82 @@ export interface ContainerState {
 
 }
 
-export type ContainerViewProps = Props & {
+type BodyViewRefs = {
+  
+  scroller: HTMLElement
+  
+  table: HTMLElement
 
-  left: boolean
+  tableBody: TBody
+
+  nameHeader: HTMLElement
+
+  extensionHeader: HTMLElement
+
+  sizeHeader: HTMLElement
+
+  dateHeader: HTMLElement
+
+  name: HTMLElement
+
+  extension: HTMLElement
+
+  size: HTMLElement
+
+  date: HTMLElement
 
 }
 
-type Refs = {
+class BodyView extends View<Props, BodyViewRefs> {
+  constructor(private requestFocus: ()=>void, private onBlur: ()=>void) {
+    super({}, true)
+  }
+
+  render() {
+    return <div ref='scroller' className='atom-commander-list-view-scroller' onClick={() => this.requestFocus()}>
+      <table ref='table' className='atom-commander-list-view-table' attributes={{tabindex:-1}} onBlur={() => this.onBlur()}>
+        <thead>
+          <tr>
+            <th ref='nameHeader' onClick={() => main.actions.sortByName()}>
+              <span ref='name' className='sort-icon icon'>Name</span>
+            </th>
+            <th ref='extensionHeader' onClick={() => main.actions.sortByExtension()}>
+              <span ref='extension' className='sort-icon icon'>Extension</span>
+            </th>
+            <th ref='sizeHeader' onClick={() => main.actions.sortBySize()}>
+              <span ref='size' className='sort-icon icon'>Size</span>
+            </th>
+            <th ref='dateHeader' onClick={() => main.actions.sortByDate()}>
+              <span ref='date' className='sort-icon icon'>Date</span>
+            </th>
+          </tr>
+        </thead>
+        <TBody ref='tableBody' className='atom-commander-list-view list'/>
+      </table>
+    </div>
+  }
+
+  refreshSortIcons(sortBy: string, ascending: boolean) {
+    for (let e of [this.refs.name, this.refs.extension, this.refs.size, this.refs.date]) {
+      e.classList.remove('icon-chevron-up')
+      e.classList.remove('icon-chevron-down')
+    }
+
+    const element = (this.refs as any)[sortBy] as HTMLElement
+
+    if (!element) {
+      return
+    }
+
+    if (ascending) {
+      element.classList.add('icon-chevron-down')
+    } else {
+      element.classList.add('icon-chevron-up')
+    }
+  }
+}
+
+type ContainerViewRefs = {
   username: Div
 
   directoryEditor: HTMLInputElement
@@ -71,9 +131,7 @@ type Refs = {
   spinnerPanel: Div
 }
 
-export abstract class ContainerView extends View<ContainerViewProps, Refs> {
-
-  left: boolean
+export class ContainerView extends View<Props, ContainerViewRefs> {
 
   itemViews: ItemView[]
 
@@ -99,17 +157,14 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
 
   sortAscending: boolean
 
-  mainView: MainView
-
-  localFileSystem: LocalFileSystem
-  
   tabView: TabView
   
   scrollTop: number
 
-  constructor(props: ContainerViewProps) {
-    super(props, false)
-    this.left = props.left
+  body: BodyView
+
+  constructor(private readonly mainView: MainView, public readonly left: boolean) {
+    super({}, false)
 
     this.itemViews = []
     this.directory = null
@@ -123,14 +178,16 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     this.lastLocalPath = null
     this.sortBy = null
     this.sortAscending = true
+
+    this.body = new BodyView(() => this.requestFocus(), () => this.refreshHighlight())
+
+    this.initialize()
   }
 
   initialize() {
     super.initialize()
 
-    const container = this.container()
-
-    this.refs.containerView.append(container.element)
+    this.refs.containerView.append(this.body.element)
 
     // @disposables.add(atom.tooltips.add(@history, {title: 'History'}))
 
@@ -197,15 +254,8 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   // })
   // }
     
-  abstract container(): View
-
   isLeft(): boolean {
     return this.left
-  }
-
-  setMainView(mainView: MainView) {
-    this.mainView = mainView
-    this.localFileSystem = this.mainView.main.getLocalFileSystem()
   }
 
   getMainView() {
@@ -339,9 +389,13 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     }
   }
 
-  abstract getScrollTop(): number
+  getScrollTop(): number {
+    return this.body.refs.scroller.scrollTop
+  }
 
-  abstract setScrollTop(scrollTop: number): void
+  setScrollTop(scrollTop: number) {
+    return this.body.refs.scroller.scrollTop = scrollTop
+  }
 
   cancelSpinner() {
     if (this.showSpinnerCount === 0) {
@@ -543,6 +597,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   }
 
   focus() {
+    this.body.refs.table.focus()
     this.refreshHighlight()
   }
 
@@ -555,40 +610,80 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     return this.hasContainerFocus() || document.activeElement === this.refs.directoryEditor
   }
 
-  // Override and return whether the item container view has focus.
-  abstract hasContainerFocus(): boolean
+  hasContainerFocus() {
+    return document.activeElement === this.body.refs.table
+  }
 
-  // Override to remove all item views.
-  abstract clearItemViews(): void
+  clearItemViews() {
+    this.body.refs.tableBody.clear()
 
-  // Override to create a new view for navigating to the parent directory.
-  abstract createParentView(index: number, directoryController: DirectoryController): ItemView
+    this.setExtensionColumnVisible(this.isExtensionColumnVisible())
+    this.setSizeColumnVisible(this.isSizeColumnVisible())
+    this.setDateColumnVisible(this.isDateColumnVisible())
+  }
 
-  // Override to creates and return a new view for the given item.
-  abstract createFileView(index: number, fileController: FileController): ItemView<FileController>
+  createParentView(index: number, directoryController: DirectoryController): DirectoryView {
+    return new DirectoryView(this, index, true, directoryController)
+  }
 
-  abstract createDirectoryView(index: number, directoryController: DirectoryController): ItemView<DirectoryController>
+  createFileView(index: number, fileController: FileController): FileView {
+    return new FileView(this, index, fileController)
+  }
 
-  abstract createSymLinkView(index: number, symLinkController: SymLinkController): ItemView<SymLinkController>
+  createDirectoryView(index: number, directoryController: DirectoryController): DirectoryView {
+    return new DirectoryView(this, index, false, directoryController)
+  }
 
-  // Override to add the given item view.
-  abstract addItemView(itemView: View): void
+  createSymLinkView(index: number, symLinkController: SymLinkController): SymLinkView {
+    return new SymLinkView(this, index, symLinkController)
+  }
 
-  // Override to adjust the height of the content.
-  abstract adjustContentHeight(change: number): void
+  addItemView(itemView: ItemView) {
+    if (!this.isSizeColumnVisible()) {
+      itemView.setSizeColumnVisible(false)
+    }
 
-  // Override to return the height of the content.
-  abstract getContentHeight(): number
+    if (!this.isDateColumnVisible()) {
+      itemView.setDateColumnVisible(false)
+    }
 
-  // Override to set the height of the content.
-  abstract setContentHeight(contentHeight: number): void
+    itemView.setExtensionColumnVisible(this.isExtensionColumnVisible())
 
-  // Override to refresh the sort icons.
-  abstract refreshSortIcons(sortBy: string, ascending: boolean): void
+    this.body.refs.tableBody.append(itemView)
+  }
 
-  abstract pageUp(): void
+  refreshSortIcons(sortBy: string, ascending: boolean) {
+    this.body.refreshSortIcons(sortBy, ascending)
+  }
 
-  abstract pageDown(): void
+  pageUp() {
+    this.pageAdjust(true)
+  }
+
+  pageDown() {
+    this.pageAdjust(false)
+  }
+
+  pageAdjust(up: boolean) {
+    if ((this.highlightedIndex === null) || (this.itemViews.length === 0)) {
+      return
+    }
+
+    const itemViewHeight = this.body.refs.tableBody.element.clientHeight / this.itemViews.length
+
+    if (itemViewHeight === 0) {
+      return
+    }
+
+    const scrollHeight = this.body.refs.scroller.clientHeight
+    const itemsPerPage = Math.round(scrollHeight / itemViewHeight)
+
+    if (up) {
+      this.highlightIndex(this.highlightedIndex - itemsPerPage)
+    } else {
+      this.highlightIndex(this.highlightedIndex + itemsPerPage)
+    }
+  }
 
   moveUp() {
     if (this.highlightedIndex !== null) {
@@ -724,7 +819,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     }
 
     if (directory instanceof Directory) {
-      directory = this.localFileSystem.getDirectory(directory.getRealPathSync())
+      directory = main.localFileSystem.getDirectory(directory.getRealPathSync())
     }
 
     // if (@directory != null) and @directory.getPath() == directory.getPath()
@@ -738,9 +833,9 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
       // revert to opening the home folder and finally the PWD.
       if (!this.directory || !fsp.isDirectorySync(this.directory.getRealPathSync())) {
         try {
-          this.tryOpenDirectory(this.localFileSystem.getDirectory(fsp.getHomeDirectory()), null, callback)
+          this.tryOpenDirectory(main.localFileSystem.getDirectory(fsp.getHomeDirectory()), null, callback)
         } catch (error2) {
-          this.tryOpenDirectory(this.localFileSystem.getDirectory(process.cwd()), null, callback)
+          this.tryOpenDirectory(main.localFileSystem.getDirectory(process.cwd()), null, callback)
         }
       }
     }
@@ -970,10 +1065,10 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     const uri = this.refs.directoryEditor.value.trim()
 
     if (fsp.isDirectorySync(uri)) {
-      this.openDirectory(this.localFileSystem.getDirectory(uri), null, () => this.focus())
+      this.openDirectory(main.localFileSystem.getDirectory(uri), null, () => this.focus())
       return
     } else if (fsp.isFileSync(uri)) {
-      const file = this.localFileSystem.getFile(uri)
+      const file = main.localFileSystem.getFile(uri)
       main.actions.goFile(file, true)
       return
     }
@@ -1081,16 +1176,16 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
 
   getInitialDirectory(suggestedPath?: string | null) {
     if (suggestedPath&& fsp.isDirectorySync(suggestedPath)) {
-      return this.localFileSystem.getDirectory(suggestedPath)
+      return main.localFileSystem.getDirectory(suggestedPath)
     }
 
     const directories = atom.project.getDirectories()
 
     if (directories.length > 0) {
-      return this.localFileSystem.getDirectory(directories[0].getRealPathSync())
+      return main.localFileSystem.getDirectory(directories[0].getRealPathSync())
     }
 
-    return this.localFileSystem.getDirectory(fsp.getHomeDirectory())
+    return main.localFileSystem.getDirectory(fsp.getHomeDirectory())
   }
 
   fileSystemRemoved(fileSystem: VFileSystem) {
@@ -1119,14 +1214,21 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
 
   setSizeColumnVisible(visible: boolean) {
     this.itemViews.forEach(itemView => itemView.setSizeColumnVisible(visible))
+    this.setHeaderVisible(this.body.refs.sizeHeader, visible)
   }
 
   setDateColumnVisible(visible: boolean) {
     this.itemViews.forEach(itemView => itemView.setDateColumnVisible(visible))
+    this.setHeaderVisible(this.body.refs.dateHeader, visible)
   }
 
   setExtensionColumnVisible(visible: boolean) {
     this.itemViews.forEach(itemView => itemView.setExtensionColumnVisible(visible))
+    this.setHeaderVisible(this.body.refs.extensionHeader, visible)
+  }
+
+  setHeaderVisible(header: HTMLElement, visible: boolean) {
+    header.style.display = visible ? 'table-cell' : 'none'
   }
 
   setSortBy(sortBy: string | null) {

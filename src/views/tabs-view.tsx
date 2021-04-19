@@ -183,14 +183,6 @@ export class TabsView extends View<TabsViewProps, Refs> {
     this.props.tabbedView.selectView(tab.getView(), requestFocus)
   }
 
-  adjustContentHeight(change: number) {
-    this.tabs.forEach((tabView) => tabView.getView().adjustContentHeight(change))
-  }
-
-  setContentHeight(contentHeight: number) {
-    this.tabs.forEach((tabView) => tabView.getView().setContentHeight(contentHeight))
-  }
-
   fileSystemRemoved(fileSystem: VFileSystem) {
     this.tabs.forEach((tabView) => tabView.getView().fileSystemRemoved(fileSystem))
   }

@@ -7,7 +7,6 @@ import { MainView } from './main-view'
 import { ContainerView } from './container-view'
 import { TabView } from './tab-view'
 import { VDirectory, VFileSystem, VItem } from '../fs'
-import { ListView } from './list-view'
 import { Server } from '../servers/server'
 import { Div } from './element-view'
 
@@ -108,15 +107,10 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
   }
 
   addTab(directory: VDirectory|null=null, select=false, requestFocus=false, index:number|null=null) {
-    const listView = new ListView(this.left)
-    listView.setMainView(this.mainView)
+    const listView = new ContainerView(this.mainView, this.left)
 
     if (directory !== null) {
       listView.openDirectory(directory)
-    }
-
-    if (this.selectedView !== null) {
-      listView.setContentHeight(this.selectedView.getContentHeight())
     }
 
     const tabView = this.refs.tabsView.addTab(listView, select, requestFocus, index)
@@ -159,19 +153,6 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
     if (requestFocus) {
       this.selectedView.requestFocus()
     }
-  }
-
-  adjustContentHeight(change: number) {
-    if (this.selectedView === null) {
-      return
-    }
-
-    this.selectedView.adjustContentHeight(change)
-    this.refs.tabsView.setContentHeight(this.selectedView.getContentHeight())
-  }
-
-  setContentHeight(contentHeight: number) {
-    this.refs.tabsView.setContentHeight(contentHeight)
   }
 
   fileSystemRemoved(fileSystem: VFileSystem) {
