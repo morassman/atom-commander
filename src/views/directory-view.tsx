@@ -1,9 +1,8 @@
 import { DirectoryController } from '../controllers/directory-controller'
-import { VDirectory } from '../fs'
 import { ContainerView } from './container-view'
-import { ListItemView } from './list-item-view'
+import { ItemView } from './item-view'
 
-export class ListDirectoryView extends ListItemView<DirectoryController> {
+export class DirectoryView extends ItemView<DirectoryController> {
 
   constructor(containerView: ContainerView, index: number, private readonly parentDirectory: boolean, directoryController: DirectoryController) {
     super(containerView, index, directoryController)
@@ -64,10 +63,6 @@ export class ListDirectoryView extends ListItemView<DirectoryController> {
     }
 
     return super.canRename()
-  }
-
-  getPath(): string {
-    return this.itemController.getPath()
   }
 
   isSelectable(): boolean {

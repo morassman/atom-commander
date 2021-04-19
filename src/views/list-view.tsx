@@ -6,13 +6,13 @@ import { ContainerView } from './container-view'
 import { DirectoryController } from '../controllers/directory-controller'
 import { FileController } from '../controllers/file-controller'
 import { SymLinkController } from '../controllers/symlink-controller'
-import { ListDirectoryView } from './list-directory-view'
-import { ListFileView } from './list-file-view'
-import { ListSymLinkView } from './list-symlink-view'
-import { ListItemView } from './list-item-view'
+import { DirectoryView } from './directory-view'
+import { FileView } from './file-view'
+import { SymLinkView } from './symlink-view'
 import { VItem } from '../fs'
 import { ItemController } from '../controllers/item-controller'
 import { TBody } from './element-view'
+import { ItemView } from './item-view'
 // const ListFileView = require('./list-file-view')
 // const ListDirectoryView = require('./list-directory-view')
 // const ListSymLinkView = require('./list-symlink-view')
@@ -135,23 +135,23 @@ export class ListView extends ContainerView {
     this.setDateColumnVisible(this.isDateColumnVisible())
   }
 
-  createParentView(index: number, directoryController: DirectoryController): ListDirectoryView {
-    return new ListDirectoryView(this, index, true, directoryController)
+  createParentView(index: number, directoryController: DirectoryController): DirectoryView {
+    return new DirectoryView(this, index, true, directoryController)
   }
 
-  createFileView(index: number, fileController: FileController): ListFileView {
-    return new ListFileView(this, index, fileController)
+  createFileView(index: number, fileController: FileController): FileView {
+    return new FileView(this, index, fileController)
   }
 
-  createDirectoryView(index: number, directoryController: DirectoryController): ListDirectoryView {
-    return new ListDirectoryView(this, index, false, directoryController)
+  createDirectoryView(index: number, directoryController: DirectoryController): DirectoryView {
+    return new DirectoryView(this, index, false, directoryController)
   }
 
-  createSymLinkView(index: number, symLinkController: SymLinkController): ListSymLinkView {
-    return new ListSymLinkView(this, index, symLinkController)
+  createSymLinkView(index: number, symLinkController: SymLinkController): SymLinkView {
+    return new SymLinkView(this, index, symLinkController)
   }
 
-  addItemView(itemView: ListItemView<ItemController<VItem>>) {
+  addItemView(itemView: ItemView) {
     if (!this.isSizeColumnVisible()) {
       itemView.setSizeColumnVisible(false)
     }

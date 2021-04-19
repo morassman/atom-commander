@@ -8,7 +8,7 @@ import { ItemController } from '../controllers/item-controller'
 import { SymLinkController } from '../controllers/symlink-controller'
 import { VDirectory, VFile, VFileSystem, VItem, VSymLink } from '../fs'
 import { LocalFileSystem } from '../fs/local'
-import { BaseItemView } from './base-item-view'
+import { ItemView } from './item-view'
 import { MainView } from './main-view'
 import { TabView } from './tab-view'
 import { Props, View } from './view'
@@ -75,7 +75,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
 
   left: boolean
 
-  itemViews: BaseItemView<ItemController<VItem>>[]
+  itemViews: ItemView[]
 
   directory: VDirectory | null
 
@@ -506,7 +506,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     return paths
   }
 
-  getSelectedItemViews(includeHighlightIfEmpty=false): BaseItemView[] {
+  getSelectedItemViews(includeHighlightIfEmpty=false): ItemView[] {
     const result = []
 
     for (let itemView of this.itemViews) {
@@ -526,7 +526,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     return result
   }
 
-  getItemViewsWithPattern(pattern: string): BaseItemView[] {
+  getItemViewsWithPattern(pattern: string): ItemView[] {
     const result = []
 
     for (let itemView of this.itemViews) {
@@ -562,14 +562,14 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
   abstract clearItemViews(): void
 
   // Override to create a new view for navigating to the parent directory.
-  abstract createParentView(index: number, directoryController: DirectoryController): BaseItemView<ItemController<VItem>>
+  abstract createParentView(index: number, directoryController: DirectoryController): ItemView
 
   // Override to creates and return a new view for the given item.
-  abstract createFileView(index: number, fileController: FileController): BaseItemView<FileController>
+  abstract createFileView(index: number, fileController: FileController): ItemView<FileController>
 
-  abstract createDirectoryView(index: number, directoryController: DirectoryController): BaseItemView<DirectoryController>
+  abstract createDirectoryView(index: number, directoryController: DirectoryController): ItemView<DirectoryController>
 
-  abstract createSymLinkView(index: number, symLinkController: SymLinkController): BaseItemView<SymLinkController>
+  abstract createSymLinkView(index: number, symLinkController: SymLinkController): ItemView<SymLinkController>
 
   // Override to add the given item view.
   abstract addItemView(itemView: View): void
@@ -661,7 +661,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     }
   }
 
-  getItemViewWithName(name: string): BaseItemView | null {
+  getItemViewWithName(name: string): ItemView | null {
     for (let itemView of this.itemViews) {
       if (itemView.getName() === name) {
         return itemView
@@ -671,7 +671,7 @@ export abstract class ContainerView extends View<ContainerViewProps, Refs> {
     return null
   }
 
-  getHighlightedItem(): BaseItemView | null {
+  getHighlightedItem(): ItemView | null {
     if (this.highlightedIndex === null) {
       return null
     }

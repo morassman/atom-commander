@@ -1,8 +1,8 @@
 import { SymLinkController } from '../controllers/symlink-controller'
 import { ContainerView } from './container-view'
-import { ListItemView } from './list-item-view'
+import { ItemView } from './item-view'
 
-export class ListSymLinkView extends ListItemView<SymLinkController> {
+export class SymLinkView extends ItemView<SymLinkController> {
 
   constructor(containerView: ContainerView, index: number, symLinkController: SymLinkController) {
     super(containerView, index, symLinkController)
@@ -43,10 +43,6 @@ export class ListSymLinkView extends ListItemView<SymLinkController> {
 
   getName(): string {
     return this.itemController.getName()
-  }
-
-  getPath(): string {
-    return this.itemController.getPath()
   }
 
   getNameColumnValue(): string {
@@ -102,4 +98,5 @@ export class ListSymLinkView extends ListItemView<SymLinkController> {
   isSelectable(): boolean {
     return true
   }
+
 }

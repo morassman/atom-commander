@@ -1,8 +1,8 @@
 import { FileController } from '../controllers/file-controller'
 import { ContainerView } from './container-view'
-import { ListItemView } from './list-item-view'
+import { ItemView } from './item-view'
 
-export class ListFileView extends ListItemView<FileController> {
+export class FileView extends ItemView<FileController> {
 
   constructor(containerView: ContainerView, index: number, fileController: FileController) {
     super(containerView, index, fileController)
@@ -29,10 +29,6 @@ export class ListFileView extends ListItemView<FileController> {
 
   getName(): string {
     return this.itemController.getName()
-  }
-
-  getPath(): string {
-    return this.itemController.getPath()
   }
 
   isSelectable(): boolean {

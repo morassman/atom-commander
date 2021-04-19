@@ -7,7 +7,7 @@ const SimpleEncryptor = require('simple-encryptor')
 
 import { VFile, VItem } from './fs'
 import * as fsp from 'fs-plus'
-import { BaseItemView } from './views/base-item-view'
+import { ItemView } from './views/item-view'
 import { ItemController } from './controllers/item-controller'
 
 export default {
@@ -133,7 +133,7 @@ export default {
   // @item Array of BaseItemView to sort.
   // @sortBy Attribute to sort by : 'name', 'ext', 'size', 'date'
   // @ascending true to sort ascending. false for descending.
-  sortItemViews(dirs: boolean, items: BaseItemView<ItemController<VItem>>[], sortBy: string, ascending: boolean) {
+  sortItemViews(dirs: boolean, items: ItemView[], sortBy: string, ascending: boolean) {
     if (sortBy === 'name') {
       items.sort(this.itemViewNameComparator)
     } else if (sortBy === 'date') {
