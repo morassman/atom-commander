@@ -17,10 +17,11 @@ import { showAddBookmarkModal, showOpenBookmarkModal, showRemoveBookmarkModal, s
 // const NewServerDialog = require('./dialogs/new-server-dialog')
 // const {File, Directory, TextEditor} = require('atom')
 // const ChildProcess = require('child_process')
-// const shell = require('shell')
 
 import * as ChildProcess from 'child_process'
 import * as fsp from 'fs-plus'
+
+const { shell } = require('electron')
 
 export class Actions {
   
@@ -385,9 +386,7 @@ export class Actions {
       file = watcher.getFile()
     }
 
-    // TODO
-    // const dialog = new AddBookmarkDialog(this.main, file.getBaseName(), file, false)
-    // dialog.attach()
+    showAddBookmarkModal(file, false)
   }
 
   bookmarksAdd(fromView=true) {
@@ -618,47 +617,50 @@ export class Actions {
   }
 
   openNative(onlyShow: boolean) {
-    // TODO
-    // const view = this.getFocusedView()
+    console.log('openNative : '+onlyShow)
+    console.log(shell)
+    const view = this.getFocusedView()
 
-    // if ((view == null)) {
-    //   return
-    // }
+    if (!view) {
+      return
+    }
 
-    // const {
-    //   directory
-    // } = view
+    const { directory } = view
 
-    // if (directory.isRemote()) {
-    //   atom.notifications.addWarning("This operation is only applicable to the local file system.")
-    //   return
-    // }
+    if (!directory) {
+      return
+    }
 
-    // const itemView = view.getHighlightedItem()
+    if (directory.isRemote()) {
+      atom.notifications.addWarning("This operation is only applicable to the local file system.")
+      return
+    }
 
-    // if (itemView === null) {
-    //   return
-    // }
+    const itemView = view.getHighlightedItem()
 
-    // __guard__(this.main.getMainView(), x => x.hideMenuBar())
+    if (!itemView) {
+      return
+    }
 
-    // if (!itemView.isSelectable()) {
-    //   shell.showItemInFolder(directory.getPath())
-    //   return
-    // }
+    this.hideMenuBar()
 
-    // const item = itemView.getItem()
+    if (!itemView.isSelectable()) {
+      shell.showItemInFolder(directory.getPath())
+      return
+    }
 
-    // if (onlyShow) {
-    //   shell.showItemInFolder(item.getPath())
-    //   return
-    // }
+    const item = itemView.getItem()
 
-    // if (item.isFile()) {
-    //   return shell.openItem(item.getPath())
-    // } else {
-    //   return shell.showItemInFolder(item.getPath())
-    // }
+    if (onlyShow) {
+      shell.showItemInFolder(item.getPath())
+      return
+    }
+
+    if (item.isFile()) {
+      return shell.openPath(item.getPath())
+    } else {
+      return shell.showItemInFolder(item.getPath())
+    }
   }
 
   toggleSizeColumn() {
