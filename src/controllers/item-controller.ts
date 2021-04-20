@@ -57,7 +57,7 @@ export abstract class ItemController<I extends VItem> {
     return this.item.isLink()
   }
 
-  getNameExtension() {
+  getNameExtension(): string[] {
     const baseName = this.item.getBaseName()
 
     if ((baseName == null)) {

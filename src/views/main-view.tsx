@@ -309,7 +309,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
       return null
     }
 
-    return view.isLeft() ? this.getRightView() : this.getLeftView()
+    return view.left ? this.getRightView() : this.getLeftView()
   }
 
   setHorizontal(horizontal: boolean) {
@@ -701,7 +701,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
       return null
     }
 
-    if (this.focusedView.isLeft()) {
+    if (this.focusedView.left) {
       return this.refs.leftTabbedView
     }
 

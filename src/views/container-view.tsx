@@ -228,6 +228,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   render() {
+    // TODO: Replace input with TextEditor.
     return <div className='atom-commander-container-parent-view'>
       <div>
         <Div ref='username' className='highlight-info username' />
@@ -239,43 +240,12 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     </div>
   }
 
-  // static content() {
-  //   return this.div({tabindex: -1, style: 'display: flex flex-direction: column flex: 1 overflow: auto'}, () => {
-  //     this.div(() => {
-  //       this.span('', {class: 'highlight-info username', outlet: 'username'})
-  //       // @span '', {class: 'history icon icon-clock', outlet: 'history', click: 'toggleHistory' }
-  //       return this.subview('directoryEditor', new TextEditorView({mini: true}))
-  //     })
-  //     this.div({class: 'atom-commander-container-view', outlet: 'containerView'}, () => {
-  //       return this.container()
-  //     })
-  //     this.div({class: 'search-panel', outlet: 'searchPanel'})
-  //     return this.div('Loading...', {class: 'loading-panel', outlet: 'spinnerPanel'})
-  // })
-  // }
-    
-  isLeft(): boolean {
-    return this.left
-  }
-
-  getMainView() {
-    return this.mainView
-  }
-
   setTabView(tabView: TabView) {
     this.tabView = tabView
     
     if (this.directory) {
       this.tabView.directoryChanged()
     }
-  }
-
-  getTabView(): TabView {
-    return this.tabView
-  }
-
-  getDirectory(): VDirectory | null {
-    return this.directory
   }
 
   getFileSystem(): VFileSystem | null {
@@ -522,20 +492,8 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
   }
 
-  getPath() {
-    if (this.directory === null) {
-      return null
-    }
-
-    return this.directory.getRealPathSync()
-  }
-
-  getURI() {
-    if (this.directory === null) {
-      return null
-    }
-
-    return this.directory.getURI()
+  getPath(): string | null {
+    return this.directory ? this.directory.getRealPathSync() : null
   }
 
   // includeHighlightIfEmpty : true if the highlighted name should be included if nothing is selected.
@@ -639,14 +597,8 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   addItemView(itemView: ItemView) {
-    if (!this.isSizeColumnVisible()) {
-      itemView.setSizeColumnVisible(false)
-    }
-
-    if (!this.isDateColumnVisible()) {
-      itemView.setDateColumnVisible(false)
-    }
-
+    itemView.setSizeColumnVisible(this.isSizeColumnVisible())
+    itemView.setDateColumnVisible(this.isDateColumnVisible())
     itemView.setExtensionColumnVisible(this.isExtensionColumnVisible())
 
     this.body.refs.tableBody.append(itemView)
@@ -751,7 +703,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   highlightIndexWithName(name: string) {
     const itemView = this.getItemViewWithName(name)
 
-    if (itemView !== null) {
+    if (itemView) {
       this.highlightIndex(itemView.index)
     }
   }
@@ -902,15 +854,16 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     this.itemViews.forEach((itemView) => itemView.refresh())
   }
 
-  getEntries(newDirectory: VDirectory, snapShot: Snapshot|null, callback: any) {
+  getEntries(newDirectory: VDirectory, snapShot: Snapshot|null, callback?: ()=>void) {
     this.showSpinner()
+
     newDirectory.getEntries((newDirectory, err, entries) => {
       if (err === null) {
         this.entriesCallback(newDirectory, entries, snapShot, callback)
       } else if ((err.canceled == null)) {
         Utils.showErrorWarning('Error reading folder', null, err, null, false)
-        if (typeof callback === 'function') {
-          callback(err)
+        if (callback) {
+          callback()
         }
       } else {
         this.openLastLocalDirectory()
@@ -919,10 +872,10 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     })
   }
 
-  entriesCallback(newDirectory: VDirectory, entries: VItem[], snapShot: Snapshot|null, callback: any) {
+  entriesCallback(newDirectory: VDirectory, entries: VItem[], snapShot: Snapshot|null, callback?: ()=>void) {
     if ((this.directory !== null) && (this.directory.getURI() !== newDirectory.getURI())) {
-      if (typeof callback === 'function') {
-        callback(null)
+      if (callback) {
+        callback()
       }
       return
     }
@@ -963,13 +916,16 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     this.restoreSnapShot(snapShot)
     this.enableAutoRefresh()
     this.sort(true)
-    return (typeof callback === 'function' ? callback(null) : undefined)
+
+    if (callback) {
+      callback()
+    }
   }
 
   disableAutoRefresh() {
-    if (this.directoryDisposable !== null) {
+    if (this.directoryDisposable) {
       this.directoryDisposable.dispose()
-      return this.directoryDisposable = null
+      this.directoryDisposable = null
     }
   }
 
@@ -996,13 +952,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   getNames(): string[] {
-    const names = []
-
-    for (let itemView of this.itemViews) {
-      names.push(itemView.getName())
-    }
-
-    return names
+    return this.itemViews.map(itemView => itemView.getName())
   }
 
   refreshDirectory() {
@@ -1028,27 +978,23 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
       return
     }
 
-    let {
-      index
-    } = snapShot
+    let { index } = snapShot
 
     if (snapShot.name != null) {
       // If the item with the name still exists then highlight it, otherwise highlight the index.
       const itemView = this.getItemViewWithName(snapShot.name)
 
-      if (itemView !== null) {
-        ({
-          index
-        } = itemView)
+      if (itemView ) {
+        index = itemView.index
       }
     }
 
-    if (index != null) {
+    if (index !== null) {
       this.highlightIndex(index)
     }
 
-    if (snapShot.selectedNames != null) {
-      return this.selectNames(snapShot.selectedNames)
+    if (snapShot.selectedNames) {
+      this.selectNames(snapShot.selectedNames)
     }
   }
 
