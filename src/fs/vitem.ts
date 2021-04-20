@@ -1,27 +1,32 @@
 import { VFileSystem } from './vfilesystem'
-import { ItemController } from '../controllers/item-controller'
 import { PathDescription } from './path-description'
 import { VDirectory } from './vdirectory'
+import { ItemView } from '../views/item-view'
+
+const filesize = require('filesize')
+
+export type ItemNameParts = {
+  name: string
+  ext: string
+}
 
 export abstract class VItem {
-
-  controller: ItemController<VItem>
 
   modifyDate: Date | null
 
   size: number | null
+
+  view: ItemView
+
+  nameParts: ItemNameParts
 
   constructor(public readonly fileSystem: VFileSystem) {
     this.modifyDate = null;
     this.size = null;
   }
 
-  setController(controller: ItemController<VItem>) {
-    this.controller = controller;
-  }
-
-  getController(): ItemController<VItem> {
-    return this.controller;
+  setView(view: ItemView) {
+    this.view = view
   }
 
   getFileSystem(): VFileSystem {
@@ -64,13 +69,64 @@ export abstract class VItem {
     return this.fileSystem.isRemote();
   }
 
-  getModifyDate() {
-    return this.modifyDate;
+  getModifyDate(): Date | null {
+    return this.modifyDate
   }
 
-  getSize() {
-    return this.size;
+  getSize(): number | null {
+    return this.size
   }
+
+  canRename(): boolean {
+    return this.isWritable()
+  }
+
+  getFormattedModifyDate(): string {
+    const date = this.getModifyDate()
+
+    if (date !== null) {
+      return date.toLocaleDateString()
+    }
+
+    return ''
+  }
+
+  getFormattedSize(): string {
+    const size = this.getSize()
+
+    if (size !== null) {
+      return filesize(size)
+    }
+
+    return ''
+  }
+
+  getNamePart(): string {
+    return this.getNameParts().name
+  }
+
+  getExtensionPart(): string {
+    return this.getNameParts().ext
+  }
+
+  getNameParts(): ItemNameParts {
+    if (!this.nameParts) {
+      this.nameParts = this.getNamePartsImpl()
+    }
+
+    return this.nameParts
+  }
+
+  refreshView() {
+    if (this.view) {
+      this.view.refresh()
+    }
+  }
+
+  abstract getNamePartsImpl(): ItemNameParts
+
+  // Override this to implement the open behavior of this item.
+  abstract performOpenAction(): void
 
   abstract isFile(): boolean
 

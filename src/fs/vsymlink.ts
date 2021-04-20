@@ -1,7 +1,7 @@
-import { VFileSystem } from './vfilesystem';
-import { VItem } from './vitem'
+import { VFileSystem } from './vfilesystem'
+import { ItemNameParts, VItem } from './vitem'
 import { VFile } from './vfile'
-import { VDirectory } from '.';
+import { VDirectory } from '.'
 
 export abstract class VSymLink extends VItem {
 
@@ -12,15 +12,17 @@ export abstract class VSymLink extends VItem {
   }
 
   setTargetItem(targetItem: VItem) {
-    this.targetItem = targetItem;
+    this.targetItem = targetItem
 
-    if (this.controller) {
-      this.controller.refresh();
+    if (this.targetItem) {
+      this.targetItem.setView(this.view)
     }
+
+    this.refreshView()
   }
 
   getTargetItem(): VItem {
-    return this.targetItem;
+    return this.targetItem
   }
 
   isFile(): boolean {
@@ -32,37 +34,41 @@ export abstract class VSymLink extends VItem {
   }
 
   existsSync(): boolean {
-    return true;
+    return true
   }
 
   isLink(): boolean {
-    return true;
+    return true
+  }
+
+  getNamePartsImpl(): ItemNameParts {
+    return this.targetItem ? this.targetItem.getNameParts() : { name: '', ext: ''}
   }
 
   setModifyDate(modifyDate: Date) {
-    this.modifyDate = modifyDate;
-
-    if (this.controller) {
-      this.controller.refresh()
-    }
+    this.modifyDate = modifyDate
+    this.refreshView()
   }
 
   setSize(size: number) {
-    this.size = size;
-
-    if (this.controller) {
-      this.controller.refresh()
-    }
+    this.size = size
+    this.refreshView()
   }
 
   // This is called once it is known that the symlink points to file.
   setTargetFilePath(targetPath: string) {
-    this.setTargetItem(this.createFileItem(targetPath));
+    this.setTargetItem(this.createFileItem(targetPath))
   }
 
   // This is called once it is known that the symlink points to directory.
   setTargetDirectoryPath(targetPath: string) {
-    return this.setTargetItem(this.createDirectoryItem(targetPath));
+    this.setTargetItem(this.createDirectoryItem(targetPath))
+  }
+
+  performOpenAction() {
+    if (this.targetItem) {
+      this.targetItem.performOpenAction()
+    }
   }
 
   // Overwrite to create a VFile for the file pointed to by this symlink.

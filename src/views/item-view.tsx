@@ -1,11 +1,10 @@
 const etch = require('etch')
 
-import { ItemController } from '../controllers/item-controller'
 import { VItem } from '../fs'
 import { ContainerView } from './container-view'
 import { Props, View } from './view'
 
-type Refs = {
+type ItemViewRefs = {
   
   name: HTMLElement
   
@@ -17,7 +16,7 @@ type Refs = {
 
 }
 
-export abstract class ItemView<C extends ItemController<VItem> = ItemController<VItem>> extends View<Props, Refs> {
+export abstract class ItemView<I extends VItem = VItem> extends View<Props, ItemViewRefs> {
 
   selected: boolean
 
@@ -25,20 +24,15 @@ export abstract class ItemView<C extends ItemController<VItem> = ItemController<
 
   focused: boolean
 
-  itemName: string
-
-  constructor(public readonly containerView: ContainerView, public index: number, public readonly itemController: C) {
+  constructor(public readonly containerView: ContainerView, public index: number, public readonly item: I) {
     super({}, false)
     this.selected = false
     this.highlighted = false
     this.focused = false
-    this.itemName = ''
     this.addClass('item')
+    item.setView(this)
 
     this.initialize()
-
-    this.itemName = this.getName()
-    this.itemController.initialize(this)
   }
 
   render() {
@@ -66,28 +60,24 @@ export abstract class ItemView<C extends ItemController<VItem> = ItemController<
     return this.containerView
   }
 
-  getItemController(): C {
-    return this.itemController
-  }
-
   getItem(): VItem {
-    return this.itemController.getItem()
+    return this.item
   }
 
   getNameColumnValue(): string {
-    return this.itemController.getNamePart()
+    return this.item.getNamePart()
   }
 
   getExtensionColumnValue(): string {
-    return this.itemController.getExtensionPart()
+    return this.item.getExtensionPart()
   }
 
   getSizeColumnValue(): string {
-    return this.itemController.getFormattedSize()
+    return this.item.getFormattedSize()
   }
 
   getDateColumnValue(): string {
-    return this.itemController.getFormattedModifyDate()
+    return this.item.getFormattedModifyDate()
   }
 
   setSizeColumnVisible(visible: boolean) {
@@ -104,7 +94,7 @@ export abstract class ItemView<C extends ItemController<VItem> = ItemController<
   }
 
   getPath(): string {
-    return this.itemController.getPath()
+    return this.item.getPath()
   }
 
   abstract isForParentDirectory(): boolean
@@ -116,7 +106,7 @@ export abstract class ItemView<C extends ItemController<VItem> = ItemController<
   abstract isSelectable(): boolean
 
   canRename(): boolean {
-    return this.itemController.canRename()
+    return this.item.canRename()
   }
 
   highlight(highlighted: boolean, focused: boolean) {
@@ -155,7 +145,7 @@ export abstract class ItemView<C extends ItemController<VItem> = ItemController<
   }
 
   performOpenAction() {
-    this.itemController.performOpenAction()
+    this.item.performOpenAction()
   }
 
 }

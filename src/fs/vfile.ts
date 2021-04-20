@@ -1,17 +1,44 @@
-import { ErrorCallback, VFileSystem, VItem } from '.';
+import { ErrorCallback, VFileSystem, VItem } from '.'
+import { ItemNameParts } from './vitem'
 
 export abstract class VFile extends VItem {
 
   constructor(fileSystem: VFileSystem) {
-    super(fileSystem);
+    super(fileSystem)
   }
 
   isFile() {
-    return true;
+    return true
   }
 
   isDirectory() {
-    return false;
+    return false
+  }
+
+  getNamePartsImpl(): ItemNameParts {
+    const baseName = this.getBaseName()
+
+    if (!baseName) {
+      return {
+        name: '',
+        ext: ''
+      }
+    }
+
+    const index = baseName.lastIndexOf('.')
+    const lastIndex = baseName.length - 1
+
+    if ((index === -1) || (index === 0) || (index === lastIndex)) {
+      return {
+        name: baseName,
+        ext: ''
+      }
+    }
+
+    return {
+      name: baseName.slice(0, index),
+      ext: baseName.slice(index + 1)
+    }
   }
 
   download(localPath: string, callback: ErrorCallback) {
@@ -30,15 +57,19 @@ export abstract class VFile extends VItem {
     }
   }
 
+  performOpenAction() {
+    this.open()
+  }
+
   open() {
-    return this.fileSystem.openFile(this);
+    this.fileSystem.openFile(this)
   }
 
   // Callback receives two arguments:
   // 1.) err : String with error message. null if no error.
   // 2.) stream : A ReadableStream.
   createReadStream(callback: (error: string | null, stream: ReadableStream | null) => void) {
-    this.fileSystem.createReadStream(this.getPath(), callback);
+    this.fileSystem.createReadStream(this.getPath(), callback)
   }
 
 }

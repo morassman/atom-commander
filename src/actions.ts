@@ -1,4 +1,4 @@
-import { Directory, File } from 'atom'
+import { Directory } from 'atom'
 import { Bookmark } from './bookmark-manager'
 import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
@@ -6,8 +6,6 @@ import { ContainerView, Snapshot } from './views/container-view'
 import { showAddBookmarkModal, showOpenBookmarkModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
 
 // const Utils = require('./utils')
-// const FileController = require('./controllers/file-controller')
-// const DirectoryController = require('./controllers/directory-controller')
 // const BookmarksView = require('./views/bookmarks-view')
 // const DriveListView = require('./views/drive-list-view')
 // const ProjectListView = require('./views/project-list-view')
@@ -98,7 +96,7 @@ export class Actions {
     view.requestFocus()
 
     for (let itemView of view.itemViews) {
-      if (itemView.isSelectable() && itemView.itemController.item.isDirectory()) {
+      if (itemView.isSelectable() && itemView.item.isDirectory()) {
         itemView.select(true)
       }
     }
@@ -114,7 +112,7 @@ export class Actions {
     view.requestFocus()
 
     for (let itemView of view.itemViews) {
-      if (itemView.isSelectable() && itemView.itemController.item.isFile()) {
+      if (itemView.isSelectable() && itemView.item.isFile()) {
         itemView.select(true)
       }
     }

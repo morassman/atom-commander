@@ -11,8 +11,6 @@ import { Main, State } from '../main'
 // const NewDirectoryDialog = require('./dialogs/new-directory-dialog')
 // const RenameDialog = require('./dialogs/rename-dialog')
 // const DuplicateFileDialog = require('./dialogs/duplicate-file-dialog')
-import { FileController } from '../controllers/file-controller'
-import { DirectoryController } from '../controllers/directory-controller'
 // const FTPFileSystem = require('./fs/ftp/ftp-filesystem')
 import Utils from '../utils'
 import { TabbedView } from './tabbed-view'

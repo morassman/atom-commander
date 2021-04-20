@@ -1,11 +1,11 @@
-import { DirectoryController } from '../controllers/directory-controller'
+import { VDirectory } from '../fs'
 import { ContainerView } from './container-view'
 import { ItemView } from './item-view'
 
-export class DirectoryView extends ItemView<DirectoryController> {
+export class DirectoryView extends ItemView {
 
-  constructor(containerView: ContainerView, index: number, private readonly parentDirectory: boolean, directoryController: DirectoryController) {
-    super(containerView, index, directoryController)
+  constructor(containerView: ContainerView, index: number, private readonly parentDirectory: boolean, directory: VDirectory) {
+    super(containerView, index, directory)
   }
 
   initialize() {
@@ -18,7 +18,7 @@ export class DirectoryView extends ItemView<DirectoryController> {
     if (this.parentDirectory) {
       this.refs.name.classList.add('icon', 'icon-arrow-up')
       return this.refs.date.textContent = ''
-    } else if (this.itemController.isLink()) {
+    } else if (this.item.isLink()) {
       return this.refs.name.classList.add('icon', 'icon-file-symlink-directory')
     } else {
       return this.refs.name.classList.add('icon', 'icon-file-directory')
@@ -34,7 +34,7 @@ export class DirectoryView extends ItemView<DirectoryController> {
       return '..'
     }
 
-    return this.itemController.getName()
+    return this.item.getBaseName()
   }
 
   getNameColumnValue(): string {

@@ -1,14 +1,12 @@
 const PathUtil = require('path')
 const SimpleEncryptor = require('simple-encryptor')
 // const PasswordDialog = require('./dialogs/password-dialog')
-// const FileController = require('./controllers/file-controller')
 // const DiffView = require('./views/diff/diff-view')
 // const InputDialog = require('./dialogs/input-dialog')
 
-import { VFile, VItem } from './fs'
 import * as fsp from 'fs-plus'
+import { VItem } from './fs'
 import { ItemView } from './views/item-view'
-import { ItemController } from './controllers/item-controller'
 
 export default {
 
@@ -154,9 +152,9 @@ export default {
   },
 
 
-  itemViewNameComparator(a: any, b?: any) {
-    const na = a.itemController.getNamePart()
-    const nb = b.itemController.getNamePart()
+  itemViewNameComparator(a: ItemView, b: ItemView) {
+    const na = a.item.getNamePart()
+    const nb = b.item.getNamePart()
 
     if (na < nb) {
       return -1
@@ -169,9 +167,9 @@ export default {
     return 0
   },
 
-  itemViewExtensionComparator(a: any, b?: any) {
-    const na = a.itemController.getExtensionPart()
-    const nb = b.itemController.getExtensionPart()
+  itemViewExtensionComparator(a: ItemView, b: ItemView) {
+    const na = a.item.getExtensionPart()
+    const nb = b.item.getExtensionPart()
 
     if (na < nb) {
       return -1

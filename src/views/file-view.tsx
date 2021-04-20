@@ -1,11 +1,11 @@
-import { FileController } from '../controllers/file-controller'
+import { VFile } from '../fs'
 import { ContainerView } from './container-view'
 import { ItemView } from './item-view'
 
-export class FileView extends ItemView<FileController> {
+export class FileView extends ItemView<VFile> {
 
-  constructor(containerView: ContainerView, index: number, fileController: FileController) {
-    super(containerView, index, fileController)
+  constructor(containerView: ContainerView, index: number, file: VFile) {
+    super(containerView, index, file)
   }
 
   initialize() {
@@ -13,14 +13,14 @@ export class FileView extends ItemView<FileController> {
 
     this.element.classList.add('file')
 
-    if (this.itemController.isLink()) {
+    if (this.item.isLink()) {
       this.refs.name.classList.add('icon', 'icon-file-symlink-file')
     } else {
       this.refs.name.classList.add('icon', 'icon-file-text')
     }
 
     this.refs.name.textContent = this.getNameColumnValue()
-    this.refs.extension.textContent = this.itemController.getExtensionPart()
+    this.refs.extension.textContent = this.item.getExtensionPart()
   }
 
   isForParentDirectory(): boolean {
@@ -28,7 +28,7 @@ export class FileView extends ItemView<FileController> {
   }
 
   getName(): string {
-    return this.itemController.getName()
+    return this.item.getBaseName()
   }
 
   isSelectable(): boolean {
@@ -37,15 +37,15 @@ export class FileView extends ItemView<FileController> {
 
   getNameColumnValue(): string {
     if (this.containerView.isExtensionColumnVisible()) {
-      return this.itemController.getNamePart()
+      return this.item.getNamePart()
     }
 
-    return this.itemController.getName()
+    return this.item.getBaseName()
   }
 
   getExtensionColumnValue(): string {
     if (this.containerView.isExtensionColumnVisible()) {
-      return this.itemController.getExtensionPart()
+      return this.item.getExtensionPart()
     }
 
     return ''

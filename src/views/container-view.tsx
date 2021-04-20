@@ -2,9 +2,6 @@ const etch = require('etch')
 
 import { main } from '../main'
 import { CompositeDisposable, Directory, Disposable } from 'atom'
-import { DirectoryController } from '../controllers/directory-controller'
-import { FileController } from '../controllers/file-controller'
-import { SymLinkController } from '../controllers/symlink-controller'
 import { VDirectory, VFile, VFileSystem, VItem, VSymLink } from '../fs'
 import { ItemView } from './item-view'
 import { MainView } from './main-view'
@@ -580,20 +577,20 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     this.setDateColumnVisible(this.isDateColumnVisible())
   }
 
-  createParentView(index: number, directoryController: DirectoryController): DirectoryView {
-    return new DirectoryView(this, index, true, directoryController)
+  createParentView(index: number, directory: VDirectory): DirectoryView {
+    return new DirectoryView(this, index, true, directory)
   }
 
-  createFileView(index: number, fileController: FileController): FileView {
-    return new FileView(this, index, fileController)
+  createFileView(index: number, file: VFile): FileView {
+    return new FileView(this, index, file)
   }
 
-  createDirectoryView(index: number, directoryController: DirectoryController): DirectoryView {
-    return new DirectoryView(this, index, false, directoryController)
+  createDirectoryView(index: number, directory: VDirectory): DirectoryView {
+    return new DirectoryView(this, index, false, directory)
   }
 
-  createSymLinkView(index: number, symLinkController: SymLinkController): SymLinkView {
-    return new SymLinkView(this, index, symLinkController)
+  createSymLinkView(index: number, symLink: VSymLink): SymLinkView {
+    return new SymLinkView(this, index, symLink)
   }
 
   addItemView(itemView: ItemView) {
@@ -843,7 +840,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
       const parent = this.directory.getParent()
 
       if (parent) {
-        const itemView = this.createParentView(0, new DirectoryController(parent))
+        const itemView = this.createParentView(0, parent)
         this.itemViews.push(itemView)
         this.addItemView(itemView)
       }
@@ -893,16 +890,16 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     for (let entry of Array.from(entries)) {
       var itemView
       if (entry instanceof VFile) {
-        itemView = this.createFileView(index, new FileController(entry))
+        itemView = this.createFileView(index, entry)
       } else if (entry instanceof VDirectory) {
-        itemView = this.createDirectoryView(index, new DirectoryController(entry))
+        itemView = this.createDirectoryView(index, entry)
       } else if (entry instanceof VSymLink) {
-        itemView = this.createSymLinkView(index, new SymLinkController(entry))
+        itemView = this.createSymLinkView(index, entry)
       } else {
         itemView = null
       }
 
-      if (itemView != null) {
+      if (itemView) {
         this.itemViews.push(itemView)
         // @addItemView(itemView)
         index++
@@ -989,7 +986,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
       }
     }
 
-    if (index !== null) {
+    if (index !== null && index !== undefined) {
       this.highlightIndex(index)
     }
 
@@ -1071,11 +1068,11 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
 
     const selectedItemViews = this.getSelectedItemViews(true)
-    const directories = []
+    const directories: VItem[] = []
 
     for (let selectedItemView of selectedItemViews) {
-      if (selectedItemView.isSelectable() && (selectedItemView.itemController instanceof DirectoryController)) {
-        directories.push(selectedItemView.itemController.getDirectory())
+      if (selectedItemView.isSelectable() && (selectedItemView.item instanceof VDirectory)) {
+        directories.push(selectedItemView.item)
       }
     }
 

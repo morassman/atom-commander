@@ -1,5 +1,6 @@
 import { Disposable } from 'atom';
 import { NewFileCallback, VFile, VFileSystem, VItem } from './'
+import { ItemNameParts } from './vitem';
 
 export abstract class VDirectory extends VItem {
 
@@ -13,6 +14,13 @@ export abstract class VDirectory extends VItem {
 
   isDirectory() {
     return true;
+  }
+
+  getNamePartsImpl(): ItemNameParts {
+    return {
+      name: this.getBaseName(),
+      ext: ''
+    }
   }
 
   abstract isRoot(): boolean
@@ -37,6 +45,10 @@ export abstract class VDirectory extends VItem {
   newFile(name: string, callback: NewFileCallback) {
     const pathUtil = this.fileSystem.getPathUtil();
     this.fileSystem.newFile(pathUtil.join(this.getPath(), name), callback);
+  }
+
+  performOpenAction() {
+    this.view.containerView.openDirectory(this)
   }
 
 }

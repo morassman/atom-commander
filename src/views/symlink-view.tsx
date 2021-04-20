@@ -1,11 +1,11 @@
-import { SymLinkController } from '../controllers/symlink-controller'
+import { VSymLink } from '../fs'
 import { ContainerView } from './container-view'
 import { ItemView } from './item-view'
 
-export class SymLinkView extends ItemView<SymLinkController> {
+export class SymLinkView extends ItemView<VSymLink> {
 
-  constructor(containerView: ContainerView, index: number, symLinkController: SymLinkController) {
-    super(containerView, index, symLinkController)
+  constructor(containerView: ContainerView, index: number, symLink: VSymLink) {
+    super(containerView, index, symLink)
   }
 
   initialize() {
@@ -16,12 +16,7 @@ export class SymLinkView extends ItemView<SymLinkController> {
   refresh() {
     super.refresh()
 
-    let targetItem
-    const targetController = this.itemController.getTargetController()
-
-    if (targetController != null) {
-      targetItem = targetController.getItem()
-    }
+    const targetItem = this.item.getTargetItem()
 
     this.element.classList.remove('file', 'directory')
     this.refs.name.classList.remove('icon-link')
@@ -42,49 +37,39 @@ export class SymLinkView extends ItemView<SymLinkController> {
   }
 
   getName(): string {
-    return this.itemController.getName()
+    return this.item.getBaseName()
   }
 
   getNameColumnValue(): string {
-    let targetItem = null
-    const targetController = this.itemController.getTargetController()
+    const targetItem = this.item.getTargetItem()
 
-    if (targetController != null) {
-      targetItem = targetController.getItem()
-    }
-
-    if ((targetItem == null)) {
-      return this.itemController.getName()
+    if (!targetItem) {
+      return this.item.getBaseName()
     }
 
     if (targetItem.isDirectory()) {
-      return this.itemController.getName()
+      return this.item.getBaseName()
     }
 
     if (this.containerView.isExtensionColumnVisible()) {
-      return this.itemController.getNamePart()
+      return this.item.getNamePart()
     }
 
-    return this.itemController.getName()
+    return this.item.getBaseName()
   }
 
   getExtensionColumnValue(): string {
     if (this.containerView.isExtensionColumnVisible()) {
-      return this.itemController.getExtensionPart()
+      return this.item.getExtensionPart()
     }
 
     return ''
   }
 
   getSizeColumnValue(): string {
-    let targetItem
-    const targetController = this.itemController.getTargetController()
+    const targetItem = this.item.targetItem
 
-    if (targetController != null) {
-      targetItem = targetController.getItem()
-    }
-
-    if ((targetItem == null)) {
+    if (!targetItem) {
       return ''
     }
 
