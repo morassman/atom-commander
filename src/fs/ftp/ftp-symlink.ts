@@ -29,7 +29,7 @@ export class FTPSymLink extends VSymLink {
     return this.baseName;
   }
 
-  getParent(): FTPDirectory {
+  getParent(): FTPDirectory | undefined {
     return this.fileSystem.getDirectory(PathUtil.dirname(this.path));
   }
 

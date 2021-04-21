@@ -52,7 +52,7 @@ export class LocalDirectory extends VDirectory {
     return this.directory.isSymbolicLink()
   }
 
-  onDidChange(callback: any): Disposable {
+  onDidChange(callback: ()=>void): Disposable | undefined {
     return this.directory.onDidChange(callback)
   }
 

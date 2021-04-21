@@ -7,7 +7,7 @@ import * as fse from 'fs-extra'
 export function showDuplicateItemModal(containerView: ContainerView, item: VItem) {
   const modal = new InputModal({
     label: 'Enter a name for the duplicate:',
-    callback: (text: string | null) => callback(text, containerView, item),
+    callback: (text?: string) => callback(text, item),
     validator: (text: string) => validate(text, containerView),
     hideButtons: true,
     value: item.getBaseName()
@@ -16,7 +16,7 @@ export function showDuplicateItemModal(containerView: ContainerView, item: VItem
   modal.show()
 }
 
-function validate(name: string, containerView: ContainerView): string | null {
+function validate(name: string, containerView: ContainerView): string | undefined {
   if (name.length === 0) {
     return 'The name may not be empty.'
   }
@@ -24,7 +24,7 @@ function validate(name: string, containerView: ContainerView): string | null {
   const existingItemView = containerView.getItemViewWithName(name)
 
   if (!existingItemView) {
-    return null
+    return undefined
   }
 
   const existingItem = existingItemView.getItem()
@@ -35,10 +35,10 @@ function validate(name: string, containerView: ContainerView): string | null {
     return 'A folder with this name already exists.'
   }
 
-  return null
+  return undefined
 }
 
-function callback(name: string | null, containerView: ContainerView, item: VItem) {
+function callback(name: string | undefined, item: VItem) {
   if (!name) {
     return
   }

@@ -1,5 +1,6 @@
 const PathUtil = require('path')
 const SimpleEncryptor = require('simple-encryptor')
+import { NotificationOptions } from 'atom'
 // const PasswordDialog = require('./dialogs/password-dialog')
 // const DiffView = require('./views/diff/diff-view')
 // const InputDialog = require('./dialogs/input-dialog')
@@ -83,11 +84,9 @@ export default {
   },
 
   showWarning(title: string, message: string, dismissable: boolean) {
-    const options: any = {}
-    options['dismissable'] = dismissable
-
-    if (message) {
-      options['detail'] = message
+    const options: NotificationOptions = {
+      dismissable,
+      detail: message
     }
 
     return atom.notifications.addWarning(title, options)
@@ -137,7 +136,7 @@ export default {
     } else if (sortBy === 'date') {
       items.sort(this.itemViewDateComparator)
     }
-
+    
     if (!dirs) {
       if (sortBy === 'extension') {
         items.sort(this.itemViewExtensionComparator)

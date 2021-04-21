@@ -55,7 +55,7 @@ export function twoLineRenderer<I>(primary: (item: I)=> string, secondary: (item
 
 export class ListModal<I> {
   
-  selectList: any
+  selectList: typeof SelectList
   
   panel: Panel
 

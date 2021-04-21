@@ -30,9 +30,9 @@ export type Props = {
 
   className?: string
 
-  attributes?: any
+  attributes?: object
 
-  style?: any
+  style?: object
 
   onKeyDown?: (e: KeyboardEvent) => void
   
@@ -220,7 +220,7 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
     return attributes
   }
 
-  getProps(): any {
+  getProps(): object {
     let props = {
       ...this.props,
       attributes: this.getAttributes()
@@ -231,7 +231,7 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
     return props
   }
 
-  mergeAttributes(attributes: any) {
+  mergeAttributes(attributes: object) {
     this.attributes = {
       ...this.attributes,
       ...attributes

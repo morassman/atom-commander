@@ -1,4 +1,5 @@
 import { ErrorCallback, VFileSystem, VItem } from '.'
+import { ReadStreamCallback } from './vfilesystem'
 import { ItemNameParts } from './vitem'
 
 export abstract class VFile extends VItem {
@@ -68,7 +69,7 @@ export abstract class VFile extends VItem {
   // Callback receives two arguments:
   // 1.) err : String with error message. null if no error.
   // 2.) stream : A ReadableStream.
-  createReadStream(callback: (error: string | null, stream: ReadableStream | null) => void) {
+  createReadStream(callback: ReadStreamCallback) {
     this.fileSystem.createReadStream(this.getPath(), callback)
   }
 

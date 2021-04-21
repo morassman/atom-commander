@@ -12,17 +12,15 @@ export type ItemNameParts = {
 
 export abstract class VItem {
 
-  modifyDate: Date | null
+  modifyDate?: Date
 
-  size: number | null
+  size?: number
 
   view: ItemView
 
   nameParts: ItemNameParts
 
   constructor(public readonly fileSystem: VFileSystem) {
-    this.modifyDate = null;
-    this.size = null;
   }
 
   setView(view: ItemView) {
@@ -30,22 +28,22 @@ export abstract class VItem {
   }
 
   getFileSystem(): VFileSystem {
-    return this.fileSystem;
+    return this.fileSystem
   }
 
   getURI(): string {
-    return this.fileSystem.getURI(this);
+    return this.fileSystem.getURI(this)
   }
 
   getPath(): string {
-    return this.getRealPathSync();
+    return this.getRealPathSync()
   }
 
   delete(callback: (error: string | null) => void) {
     if (this.isFile()) {
-      return this.fileSystem.deleteFile(this.getPath(), callback);
+      return this.fileSystem.deleteFile(this.getPath(), callback)
     } else if (this.isDirectory()) {
-      return this.fileSystem.deleteDirectory(this.getPath(), callback);
+      return this.fileSystem.deleteDirectory(this.getPath(), callback)
     }
   }
 
@@ -62,18 +60,18 @@ export abstract class VItem {
   }
 
   isLocal(): boolean {
-    return this.fileSystem.isLocal();
+    return this.fileSystem.isLocal()
   }
 
   isRemote(): boolean {
-    return this.fileSystem.isRemote();
+    return this.fileSystem.isRemote()
   }
 
-  getModifyDate(): Date | null {
+  getModifyDate(): Date | undefined {
     return this.modifyDate
   }
 
-  getSize(): number | null {
+  getSize(): number | undefined {
     return this.size
   }
 
@@ -84,7 +82,7 @@ export abstract class VItem {
   getFormattedModifyDate(): string {
     const date = this.getModifyDate()
 
-    if (date !== null) {
+    if (date) {
       return date.toLocaleDateString()
     }
 
@@ -142,5 +140,5 @@ export abstract class VItem {
 
   abstract getBaseName(): string
 
-  abstract getParent(): VDirectory | null
+  abstract getParent(): VDirectory | undefined
 }

@@ -16,7 +16,7 @@ export function showRenameModal(containerView: ContainerView, item: VItem) {
 
   const modal = new InputModal({
     label: 'Enter a new name:',
-    callback: (text: string | null) => callback(text, containerView, item, pathUtil, oldPath, directoryPath),
+    callback: (text?: string) => callback(text, containerView, item, pathUtil, oldPath, directoryPath),
     validator: (text: string) => validate(text, containerView, pathUtil, itemName),
     hideButtons: true,
     value: itemName
@@ -25,9 +25,9 @@ export function showRenameModal(containerView: ContainerView, item: VItem) {
   modal.show()
 }
 
-function validate(name: string, containerView: ContainerView, pathUtil: any, itemName: string): string | null {
+function validate(name: string, containerView: ContainerView, pathUtil: any, itemName: string): string | undefined {
   if (name === itemName) {
-    return null
+    return undefined
   }
 
   if (name.length === 0) {
@@ -42,8 +42,8 @@ function validate(name: string, containerView: ContainerView, pathUtil: any, ite
 
   const existingItemView = containerView.getItemViewWithName(name)
 
-  if (existingItemView === null) {
-    return null
+  if (!existingItemView) {
+    return undefined
   }
 
   const existingItem = existingItemView.getItem()
@@ -54,10 +54,10 @@ function validate(name: string, containerView: ContainerView, pathUtil: any, ite
     return 'A folder with this name already exists.'
   }
 
-  return null
+  return undefined
 }
 
-function callback(name: string | null, containerView: ContainerView, item: VItem, pathUtil: any, oldPath: string, directoryPath: string) {
+function callback(name: string | undefined, containerView: ContainerView, item: VItem, pathUtil: any, oldPath: string, directoryPath: string) {
   if (!name) {
     return
   }

@@ -16,7 +16,7 @@ import Utils from '../utils'
 import { TabbedView } from './tabbed-view'
 import { ContainerView } from './container-view'
 import { Server } from '../servers/server'
-import { VFileSystem } from '../fs'
+import { VDirectory, VFileSystem } from '../fs'
 import { MenuBarView } from './menu/menu-bar-view'
 import { Div } from './element-view'
 import { showDuplicateItemModal, showNewDirectoryModal, showNewFileModal, showRenameModal } from './modals'
@@ -101,7 +101,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
   extensionColumnVisible: boolean
 
-  focusedView: ContainerView | null
+  focusedView?: ContainerView
 
   horizontal: boolean
 
@@ -119,8 +119,8 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
     this.initialize()
 
-    this.refs.leftTabbedView.deserialize(state.version, state.leftPath || null, state.left)
-    this.refs.rightTabbedView.deserialize(state.version, state.rightPath || null, state.right)
+    this.refs.leftTabbedView.deserialize(state.version, state.leftPath, state.left)
+    this.refs.rightTabbedView.deserialize(state.version, state.rightPath, state.right)
 
     this.focusedView = this.getLeftView()
   }
@@ -302,9 +302,9 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     return this.refs.rightTabbedView.getSelectedView()
   }
 
-  getOtherView(view: ContainerView | null): ContainerView | null {
+  getOtherView(view?: ContainerView): ContainerView | undefined {
     if (!view) {
-      return null
+      return undefined
     }
 
     return view.left ? this.getRightView() : this.getLeftView()
@@ -335,12 +335,12 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     this.applyVisibility()
   }
 
-  focusView(focusedView: ContainerView | null) {
+  focusView(focusedView?: ContainerView) {
     if (!focusedView || (this.focusedView === focusedView)) {
       return
     }
 
-    const otherView = focusedView ? this.getOtherView(focusedView) : null
+    const otherView = focusedView ? this.getOtherView(focusedView) : undefined
 
     this.focusedView = focusedView
 
@@ -392,19 +392,19 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   addProjectButton() {
-    if (this.focusedView !== null) {
+    if (this.focusedView) {
       this.focusedView.addProject()
     }
   }
 
   removeProjectButton() {
-    if (this.focusedView !== null) {
+    if (this.focusedView) {
       this.focusedView.removeProject()
     }
   }
 
-  getFocusedViewDirectory() {
-    return this.focusedView ? this.focusedView.directory : null
+  getFocusedViewDirectory(): VDirectory | undefined {
+    return this.focusedView?.directory
   }
 
   menuButton() {
@@ -755,8 +755,9 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   copyPaths(namesOnly: boolean) {
-    if (this.focusedView !== null) {
+    if (this.focusedView) {
       const itemViews = this.focusedView.getSelectedItemViews(true)
+
       if (itemViews.length > 0) {
         let paths
         if (namesOnly) {
@@ -829,7 +830,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     this.refs.rightTabbedView.setExtensionColumnVisible(this.extensionColumnVisible)
   }
 
-  setSortBy(sortBy: string | null) {
+  setSortBy(sortBy?: string) {
     if (this.focusedView) {
       this.focusedView.setSortBy(sortBy)
     }

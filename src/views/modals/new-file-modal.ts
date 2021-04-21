@@ -6,7 +6,7 @@ import { VDirectory, VFile } from '../../fs'
 export function showNewFileModal(containerView: ContainerView, directory: VDirectory, existingNames: string[]) {
   const modal = new InputModal({
     label: 'Enter a name for the new file:',
-    callback: (text: string | null) => callback(text, containerView, directory),
+    callback: (text?: string) => callback(text, containerView, directory),
     validator: (text: string) => validate(text, existingNames),
     hideButtons: true
   })
@@ -14,7 +14,7 @@ export function showNewFileModal(containerView: ContainerView, directory: VDirec
   modal.show()
 }
 
-function validate(name: string, existingNames: string[]): string | null {
+function validate(name: string, existingNames: string[]): string | undefined {
   if (name.length === 0) {
     return 'The file name may not be empty.'
   }
@@ -23,15 +23,15 @@ function validate(name: string, existingNames: string[]): string | null {
     return 'A file or folder with this name already exists.'
   }
 
-  return null
+  return undefined
 }
 
-function callback(name: string | null, containerView: ContainerView, directory: VDirectory) {
+function callback(name: string | undefined, containerView: ContainerView, directory: VDirectory) {
   if (!name) {
     return
   }
 
-  directory.newFile(name, (file: VFile | null, err: any) => {
+  directory.newFile(name, (file: VFile | undefined, err: any) => {
     if (file) {
       containerView.refreshDirectory()
       containerView.highlightIndexWithName(file.getBaseName())

@@ -31,7 +31,7 @@ export class FTPDirectory extends VDirectory {
     return this.baseName
   }
 
-  getParent(): FTPDirectory | null {
+  getParent(): FTPDirectory | undefined {
     return new FTPDirectory(this.getFileSystem(), false, PathUtil.dirname(this.path))
   }
 
@@ -47,8 +47,8 @@ export class FTPDirectory extends VDirectory {
     return this.link
   }
 
-  onDidChange(callback: any): Disposable | null {
-    return null
+  onDidChange(callback: ()=>void): Disposable | undefined {
+    return undefined
   }
 
 }

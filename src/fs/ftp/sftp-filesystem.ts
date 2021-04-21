@@ -5,11 +5,8 @@ import * as fsp from 'fs-plus'
 import Utils from '../../utils'
 import { EntriesCallback, ErrorCallback, NewFileCallback, ReadStreamCallback, VFile, VItem } from '..'
 import { SFTPSession } from './sftp-session'
-import { FTPFile } from './ftp-file'
-import { FTPDirectory } from './ftp-directory'
 import { PathDescription } from '../path-description'
 import { VDirectory } from '../vdirectory'
-import { FTPSymLink } from './ftp-symlink'
 import { SFTPFile } from './sftp-file'
 import { SFTPDirectory } from './sftp-directory'
 import { SFTPSymLink } from './sftp-symlink'
@@ -54,12 +51,12 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
 
   connectImpl() {
     this.session = new SFTPSession(this)
-    return this.session.connect()
+    this.session.connect()
   }
 
   disconnectImpl() {
-    if (this.session != null) {
-      return this.session.disconnect()
+    if (this.session) {
+      this.session.disconnect()
     }
   }
 
@@ -146,11 +143,11 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return result
   }
 
-  getFile(path: string): SFTPFile {
+  getFile(path: string): SFTPFile | undefined {
     return new SFTPFile(this, false, path)
   }
 
-  getDirectory(path: string): SFTPDirectory {
+  getDirectory(path: string): SFTPDirectory | undefined {
     return new SFTPDirectory(this, false, path)
   }
 
@@ -167,25 +164,25 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   }
 
   getURI(item: VItem): string {
-    return this.config.protocol+'://' + PathUtil.join(this.config.host, item.getPath())
+    return this.config.protocol + '://' + PathUtil.join(this.config.host, item.getPath())
   }
 
   getPathUtil() {
     return PathUtil
   }
 
-  getPathFromURI(uri: string): string | null {
+  getPathFromURI(uri: string): string | undefined {
     const root = this.config.protocol+'://'+this.config.host
 
     if (uri.substring(0, root.length) === root) {
       return uri.substring(root.length)
     }
 
-    return null
+    return undefined
   }
 
   renameImpl(oldPath: string, newPath: string, callback: ErrorCallback) {
-    return this.client.rename(oldPath, newPath, (err: any) => {
+    this.client.rename(oldPath, newPath, (err: any) => {
       if (!callback) {
         return
       }
@@ -199,7 +196,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   }
 
   makeDirectoryImpl(path: string, callback: ErrorCallback) {
-    return this.client.mkdir(path, [], (err: any) => {
+    this.client.mkdir(path, [], (err: any) => {
       if (!callback) {
         return
       }
@@ -227,7 +224,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   }
 
   deleteDirectoryImpl(path: string, callback: ErrorCallback) {
-    return this.client.rmdir(path, (err: any) => {
+    this.client.rmdir(path, (err: any) => {
       if (!callback) {
         return
       }
@@ -256,21 +253,20 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return this.config.username
   }
 
-
   getLocalDirectoryName(): string {
-    return this.config.protocol+'_'+this.config.host+'_'+this.config.port+'_'+this.config.username
+    return [this.config.protocol,this.config.host, this.config.port, this.config.username].join('_')
   }
 
   downloadImpl(path: string, localPath: string, callback: ErrorCallback) {
-    return this.client.fastGet(path, localPath, {}, callback)
+    this.client.fastGet(path, localPath, {}, callback)
   }
 
   uploadImpl(localPath: string, path: string, callback: ErrorCallback) {
-    return this.client.fastPut(localPath, path, {}, callback)
+    this.client.fastPut(localPath, path, {}, callback)
   }
 
   openFile(file: VFile) {
-    return this.server.getRemoteFileManager().openFile(file)
+    this.server.getRemoteFileManager().openFile(file)
   }
 
   createReadStreamImpl(path: string, callback: ReadStreamCallback) {
@@ -320,8 +316,8 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return directories.concat(files)
   }
 
-  wrapEntry(path: string, entry: any): VItem | null {
-    let item = null
+  wrapEntry(path: string, entry: any): VItem | undefined {
+    let item: VItem | undefined = undefined
 
     if (entry.attrs.isDirectory()) {
       item = new SFTPDirectory(this, false, PathUtil.join(path, entry.filename))
@@ -342,6 +338,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   wrapSymLinkEntry(path: string, entry: any): SFTPSymLink {
     const fullPath = PathUtil.join(path, entry.filename)
     const result = new SFTPSymLink(this, fullPath)
+
     this.client.stat(fullPath, (err: any, stat: any) => {
       if (err) {
         return
@@ -350,15 +347,15 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
       result.setModifyDate(new Date(entry.attrs.mtime*1000))
       result.setSize(entry.attrs.size)
 
-      return this.client.readlink(fullPath, (err: any, target: string) => {
+      this.client.readlink(fullPath, (err: any, target: string) => {
         if (err) {
           return
         }
 
         if (stat.isFile()) {
-          return result.setTargetFilePath(target)
+          result.setTargetFilePath(target)
         } else if (stat.isDirectory()) {
-          return result.setTargetDirectoryPath(PathUtil.join(path, target))
+          result.setTargetDirectoryPath(PathUtil.join(path, target))
         }
       })
     })
@@ -367,19 +364,18 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   }
 
   newFileImpl(path: string, callback: NewFileCallback) {
-    return this.client.open(path, 'w', {}, (err: any, handle: any) => {
-      if (err != null) {
-        callback(null, err)
+    this.client.open(path, 'w', {}, (err: any, handle: any) => {
+      if (err) {
+        callback(undefined, err)
         return
       }
 
-      return this.client.close(handle, (err: any) => {
-        if (err != null) {
-          callback(null, err)
-          return
+      this.client.close(handle, (err: any) => {
+        if (err) {
+          callback(undefined, err)
+        } else {
+          callback(this.getFile(path), null)
         }
-
-        callback(this.getFile(path), null)
       })
     })
   }

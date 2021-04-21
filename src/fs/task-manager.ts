@@ -9,6 +9,8 @@ import Utils from '../utils'
 
 export type TaskCallback = (err: any | null, item: VItem) => void
 
+export type CountCallback = (counts: number[]) => void
+
 export interface Task extends QueueWorker {
   upload: boolean
   download: boolean
@@ -67,11 +69,11 @@ export class TaskManager {
     )
   }
 
-  onUploadCount(callback: EmitterCallback): Disposable {
+  onUploadCount(callback: CountCallback): Disposable {
     return this.emitter.on('uploadcount', callback)
   }
 
-  onDownloadCount(callback: EmitterCallback): Disposable {
+  onDownloadCount(callback: CountCallback): Disposable {
     return this.emitter.on('downloadcount', callback)
   }
 
@@ -92,11 +94,11 @@ export class TaskManager {
   }
 
   adjustUploadCount(diff: number) {
-    return this.setUploadCount(this.uploadCount + diff)
+    this.setUploadCount(this.uploadCount + diff)
   }
 
   adjustDownloadCount(diff: number) {
-    return this.setDownloadCount(this.downloadCount + diff)
+    this.setDownloadCount(this.downloadCount + diff)
   }
 
   setUploadCount(uploadCount: number) {
@@ -104,7 +106,7 @@ export class TaskManager {
     this.uploadCount = uploadCount
 
     if (this.emitter !== null) {
-      return this.emitter.emit('uploadcount', [old, this.uploadCount])
+      this.emitter.emit('uploadcount', [old, this.uploadCount])
     }
   }
 

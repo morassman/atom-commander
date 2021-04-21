@@ -4,8 +4,8 @@ import { TextEditor } from 'atom'
 import { Props, View } from '../view'
 import { CompositeDisposable, Panel } from 'atom'
 
-type Callback = (text: string | null) => void
-type Validator = (text: string) => string | null
+type Callback = (text?: string) => void
+type Validator = (text: string) => string | undefined
 
 type InputModalProps = Props & {
 
@@ -147,7 +147,7 @@ export class InputModal extends View<InputModalProps, InputModalRefs> {
     }
 
     this.canceled = true
-    this.props.callback(null)
+    this.props.callback()
     this.close(restoreFocus)
   }
 

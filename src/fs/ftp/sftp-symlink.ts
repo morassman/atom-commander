@@ -1,6 +1,3 @@
-import { FTPFile } from './ftp-file'
-import { FTPDirectory } from './ftp-directory';
-import { FTPFileSystem } from './ftp-filesystem';
 import { VSymLink } from '../'
 import { SFTPFileSystem } from './sftp-filesystem';
 import { SFTPFile } from './sftp-file';
@@ -32,7 +29,7 @@ export class SFTPSymLink extends VSymLink {
     return this.baseName;
   }
 
-  getParent(): SFTPDirectory {
+  getParent(): SFTPDirectory | undefined {
     return this.fileSystem.getDirectory(PathUtil.dirname(this.path));
   }
 

@@ -6,7 +6,7 @@ import * as fsp from 'fs-plus'
 export function showNewDirectoryModal(containerView: ContainerView, directory: VDirectory) {
   const modal = new InputModal({
     label: 'Enter a name for the new folder:',
-    callback: (text: string | null) => callback(text, containerView, directory),
+    callback: (text?: string) => callback(text, containerView, directory),
     validator: (text: string) => validate(text, directory),
     hideButtons: true
   })
@@ -14,7 +14,7 @@ export function showNewDirectoryModal(containerView: ContainerView, directory: V
   modal.show()
 }
 
-function validate(name: string, directory: VDirectory): string | null {
+function validate(name: string, directory: VDirectory): string | undefined {
   if (name.length === 0) {
     return 'The folder name may not be empty.'
   }
@@ -27,10 +27,10 @@ function validate(name: string, directory: VDirectory): string | null {
     }
   }
 
-  return null
+  return undefined
 }
 
-function callback(name: string | null, containerView: ContainerView, directory: VDirectory) {
+function callback(name: string | undefined, containerView: ContainerView, directory: VDirectory) {
   if (!name) {
     return
   }

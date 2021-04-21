@@ -1,6 +1,7 @@
 const fs = require('fs')
-const FTPClient = require('ftp')
 const PathUtil = require('path').posix
+
+import Client from 'ftp'
 
 import { EntriesCallback, VFile, VItem } from '..'
 import { Server } from '../../servers/server'
@@ -11,16 +12,16 @@ import { FTPDirectory } from './ftp-directory'
 import { RemoteFileSystem } from './remote-filesystem'
 import Utils from '../../utils'
 import { FTPFile } from './ftp-file'
+import { ErrorCallback, ReadStreamCallback } from '../vfilesystem'
 
 export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
 
-  client: any
+  client?: Client
 
   clientConfig: any
 
   constructor(server: Server, config: FTPConfig) {
     super(server, config)
-    this.client = null
 
     if (this.config.password && !this.config.passwordDecrypted) {
       this.config.password = Utils.decrypt(this.config.password, this.getDescription())
@@ -61,7 +62,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
   }
 
   connectWithPassword(password: string) {
-    this.client = new FTPClient()
+    this.client = new Client()
 
     this.client.on('ready', () => {
       this.clientConfig.password = password
@@ -71,25 +72,25 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
         this.config.passwordDecrypted = true
       }
 
-      return this.setConnected(true)
+      this.setConnected(true)
     })
 
     this.client.on('close', () => {
-      return this.disconnect()
+      this.disconnect()
     })
 
     this.client.on('error', (err: any) => {
       if (err.code === 530) {
         delete this.clientConfig.password
         atom.notifications.addWarning('Incorrect credentials for '+this.clientConfig.host)
-        return this.connectImpl()
+        this.connectImpl()
       } else {
-        return this.disconnect(err)
+        this.disconnect(err)
       }
     })
 
     this.client.on('end', () => {
-      return this.disconnect()
+      this.disconnect()
     })
 
     const connectConfig: any = {}
@@ -101,18 +102,16 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
 
     connectConfig.password = password
 
-    return this.client.connect(connectConfig)
+    this.client.connect(connectConfig)
   }
 
   disconnectImpl() {
-    if (this.client != null) {
-      this.client.logout(() => {
-        this.client.end()
-        return this.client = null
-      })
-    }
+    this.client?.logout(() => {
+      this.client?.end()
+      this.client = undefined
+    })
 
-    return this.setConnected(false)
+    this.setConnected(false)
   }
 
   getClientConfig() {
@@ -144,15 +143,15 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return result
   }
 
-  getFile(path: string) {
+  getFile(path: string): FTPFile | undefined {
     return new FTPFile(this, false, path)
   }
 
-  getDirectory(path: string): FTPDirectory {
+  getDirectory(path: string): FTPDirectory | undefined {
     return new FTPDirectory(this, false, path)
   }
 
-  getItemWithPathDescription(pathDescription: PathDescription) {
+  getItemWithPathDescription(pathDescription: PathDescription): VItem | undefined {
     if (pathDescription.isFile) {
       return new FTPFile(this, pathDescription.isLink, pathDescription.path, pathDescription.name)
     }
@@ -160,7 +159,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return new FTPDirectory(this, pathDescription.isLink, pathDescription.path)
   }
 
-  getInitialDirectory() {
+  getInitialDirectory(): FTPDirectory | undefined {
     return this.getDirectory(this.config.folder)
   }
 
@@ -172,18 +171,18 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return PathUtil
   }
 
-  getPathFromURI(uri: string): string | null {
+  getPathFromURI(uri: string): string | undefined {
     const root = this.config.protocol+'://'+this.config.host
 
     if (uri.substring(0, root.length) === root) {
       return uri.substring(root.length)
     }
 
-    return null
+    return undefined
   }
 
   renameImpl(oldPath: string, newPath: string, callback: any) {
-    return this.client.rename(oldPath, newPath, (err: any) => {
+    this.client?.rename(oldPath, newPath, (err: any) => {
       if (!callback) {
         return
       }
@@ -197,7 +196,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
   }
 
   makeDirectoryImpl(path: string, callback: any) {
-    return this.client.mkdir(path, true, (err: any) => {
+    this.client?.mkdir(path, true, (err: any) => {
       if (!callback) {
         return
       }
@@ -211,7 +210,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
   }
 
   deleteFileImpl(path: string, callback: any) {
-    return this.client.delete(path, (err: any) => {
+    this.client?.delete(path, (err: any) => {
       if (!callback) {
         return
       }
@@ -225,7 +224,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
   }
 
   deleteDirectoryImpl(path: string, callback: any) {
-    return this.client.rmdir(path, (err: any) => {
+    this.client?.rmdir(path, (err: any) => {
       if (!callback) {
         return
       }
@@ -258,8 +257,8 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return this.config.protocol+'_'+this.config.host+'_'+this.config.port+'_'+this.config.user
   }
 
-  downloadImpl(path: string, localPath: string, callback: any) {
-    return this.client.get(path, (err: any, stream: any) => {
+  downloadImpl(path: string, localPath: string, callback: ErrorCallback) {
+    this.client?.get(path, (err: any, stream: any) => {
       if (err) {
         callback(err)
         return
@@ -271,13 +270,14 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     })
   }
 
-  uploadImpl(localPath: string, path: string, callback: any) {
-    this.client.put(localPath, path, false, callback)
+  uploadImpl(localPath: string, path: string, callback: ErrorCallback) {
+    this.client?.put(localPath, path, false, callback)
   }
 
   newFileImpl(path: string, callback: any) {
     const buffer = new Buffer('', 'utf8')
-    this.client.put(buffer, path, (err: any) => {
+
+    this.client?.put(buffer, path, (err: Error) => {
       if (err) {
         callback(null, err)
       } else {
@@ -290,8 +290,8 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     this.server.openFile(file)
   }
 
-  createReadStreamImpl(path: string, callback: any) {
-    this.client.get(path, callback)
+  createReadStreamImpl(path: string, callback: ReadStreamCallback) {
+    this.client?.get(path, callback)
   }
 
   getDescription(): string {
@@ -304,9 +304,9 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     })
   }
 
-  list(path: string, callback: any) {
-    this.client.list(path, (err: any, entries: any[]) => {
-      if (err != null) {
+  list(path: string, callback: (err: any, entries: VItem[])=>void) {
+    this.client?.list(path, (err: Error, entries: Client.ListingElement[]) => {
+      if (err) {
         callback(err, [])
       } else {
         callback(null, this.wrapEntries(path, entries))
@@ -314,7 +314,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     })
   }
 
-  wrapEntries(path: string, entries: any[]): VItem[] {
+  wrapEntries(path: string, entries: Client.ListingElement[]): VItem[] {
     const directories = []
     const files = []
 
@@ -336,19 +336,19 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return directories.concat(files)
   }
 
-  wrapEntry(path: string, entry: any): VItem | null {
+  wrapEntry(path: string, entry: Client.ListingElement): VItem | undefined {
     if ((entry.name === '.') || (entry.name === '..')) {
-      return null
+      return undefined
     }
 
-    let item = null
+    let item: VItem | undefined = undefined
 
     if (entry.type === 'd') {
       item = new FTPDirectory(this, false, PathUtil.join(path, entry.name))
     } else if (entry.type === '-') {
       item = new FTPFile(this, false, PathUtil.join(path, entry.name))
     } else if (entry.type === 'l') {
-      if (entry.target.indexOf('/') !== -1) {
+      if (entry.target?.indexOf('/') !== -1) {
         item = new FTPDirectory(this, true, PathUtil.resolve(path, entry.target), entry.name)
         // item = new FTPDirectory(@, true, PathUtil.join(path, entry.target), entry.name)
       } else {

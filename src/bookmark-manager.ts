@@ -3,7 +3,7 @@ import { PathDescription } from './fs/path-description'
 import { Main } from './main'
 
 import * as fsp from 'fs-plus'
-import { VFileSystem } from './fs'
+import { VFileSystem, VItem } from './fs'
 
 export interface Bookmark {
 
@@ -54,7 +54,7 @@ export class BookmarkManager {
     // }
   // }
 
-  addBookmark(name: string, item: any) {
+  addBookmark(name: string, item: VItem) {
     const bookmark: Bookmark = {
       name,
       pathDescription: item.getPathDescription()

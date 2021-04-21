@@ -31,7 +31,7 @@ export class SFTPDirectory extends VDirectory {
     return this.baseName
   }
 
-  getParent(): SFTPDirectory | null {
+  getParent(): SFTPDirectory | undefined {
     return new SFTPDirectory(this.getFileSystem(), false, PathUtil.dirname(this.path))
   }
 
@@ -47,8 +47,8 @@ export class SFTPDirectory extends VDirectory {
     return this.link
   }
 
-  onDidChange(callback: any): Disposable | null {
-    return null
+  onDidChange(callback: ()=>void): Disposable | undefined {
+    return undefined
   }
 
 }

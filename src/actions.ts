@@ -31,8 +31,8 @@ export class Actions {
     this.main.getMainView().hideMenuBar()
   }
 
-  getFocusedView(): ContainerView | null {
-    let focusedView: ContainerView | null = this.main.getMainView().focusedView
+  getFocusedView(): ContainerView | undefined {
+    let focusedView: ContainerView | undefined = this.main.getMainView().focusedView
 
     if (!focusedView) {
       focusedView = this.main.getMainView().getLeftView()
@@ -400,7 +400,7 @@ export class Actions {
       return
     }
 
-    let item: VItem | null = itemView.getItem()
+    let item: VItem | undefined = itemView.getItem()
 
     if (!itemView.isSelectable()) {
       item = view.directory
@@ -577,7 +577,7 @@ export class Actions {
       return
     }
 
-    let folder: string | null = directory.getPath()
+    let folder: string | undefined = directory.getPath()
 
     if (directory.isRemote()) {
       folder = view.getLastLocalPath()
@@ -690,6 +690,6 @@ export class Actions {
   }
 
   sortByDefault() {
-    this.main.getMainView().setSortBy(null)
+    this.main.getMainView().setSortBy()
   }
 }

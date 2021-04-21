@@ -3,11 +3,11 @@ import { InputModal } from './input-modal'
 
 export function showSelectModal(containerView: ContainerView, add: boolean) {
   const label = add ? 'Select items that matches the pattern:' : 'Deselect items that matches the pattern:'
-  const validator = (text: string) => text.length === 0 ? 'The pattern may not be empty.' : null
+  const validator = (text: string) => text.length === 0 ? 'The pattern may not be empty.' : undefined
 
   const modal = new InputModal({
     label,
-    callback: (text: string | null) => callback(text, containerView, add),
+    callback: (text?: string) => callback(text, containerView, add),
     validator,
     value: '*',
     hideButtons: true
@@ -16,7 +16,7 @@ export function showSelectModal(containerView: ContainerView, add: boolean) {
   modal.show()
 }
 
-function callback(pattern: string | null, containerView: ContainerView, add: boolean) {
+function callback(pattern: string | undefined, containerView: ContainerView, add: boolean) {
   if (!pattern) {
     return
   }

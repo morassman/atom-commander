@@ -10,7 +10,7 @@ export class MenuItem extends View {
 
   subMenuItems: {[prop: string]: MenuItem}
 
-  constructor(public readonly parent: MenuItem | null, public readonly id: string, public readonly name: string, public readonly callback:any|null=null) {
+  constructor(public readonly parent: MenuItem | null, public readonly id: string, public readonly name: string, public readonly callback?: ()=>void) {
     super({}, false)
     this.title = `${this.id} ${this.name}`
     this.ids = []
@@ -20,7 +20,7 @@ export class MenuItem extends View {
 
   onClick() {
     if (this.callback) {
-      this.callback(this.title)
+      this.callback()
     }
   }
 
@@ -28,7 +28,7 @@ export class MenuItem extends View {
     return <button className='btn btn-primary inline-block' onClick={() => this.onClick()}>{this.title}</button>
   }
 
-  addMenuItem(id: string, name: string, callback: any|null=null) {
+  addMenuItem(id: string, name: string, callback?: ()=>void) {
     const subMenuItem = new MenuItem(this, id, name, callback)
 
     this.ids.push(id)

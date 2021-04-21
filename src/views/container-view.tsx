@@ -21,9 +21,9 @@ const { filter } = require('fuzzaldrin')
 
 export interface Snapshot {
 
-  index?: number | null
+  index?: number
   
-  name?: string | null
+  name?: string
 
   selectedNames?: string[]
 
@@ -31,13 +31,13 @@ export interface Snapshot {
 
 export interface ContainerState {
 
-  sortBy?: string | null
+  sortBy?: string
 
   sortAscending?: boolean
 
-  path?: string | null
+  path?: string
 
-  highlight?: string | null
+  highlight?: string
 
 }
 
@@ -132,15 +132,15 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
 
   itemViews: ItemView[]
 
-  directory: VDirectory | null
+  directory?: VDirectory
 
-  directoryDisposable: Disposable | null
+  directoryDisposable?: Disposable
 
-  highlightedIndex: number | null
+  highlightedIndex?: number
 
-  timeSearchStarted: number | null
+  timeSearchStarted?: number
 
-  timeKeyPressed: number | null
+  timeKeyPressed?: number
 
   showSpinnerCount: number
 
@@ -148,9 +148,9 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
 
   disposables: CompositeDisposable
 
-  lastLocalPath: string | null
+  lastLocalPath?: string
 
-  sortBy: string | null
+  sortBy?: string
 
   sortAscending: boolean
 
@@ -164,16 +164,9 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     super({}, false)
 
     this.itemViews = []
-    this.directory = null
-    this.directoryDisposable = null
-    this.highlightedIndex = null
-    this.timeSearchStarted = null
-    this.timeKeyPressed = null
     this.showSpinnerCount = 0
     this.scheduler = new Scheduler(1)
     this.disposables = new CompositeDisposable()
-    this.lastLocalPath = null
-    this.sortBy = null
     this.sortAscending = true
 
     this.body = new BodyView(() => this.requestFocus(), () => this.refreshHighlight())
@@ -245,11 +238,11 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
   }
 
-  getFileSystem(): VFileSystem | null {
-    return this.directory ? this.directory.getFileSystem() : null
+  getFileSystem(): VFileSystem | undefined {
+    return this.directory ? this.directory.getFileSystem() : undefined
   }
 
-  getLastLocalPath(): string | null {
+  getLastLocalPath(): string | undefined {
     return this.lastLocalPath
   }
 
@@ -467,7 +460,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
 
       if (this.timeSearchStarted === this.timeKeyPressed) {
         hide = true
-      } else if ((this.timeKeyPressed !== null) && (currentTime - this.timeKeyPressed) >= 1000) {
+      } else if ((this.timeKeyPressed !== undefined) && (currentTime - this.timeKeyPressed) >= 1000) {
         hide = true
       }
 
@@ -489,8 +482,8 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
   }
 
-  getPath(): string | null {
-    return this.directory ? this.directory.getRealPathSync() : null
+  getPath(): string | undefined {
+    return this.directory ? this.directory.getRealPathSync() : undefined
   }
 
   // includeHighlightIfEmpty : true if the highlighted name should be included if nothing is selected.
@@ -504,7 +497,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
       }
     }
 
-    if (includeHighlightIfEmpty && (paths.length === 0) && (this.highlightedIndex !== null)) {
+    if (includeHighlightIfEmpty && (paths.length === 0) && (this.highlightedIndex !== undefined)) {
       itemView = this.itemViews[this.highlightedIndex]
 
       if (itemView.isSelectable()) {
@@ -524,7 +517,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
       }
     }
 
-    if (includeHighlightIfEmpty && (result.length === 0) && (this.highlightedIndex !== null)) {
+    if (includeHighlightIfEmpty && (result.length === 0) && (this.highlightedIndex !== undefined)) {
       let itemView = this.itemViews[this.highlightedIndex]
 
       if (itemView.isSelectable()) {
@@ -614,7 +607,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   pageAdjust(up: boolean) {
-    if ((this.highlightedIndex === null) || (this.itemViews.length === 0)) {
+    if ((this.highlightedIndex === undefined) || (this.itemViews.length === 0)) {
       return
     }
 
@@ -635,19 +628,19 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   moveUp() {
-    if (this.highlightedIndex !== null) {
+    if (this.highlightedIndex !== undefined) {
       this.highlightIndex(this.highlightedIndex-1)
     }
   }
 
   moveDown() {
-    if (this.highlightedIndex !== null) {
+    if (this.highlightedIndex !== undefined) {
       this.highlightIndex(this.highlightedIndex+1)
     }
   }
 
   selectItem() {
-    if (this.highlightedIndex === null) {
+    if (this.highlightedIndex === undefined) {
       return
     }
 
@@ -667,16 +660,16 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
   }
 
-  highlightIndex(index: number | null, scroll=true) {
-    if (this.highlightedIndex !== null) {
+  highlightIndex(index?: number, scroll=true) {
+    if (this.highlightedIndex !== undefined) {
       this.itemViews[this.highlightedIndex].highlight(false, this.hasFocus())
     }
 
     if (this.itemViews.length === 0) {
-      this.highlightedIndex = null
-    } else if ((index !== null) && (index < 0)) {
+      this.highlightedIndex = undefined
+    } else if ((index !== undefined) && (index < 0)) {
       this.highlightedIndex = 0
-    } else if ((index !== null) && (index >= this.itemViews.length)) {
+    } else if ((index !== undefined) && (index >= this.itemViews.length)) {
       this.highlightedIndex = this.itemViews.length - 1
     } else {
       this.highlightedIndex = index
@@ -686,7 +679,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   refreshHighlight(scroll=false) {
-    if (this.highlightedIndex !== null) {
+    if (this.highlightedIndex !== undefined) {
       const focused = this.hasFocus()
       const itemView = this.itemViews[this.highlightedIndex]
       itemView.highlight(true, focused)
@@ -705,34 +698,34 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
   }
 
-  getItemViewWithName(name: string): ItemView | null {
+  getItemViewWithName(name: string): ItemView | undefined {
     for (let itemView of this.itemViews) {
       if (itemView.getName() === name) {
         return itemView
       }
     }
 
-    return null
+    return undefined
   }
 
-  getHighlightedItem(): ItemView | null {
-    if (this.highlightedIndex === null) {
-      return null
+  getHighlightedItem(): ItemView | undefined {
+    if (this.highlightedIndex === undefined) {
+      return undefined
     }
 
     return this.itemViews[this.highlightedIndex]
   }
 
-  getHighlightedItemName(): string | null {
-    if (this.highlightedIndex === null) {
-      return null
+  getHighlightedItemName(): string | undefined {
+    if (this.highlightedIndex === undefined) {
+      return undefined
     }
 
     return this.itemViews[this.highlightedIndex].getName()
   }
 
   openHighlightedItem(isNative=false){
-    if (this.highlightedIndex === null) {
+    if (this.highlightedIndex === undefined) {
       return
     }
 
@@ -762,7 +755,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
   }
 
-  openDirectory(directory: VDirectory | Directory, snapShot:Snapshot | null = null, callback?: ()=>void) {
+  openDirectory(directory: VDirectory | Directory, snapShot?: Snapshot, callback?: ()=>void) {
     if (this.refs.searchPanel.isVisible()) {
       this.refs.searchPanel.hide()
     }
@@ -782,15 +775,15 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
       // revert to opening the home folder and finally the PWD.
       if (!this.directory || !fsp.isDirectorySync(this.directory.getRealPathSync())) {
         try {
-          this.tryOpenDirectory(main.localFileSystem.getDirectory(fsp.getHomeDirectory()), null, callback)
+          this.tryOpenDirectory(main.localFileSystem.getDirectory(fsp.getHomeDirectory()), undefined, callback)
         } catch (error2) {
-          this.tryOpenDirectory(main.localFileSystem.getDirectory(process.cwd()), null, callback)
+          this.tryOpenDirectory(main.localFileSystem.getDirectory(process.cwd()), undefined, callback)
         }
       }
     }
   }
 
-  tryOpenDirectory(newDirectory: VDirectory, snapShot: Snapshot|null = null, callback?: ()=>void) {
+  tryOpenDirectory(newDirectory: VDirectory, snapShot?: Snapshot, callback?: ()=>void) {
     this.directory = newDirectory
     
     if (this.tabView ) {
@@ -828,7 +821,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     this.clearItemViews()
 
     this.itemViews = []
-    this.highlightedIndex = null
+    this.highlightedIndex = undefined
 
     if (!this.directory) {
       return
@@ -851,7 +844,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     this.itemViews.forEach((itemView) => itemView.refresh())
   }
 
-  getEntries(newDirectory: VDirectory, snapShot: Snapshot|null, callback?: ()=>void) {
+  getEntries(newDirectory: VDirectory, snapShot?: Snapshot, callback?: ()=>void) {
     this.showSpinner()
 
     newDirectory.getEntries((newDirectory, err, entries) => {
@@ -869,8 +862,8 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     })
   }
 
-  entriesCallback(newDirectory: VDirectory, entries: VItem[], snapShot: Snapshot|null, callback?: ()=>void) {
-    if ((this.directory !== null) && (this.directory.getURI() !== newDirectory.getURI())) {
+  entriesCallback(newDirectory: VDirectory, entries: VItem[], snapShot?: Snapshot, callback?: ()=>void) {
+    if (this.directory && (this.directory.getURI() !== newDirectory.getURI())) {
       if (callback) {
         callback()
       }
@@ -879,7 +872,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
 
     let highlightIndex = 0
 
-    if (this.highlightedIndex !== null) {
+    if (this.highlightedIndex !== undefined) {
       highlightIndex = this.highlightedIndex
     }
 
@@ -922,12 +915,12 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   disableAutoRefresh() {
     if (this.directoryDisposable) {
       this.directoryDisposable.dispose()
-      this.directoryDisposable = null
+      this.directoryDisposable = undefined
     }
   }
 
   enableAutoRefresh() {
-    if (this.directoryDisposable !== null) {
+    if (this.directoryDisposable) {
       return
     }
 
@@ -970,14 +963,14 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
   }
 
-  restoreSnapShot(snapShot: Snapshot | null) {
+  restoreSnapShot(snapShot?: Snapshot) {
     if (!snapShot) {
       return
     }
 
     let { index } = snapShot
 
-    if (snapShot.name != null) {
+    if (snapShot.name) {
       // If the item with the name still exists then highlight it, otherwise highlight the index.
       const itemView = this.getItemViewWithName(snapShot.name)
 
@@ -986,7 +979,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
       }
     }
 
-    if (index !== null && index !== undefined) {
+    if (index !== undefined) {
       this.highlightIndex(index)
     }
 
@@ -1008,7 +1001,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     const uri = this.refs.directoryEditor.value.trim()
 
     if (fsp.isDirectorySync(uri)) {
-      this.openDirectory(main.localFileSystem.getDirectory(uri), null, () => this.focus())
+      this.openDirectory(main.localFileSystem.getDirectory(uri), undefined, () => this.focus())
       return
     } else if (fsp.isFileSync(uri)) {
       const file = main.localFileSystem.getFile(uri)
@@ -1028,11 +1021,11 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
 
     const path = fileSystem.getPathFromURI(uri)
 
-    if (path !== null) {
+    if (path) {
       const dir = fileSystem.getDirectory(path)
 
       if (dir) {
-        this.openDirectory(dir, null, () => this.focus())
+        this.openDirectory(dir, undefined, () => this.focus())
       }
     }
   }
@@ -1058,7 +1051,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   addRemoveProject(add: boolean) {
-    if (this.directory === null) {
+    if (!this.directory) {
       return
     }
 
@@ -1174,9 +1167,9 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     header.style.display = visible ? 'table-cell' : 'none'
   }
 
-  setSortBy(sortBy: string | null) {
+  setSortBy(sortBy?: string) {
     if (this.sortBy === sortBy) {
-      if (sortBy === null) {
+      if (!sortBy) {
         return
       }
       this.sortAscending = !this.sortAscending
@@ -1198,11 +1191,11 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
 
     const prevHighlightIndex = this.highlightedIndex
-    this.highlightIndex(null, false)
+    this.highlightIndex(undefined, false)
     this.clearItemViews()
 
     // Separate files and directories.
-    let parentItemView = null
+    let parentItemView: ItemView | undefined = undefined
     const dirItemViews = []
     const fileItemViews = []
 
@@ -1227,7 +1220,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
 
     this.itemViews = []
 
-    if (parentItemView != null) {
+    if (parentItemView) {
       this.itemViews.push(parentItemView)
     }
 
@@ -1235,17 +1228,17 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     this.itemViews = this.itemViews.concat(fileItemViews)
 
     let index = 0
-    let newHighlightIndex = null
+    let newHighlightIndex: number | undefined = undefined
 
     for (let itemView of this.itemViews) {
-      if ((newHighlightIndex == null) && (itemView.index === prevHighlightIndex)) {
+      if ((newHighlightIndex === undefined) && (itemView.index === prevHighlightIndex)) {
         newHighlightIndex = index
       }
       itemView.index = index++
       this.addItemView(itemView)
     }
 
-    if (newHighlightIndex !== null) {
+    if (newHighlightIndex !== undefined) {
       this.highlightIndex(newHighlightIndex, scrollToHighlight)
     }
 
@@ -1254,20 +1247,20 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
   }
 
-  deserialize(path: string | null, state: ContainerState) {
+  deserialize(path: string | undefined, state: ContainerState) {
     if (!state) {
       this.openDirectory(this.getInitialDirectory(path))
       return
     }
 
-    this.sortBy = state.sortBy ? state.sortBy : null
+    this.sortBy = state.sortBy
     this.sortAscending = state.sortAscending === true
 
     const snapShot: Snapshot = {
       name: state.highlight
     }
 
-    this.openDirectory(this.getInitialDirectory(state.path ? state.path : null), snapShot)
+    this.openDirectory(this.getInitialDirectory(state.path), snapShot)
   }
 
     // if state.highlight?

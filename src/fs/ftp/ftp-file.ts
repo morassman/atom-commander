@@ -39,7 +39,7 @@ export class FTPFile extends VFile {
     return this.baseName
   }
 
-  getParent(): FTPDirectory | null {
+  getParent(): FTPDirectory | undefined {
     return this.getFileSystem().getDirectory(PathUtil.dirname(this.path))
   }
 

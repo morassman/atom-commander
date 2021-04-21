@@ -6,7 +6,7 @@ import { FTPFileSystem } from '../fs/ftp/ftp-filesystem'
 import { SFTPFileSystem } from '../fs/ftp/sftp-filesystem'
 import { RemoteFileManager } from './remote-file-manager'
 import { CompositeDisposable } from 'atom'
-import { VDirectory, VFile, VFileSystem } from '../fs'
+import { VDirectory, VFile } from '../fs'
 import { Watcher } from './watcher'
 import { ServerManager } from './server-manager'
 import { RemoteConfig } from '../fs/ftp/remote-config'
@@ -33,11 +33,11 @@ export class Server {
     const taskManager = this.fileSystem.getTaskManager()
 
     if (taskManager) {
-      this.disposables.add(taskManager.onUploadCount((change: any) => {
+      this.disposables.add(taskManager.onUploadCount((change: number[]) => {
         this.serverManager.uploadCountChanged(change[0], change[1])
       }))
 
-      this.disposables.add(taskManager.onDownloadCount((change: any) => {
+      this.disposables.add(taskManager.onDownloadCount((change: number[]) => {
         this.serverManager.downloadCountChanged(change[0], change[1])
       }))
     }
@@ -189,11 +189,7 @@ export class Server {
   // Closes the connection to the server.
   close() {
     const taskManager = this.fileSystem.getTaskManager(false)
-
-    if (taskManager !== null) {
-      taskManager.clearTasks()
-    }
-
+    taskManager?.clearTasks()
     this.fileSystem.disconnect()
     this.serverManager.serverClosed(this)
   }

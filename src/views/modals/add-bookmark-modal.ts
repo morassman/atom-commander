@@ -5,7 +5,7 @@ import { InputModal } from './input-modal'
 export function showAddBookmarkModal(item: VItem, fromView: boolean) {
   const modal = new InputModal({
     label: `Enter a name for the bookmark (may be empty): ${item.getPath()}`,
-    callback: (text: string | null) => callback(text, item, fromView),
+    callback: (text?: string) => callback(text, item, fromView),
     value: item.getBaseName(),
     hideButtons: true
   })
@@ -13,7 +13,7 @@ export function showAddBookmarkModal(item: VItem, fromView: boolean) {
   modal.show()
 }
 
-function callback(name: string | null, item: VItem, fromView: boolean) {
+function callback(name: string | undefined, item: VItem, fromView: boolean) {
   if (!name) {
     return
   }

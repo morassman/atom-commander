@@ -39,7 +39,7 @@ export class SFTPFile extends VFile {
     return this.baseName
   }
 
-  getParent(): SFTPDirectory | null {
+  getParent(): SFTPDirectory | undefined {
     return this.getFileSystem().getDirectory(PathUtil.dirname(this.path))
   }
 

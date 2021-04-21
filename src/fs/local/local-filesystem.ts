@@ -132,10 +132,10 @@ export class LocalFileSystem extends VFileSystem {
       if (created) {
         callback(this.getFile(path), null)
       } else {
-        callback(null, 'File could not be created.')
+        callback(undefined, 'File could not be created.')
       }
     }).catch((error: any) => {
-      callback(null, error)
+      callback(undefined, error)
     })
   }
 

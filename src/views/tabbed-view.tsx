@@ -32,13 +32,12 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
 
   left: boolean
 
-  selectedView: ContainerView | null
+  selectedView?: ContainerView
 
   constructor(props: TabbedViewProps) {
     super(props, false)
     this.mainView = props.mainView
     this.left = props.left
-    this.selectedView = null
 
     this.addClass('atom-commander-tabbed-view')
 
@@ -64,7 +63,7 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
   // })
   // }
 
-  getSelectedView(): ContainerView | null {
+  getSelectedView(): ContainerView | undefined {
     return this.selectedView
   }
 
@@ -80,18 +79,18 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
     }
   }
 
-  insertTab(): TabView | null {
+  insertTab(): TabView | undefined {
     if (!this.selectedView) {
-      return null
+      return undefined
     }
 
     const itemView = this.selectedView.getHighlightedItem()
 
-    if (itemView === null) {
-      return null
+    if (!itemView) {
+      return undefined
     }
 
-    let item: VItem | null = itemView.getItem()
+    let item: VItem | undefined = itemView.getItem()
 
     if (!item.isDirectory() || !itemView.isSelectable()) {
       item = this.selectedView.directory
@@ -99,17 +98,17 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
 
     let index = this.refs.tabsView.getSelectedIndex()
 
-    if (index !== null) {
+    if (index !== undefined) {
       index++
     }
 
     return this.addTab(item as VDirectory, true, true, index)
   }
 
-  addTab(directory: VDirectory|null=null, select=false, requestFocus=false, index:number|null=null) {
+  addTab(directory: VDirectory|null=null, select=false, requestFocus=false, index?: number): TabView {
     const listView = new ContainerView(this.mainView, this.left)
 
-    if (directory !== null) {
+    if (directory) {
       listView.openDirectory(directory)
     }
 
@@ -194,7 +193,7 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
     return state
   }
 
-  deserialize(version: number, path: string | null, state: any) {
+  deserialize(version: number, path: string | undefined, state: any) {
     try {
       if (version === 1) {
         this.deserialize1(path, state)
@@ -220,7 +219,7 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
     }
   }
 
-  deserialize1(path: string | null, state: any) {
+  deserialize1(path: string | undefined, state: any) {
     const tabView = this.addTab()
     tabView.getView().deserialize(path, state)
   }

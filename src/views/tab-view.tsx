@@ -86,7 +86,7 @@ export class TabView extends View {
   }
 
   deserialize(state: ContainerState) {
-    this.view.deserialize(null, state)
+    this.view.deserialize(undefined, state)
   }
 
 }

@@ -4,7 +4,7 @@ interface EtchProps {
 
   className?: string
 
-  attributes?: any
+  attributes?: object
 
   onKeyDown?: (e: KeyboardEvent) => void
   

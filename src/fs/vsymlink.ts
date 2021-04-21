@@ -5,7 +5,7 @@ import { VDirectory } from '.'
 
 export abstract class VSymLink extends VItem {
 
-  targetItem: VItem
+  targetItem?: VItem
 
   constructor(fileSystem: VFileSystem) {
     super(fileSystem)
@@ -21,7 +21,7 @@ export abstract class VSymLink extends VItem {
     this.refreshView()
   }
 
-  getTargetItem(): VItem {
+  getTargetItem(): VItem | undefined {
     return this.targetItem
   }
 

@@ -5,6 +5,7 @@ import { TabView } from './tab-view'
 import { TabbedView } from './tabbed-view'
 import { ContainerView } from './container-view'
 import { VFileSystem } from '../fs'
+import { Server } from '../servers/server'
 
 type TabsViewProps = Props & {
 
@@ -73,7 +74,7 @@ export class TabsView extends View<TabsViewProps, Refs> {
 
     let index = this.getSelectedIndex()
 
-    if (index === null) {
+    if (index === undefined) {
       return
     }
 
@@ -99,7 +100,7 @@ export class TabsView extends View<TabsViewProps, Refs> {
   adjustTab(change: number) {
     let index = this.getSelectedIndex()
 
-    if (index === null) {
+    if (index === undefined) {
       return
     }
 
@@ -129,7 +130,7 @@ export class TabsView extends View<TabsViewProps, Refs> {
 
     const index = this.getSelectedIndex()
 
-    if (index === null) {
+    if (index === undefined) {
       return
     }
 
@@ -157,7 +158,7 @@ export class TabsView extends View<TabsViewProps, Refs> {
     tab.scrollIntoView()
   }
 
-  getSelectedIndex(): number | null {
+  getSelectedIndex(): number | undefined {
     let index = 0
 
     for (let tab of Array.from(this.tabs)) {
@@ -167,7 +168,7 @@ export class TabsView extends View<TabsViewProps, Refs> {
       index++
     }
 
-    return null
+    return undefined
   }
 
   selectIndex(index: number, requestFocus=false) {
@@ -187,7 +188,7 @@ export class TabsView extends View<TabsViewProps, Refs> {
     this.tabs.forEach((tabView) => tabView.getView().fileSystemRemoved(fileSystem))
   }
 
-  serverClosed(server: any) {
+  serverClosed(server: Server) {
     this.tabs.forEach((tabView) => tabView.getView().serverClosed(server))
   }
 

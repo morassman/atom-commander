@@ -23,7 +23,7 @@ export interface SideState {
  
   tabs: ContainerState[]
 
-  selectedTab: number | null
+  selectedTab?: number
 
 }
 
@@ -47,9 +47,9 @@ export interface State {
 
   rightPath?: string
 
-  left?: any
+  left?: SideState
 
-  right?: any
+  right?: SideState
 
   height?: number
 
@@ -326,7 +326,7 @@ export class Main {
     }
   }
 
-  onDidChangeActivePaneItem(item: any) {
+  onDidChangeActivePaneItem(item: object) {
     if (item !== this.mainView) {
       return
     }
@@ -389,13 +389,13 @@ export class Main {
     }
   }
 
-  show(focus: boolean, location?: any) {
-    this.showDock(focus, location)
+  show(focus: boolean) {
+    this.showDock(focus)
     this.state.visible = true
     this.saveState()
   }
 
-  showDock(focus: boolean, location: any) {
+  showDock(focus: boolean) {
     let paneContainer: Dock | undefined = atom.workspace.paneContainerForURI(ATOM_COMMANDER_URI) as Dock
 
     if (paneContainer) {
@@ -408,8 +408,7 @@ export class Main {
       atom.workspace.open(this.getMainView(true), {
         searchAllPanes: true,
         activatePane: true,
-        activateItem: true,
-        location
+        activateItem: true
       }).then(() => {
         paneContainer = atom.workspace.paneContainerForURI(ATOM_COMMANDER_URI) as Dock
 
