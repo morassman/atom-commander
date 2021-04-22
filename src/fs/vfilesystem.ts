@@ -26,8 +26,8 @@ export abstract class VFileSystem {
     this.connected = false
   }
 
-  getTaskManager(create = true) {
-    if (!this.taskManager && create) {
+  getTaskManager(): TaskManager {
+    if (!this.taskManager) {
       this.taskManager = new TaskManager(this.clone())
     }
 

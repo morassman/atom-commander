@@ -7,7 +7,7 @@ import { QueueWorker } from 'queue'
 import { VDirectory, VFile, VItem, EmitterCallback, VFileSystem, ErrorCallback } from '.'
 import Utils from '../utils'
 
-export type TaskCallback = (err: any | undefined, item: VItem) => void
+export type TaskCallback = (canceled: boolean, err: any | undefined, item: VItem) => void
 
 export type CountCallback = (counts: number[]) => void
 
@@ -43,9 +43,9 @@ export class TaskManager {
     this.taskQueue.on('error', (err, job) => {
       if (err.canceled) {
         this.jobEnded(job, true, err)
-        return this.taskQueue.end(err)
+        this.taskQueue.end(err)
       } else {
-        return this.jobEnded(job, false, err)
+        this.jobEnded(job, false, err)
       }
     })
 
@@ -64,7 +64,7 @@ export class TaskManager {
         Utils.showErrorWarning('Transfer failed', undefined, undefined, err, true)
       }
 
-      return this.taskQueue.end(err)
+      this.taskQueue.end(err)
     })
     )
   }
@@ -89,7 +89,7 @@ export class TaskManager {
     }
 
     if (job.callback) {
-      job.callback(err, job.item)
+      job.callback(canceled, err, job.item)
     }
   }
 
@@ -143,7 +143,7 @@ export class TaskManager {
   }
 
   uploadItemsWithQueue(remoteParentPath: string, items: VItem[], callback?: TaskCallback) {
-    for (let item of Array.from(items)) {
+    for (let item of items) {
       if (!item.isLink()) {
         if (item.isFile()) {
           this.uploadFileWithQueue(remoteParentPath, item as VFile, callback)

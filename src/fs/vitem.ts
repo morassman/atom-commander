@@ -1,4 +1,4 @@
-import { VFileSystem } from './vfilesystem'
+import { ErrorCallback, VFileSystem } from './vfilesystem'
 import { PathDescription } from './path-description'
 import { VDirectory } from './vdirectory'
 import { ItemView } from '../views/item-view'
@@ -39,7 +39,7 @@ export abstract class VItem {
     return this.getRealPathSync()
   }
 
-  delete(callback: (error?: string) => void) {
+  delete(callback: ErrorCallback) {
     if (this.isFile()) {
       return this.fileSystem.deleteFile(this.getPath(), callback)
     } else if (this.isDirectory()) {

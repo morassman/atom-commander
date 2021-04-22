@@ -238,6 +238,10 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
   }
 
+  getURI(): string | undefined {
+    return this.directory?.getURI()
+  }
+
   getFileSystem(): VFileSystem | undefined {
     return this.directory ? this.directory.getFileSystem() : undefined
   }

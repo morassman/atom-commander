@@ -1,7 +1,7 @@
 const etch = require('etch')
 
 import { Props as MainViewProps, View } from './view'
-import { CompositeDisposable, ViewModel } from 'atom'
+import { CompositeDisposable, ConfirmationOptions, Task, ViewModel } from 'atom'
 import { Main, State } from '../main'
 
 // const ListView = require('./views/list-view')
@@ -15,10 +15,11 @@ import Utils from '../utils'
 import { TabbedView } from './tabbed-view'
 import { ContainerView } from './container-view'
 import { Server } from '../servers/server'
-import { VDirectory, VFileSystem } from '../fs'
+import { ErrorCallback, VDirectory, VFileSystem, VItem } from '../fs'
 import { MenuBarView } from './menu/menu-bar-view'
 import { Div } from './element-view'
 import { showDuplicateItemModal, showNewDirectoryModal, showNewFileModal, showRenameModal } from './modals'
+import { ItemView } from './item-view'
 
 export const ATOM_COMMANDER_URI = 'atom://atom-commander'
 
@@ -455,94 +456,105 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   copyOrMoveButton(move: boolean) {
-    // TODO
-    // let items, srcItemView
-    // if (!this.focusedView) {
-    //   return
-    // }
+    if (!this.focusedView) {
+      return
+    }
 
-    // const srcView = this.focusedView
-    // const dstView = this.getOtherView(srcView)
+    const srcView = this.focusedView
+    const dstView = this.getOtherView(srcView)
 
-    // // Do nothing if the src and dst folders are the same.
-    // if (srcView.getURI() === dstView.getURI()) {
-    //   return
-    // }
+    if (!dstView) {
+      return
+    }
 
-    // // Do nothing if nothing is selected.
-    // const srcItemViews = srcView.getSelectedItemViews(true)
+    // Do nothing if the src and dst folders are the same.
+    if (srcView.getURI() === dstView.getURI()) {
+      return
+    }
 
-    // if (srcItemViews.length === 0) {
-    //   return
-    // }
+    // Do nothing if nothing is selected.
+    const srcItemViews = srcView.getSelectedItemViews(true)
 
-    // const srcFileSystem = srcView.directory.fileSystem
-    // const dstFileSystem = dstView.directory.fileSystem
+    if (srcItemViews.length === 0) {
+      return
+    }
 
-    // if (move) {
-    //   if (srcFileSystem.isRemote() || dstFileSystem.isRemote()) {
-    //     atom.notifications.addWarning('Move to/from remote file systems is not yet supported.')
-    //     return
-    //   }
-    // } else if (srcFileSystem.isRemote() && dstFileSystem.isRemote()) {
-    //   atom.notifications.addWarning('Copy between remote file systems is not yet supported.')
-    //   return
-    // }
+    const srcFileSystem = srcView?.directory?.fileSystem
+    const dstFileSystem = dstView?.directory?.fileSystem
 
-    // const srcPath = srcView.getPath()
-    // const dstPath = dstView.getPath()
+    if (!srcFileSystem || !dstFileSystem) {
+      return
+    }
 
-    // if (srcFileSystem.isRemote()) {
-    //   items = []
+    if (move) {
+      if (srcFileSystem.isRemote() || dstFileSystem.isRemote()) {
+        atom.notifications.addWarning('Move to/from remote file systems is not yet supported.')
+        return
+      }
+    } else if (srcFileSystem.isRemote() && dstFileSystem.isRemote()) {
+      atom.notifications.addWarning('Copy between remote file systems is not yet supported.')
+      return
+    }
 
-    //   for (srcItemView of Array.from(srcItemViews)) {
-    //     items.push(srcItemView.getItem())
-    //   }
+    const srcPath = srcView.getPath()
+    const dstPath = dstView.getPath()
 
-    //   srcFileSystem.getTaskManager().downloadItems(dstPath, items, function(canceled, err, item) {
-    //     if (!canceled && err) {
-    //       const message = 'Error downloading '+item.getURI()
-    //       return Utils.showErrorWarning('Download failed', message, undefined, err, true)
-    //     }
-    //   })
+    if (!dstPath) {
+      return
+    }
 
-    //   return
-    // }
+    if (srcFileSystem.isRemote()) {
+      const items = srcItemViews.map(v => v.item)
 
-    // if (dstFileSystem.isRemote()) {
-    //   items = []
+      srcFileSystem.getTaskManager().downloadItems(dstPath, items, (canceled, err, item) => {
+        if (!canceled && err) {
+          const message = 'Error downloading '+item.getURI()
+          return Utils.showErrorWarning('Download failed', message, undefined, err, true)
+        }
+      })
 
-    //   for (srcItemView of Array.from(srcItemViews)) {
-    //     items.push(srcItemView.getItem())
-    //   }
+      return
+    }
 
-    //   dstFileSystem.getTaskManager().uploadItems(dstPath, items, function(canceled, err, item) {
-    //     if (!canceled && err) {
-    //       const message = 'Error uploading '+item.getURI()
-    //       return Utils.showErrorWarning('Upload failed', message, undefined, err, true)
-    //     }
-    //   })
+    if (dstFileSystem.isRemote()) {
+      const items = srcItemViews.map(v => v.item)
 
-    //   return
-    // }
+      dstFileSystem.getTaskManager().uploadItems(dstPath, items, (canceled, err, item) => {
+        if (!canceled && err) {
+          const message = 'Error uploading '+item.getURI()
+          return Utils.showErrorWarning('Upload failed', message, undefined, err, true)
+        }
+      })
 
-    // const srcNames = []
+      return
+    }
 
-    // for (srcItemView of Array.from(srcItemViews)) {
-    //   srcNames.push(srcItemView.getName())
-    // }
+    const srcNames = srcItemViews.map(v => v.getName())
 
-    // const task = Task.once(require.resolve('./tasks/copy-task'), srcPath, srcNames, dstPath, move, function() {
-    //   if (move) {
-    //     srcView.refreshDirectory()
-    //   }
+    const callback = () => {
+      if (move) {
+        srcView.refreshDirectory()
+      }
 
-    //   return dstView.refreshDirectory()
-    // })
+      dstView.refreshDirectory()
+    }
 
-    // return task.on('success', data => {
-    //   return srcItemViews[data.index].select(false)
-    // })
+    try {
+      const task = Task.once(require.resolve('../tasks/copy-task'), srcPath, srcNames, dstPath, move)
+
+      task.on('error', data => {
+        atom.notifications.addError(data)
+        callback()
+      })
+
+      task.on('success', data => {
+        srcItemViews[data.index].select(false)
+        callback()
+      })
+    } catch (err) {
+      console.log('Error')
+      console.error(err)
+    }
   }
 
   duplicateButton() {
@@ -575,61 +587,68 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   deleteButton() {
-    // TODO
-  //   if (!this.focusedView) {
-  //     return
-  //   }
+    if (!this.focusedView) {
+      return
+    }
 
-  //   // Create a local variable of the focused view in case the focus changes while deleting.
-  //   const view = this.focusedView
-  //   const itemViews = view.getSelectedItemViews(true)
+    // Create a local variable of the focused view in case the focus changes while deleting.
+    const view = this.focusedView
+    const itemViews = view.getSelectedItemViews(true)
 
-  //   if (itemViews.length === 0) {
-  //     return
-  //   }
+    if (itemViews.length === 0) {
+      return
+    }
 
-  //   let detailedMessage = 'Delete the selected items?'
+    let detailedMessage = 'Delete the selected items?'
 
-  //   if (itemViews.length === 1) {
-  //     const itemView = itemViews[0]
+    if (itemViews.length === 1) {
+      const itemView = itemViews[0]
 
-  //     if (itemView.getItem().isFile()) {
-  //       detailedMessage = 'Delete the file '' + itemView.getName() + ''?'
-  //     } else {
-  //       detailedMessage = 'Delete the folder '' + itemView.getName() + ''?'
-  //     }
-  //   }
+      if (itemView.getItem().isFile()) {
+        detailedMessage = `Delete the file ${itemView.getName()}?`
+      } else {
+        detailedMessage = `Delete the folder ${itemView.getName()}?`
+      }
+    }
 
-  //   const response = atom.confirm({
-  //     message: 'Delete',
-  //     detailedMessage,
-  //     buttons: ['No', 'Yes']})
+    const options: ConfirmationOptions = {
+      message: 'Delete',
+      detail: detailedMessage,
+      buttons: ['No', 'Yes']
+    }
 
-  //   if (response === 0) {
-  //     return
-  //   }
+    atom.confirm(options, (response: number) => {
+      if (response === 0) {
+        return
+      }
 
-  //   let index = 0
-  //   var callback = err => {
-  //     if (err) {
-  //       const title = 'Error deleting ' + itemViews[index].getItem().getPath()
-  //       let post = undefined
-  //       if (itemViews[index].getItem().isDirectory()) {
-  //         post = 'Make sure the folder is empty before deleting it.'
-  //       }
-  //       Utils.showErrorWarning(title, undefined, post, err, true)
-  //     }
+      this.deleteConfirmed(itemViews)
+    })
+  }
 
-  //     index++
+  private deleteConfirmed(itemViews: ItemView[]) {
+    let index = 0
 
-  //     if (index === itemViews.length) {
-  //       return this.focusedView.refreshDirectory()
-  //     } else {
-  //       return itemViews[index].getItem().delete(callback)
-  //     }
-  //   }
+    let callback: ErrorCallback = (err?: any) => {
+      if (err) {
+        const title = 'Error deleting ' + itemViews[index].getItem().getPath()
+        let post = undefined
+        if (itemViews[index].getItem().isDirectory()) {
+          post = 'Make sure the folder is empty before deleting it.'
+        }
+        Utils.showErrorWarning(title, undefined, post, err, true)
+      }
 
-  //   return itemViews[0].getItem().delete(callback)
+      index++
+
+      if (index === itemViews.length) {
+        this.focusedView?.refreshDirectory()
+      } else {
+        itemViews[index].getItem().delete(callback)
+      }
+    }
+
+    itemViews[0].getItem().delete(callback)
   }
 
   newDirectoryButton() {

@@ -1,15 +1,15 @@
-const fse = require('fs-extra')
-const path = require('path')
-
-import { Directory } from 'atom'
-
+import fse from 'fs-extra'
 import fsp from 'fs-plus'
+import path from 'path'
+// const path = require('path')
+
+// import { Directory } from 'atom'
 
 declare function emit(event: string, data: any): void
 
-export default function(srcFolderPath: string, srcNames: string[], dstFolderPath: string, move=false) {
+module.exports = function (srcFolderPath: string, srcNames: string, dstFolderPath: string, move=false) {
   const callback = this.async()
-  const dstDirectory = new Directory(dstFolderPath)
+  // const dstDirectory = new Directory(dstFolderPath)
 
   try {
     let index = 0
@@ -18,7 +18,7 @@ export default function(srcFolderPath: string, srcNames: string[], dstFolderPath
       const srcPath = path.join(srcFolderPath, srcName)
       const dstPath = path.join(dstFolderPath, srcName)
 
-      const srcIsDir = fsp.isDirectorySync(srcPath)
+      // const srcIsDir = fsp.isDirectorySync(srcPath)
 
       // Prevent a folder from being moved into itself.
       const stop = move && (dstPath.indexOf(srcPath) === 0)
@@ -47,6 +47,7 @@ export default function(srcFolderPath: string, srcNames: string[], dstFolderPath
   } catch (error) {
     console.log('Error copying.')
     console.error(error)
+    emit(error, String(error))
   }
 
   return callback()

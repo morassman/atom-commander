@@ -188,8 +188,7 @@ export class Server {
 
   // Closes the connection to the server.
   close() {
-    const taskManager = this.fileSystem.getTaskManager(false)
-    taskManager?.clearTasks()
+    this.fileSystem.taskManager?.clearTasks()
     this.fileSystem.disconnect()
     this.serverManager.serverClosed(this)
   }
