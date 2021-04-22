@@ -1,8 +1,7 @@
 const etch = require('etch')
 
 import { Props as MainViewProps, View } from './view'
-import * as fs from 'fs-plus'
-import { CompositeDisposable, Directory, Task, ViewModel } from 'atom'
+import { CompositeDisposable, ViewModel } from 'atom'
 import { Main, State } from '../main'
 
 // const ListView = require('./views/list-view')
@@ -458,7 +457,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   copyOrMoveButton(move: boolean) {
     // TODO
     // let items, srcItemView
-    // if (this.focusedView === null) {
+    // if (!this.focusedView) {
     //   return
     // }
 
@@ -501,9 +500,9 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     //   }
 
     //   srcFileSystem.getTaskManager().downloadItems(dstPath, items, function(canceled, err, item) {
-    //     if (!canceled && (err != null)) {
+    //     if (!canceled && err) {
     //       const message = 'Error downloading '+item.getURI()
-    //       return Utils.showErrorWarning('Download failed', message, null, err, true)
+    //       return Utils.showErrorWarning('Download failed', message, undefined, err, true)
     //     }
     //   })
 
@@ -518,9 +517,9 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     //   }
 
     //   dstFileSystem.getTaskManager().uploadItems(dstPath, items, function(canceled, err, item) {
-    //     if (!canceled && (err != null)) {
+    //     if (!canceled && err) {
     //       const message = 'Error uploading '+item.getURI()
-    //       return Utils.showErrorWarning('Upload failed', message, null, err, true)
+    //       return Utils.showErrorWarning('Upload failed', message, undefined, err, true)
     //     }
     //   })
 
@@ -577,7 +576,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
   deleteButton() {
     // TODO
-  //   if (this.focusedView === null) {
+  //   if (!this.focusedView) {
   //     return
   //   }
 
@@ -612,13 +611,13 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
 
   //   let index = 0
   //   var callback = err => {
-  //     if (err != null) {
+  //     if (err) {
   //       const title = 'Error deleting ' + itemViews[index].getItem().getPath()
-  //       let post = null
+  //       let post = undefined
   //       if (itemViews[index].getItem().isDirectory()) {
   //         post = 'Make sure the folder is empty before deleting it.'
   //       }
-  //       Utils.showErrorWarning(title, null, post, err, true)
+  //       Utils.showErrorWarning(title, undefined, post, err, true)
   //     }
 
   //     index++
@@ -683,7 +682,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   refocusLastView() {
-    if (this.focusedView !== null) {
+    if (this.focusedView) {
       this.focusView(this.focusedView)
     } else {
       const leftView = this.getLeftView()
@@ -694,9 +693,9 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     }
   }
 
-  getFocusedTabbedView(): TabbedView | null {
+  getFocusedTabbedView(): TabbedView | undefined {
     if (!this.focusedView) {
-      return null
+      return undefined
     }
 
     if (this.focusedView.left) {

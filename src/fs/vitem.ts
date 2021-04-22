@@ -39,7 +39,7 @@ export abstract class VItem {
     return this.getRealPathSync()
   }
 
-  delete(callback: (error: string | null) => void) {
+  delete(callback: (error?: string) => void) {
     if (this.isFile()) {
       return this.fileSystem.deleteFile(this.getPath(), callback)
     } else if (this.isDirectory()) {

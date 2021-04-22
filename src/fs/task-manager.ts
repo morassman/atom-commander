@@ -7,7 +7,7 @@ import { QueueWorker } from 'queue'
 import { VDirectory, VFile, VItem, EmitterCallback, VFileSystem, ErrorCallback } from '.'
 import Utils from '../utils'
 
-export type TaskCallback = (err: any | null, item: VItem) => void
+export type TaskCallback = (err: any | undefined, item: VItem) => void
 
 export type CountCallback = (counts: number[]) => void
 
@@ -37,7 +37,7 @@ export class TaskManager {
     this.disposables = new CompositeDisposable()
 
     this.taskQueue.on('success', (result, job) => {
-      return this.jobEnded(job, false, null)
+      return this.jobEnded(job, false, undefined)
     })
 
     this.taskQueue.on('error', (err, job) => {
@@ -61,7 +61,7 @@ export class TaskManager {
       }
 
       if (err) {
-        Utils.showErrorWarning('Transfer failed', null, null, err, true)
+        Utils.showErrorWarning('Transfer failed', undefined, undefined, err, true)
       }
 
       return this.taskQueue.end(err)
@@ -81,7 +81,7 @@ export class TaskManager {
     return this.emitter.on('end', callback)
   }
 
-  jobEnded(job: Task, canceled: boolean, err: any) {
+  jobEnded(job: Task, canceled: boolean, err?: any) {
     if (job.upload) {
       this.adjustUploadCount(-1)
     } else if (job.download) {
@@ -104,19 +104,13 @@ export class TaskManager {
   setUploadCount(uploadCount: number) {
     const old = this.uploadCount
     this.uploadCount = uploadCount
-
-    if (this.emitter !== null) {
-      this.emitter.emit('uploadcount', [old, this.uploadCount])
-    }
+    this.emitter.emit('uploadcount', [old, this.uploadCount])
   }
 
   setDownloadCount(downloadCount: number) {
     const old = this.downloadCount
     this.downloadCount = downloadCount
-
-    if (this.emitter !== null) {
-      this.emitter.emit('downloadcount', [old, this.downloadCount])
-    }
+    this.emitter.emit('downloadcount', [old, this.downloadCount])
   }
 
   clearTasks() {
@@ -137,7 +131,7 @@ export class TaskManager {
   }
 
   // callback receives two parameters:
-  // 1.) err - null if there was no error.
+  // 1.) err - undefined if there was no error.
   // 2.) item - The item that was uploaded.
   uploadItem(remoteParentPath: string, item: VItem, callback?: TaskCallback) {
     this.uploadItems(remoteParentPath, [item], callback)
@@ -194,7 +188,7 @@ export class TaskManager {
   }
 
   // callback receives two parameters:
-  // 1.) err - null if there was no error.
+  // 1.) err - undefined if there was no error.
   // 2.) item - The item that was downloaded.
   downloadItem(localParentPath: string, item: VItem, callback: TaskCallback) {
     this.downloadItems(localParentPath, [item], callback)
@@ -232,7 +226,7 @@ export class TaskManager {
 
     const task1 = (cb: ErrorCallback) => {
       fse.ensureDirSync(localFolderPath)
-      cb(null)
+      cb(undefined)
     }
 
     this.addDownloadTask(task1, directory, callback)
@@ -243,7 +237,7 @@ export class TaskManager {
           cb(err)
         } else {
           this.downloadItemsWithQueue(localFolderPath, entries, callback)
-          cb(null)
+          cb(undefined)
         }
       })
     }

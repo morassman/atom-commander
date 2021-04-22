@@ -10,7 +10,7 @@ export class MenuItem extends View {
 
   subMenuItems: {[prop: string]: MenuItem}
 
-  constructor(public readonly parent: MenuItem | null, public readonly id: string, public readonly name: string, public readonly callback?: ()=>void) {
+  constructor(public readonly parent: MenuItem | undefined, public readonly id: string, public readonly name: string, public readonly callback?: ()=>void) {
     super({}, false)
     this.title = `${this.id} ${this.name}`
     this.ids = []
@@ -41,7 +41,7 @@ export class MenuItem extends View {
     return this.subMenuItems[id]
   }
 
-  getMenuItemWithTitle(title: string): MenuItem | null {
+  getMenuItemWithTitle(title: string): MenuItem | undefined {
     for (let id of this.ids) {
       const subMenuItem = this.subMenuItems[id]
 
@@ -50,7 +50,7 @@ export class MenuItem extends View {
       }
     }
 
-    return null
+    return undefined
   }
 
 }

@@ -2,8 +2,7 @@ import { RemoteConfig } from '../fs/ftp/remote-config'
 import { Main, main } from '../main'
 import { Server } from './server'
 import { Watcher } from './watcher'
-
-import * as fsp from 'fs-plus'
+import { RemoteFileSystem } from '../fs/ftp/remote-filesystem'
 
 export class ServerManager {
 
@@ -111,17 +110,17 @@ export class ServerManager {
     return this.servers.length
   }
 
-  getServerWithLocalDirectoryName(localDirectoryName: string) {
+  getServerWithLocalDirectoryName(localDirectoryName: string): Server | undefined {
     for (let server of this.servers) {
       if (server.getLocalDirectoryName() === localDirectoryName) {
         return server
       }
     }
 
-    return null
+    return undefined
   }
 
-  getFileSystemWithID(fileSystemId: string) {
+  getFileSystemWithID(fileSystemId: string): RemoteFileSystem | undefined {
     for (let server of this.servers) {
       const fileSystem = server.getFileSystem()
 
@@ -130,19 +129,19 @@ export class ServerManager {
       }
     }
 
-    return null
+    return undefined
   }
 
-  getWatcherWithLocalFilePath(localFilePath: string): Watcher | null {
+  getWatcherWithLocalFilePath(localFilePath: string): Watcher | undefined {
     for (let server of this.servers) {
       const watcher = server.getWatcherWithLocalFilePath(localFilePath)
 
-      if (watcher !== null) {
+      if (watcher) {
         return watcher
       }
     }
 
-    return null
+    return undefined
   }
 
   uploadCountChanged(old: number, current: number) {

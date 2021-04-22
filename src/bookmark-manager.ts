@@ -1,8 +1,6 @@
-import { Disposable } from 'atom'
+import { ContextMenuOptions, Disposable } from 'atom'
 import { PathDescription } from './fs/path-description'
 import { Main } from './main'
-
-import * as fsp from 'fs-plus'
 import { VFileSystem, VItem } from './fs'
 
 export interface Bookmark {
@@ -26,33 +24,12 @@ export class BookmarkManager {
     this.contextMenuDisposable = null
     this.commandsDisposable = null
 
-    // if (state) {
-    //   for (let bookmark of state) {
-    //     if (Array.isArray(bookmark)) {
-    //       bookmark = this.convertArrayBookmarkToObject(bookmark)
-    //     }
-
-    //     this.bookmarks.push(bookmark)
-    //   }
-    // }
+    if (state) {
+      this.bookmarks = [...state]
+    }
 
     this.bookmarksChanged()
   }
-
-  // convertArrayBookmarkToObject(bookmark: string[]): Bookmark {
-    // const localFileSystem = this.main.getLocalFileSystem()
-
-    // if (fsp.isFileSync(bookmark[1])) {
-    //   item = localFileSystem.getFile(bookmark[1])
-    // } else {
-    //   item = localFileSystem.getDirectory(bookmark[1])
-    // }
-
-    // return {
-    //   name: bookmark[0],
-    //   pathDescription: item.getPathDescription()
-    // }
-  // }
 
   addBookmark(name: string, item: VItem) {
     const bookmark: Bookmark = {
@@ -113,54 +90,54 @@ export class BookmarkManager {
   }
 
   bookmarksChanged() {
-    // const commands = {}
-    // const menuItems = []
-    // let index = 0
+    const commands: {
+      [key: string]: () => void;
+    } = {}
+    const menuItems: ContextMenuOptions[] = []
 
-    // for (let bookmark of Array.from(this.bookmarks)) {
-    //   index++
-    //   ((index, bookmark) => {
-    //     const commandName = 'atom-commander:bookmark-' + index
-    //     commands[commandName] = () => this.openBookmark(bookmark)
-    //     return menuItems.push({
-    //       label: bookmark.name,
-    //       command: commandName
-    //     })
-    //   })(index, bookmark)
-    // }
+    this.bookmarks.forEach((bookmark: Bookmark, index: number) => {
+      const commandName = 'atom-commander:bookmark-' + index
+      commands[commandName] = () => this.openBookmark(bookmark)
+      menuItems.push({
+        label: bookmark.name,
+        command: commandName
+      })
+    })
 
-    // if (index > 0) {
-    //   menuItems.push({ type: 'separator' })
-    // }
+    if (menuItems.length > 0) {
+      menuItems.push({ type: 'separator' })
+    }
 
-    // menuItems.push({ label: 'Add', command: 'atom-commander:add-bookmark' })
-    // menuItems.push({ label: 'Remove', command: 'atom-commander:remove-bookmark' })
-    // menuItems.push({ label: 'Open', command: 'atom-commander:open-bookmark' })
+    menuItems.push({ label: 'Add', command: 'atom-commander:add-bookmark' })
+    menuItems.push({ label: 'Remove', command: 'atom-commander:remove-bookmark' })
+    menuItems.push({ label: 'Open', command: 'atom-commander:open-bookmark' })
 
-    // if (this.contextMenuDisposable != null) {
-    //   this.contextMenuDisposable.dispose()
-    // }
+    if (this.contextMenuDisposable) {
+      this.contextMenuDisposable.dispose()
+    }
 
-    // if (this.commandsDisposable != null) {
-    //   this.commandsDisposable.dispose()
-    // }
+    if (this.commandsDisposable) {
+      this.commandsDisposable.dispose()
+    }
 
-    // this.contextMenuDisposable = atom.contextMenu.add({
-    //   '.atom-commander': [{
-    //     label: 'Bookmarks',
-    //     submenu: menuItems
-    //   }]
-    // })
+    this.contextMenuDisposable = atom.contextMenu.add({
+      '.atom-commander': [{
+        label: 'Bookmarks',
+        submenu: menuItems
+      }]
+    })
 
-    // return this.commandsDisposable = atom.commands.add('atom-workspace', commands)
+    this.commandsDisposable = atom.commands.add('atom-workspace', commands)
   }
 
   openBookmark(bookmark: Bookmark) {
     this.main.actions.goBookmark(bookmark)
   }
 
-  serialize() {
-    return this.bookmarks
+  serialize(): Bookmark[] {
+    return this.bookmarks.map(b => {
+      return {...b}
+    })
   }
 
 }

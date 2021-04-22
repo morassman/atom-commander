@@ -8,7 +8,7 @@ import { MainView } from './main-view'
 import { TabView } from './tab-view'
 import { Props, View } from './view'
 import Utils from '../utils'
-import * as fsp from 'fs-plus'
+import fsp from 'fs-plus'
 import { Server } from '../servers/server'
 import { Div, TBody } from './element-view'
 import { DirectoryView } from './directory-view'
@@ -156,7 +156,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
 
   tabView: TabView
   
-  scrollTop: number
+  scrollTop?: number
 
   body: BodyView
 
@@ -281,7 +281,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     this.requestFocus()
     const index = this.getItemIndexUnderMouse(e)
 
-    if (index !== null) {
+    if (index !== undefined) {
       this.highlightIndex(index, false)
       this.openHighlightedItem()
     }
@@ -291,12 +291,12 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     this.requestFocus()
     const index = this.getItemIndexUnderMouse(e)
 
-    if (index !== null) {
+    if (index !== undefined) {
       this.highlightIndex(index, false)
     }
   }
 
-  getItemIndexUnderMouse(e: any) {
+  getItemIndexUnderMouse(e: any): number | undefined {
     for (let p of e.path) {
       if (p.tagName === 'TR' && p.classList.contains('item')) {
         const index = p.rowIndex
@@ -307,7 +307,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
       }
     }
 
-    return null
+    return undefined
   }
 
   setHorizontal(horizontal: boolean) {
@@ -344,7 +344,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   restoreScrollTop() {
-    if (this.scrollTop !== null) {
+    if (this.scrollTop !== undefined) {
       this.setScrollTop(this.scrollTop)
     }
   }
@@ -354,7 +354,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   setScrollTop(scrollTop: number) {
-    return this.body.refs.scroller.scrollTop = scrollTop
+    this.body.refs.scroller.scrollTop = scrollTop
   }
 
   cancelSpinner() {
@@ -848,10 +848,10 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     this.showSpinner()
 
     newDirectory.getEntries((newDirectory, err, entries) => {
-      if (err === null) {
+      if (!err) {
         this.entriesCallback(newDirectory, entries, snapShot, callback)
-      } else if ((err.canceled == null)) {
-        Utils.showErrorWarning('Error reading folder', null, err, null, false)
+      } else if (!err.canceled) {
+        Utils.showErrorWarning('Error reading folder', undefined, err, undefined, false)
         if (callback) {
           callback()
         }
@@ -880,8 +880,9 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
 
     let index = this.itemViews.length
 
-    for (let entry of Array.from(entries)) {
-      var itemView
+    for (let entry of entries) {
+      let itemView: ItemView | undefined = undefined
+
       if (entry instanceof VFile) {
         itemView = this.createFileView(index, entry)
       } else if (entry instanceof VDirectory) {
@@ -889,7 +890,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
       } else if (entry instanceof VSymLink) {
         itemView = this.createSymLinkView(index, entry)
       } else {
-        itemView = null
+        itemView = undefined
       }
 
       if (itemView) {
@@ -1110,8 +1111,8 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     })
   }
 
-  getInitialDirectory(suggestedPath?: string | null) {
-    if (suggestedPath&& fsp.isDirectorySync(suggestedPath)) {
+  getInitialDirectory(suggestedPath?: string) {
+    if (suggestedPath && fsp.isDirectorySync(suggestedPath)) {
       return main.localFileSystem.getDirectory(suggestedPath)
     }
 

@@ -197,10 +197,10 @@ export class MenuBarView extends View<MenuBarProps, MenuBarRefs> {
   }
 
   showParentMenuItem() {
-    if (this.currentMenuItem.parent === null) {
-      this.props.mainView.hideMenuBar()
-    } else {
+    if (this.currentMenuItem.parent) {
       this.showMenuItem(this.currentMenuItem.parent)
+    } else {
+      this.props.mainView.hideMenuBar()
     }
   }
 
@@ -210,7 +210,7 @@ export class MenuBarView extends View<MenuBarProps, MenuBarRefs> {
 
   createRootMenuItem() {
     const { actions } = main
-    const root = new MenuItem(null, '0', 'root')
+    const root = new MenuItem(undefined, '0', 'root')
 
     const select = root.addMenuItem('1', 'Select', () => this.showMenuItemWithId('1'))
     select.addMenuItem('1', 'All', () => actions.selectAll())

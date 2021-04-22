@@ -44,8 +44,8 @@ export class TabsView extends View<TabsViewProps, Refs> {
     return this.tabs.length
   }
 
-  addTab(view: ContainerView, select=false, requestFocus=false, index:number|null=null): TabView {
-    if (index === null) {
+  addTab(view: ContainerView, select=false, requestFocus=false, index?: number): TabView {
+    if (index === undefined) {
       index = this.tabs.length
     }
 

@@ -21,10 +21,10 @@ export class SymLinkView extends ItemView<VSymLink> {
     this.element.classList.remove('file', 'directory')
     this.refs.name.classList.remove('icon-link')
 
-    if (targetItem != null ? targetItem.isFile() : undefined) {
+    if (targetItem && targetItem.isFile()) {
       this.element.classList.add('file')
       this.refs.name.classList.add('icon-file-symlink-file')
-    } else if (targetItem != null ? targetItem.isDirectory() : undefined) {
+    } else if (targetItem && targetItem.isDirectory()) {
       this.element.classList.add('directory')
       this.refs.name.classList.add('icon', 'icon-file-symlink-directory')
     } else {

@@ -181,16 +181,12 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
     return undefined
   }
 
-  renameImpl(oldPath: string, newPath: string, callback: any) {
+  renameImpl(oldPath: string, newPath: string, callback: ErrorCallback) {
     this.client?.rename(oldPath, newPath, (err: any) => {
-      if (!callback) {
-        return
-      }
-
       if (err) {
         callback(err.message)
       } else {
-        callback(null)
+        callback(undefined)
       }
     })
   }
@@ -204,7 +200,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
       if (err) {
         callback(err.message)
       } else {
-        callback(null)
+        callback(undefined)
       }
     })
   }
@@ -218,7 +214,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
       if (err) {
         callback(err.message)
       } else {
-        callback(null)
+        callback(undefined)
       }
     })
   }
@@ -232,7 +228,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
       if (err) {
         callback(err.message)
       } else {
-        callback(null)
+        callback(undefined)
       }
     })
   }
@@ -279,9 +275,9 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
 
     this.client?.put(buffer, path, (err: Error) => {
       if (err) {
-        callback(null, err)
+        callback(undefined, err)
       } else {
-        callback(this.getFile(path), null)
+        callback(this.getFile(path), undefined)
       }
     })
   }
@@ -309,7 +305,7 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
       if (err) {
         callback(err, [])
       } else {
-        callback(null, this.wrapEntries(path, entries))
+        callback(undefined, this.wrapEntries(path, entries))
       }
     })
   }

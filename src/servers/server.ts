@@ -1,7 +1,7 @@
 const fse = require('fs-extra')
 const PathUtil = require('path')
 
-import * as fsp from 'fs-plus'
+import fsp from 'fs-plus'
 import { FTPFileSystem } from '../fs/ftp/ftp-filesystem'
 import { SFTPFileSystem } from '../fs/ftp/sftp-filesystem'
 import { RemoteFileManager } from './remote-file-manager'
@@ -173,7 +173,7 @@ export class Server {
     return result
   }
 
-  getWatcherWithLocalFilePath(localFilePath: string): Watcher | null {
+  getWatcherWithLocalFilePath(localFilePath: string): Watcher | undefined {
     return this.remoteFileManager.getWatcherWithLocalFilePath(localFilePath)
   }
 

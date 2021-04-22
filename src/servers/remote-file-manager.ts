@@ -48,7 +48,7 @@ export class RemoteFileManager {
 
     // See if the file is already being watched. This will be the case if the
     // file was opened directly from the remote file system instead of locally.
-    if (this.getWatcherWithLocalFilePath(localFilePath) !== null) {
+    if (this.getWatcherWithLocalFilePath(localFilePath)) {
       return
     }   
 
@@ -70,7 +70,7 @@ export class RemoteFileManager {
 
     const pane = atom.workspace.paneForURI(localFilePath)
 
-    if (pane != null) {
+    if (pane) {
       pane.activateItemForURI(localFilePath)
       return
     }
@@ -101,7 +101,7 @@ export class RemoteFileManager {
     fse.ensureDirSync(PathUtil.dirname(localFilePath))
 
     file.download(localFilePath, err => {
-      if (err != null) {
+      if (err) {
         this.handleDownloadError(file, err)
         return
       }
@@ -109,7 +109,7 @@ export class RemoteFileManager {
       atom.workspace.open(localFilePath).then(textEditor => {
         let watcher = this.getWatcherWithLocalFilePath(localFilePath)
 
-        if (watcher === null) {
+        if (!watcher) {
           watcher = this.addWatcher(cachePath, localFilePath, file, textEditor as TextEditor)
         }
 
@@ -122,7 +122,7 @@ export class RemoteFileManager {
   handleDownloadError(file: VFile, err: any) {
     let message = "The file " + file.getPath() + " could not be downloaded."
 
-    if (err.message != null) {
+    if (err.message) {
       message += "\nReason : " + err.message
     }
 
@@ -134,14 +134,14 @@ export class RemoteFileManager {
     atom.notifications.addWarning("Unable to download file.", options)
   }
 
-  getWatcherWithLocalFilePath(localFilePath: string) {
+  getWatcherWithLocalFilePath(localFilePath: string): Watcher | undefined {
     for (let watcher of this.watchers) {
       if (watcher.getLocalFilePath() === localFilePath) {
         return watcher
       }
     }
 
-    return null
+    return undefined
   }
 
   addWatcher(cachePath: string, localFilePath: string, file: VFile, textEditor: TextEditor) {

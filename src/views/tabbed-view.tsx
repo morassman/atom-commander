@@ -105,7 +105,7 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
     return this.addTab(item as VDirectory, true, true, index)
   }
 
-  addTab(directory: VDirectory|null=null, select=false, requestFocus=false, index?: number): TabView {
+  addTab(directory?: VDirectory, select=false, requestFocus=false, index?: number): TabView {
     const listView = new ContainerView(this.mainView, this.left)
 
     if (directory) {
@@ -214,7 +214,7 @@ export class TabbedView extends View<TabbedViewProps, Refs> {
       }
     }
 
-    if (this.refs.tabsView.getSelectedIndex() === null) {
+    if (this.refs.tabsView.getSelectedIndex() === undefined) {
       this.refs.tabsView.selectIndex(0)
     }
   }

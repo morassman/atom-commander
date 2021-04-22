@@ -37,9 +37,9 @@ type InputModalRefs = {
 
 export class InputModal extends View<InputModalProps, InputModalRefs> {
   
-  disposables: CompositeDisposable | null
+  disposables?: CompositeDisposable
   
-  panel: Panel | null
+  panel?: Panel
 
   previousActiveElement: any | null
 
@@ -154,7 +154,7 @@ export class InputModal extends View<InputModalProps, InputModalRefs> {
   close(restoreFocus: boolean) {
     if (this.panel) {
       this.panel.destroy()
-      this.panel = null
+      this.panel = undefined
     } else {
       this.destroy()
     }
@@ -169,7 +169,7 @@ export class InputModal extends View<InputModalProps, InputModalRefs> {
 
     if (this.disposables) {
       this.disposables.dispose()
-      this.disposables = null
+      this.disposables = undefined
     }
   }
 

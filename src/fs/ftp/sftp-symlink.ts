@@ -1,9 +1,9 @@
 import { VSymLink } from '../'
-import { SFTPFileSystem } from './sftp-filesystem';
-import { SFTPFile } from './sftp-file';
-import { SFTPDirectory } from './sftp-directory';
+import { SFTPFileSystem } from './sftp-filesystem'
+import { SFTPFile } from './sftp-file'
+import { SFTPDirectory } from './sftp-directory'
 
-const PathUtil = require('path').posix;
+const PathUtil = require('path').posix
 
 export class SFTPSymLink extends VSymLink {
 
@@ -11,10 +11,10 @@ export class SFTPSymLink extends VSymLink {
 
   writable: boolean
 
-  constructor(public readonly fileSystem: SFTPFileSystem, public readonly path: string, baseName = null) {
+  constructor(public readonly fileSystem: SFTPFileSystem, public readonly path: string) {
     super(fileSystem)
-    this.baseName = baseName == null ? PathUtil.basename(this.path) : baseName
-    this.writable = true;
+    this.baseName = PathUtil.basename(this.path)
+    this.writable = true
   }
 
   getFileSystem(): SFTPFileSystem {
@@ -22,26 +22,26 @@ export class SFTPSymLink extends VSymLink {
   }
 
   getRealPathSync(): string {
-    return this.path;
+    return this.path
   }
 
   getBaseName(): string {
-    return this.baseName;
+    return this.baseName
   }
 
   getParent(): SFTPDirectory | undefined {
-    return this.fileSystem.getDirectory(PathUtil.dirname(this.path));
+    return this.fileSystem.getDirectory(PathUtil.dirname(this.path))
   }
 
   isWritable(): boolean {
-    return this.writable;
+    return this.writable
   }
 
   createFileItem(targetPath: string): SFTPFile {
-    return new SFTPFile(this.getFileSystem(), false, targetPath);
+    return new SFTPFile(this.getFileSystem(), false, targetPath)
   }
 
   createDirectoryItem(targetPath: string): SFTPDirectory {
-    return new SFTPDirectory(this.getFileSystem(), false, targetPath);
+    return new SFTPDirectory(this.getFileSystem(), false, targetPath)
   }
 }

@@ -1,7 +1,7 @@
 import { Server } from '../../servers/server'
 import { RemoteFileSystem } from './remote-filesystem'
 import { SFTPConfig } from './sftp-config'
-import * as fsp from 'fs-plus'
+import fsp from 'fs-plus'
 import Utils from '../../utils'
 import { EntriesCallback, ErrorCallback, NewFileCallback, ReadStreamCallback, VFile, VItem } from '..'
 import { SFTPSession } from './sftp-session'
@@ -97,7 +97,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
       try {
         result.privateKey = this.getPrivateKey(this.config.privateKeyPath)
       } catch (err) {
-        Utils.showErrorWarning('Error reading private key', null, null, err, true)
+        Utils.showErrorWarning('Error reading private key', undefined, undefined, err, true)
       }
     }
 

@@ -8,10 +8,10 @@ import { main } from '../main'
 import { PathDescription } from './path-description'
 
 export type EmitterCallback = (value?: any) => void
-export type ErrorCallback = (err: any) => void
-export type NewFileCallback = (file: VFile | undefined, error: any) => void
-export type ReadStreamCallback = (error: any, stream?: NodeJS.ReadableStream) => void
-export type EntriesCallback = (directory: VDirectory, err: any, items: VItem[]) => void
+export type ErrorCallback = (err?: any) => void
+export type NewFileCallback = (file: VFile | undefined, error?: any) => void
+export type ReadStreamCallback = (error?: any, stream?: NodeJS.ReadableStream) => void
+export type EntriesCallback = (directory: VDirectory, err: any|undefined, items: VItem[]) => void
 
 export abstract class VFileSystem {
 
@@ -143,7 +143,7 @@ export abstract class VFileSystem {
 
   abstract disconnectImpl(): void
 
-  // Returns the path part of the URI relative to this file system. null if this
+  // Returns the path part of the URI relative to this file system. undefined if this
   // URI doesn't match this file system.
   // Example : 'sftp://localhost/Test/Path' => '/Test/Path'
   getPathFromURI(uri: string): string | undefined {
@@ -154,7 +154,7 @@ export abstract class VFileSystem {
     return this.getDirectory('/')
   }
 
-  getDisplayName() {
+  getDisplayName(): string {
     return this.getName()
   }
 
@@ -179,7 +179,7 @@ export abstract class VFileSystem {
 
   abstract getUsername(): string
 
-  // Callback receives a single string argument with error message. null if no error.
+  // Callback receives a single string argument with error message. undefined if no error.
   rename(oldPath: string, newPath: string, callback: ErrorCallback) {
     const successCallback = () => {
       this.renameImpl(oldPath, newPath, callback)
@@ -190,7 +190,7 @@ export abstract class VFileSystem {
 
   abstract renameImpl(oldPath: string, newPath: string, callback: ErrorCallback): void
 
-  // Callback receives a single string argument with error message. null if no error.
+  // Callback receives a single string argument with error message. undefined if no error.
   makeDirectory(path: string, callback: ErrorCallback) {
     const successCallback = () => {
       this.makeDirectoryImpl(path, callback)
@@ -201,7 +201,7 @@ export abstract class VFileSystem {
 
   abstract makeDirectoryImpl(path: string, callback: ErrorCallback): void
 
-  // Callback receives a single string argument with error message. null if no error.
+  // Callback receives a single string argument with error message. undefined if no error.
   deleteFile(path: string, callback: ErrorCallback) {
     const successCallback = () => {
       this.deleteFileImpl(path, callback)
@@ -212,7 +212,7 @@ export abstract class VFileSystem {
 
   abstract deleteFileImpl(path: string, callback: ErrorCallback): void
 
-  // Callback receives a single string argument with error message. null if no error.
+  // Callback receives a single string argument with error message. undefined if no error.
   deleteDirectory(path: string, callback: ErrorCallback) {
     const successCallback = () => {
       this.deleteDirectoryImpl(path, callback)
@@ -223,7 +223,7 @@ export abstract class VFileSystem {
 
   abstract deleteDirectoryImpl(path: string, callback: ErrorCallback): void
 
-  // Callback receives a single string argument with error message. null if no error.
+  // Callback receives a single string argument with error message. undefined if no error.
   download(path: string, localPath: string, callback: ErrorCallback) {
     const successCallback = () => {
       this.downloadImpl(path, localPath, callback)
@@ -245,7 +245,7 @@ export abstract class VFileSystem {
   }
 
   // Callback receives two arguments:
-  // 1.) err : String with error message. null if no error.
+  // 1.) err : String with error message. undefined if no error.
   // 2.) stream : A ReadableStream.
   createReadStream(path: string, callback: ReadStreamCallback) {
     const successCallback = () => {
@@ -262,7 +262,7 @@ export abstract class VFileSystem {
   abstract createReadStreamImpl(path: string, callback: ReadStreamCallback): void
 
   // The callback receives two parameters :
-  // 1.) file : The file that was created. null if it could not be created.
+  // 1.) file : The file that was created. undefined if it could not be created.
   // 2.) err : The error if the file could not be created.
   newFile(path: string, callback: NewFileCallback) {
     const successCallback = () => {
@@ -280,7 +280,7 @@ export abstract class VFileSystem {
 
   // The callback received three parameters :
   // 1.) The directory.
-  // 2.) err if there is an error. null if not.
+  // 2.) err if there is an error. undefined if not.
   // 3.) The list of entries containing VFile and VDirectory instances.
   getEntries(directory: VDirectory, callback: EntriesCallback) {
     const successCallback = () => {

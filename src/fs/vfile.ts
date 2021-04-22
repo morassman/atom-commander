@@ -67,7 +67,7 @@ export abstract class VFile extends VItem {
   }
 
   // Callback receives two arguments:
-  // 1.) err : String with error message. null if no error.
+  // 1.) err : String with error message. undefined if no error.
   // 2.) stream : A ReadableStream.
   createReadStream(callback: ReadStreamCallback) {
     this.fileSystem.createReadStream(this.getPath(), callback)

@@ -67,7 +67,7 @@ export class Style {
       return
     }
 
-    this.display = window.getComputedStyle(this.element, null).getPropertyValue('display')
+    this.display = window.getComputedStyle(this.element).getPropertyValue('display')
 
     if (!this.display) {
       this.display = getTagDisplay(this.element.tagName.toLowerCase())

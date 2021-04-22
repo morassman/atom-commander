@@ -3,7 +3,7 @@ const path = require('path')
 
 import { Directory } from 'atom'
 
-import * as fsp from 'fs-plus'
+import fsp from 'fs-plus'
 
 declare function emit(event: string, data: any): void
 

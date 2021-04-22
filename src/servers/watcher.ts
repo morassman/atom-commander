@@ -1,9 +1,9 @@
 const fs = require('fs')
-import * as fsp from 'fs-plus'
+import fsp from 'fs-plus'
 
 import { CompositeDisposable, NotificationOptions, TextEditor } from 'atom'
 import { VFile } from '../fs'
-import { RemoteFileManager } from "./remote-file-manager"
+import { RemoteFileManager } from './remote-file-manager'
 
 export class Watcher {
 
@@ -19,9 +19,9 @@ export class Watcher {
 
   openTime: Date
 
-  saveTime: Date | null
+  saveTime?: Date
 
-  uploadTime: Date | null
+  uploadTime?: Date
 
   disposables: CompositeDisposable
 
@@ -35,8 +35,6 @@ export class Watcher {
     this.destroyed = false
     this.openedRemotely = true
     this.openTime = this.getModifiedTime()
-    this.saveTime = null
-    this.uploadTime = null
     this.disposables = new CompositeDisposable()
     this.serverName = this.remoteFileManager.getServer().getDisplayName()
 
@@ -72,7 +70,7 @@ export class Watcher {
   fileSaved() {
     this.saveTime = this.getModifiedTime()
 
-    if (atom.config.get("atom-commander.uploadOnSave")) {
+    if (atom.config.get('atom-commander.uploadOnSave')) {
       this.upload()
     }
   }
@@ -86,24 +84,24 @@ export class Watcher {
   }
 
   uploadCallback(err: any) {
-    this.uploadFailed = (err != null)
+    this.uploadFailed = err ? true : false
 
     if (this.uploadFailed) {
-      let message = this.file.getPath() + " could not be uploaded to " + this.serverName
+      let message = this.file.getPath() + ' could not be uploaded to ' + this.serverName
 
-      if (err.message != null) {
-        message += "\nReason : " + err.message
+      if (err.message) {
+        message += '\nReason : ' + err.message
       }
 
-      message += "\nThe file has been cached and can be uploaded later."
+      message += '\nThe file has been cached and can be uploaded later.'
 
       const options: NotificationOptions = {
         dismissable: true,
         detail: message
       }
-      atom.notifications.addWarning("Unable to upload file.", options)
+      atom.notifications.addWarning('Unable to upload file.', options)
     } else {
-      atom.notifications.addSuccess(this.file.getPath() + " uploaded to " + this.serverName)
+      atom.notifications.addSuccess(this.file.getPath() + ' uploaded to ' + this.serverName)
       this.uploadTime = this.getModifiedTime()
     }
 
@@ -121,7 +119,7 @@ export class Watcher {
   }
 
   shouldDeleteFile() {
-    const removeOnClose = atom.config.get("atom-commander.removeOnClose")
+    const removeOnClose = atom.config.get('atom-commander.removeOnClose')
 
     if (!removeOnClose) {
       return false
@@ -135,11 +133,11 @@ export class Watcher {
   }
 
   shouldDeleteRemoteOpenedFile() {
-    if (this.saveTime === null) {
+    if (!this.saveTime) {
       return true
     }
 
-    if (this.uploadTime === null) {
+    if (!this.uploadTime) {
       return false
     }
 
@@ -147,11 +145,11 @@ export class Watcher {
   }
 
   shouldDeleteLocalOpenedFile() {
-    if (this.uploadTime === null) {
+    if (!this.uploadTime) {
       return false
     }
 
-    if (this.saveTime === null) {
+    if (!this.saveTime) {
       return this.uploadTime === this.openTime
     }
 

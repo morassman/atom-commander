@@ -16,8 +16,8 @@ import { showAddBookmarkModal, showOpenBookmarkModal, showRemoveBookmarkModal, s
 // const {File, Directory, TextEditor} = require('atom')
 // const ChildProcess = require('child_process')
 
-import * as ChildProcess from 'child_process'
-import * as fsp from 'fs-plus'
+import ChildProcess from 'child_process'
+import fsp from 'fs-plus'
 
 const { shell } = require('electron')
 
@@ -248,7 +248,7 @@ export class Actions {
   goBookmark(bookmark: Bookmark) {
     const fileSystem = this.main.getFileSystemWithID(bookmark.pathDescription.fileSystemId)
 
-    if (fileSystem === null) {
+    if (!fileSystem) {
       return
     }
 
@@ -380,7 +380,7 @@ export class Actions {
     const serverManager = this.main.getServerManager()
     const watcher = serverManager.getWatcherWithLocalFilePath(path)
 
-    if (watcher !== null) {
+    if (watcher) {
       file = watcher.getFile()
     }
 

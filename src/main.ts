@@ -9,7 +9,7 @@ import { ServerManager } from './servers/server-manager'
 import { RemoteConfig } from './fs/ftp/remote-config'
 import { Server } from './servers/server'
 
-import * as fsp from 'fs-plus'
+import fsp from 'fs-plus'
 import { MainView, ATOM_COMMANDER_URI } from './views/main-view'
 import { ContainerState } from './views/container-view'
 
@@ -338,7 +338,7 @@ export class Main {
     }
   }
 
-  getDock(): {dock: Dock, location: 'left' | 'right' | 'bottom'} | null {
+  getDock(): {dock: Dock, location: 'left' | 'right' | 'bottom'} | undefined {
     if (atom.workspace.getBottomDock().getPaneItems().indexOf(this.mainView) >= 0) {
       return {
         dock: atom.workspace.getBottomDock(),
@@ -358,10 +358,10 @@ export class Main {
       }
     }
 
-    return null
+    return undefined
   }
 
-  isVisible() {
+  isVisible(): boolean {
     return this.isVisibleInDock()
   }
 

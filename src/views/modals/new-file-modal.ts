@@ -37,7 +37,7 @@ function callback(name: string | undefined, containerView: ContainerView, direct
       containerView.highlightIndexWithName(file.getBaseName())
       file.open()
     } else {
-      Utils.showErrorWarning('Unable to create file '+name, null, null, err, true)
+      Utils.showErrorWarning('Unable to create file '+name, undefined, undefined, err, true)
     }
   })
 }

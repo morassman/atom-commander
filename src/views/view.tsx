@@ -184,8 +184,8 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
     }
   }
 
-  getTextContent(): string | null{
-    return this.element ? this.element.textContent : null
+  getTextContent(): string | undefined{
+    return this.element && this.element.textContent ? this.element.textContent : undefined
   }
 
   appendTextContent(textContent: string) {

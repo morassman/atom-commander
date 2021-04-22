@@ -1,7 +1,7 @@
 import { InputModal } from './input-modal'
 import { ContainerView } from '../container-view'
 import { VDirectory } from '../../fs'
-import * as fsp from 'fs-plus'
+import fsp from 'fs-plus'
 
 export function showNewDirectoryModal(containerView: ContainerView, directory: VDirectory) {
   const modal = new InputModal({

@@ -5,7 +5,7 @@ import { NotificationOptions } from 'atom'
 // const DiffView = require('./views/diff/diff-view')
 // const InputDialog = require('./dialogs/input-dialog')
 
-import * as fsp from 'fs-plus'
+import fsp from 'fs-plus'
 import { VItem } from './fs'
 import { ItemView } from './views/item-view'
 
@@ -20,19 +20,19 @@ export default {
   //   return pane.activateItem(item)
   // },
 
-  // getFirstFileViewItem(viewItems) {
-  //   if (viewItems === null) {
-  //     return null
-  //   }
+  getFirstFileViewItem(itemViews: ItemView[]): ItemView | undefined {
+    if (!itemViews) {
+      return undefined
+    }
 
-  //   for (let viewItem of Array.from(viewItems)) {
-  //     if (viewItem.itemController instanceof FileController) {
-  //       return viewItem
-  //     }
-  //   }
+    for (let itemView of itemViews) {
+      if (itemView.item.isFile() && !itemView.item.isLink()) {
+        return itemView
+      }
+    }
 
-  //   return null
-  // },
+    return undefined
+  },
 
   sortItems(items: VItem[]) {
     return items.sort(function(item1: VItem, item2: VItem) {
@@ -92,14 +92,14 @@ export default {
     return atom.notifications.addWarning(title, options)
   },
 
-  showErrorWarning(title: string, pre: string|null, post: string|null, err: Error|null, dismissable: boolean) {
+  showErrorWarning(title: string, pre: string|undefined, post: string|undefined, err: Error|undefined, dismissable: boolean) {
     let message = ''
 
-    if (pre !== null) {
+    if (pre) {
       message = pre
     }
 
-    if ((err !== null) && (err.message !== null)) {
+    if (err && err.message) {
       if (message.length > 0) {
         message += '\n'
       }
@@ -107,7 +107,7 @@ export default {
       message += err.message
     }
 
-    if (post !== null) {
+    if (post) {
       message += '\n' + post
     }
 

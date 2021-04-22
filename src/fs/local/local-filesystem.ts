@@ -1,4 +1,4 @@
-import * as fsp from 'fs-plus'
+import fsp from 'fs-plus'
 const fse = require('fs-extra')
 const PathUtil = require('path')
 
@@ -70,41 +70,29 @@ export class LocalFileSystem extends VFileSystem {
 
   renameImpl(oldPath: string, newPath: string, callback: ErrorCallback) {
     fsp.moveSync(oldPath, newPath)
-    if (callback !== null) {
-      return callback(null)
-    }
+    callback(undefined)
   }
 
   makeDirectoryImpl(path: string, callback: ErrorCallback) {
     const directory = new Directory(path)
 
     return directory.create().then(created => {
-      if ((callback == null)) {
-        return
-      }
-
       if (created) {
-        return callback(null)
+        callback()
       } else {
-        return callback('Error creating folder.')
+        callback('Error creating folder.')
       }
     })
   }
 
   deleteFileImpl(path: string, callback: ErrorCallback) {
     fse.removeSync(path)
-
-    if (callback != null) {
-      return callback(null)
-    }
+    callback()
   }
 
   deleteDirectoryImpl(path: string, callback: ErrorCallback) {
     fse.removeSync(path)
-
-    if (callback != null) {
-      callback(null)
-    }
+    callback()
   }
 
   downloadImpl(path: string, localPath: string, callback: ErrorCallback) {
@@ -122,7 +110,7 @@ export class LocalFileSystem extends VFileSystem {
   }
 
   createReadStreamImpl(path: string, callback: ReadStreamCallback) {
-    callback(null, fse.createReadStream(path))
+    callback(undefined, fse.createReadStream(path))
   }
 
   newFileImpl(path: string, callback: NewFileCallback) {
@@ -130,7 +118,7 @@ export class LocalFileSystem extends VFileSystem {
 
     const p = file.create().then(created => {
       if (created) {
-        callback(this.getFile(path), null)
+        callback(this.getFile(path))
       } else {
         callback(undefined, 'File could not be created.')
       }
@@ -141,10 +129,10 @@ export class LocalFileSystem extends VFileSystem {
 
   getEntriesImpl(directory: LocalDirectory, callback: EntriesCallback) {
     return directory.directory.getEntries((err, entries) => {
-      if (err != null) {
-        return callback(directory, err, [])
+      if (err ) {
+        callback(directory, err, [])
       } else {
-        return callback(directory, null, this.wrapEntries(entries))
+        callback(directory, undefined, this.wrapEntries(entries))
       }
     })
   }

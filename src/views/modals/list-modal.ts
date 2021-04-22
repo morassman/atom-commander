@@ -14,14 +14,14 @@ interface RendererOptions {
 export type ItemProvider<I> = () => I[]
 
 /**
- * Callback type receives the item that was selected. null if the modal was
+ * Callback type receives the item that was selected. undefined if the modal was
  * canceled. If an item was selected and the modal should remain open, return true.
  */
-export type Callback<I> = (item: I | null) => boolean
+export type Callback<I> = (item?: I) => boolean
 
 export type ItemRenderer<I> = (item: I, options: RendererOptions) => HTMLElement
 
-export function twoLineRenderer<I>(primary: (item: I)=> string, secondary: (item: I)=>(string | null)): ItemRenderer<I> {
+export function twoLineRenderer<I>(primary: (item: I)=> string, secondary: (item: I)=>(string | undefined)): ItemRenderer<I> {
   return (item: I, options: RendererOptions): HTMLElement => {
     const li = document.createElement('li')
 
@@ -77,11 +77,11 @@ export class ListModal<I> {
       },
       didConfirmEmptySelection: () => {
         this.close()
-        callback(null)
+        callback()
       },
       didCancelSelection: () => {
         this.close()
-        callback(null)
+        callback()
       }
     })
   }
