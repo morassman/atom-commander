@@ -102,7 +102,7 @@ export class RemoteFileManager {
 
     file.download(localFilePath, err => {
       if (err) {
-        this.handleDownloadError(file, err)
+        this.onDownloadError(file, err)
         return
       }
 
@@ -119,7 +119,7 @@ export class RemoteFileManager {
     })
   }
 
-  handleDownloadError(file: VFile, err: any) {
+  onDownloadError(file: VFile, err: any) {
     let message = "The file " + file.getPath() + " could not be downloaded."
 
     if (err.message) {

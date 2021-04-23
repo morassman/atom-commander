@@ -159,7 +159,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   render(): any {
-    return <div className='atom-commander' onKeyUp={e => this.handleKeyUp(e)} onKeyDown={e => this.handleKeyDown(e)} onKeyPress={e => this.handleKeyPress(e)}>
+    return <div className='atom-commander' onKeyUp={e => this.onKeyUp(e)} onKeyDown={e => this.onKeyDown(e)} onKeyPress={e => this.onKeyPress(e)}>
       <MenuBarView ref='menuBar' mainView={this}/>
       <div ref='contentView' className='content'>
         <TabbedView ref='leftTabbedView' mainView={this} left={true} />
@@ -205,13 +205,13 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     return this.element
   }
 
-  handleKeyDown(e: KeyboardEvent) {
+  onKeyDown(e: KeyboardEvent) {
     if (e.altKey && !e.ctrlKey && !e.metaKey && this.refs.menuBar.isHidden()) {
       this.showMenuBar()
       e.preventDefault()
       e.stopPropagation()
     } else if (this.refs.menuBar.isVisible()) {
-      this.refs.menuBar.handleKeyDown(e)
+      this.refs.menuBar.onKeyDown(e)
       e.preventDefault()
       e.stopPropagation()
     } else if (e.shiftKey) {
@@ -219,9 +219,9 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     }
   }
 
-  handleKeyUp(e: KeyboardEvent) {
+  onKeyUp(e: KeyboardEvent) {
     if (e.altKey) {
-      this.refs.menuBar.handleKeyUp(e)
+      this.refs.menuBar.onKeyUp(e)
       e.preventDefault()
       e.stopPropagation()
     } else if (this.refs.menuBar.isVisible()) {
@@ -233,9 +233,9 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     }
   }
 
-  handleKeyPress(e: KeyboardEvent) {
+  onKeyPress(e: KeyboardEvent) {
     if (this.refs.menuBar.isVisible()) {
-      this.refs.menuBar.handleKeyUp(e)
+      this.refs.menuBar.onKeyUp(e)
       e.preventDefault()
       e.stopPropagation()
     }

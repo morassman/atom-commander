@@ -224,7 +224,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
         <Div ref='username' className='highlight-info username' />
         <input ref='directoryEditor' className='directory-editor input-text' type='text' onBlur={() => this.directoryEditorCancel()} onFocus={() => this.onDirectoryEditorFocus()}/>
       </div>
-      <Div ref='containerView' className='atom-commander-container-view' onDoubleClick={e => this.onDoubleClick(e)} onMouseDown={e => this.onMouseDown(e)} onKeyPress={e => this.handleKeyPress(e)}/>
+      <Div ref='containerView' className='atom-commander-container-view' onDoubleClick={e => this.onDoubleClick(e)} onMouseDown={e => this.onMouseDown(e)} onKeyPress={e => this.onKeyPress(e)}/>
       <Div ref='searchPanel' className='search-panel'/>
       <Div ref='spinnerPanel' className='loading-panel'>Loading...</Div>
     </div>
@@ -410,7 +410,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     }
   }
 
-  handleKeyPress(e: KeyboardEvent) {
+  onKeyPress(e: KeyboardEvent) {
     if (!this.hasContainerFocus()) {
       return
     }

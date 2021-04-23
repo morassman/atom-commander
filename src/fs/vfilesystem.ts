@@ -173,8 +173,6 @@ export abstract class VFileSystem {
   // Returns an string that uniquely IDs this file system.
   abstract getID(): string
 
-  abstract getSafeConfig(): any
-
   abstract getPathUtil(): any
 
   abstract getUsername(): string

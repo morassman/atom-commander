@@ -289,7 +289,7 @@ export class MenuBarView extends View<MenuBarProps, MenuBarRefs> {
     })
   }
 
-  handleKeyDown(event: KeyboardEvent) {
+  onKeyDown(event: KeyboardEvent) {
     const charCode = event.which | event.keyCode
 
     if (event.shiftKey || (charCode === 27)) {
@@ -297,7 +297,7 @@ export class MenuBarView extends View<MenuBarProps, MenuBarRefs> {
     }
   }
 
-  handleKeyUp(event: KeyboardEvent) {
+  onKeyUp(event: KeyboardEvent) {
     let charCode = event.which | event.keyCode
 
     // Not sure if this the right way, but on OSX it allows the keypad to be used.

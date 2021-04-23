@@ -1,6 +1,4 @@
-const fs = require('fs')
-const SSH2 = require('ssh2')
-
+import { Client, ConnectConfig, SFTPWrapper } from 'ssh2'
 import Utils from '../../utils'
 import { SFTPConfig } from './sftp-config'
 import { SFTPFileSystem } from './sftp-filesystem'
@@ -9,26 +7,22 @@ export class SFTPSession {
   
   config: SFTPConfig
   
-  clientConfig: any
+  clientConfig: ConnectConfig
 
-  client: any
+  sftp?: SFTPWrapper
 
-  ssh2: any
+  client?: Client
 
-  open: any
-
+  open: boolean
 
   constructor(public readonly fileSystem: SFTPFileSystem) {
     this.config = this.fileSystem.config
     this.clientConfig = this.fileSystem.clientConfig
-
-    this.client = null
-    this.ssh2 = null
-    this.open = null
+    this.open = false
   }
 
-  getClient() {
-    return this.client
+  getClient(): SFTPWrapper | undefined {
+    return this.sftp
   }
 
   // Called if connecting failed due to invalid credentials. This will only try
@@ -38,26 +32,21 @@ export class SFTPSession {
     delete this.clientConfig.passphrase
 
     if (this.config.loginWithPassword || this.config.usePassphrase) {
-      return this.connect()
+      this.connect()
     } else {
       this.fileSystem.emitError(err)
-      return this.canceled()
+      this.canceled()
     }
   }
 
   connect() {
-    let {
-      password
-    } = this.clientConfig
-    let {
-      passphrase
-    } = this.clientConfig
+    let { password, passphrase } = this.clientConfig
 
-    if ((password == null)) {
+    if (!password) {
       password = ''
     }
 
-    if ((passphrase == null)) {
+    if (!passphrase) {
       passphrase = ''
     }
 
@@ -85,91 +74,87 @@ export class SFTPSession {
     prompt += this.clientConfig.host
     prompt += ':'
 
-    return Utils.promptForPassword(prompt, (input: string) => {
-      if (input != null) {
-        return this.connectWith(password, input)
+    Utils.promptForPassword(prompt, (input: string) => {
+      if (input) {
+        this.connectWith(password || '', input)
       } else {
         const err = {
           canceled: true,
           message: 'Incorrect credentials for '+this.clientConfig.host
         }
         this.fileSystem.emitError(err)
-        return this.canceled()
+        this.canceled()
       }
     })
+  }
+
+  private onClientReady(err: Error | undefined, sftp: SFTPWrapper, password: string, passphrase: string) {
+    if (err) {
+      this.fileSystem.emitError(err)
+      this.close()
+      return
+    }
+
+    this.sftp = sftp
+
+    this.sftp.on('end', () => {
+      this.close()
+    })
+
+    // If the connection was successful then remember the password for
+    // the rest of the session.
+    if (password.length > 0) {
+      this.clientConfig.password = password
+    }
+
+    if (passphrase.length > 0) {
+      this.clientConfig.passphrase = passphrase
+    }
+
+    this.opened()
+  }
+
+  private onClientError(err: any) {
+    if (err.level === 'client-authentication') {
+      atom.notifications.addWarning('Incorrect credentials for '+this.clientConfig.host)
+      err = {}
+      err.canceled = false
+      err.message = 'Incorrect credentials for '+this.clientConfig.host
+      this.reconnect(err)
+    } else {
+      this.fileSystem.emitError(err)
+    }
+  }
+
+  private onClientKeyboardInteractive(prompt: any, finish: any, password: string) {
+    if (password.length > 0) {
+      finish([password])
+    } else {
+      const prompts = prompt.map((p: any) => p.prompt)
+      const values: string[] = []
+      this.prompt(0, prompts, values, finish)
+    }
   }
 
   // All connectWith? functions boil down to this one.
   //
   // password: The password that should be used. empty if not logging in with password.
-  // passphrase: The passphrase to use when loggin in with a private key. empty if it shouldn't be used.
+  // passphrase: The passphrase to use when logging in with a private key. empty if it shouldn't be used.
   connectWith(password: string, passphrase: string) {
-    this.client = null
-    this.ssh2 = new SSH2()
+    this.sftp = undefined
+    this.client = new Client()
 
-    this.ssh2.on('ready', () => {
-      return this.ssh2.sftp((err: any, sftp: any) => {
-        if (err != null) {
-          this.fileSystem.emitError(err)
-          this.close()
-          return
-        }
-
-        this.client = sftp
-
-        this.client.on('end', () => {
-          return this.close()
-        })
-
-        // If the connection was successful then remember the password for
-        // the rest of the session.
-        if (password.length > 0) {
-          this.clientConfig.password = password
-        }
-
-        if (passphrase.length > 0) {
-          this.clientConfig.passphrase = passphrase
-        }
-
-        return this.opened()
-      })
+    this.client.on('ready', () => {
+      this.client?.sftp((err, sftp) => this.onClientReady(err, sftp, password, passphrase))
     })
 
-    this.ssh2.on('error', (err: any) => {
-      if (err.level === 'client-authentication') {
-        atom.notifications.addWarning('Incorrect credentials for '+this.clientConfig.host)
-        err = {}
-        err.canceled = false
-        err.message = 'Incorrect credentials for '+this.clientConfig.host
-        return this.reconnect(err)
-      } else {
-        return this.fileSystem.emitError(err)
-      }
-    })
+    this.client.on('error', (err: any) => this.onClientError(err))
+    this.client.on('close', () => this.close())
+    this.client.on('end', () => this.close())
+    this.client.on('keyboard-interactive', (name: any, instructions: any, instructionsLang: any, prompt: any, finish: any) => this.onClientKeyboardInteractive(prompt, finish, password))
 
-    this.ssh2.on('close', () => {
-      return this.close()
-    })
-
-    this.ssh2.on('end', () => {
-      return this.close()
-    })
-
-    this.ssh2.on('keyboard-interactive', (name: any, instructions: any, instructionsLang: any, prompt: any, finish: any) => {
-      if (password.length > 0) {
-        return finish([password])
-      } else {
-        const prompts = prompt.map((p: any) => p.prompt)
-        const values: string[] = []
-        return this.prompt(0, prompts, values, finish)
-      }
-    })
-
-    const connectConfig: any = {}
-
-    for (let key in this.clientConfig) {
-      const val = this.clientConfig[key]
-      connectConfig[key] = val
+    const connectConfig: ConnectConfig = {
+      ...this.clientConfig
     }
 
     connectConfig.password = password
@@ -183,56 +168,58 @@ export class SFTPSession {
       delete connectConfig['passphrase']
     }
 
-    return this.ssh2.connect(connectConfig)
+    this.client.connect(connectConfig)
   }
 
   disconnect() {
-    if (this.client != null) {
+    if (this.sftp) {
+      this.sftp.end()
+      this.sftp = undefined
+    }
+
+    if (this.client) {
       this.client.end()
-      this.client = null
+      this.client = undefined
     }
 
-    if (this.ssh2 != null) {
-      this.ssh2.end()
-      this.ssh2 = null
-    }
-
-    return this.close()
+    this.close()
   }
 
   opened() {
     this.open = true
-    return this.fileSystem.sessionOpened(this)
+    this.fileSystem.sessionOpened(this)
   }
 
   canceled() {
     this.disconnect()
-    return this.fileSystem.sessionCanceled(this)
+    this.fileSystem.sessionCanceled(this)
   }
 
   close() {
     if (this.open) {
       this.open = false
-      return this.fileSystem.sessionClosed(this)
+      this.fileSystem.sessionClosed(this)
     }
   }
 
   prompt(index: number, prompts: string[], values: string[], finish: any) {
-    return Utils.promptForPassword(prompts[index], (input: string) => {
+    Utils.promptForPassword(prompts[index], (input: string) => {
       if (input != null) {
         values.push(input)
+
         if (prompts.length === (index + 1)) {
-          return finish(values)
+          finish(values)
         } else {
-          return this.prompt(index + 1, prompts, values, finish)
+          this.prompt(index + 1, prompts, values, finish)
         }
       } else {
         const err = {
           canceled: true,
           message: 'Incorrect credentials for '+this.clientConfig.host
         }
+
         this.fileSystem.emitError(err)
-        return this.canceled()
+        this.canceled()
       }
     })
   }

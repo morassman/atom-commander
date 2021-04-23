@@ -28,10 +28,6 @@ export class LocalFileSystem extends VFileSystem {
   disconnectImpl() {
   }
 
-  getSafeConfig(): any {
-    return {}
-  }
-
   getFile(path: string): LocalFile {
     return new LocalFile(this, new File(path))
   }

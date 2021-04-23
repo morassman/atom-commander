@@ -1,3 +1,4 @@
+import { Client, ConnectConfig, SFTPWrapper } from 'ssh2'
 import { Server } from '../../servers/server'
 import { RemoteFileSystem } from './remote-filesystem'
 import { SFTPConfig } from './sftp-config'
@@ -16,19 +17,15 @@ const PathUtil = require('path').posix
 
 export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
 
-  // TODO Type
-  session: any
+  session?: SFTPSession
 
-  // TODO Type
-  client: any
+  client?: SFTPWrapper
 
   // TODO Type
   clientConfig: any
 
   constructor(server: Server, config: SFTPConfig) {
     super(server, config)
-    this.session = null
-    this.client = null
 
     if (!this.config.passwordDecrypted) {
       if ((this.config.password != null) && (this.config.password.length > 0)) {
@@ -69,15 +66,15 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
 
   sessionCanceled(session: SFTPSession) {
     if (session === this.session) {
-      this.session = null
+      this.session = undefined
       this.setConnected(false)
     }
   }
 
   sessionClosed(session: SFTPSession) {
     if (session === this.session) {
-      this.session = null
-      this.client = null
+      this.session = undefined
+      this.client = undefined
       this.setConnected(false)
     }
   }
@@ -118,18 +115,16 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     return fs.readFileSync(path, 'utf8')
   }
 
-  getSafeConfig(): any {
-    const result: any = {}
-
-    Object.entries(this.config).forEach(entry => {
-      result[entry[0]] = entry[1]
-    })
+  getSafeConfig(): SFTPConfig {
+    const result: SFTPConfig = {
+      ...this.config
+    }
 
     if (this.config.storePassword) {
-      if ((this.config.password != null) && (this.config.password.length > 0)) {
+      if (result.password && (result.password.length > 0)) {
         result.password = Utils.encrypt(result.password, this.getDescription())
       }
-      if ((this.config.passphrase != null) && (this.config.passphrase.length > 0)) {
+      if (result.passphrase && (result.passphrase.length > 0)) {
         result.passphrase = Utils.encrypt(result.passphrase, this.getDescription())
       }
     } else {
@@ -182,11 +177,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   }
 
   renameImpl(oldPath: string, newPath: string, callback: ErrorCallback) {
-    this.client.rename(oldPath, newPath, (err: any) => {
-      if (!callback) {
-        return
-      }
-
+    this.client?.rename(oldPath, newPath, (err: any) => {
       if (err) {
         callback(err)
       } else {
@@ -196,11 +187,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   }
 
   makeDirectoryImpl(path: string, callback: ErrorCallback) {
-    this.client.mkdir(path, [], (err: any) => {
-      if (!callback) {
-        return
-      }
-
+    this.client?.mkdir(path, {}, (err: any) => {
       if (err) {
         callback(err)
       } else {
@@ -210,11 +197,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   }
 
   deleteFileImpl(path: string, callback: ErrorCallback) {
-    this.client.unlink(path, (err: any) => {
-      if (!callback) {
-        return
-      }
-
+    this.client?.unlink(path, (err: any) => {
       if (err) {
         callback(err)
       } else {
@@ -224,11 +207,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   }
 
   deleteDirectoryImpl(path: string, callback: ErrorCallback) {
-    this.client.rmdir(path, (err: any) => {
-      if (!callback) {
-        return
-      }
-
+    this.client?.rmdir(path, (err: any) => {
       if (err) {
         callback(err)
       } else {
@@ -258,11 +237,11 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   }
 
   downloadImpl(path: string, localPath: string, callback: ErrorCallback) {
-    this.client.fastGet(path, localPath, {}, callback)
+    this.client?.fastGet(path, localPath, {}, callback)
   }
 
   uploadImpl(localPath: string, path: string, callback: ErrorCallback) {
-    this.client.fastPut(localPath, path, {}, callback)
+    this.client?.fastPut(localPath, path, {}, callback)
   }
 
   openFile(file: VFile) {
@@ -270,8 +249,10 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   }
 
   createReadStreamImpl(path: string, callback: ReadStreamCallback) {
-    const rs = this.client.createReadStream(path)
-    callback(null, rs)
+    if (this.client) {
+      const rs = this.client.createReadStream(path)
+      callback(null, rs)
+    }
   }
 
   getDescription(): string {
@@ -284,8 +265,8 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     })
   }
 
-  list(path: string, callback: any) {
-    return this.client.readdir(path, (err: any, entries: any[]) => {
+  list(path: string, callback: (err: any, entries: VItem[]) => void) {
+    this.client?.readdir(path, (err: any, entries: any[]) => {
       if (err) {
         callback(err, [])
       } else {
@@ -339,7 +320,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
     const fullPath = PathUtil.join(path, entry.filename)
     const result = new SFTPSymLink(this, fullPath)
 
-    this.client.stat(fullPath, (err: any, stat: any) => {
+    this.client?.stat(fullPath, (err: any, stat: any) => {
       if (err) {
         return
       }
@@ -347,7 +328,7 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
       result.setModifyDate(new Date(entry.attrs.mtime*1000))
       result.setSize(entry.attrs.size)
 
-      this.client.readlink(fullPath, (err: any, target: string) => {
+      this.client?.readlink(fullPath, (err: any, target: string) => {
         if (err) {
           return
         }
@@ -364,13 +345,13 @@ export class SFTPFileSystem extends RemoteFileSystem<SFTPConfig> {
   }
 
   newFileImpl(path: string, callback: NewFileCallback) {
-    this.client.open(path, 'w', {}, (err: any, handle: any) => {
+    this.client?.open(path, 'w', {}, (err: any, handle: any) => {
       if (err) {
         callback(undefined, err)
         return
       }
 
-      this.client.close(handle, (err: any) => {
+      this.client?.close(handle, (err: any) => {
         if (err) {
           callback(undefined, err)
         } else {

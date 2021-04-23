@@ -8,9 +8,9 @@ export interface SFTPConfig extends RemoteConfig {
 
   username: string
 
-  password: string
+  password?: string
 
-  passphrase: string
+  passphrase?: string
 
   folder: string
 
@@ -20,7 +20,9 @@ export interface SFTPConfig extends RemoteConfig {
   
   privateKeyPath: string
 
-  passwordDecrypted: boolean
+  privateKey?: string
+
+  passwordDecrypted?: boolean
 
   loginWithPassword: boolean
 

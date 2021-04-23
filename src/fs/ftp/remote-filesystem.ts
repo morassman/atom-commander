@@ -14,15 +14,17 @@ export abstract class RemoteFileSystem<C extends RemoteConfig = RemoteConfig> ex
 
   abstract getDescription(): string
 
-  isLocal() {
+  abstract getSafeConfig(): C
+
+  isLocal(): boolean {
     return false;
   }
 
-  getName() {
+  getName(): string {
     return this.config.name;
   }
 
-  getID() {
+  getID(): string {
     return this.getLocalDirectoryName();
   }
 

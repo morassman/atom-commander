@@ -8,9 +8,9 @@ export interface FTPConfig extends RemoteConfig {
 
   user: string
 
-  password: string | null
+  password?: string
 
-  passwordDecrypted: boolean | null
+  passwordDecrypted?: boolean
 
   storePassword: boolean
 

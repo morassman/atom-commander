@@ -19,23 +19,23 @@ export class FTPFile extends VFile {
     return this.fileSystem as FTPFileSystem
   }
 
-  isFile() {
+  isFile(): boolean {
     return true
   }
 
-  isDirectory() {
+  isDirectory(): boolean {
     return false
   }
 
-  existsSync() {
+  existsSync(): boolean {
     return true
   }
 
-  getRealPathSync() {
+  getRealPathSync(): string {
     return this.path
   }
 
-  getBaseName() {
+  getBaseName(): string {
     return this.baseName
   }
 
@@ -43,11 +43,11 @@ export class FTPFile extends VFile {
     return this.getFileSystem().getDirectory(PathUtil.dirname(this.path))
   }
 
-  isWritable() {
+  isWritable(): boolean {
     return this.writable
   }
 
-  isLink() {
+  isLink(): boolean {
     return this.link
   }
 

@@ -1,6 +1,6 @@
-const fse = require('fs-extra')
 const PathUtil = require('path')
 
+import fse from 'fs-extra'
 import fsp from 'fs-plus'
 import { FTPFileSystem } from '../fs/ftp/ftp-filesystem'
 import { SFTPFileSystem } from '../fs/ftp/sftp-filesystem'
@@ -63,27 +63,27 @@ export class Server {
     return this.fileSystem.getUsername()
   }
 
-  serialize() {
+  serialize(): RemoteConfig {
     return this.fileSystem.getSafeConfig()
   }
 
-  getLocalDirectoryPath() {
+  getLocalDirectoryPath(): string {
     return PathUtil.join(this.getServersPath(), this.localDirectoryName)
   }
 
-  getCachePath() {
+  getCachePath(): string {
     return PathUtil.join(this.getLocalDirectoryPath(), 'cache')
   }
 
-  getLocalDirectoryName() {
+  getLocalDirectoryName(): string {
     return this.localDirectoryName
   }
 
-  getRemoteFileManager() {
+  getRemoteFileManager(): RemoteFileManager {
     return this.remoteFileManager
   }
 
-  getFileSystem() {
+  getFileSystem(): RemoteFileSystem {
     return this.fileSystem
   }
 
@@ -93,7 +93,7 @@ export class Server {
     return this.disposables.dispose()
   }
 
-  createFileSystem() {
+  createFileSystem(): RemoteFileSystem {
     if (this.config.protocol === 'ftp') {
       return new FTPFileSystem(this, this.config as FTPConfig)
     }
@@ -123,7 +123,7 @@ export class Server {
   }
 
   deleteLocalDirectory() {
-    return fse.removeSync(this.getLocalDirectoryPath())
+    fse.removeSync(this.getLocalDirectoryPath())
   }
 
   openFile(file: VFile) {

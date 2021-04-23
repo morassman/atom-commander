@@ -39,11 +39,11 @@ export class SFTPDirectory extends VDirectory {
     return PathUtil.dirname(this.path) === this.path
   }
 
-  isWritable() {
+  isWritable(): boolean {
     return this.writable
   }
 
-  isLink() {
+  isLink(): boolean {
     return this.link
   }
 
