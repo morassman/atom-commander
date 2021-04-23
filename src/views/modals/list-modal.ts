@@ -59,7 +59,7 @@ export class ListModal<I> {
   
   panel: Panel
 
-  constructor(itemProvider: ItemProvider<I>, renderer: ItemRenderer<I>, filterKeyForItem: (item: I) => string, callback: Callback<I>) {
+  constructor(itemProvider: ItemProvider<I>, renderer: ItemRenderer<I>, filterKeyForItem: (item: I) => string, callback: Callback<I | undefined>) {
     this.selectList = new SelectList({
       items: itemProvider(),
       elementForItem: renderer,

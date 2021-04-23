@@ -3,7 +3,7 @@ import { Bookmark } from './bookmark-manager'
 import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
-import { showAddBookmarkModal, showOpenBookmarkModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
+import { showAddBookmarkModal, showListProjectsModal, showOpenBookmarkModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
 
 // const Utils = require('./utils')
 // const BookmarksView = require('./views/bookmarks-view')
@@ -229,20 +229,29 @@ export class Actions {
   }
 
   goProject(fromView=true) {
-    // TODO
-    // const projects = atom.project.getDirectories()
+    const projects = atom.project.getDirectories()
 
-    // if (projects.length === 0) {
-    //   return
-    // }
+    if (projects.length === 0) {
+      return
+    }
 
-    // if (projects.length === 1) {
-    //   return this.goDirectory(projects[0])
-    // } else {
-    //   let view
-    //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
-    //   return view = new ProjectListView(this, fromView)
-    // }
+    if (projects.length === 1) {
+      this.goDirectory(projects[0])
+    } else {
+      this.hideMenuBar()
+
+      showListProjectsModal((project?: Directory) => {
+        if (project) {
+          this.goDirectory(project)
+        }
+
+        if (fromView) {
+          this.main.mainView.refocusLastView()
+        }
+
+        return false
+      })
+    }
   }
 
   goBookmark(bookmark: Bookmark) {

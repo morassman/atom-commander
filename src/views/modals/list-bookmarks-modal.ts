@@ -38,8 +38,6 @@ export function showRemoveBookmarkModal(fromView: boolean) {
 }
 
 function showBookmarkModal(callback: Callback<Bookmark>) {
-  const items = main.bookmarkManager.bookmarks
-
   const elementForItem = twoLineRenderer<Bookmark>((b: Bookmark) => {
     if (!b.name || b.name.length === 0) {
       return `${b.name}: ${b.pathDescription.uri}`
