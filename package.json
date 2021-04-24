@@ -35,6 +35,7 @@
   "dependencies": {
     "atom-select-list": "0.8.0",
     "diff": "5.0.0",
+    "drivelist": "9.2.4",
     "etch": "0.14.1",
     "filesize": "6.3.0",
     "fs-extra": "9.1.0",
@@ -46,11 +47,13 @@
     "q": "1.5.1",
     "queue": "6.0.2",
     "simple-encryptor": "4.0.0",
-    "ssh2": "0.8.9"
+    "ssh2": "0.8.9",
+    "@types/drivelist": "6.4.1"
   },
   "devDependencies": {
     "@types/atom": "1.40.10",
     "@types/diff": "5.0.0",
+    "@types/drivelist": "6.4.1",
     "@types/fs-extra": "9.0.11",
     "@types/fs-plus": "3.0.1",
     "@types/ftp": "0.3.31",

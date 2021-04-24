@@ -3,7 +3,7 @@ import { Bookmark } from './bookmark-manager'
 import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
-import { showAddBookmarkModal, showListProjectsModal, showOpenBookmarkModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
+import { showAddBookmarkModal, showListDriveModal, showListProjectsModal, showOpenBookmarkModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
 
 // const Utils = require('./utils')
 // const BookmarksView = require('./views/bookmarks-view')
@@ -221,11 +221,16 @@ export class Actions {
   }
 
   goDrive(fromView=true) {
-    // TODO
-    // let view
-    // if (fromView == null) { fromView = true }
-    // __guard__(this.main.getMainView(), x => x.hideMenuBar())
-    // return view = new DriveListView(this, fromView)
+    this.hideMenuBar()
+    showListDriveModal(directory => {
+      if (directory) {
+        this.goDirectory(directory)
+      } else if (fromView) {
+        this.main.mainView.refocusLastView()
+      }
+
+      return false
+    })
   }
 
   goProject(fromView=true) {
