@@ -11,7 +11,7 @@ export function showNewFileModal(containerView: ContainerView, directory: VDirec
     hideButtons: true
   })
     
-  modal.show()
+  modal.open()
 }
 
 function validate(name: string, existingNames: string[]): string | undefined {

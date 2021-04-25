@@ -32,7 +32,7 @@ module.exports =
   }
 
   static content() {
-    return this.div({class: "atom-commander-new-server-dialog"}, () => {
+    return this.div({class: "atom-commander-edit-server-dialog"}, () => {
       this.div("Edit Server", {class: "heading"});
       return this.div({outlet: "dialogContainer"}, () => {
         this.subview("ftpDialog", new FTPDialog());

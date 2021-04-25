@@ -68,13 +68,13 @@ type BodyViewRefs = {
 }
 
 class BodyView extends View<Props, BodyViewRefs> {
-  constructor(private requestFocus: ()=>void, private onBlur: ()=>void) {
+  constructor() {
     super({}, true)
   }
 
   render() {
-    return <div ref='scroller' className='atom-commander-list-view-scroller' onClick={() => this.requestFocus()}>
-      <table ref='table' className='atom-commander-list-view-table' attributes={{tabindex:-1}} onBlur={() => this.onBlur()}>
+    return <div ref='scroller' className='atom-commander-list-view-scroller'>
+      <table ref='table' className='atom-commander-list-view-table'>
         <thead>
           <tr>
             <th ref='nameHeader' onClick={() => main.actions.sortByName()}>
@@ -169,7 +169,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     this.disposables = new CompositeDisposable()
     this.sortAscending = true
 
-    this.body = new BodyView(() => this.requestFocus(), () => this.refreshHighlight())
+    this.body = new BodyView()
 
     this.initialize()
   }
@@ -224,7 +224,9 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
         <Div ref='username' className='highlight-info username' />
         <input ref='directoryEditor' className='directory-editor input-text' type='text' onBlur={() => this.directoryEditorCancel()} onFocus={() => this.onDirectoryEditorFocus()}/>
       </div>
-      <Div ref='containerView' className='atom-commander-container-view' onDoubleClick={e => this.onDoubleClick(e)} onMouseDown={e => this.onMouseDown(e)} onKeyPress={e => this.onKeyPress(e)}/>
+      <Div ref='containerView' className='atom-commander-container-view' attributes={{tabindex:-1}} onFocus={() => this.refreshHighlight()} 
+        onBlur={() => this.refreshHighlight()} onClick={() => this.requestFocus()} onDoubleClick={e => this.onDoubleClick(e)} 
+        onMouseDown={e => this.onMouseDown(e)} onKeyPress={e => this.onKeyPress(e)}/>
       <Div ref='searchPanel' className='search-panel'/>
       <Div ref='spinnerPanel' className='loading-panel'>Loading...</Div>
     </div>
@@ -549,21 +551,19 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   focus() {
-    this.body.refs.table.focus()
-    this.refreshHighlight()
+    this.refs.containerView.focus()
   }
 
   unfocus() {
     atom.workspace.getActivePane().activate()
-    this.refreshHighlight()
   }
 
-  hasFocus() {
+  hasFocus(): boolean {
     return this.hasContainerFocus() || document.activeElement === this.refs.directoryEditor
   }
 
-  hasContainerFocus() {
-    return document.activeElement === this.body.refs.table
+  hasContainerFocus(): boolean {
+    return this.refs.containerView.hasFocus()
   }
 
   clearItemViews() {

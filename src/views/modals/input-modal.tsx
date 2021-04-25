@@ -52,12 +52,6 @@ export class InputModal extends View<InputModalProps, InputModalRefs> {
   }
 
   render() {
-    let editorClassName = 'input-text native-key-bindings'
-
-    if (this.props.password) {
-      editorClassName += ' atom-commander-password'
-    }
-
     return <div className='atom-commander-input-modal'>
       <div className='atom-commander-input-modal-label'>{this.props.label}</div>
       <TextEditor ref='editor' mini={true}/>
@@ -126,7 +120,7 @@ export class InputModal extends View<InputModalProps, InputModalRefs> {
     }
   }
 
-  show() {
+  open() {
     this.previousActiveElement = document.activeElement
     this.panel = atom.workspace.addModalPanel({ item: this, visible: true, autoFocus: true })
     this.editorElement.focus()

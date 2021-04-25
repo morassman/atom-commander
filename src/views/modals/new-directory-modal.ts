@@ -11,7 +11,7 @@ export function showNewDirectoryModal(containerView: ContainerView, directory: V
     hideButtons: true
   })
 
-  modal.show()
+  modal.open()
 }
 
 function validate(name: string, directory: VDirectory): string | undefined {

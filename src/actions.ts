@@ -3,7 +3,7 @@ import { Bookmark } from './bookmark-manager'
 import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
-import { showAddBookmarkModal, showListDriveModal, showListProjectsModal, showOpenBookmarkModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
+import { showAddBookmarkModal, showListDriveModal, showListProjectsModal, showNewServerModal, showOpenBookmarkModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
 
 // const Utils = require('./utils')
 // const BookmarksView = require('./views/bookmarks-view')
@@ -28,14 +28,14 @@ export class Actions {
   }
 
   hideMenuBar() {
-    this.main.getMainView().hideMenuBar()
+    this.main.mainView?.hideMenuBar()
   }
 
   getFocusedView(): ContainerView | undefined {
-    let focusedView: ContainerView | undefined = this.main.getMainView().focusedView
+    let focusedView: ContainerView | undefined = this.main.mainView?.focusedView
 
     if (!focusedView) {
-      focusedView = this.main.getMainView().getLeftView()
+      focusedView = this.main.mainView?.getLeftView()
     }
 
     return focusedView
@@ -226,7 +226,7 @@ export class Actions {
       if (directory) {
         this.goDirectory(directory)
       } else if (fromView) {
-        this.main.mainView.refocusLastView()
+        this.main.mainView?.refocusLastView()
       }
 
       return false
@@ -251,7 +251,7 @@ export class Actions {
         }
 
         if (fromView) {
-          this.main.mainView.refocusLastView()
+          this.main.mainView?.refocusLastView()
         }
 
         return false
@@ -288,17 +288,17 @@ export class Actions {
   }
 
   viewMirror() {
-    this.main.getMainView().mirror()
+    this.main.mainView?.mirror()
   }
 
   viewSwap() {
-    this.main.getMainView().swap()
+    this.main.mainView?.swap()
   }
 
   compareFolders() {
     // TODO
   //   let itemView
-  //   this.main.getMainView().hideMenuBar()
+  //   this.main.mainView?.hideMenuBar()
   //   const leftView = __guard__(this.main.getMainView(), x => x.getLeftView())
   //   const rightView = __guard__(this.main.getMainView(), x1 => x1.getRightView())
 
@@ -330,7 +330,7 @@ export class Actions {
 
   compareFiles() {
     // TODO
-  //   this.main.getMainView().hideMenuBar()
+  //   this.main.mainView?.hideMenuBar()
   //   const leftView = __guard__(this.main.getMainView(), x => x.getLeftView())
   //   const rightView = __guard__(this.main.getMainView(), x1 => x1.getRightView())
 
@@ -368,7 +368,7 @@ export class Actions {
   //   // if (rightViewItem == null)
   //   //   return
 
-  //   this.main.getMainView().hideMenuBar()
+  //   this.main.mainView?.hideMenuBar()
 
   //   const leftFile = leftViewItem.itemController.getFile()
   //   const rightFile = rightViewItem.itemController.getFile()
@@ -420,7 +420,7 @@ export class Actions {
       item = view.directory
     }
 
-    this.main.getMainView().hideMenuBar()
+    this.main.mainView?.hideMenuBar()
 
     if (item) {
       showAddBookmarkModal(item, fromView)
@@ -428,26 +428,24 @@ export class Actions {
   }
 
   bookmarksRemove(fromView=true) {
-    this.main.getMainView().hideMenuBar()
+    this.main.mainView?.hideMenuBar()
     showRemoveBookmarkModal(fromView)
   }
 
   bookmarksOpen(fromView=true) {
-    this.main.getMainView().hideMenuBar()
+    this.main.mainView?.hideMenuBar()
     showOpenBookmarkModal(fromView)
   }
 
   serversAdd(fromView=true) {
-    // TODO
-  //   const view = this.getFocusedView()
+    const view = this.getFocusedView()
 
-  //   if ((view == null)) {
-  //     return
-  //   }
+    if (!view) {
+      return
+    }
 
-  //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
-  //   const dialog = new NewServerDialog(view)
-  //   return dialog.attach()
+    this.hideMenuBar()
+    showNewServerModal(view)
   }
 
   serversRemove(fromView=true) {
@@ -578,7 +576,7 @@ export class Actions {
   }
 
   openTerminal() {
-    this.main.getMainView().hideMenuBar()
+    this.main.mainView?.hideMenuBar()
     const view = this.getFocusedView()
 
     if (!view) {
@@ -676,34 +674,34 @@ export class Actions {
   }
 
   toggleSizeColumn() {
-    this.main.getMainView().toggleSizeColumn()
+    this.main.mainView?.toggleSizeColumn()
   }
 
   toggleDateColumn() {
-    this.main.getMainView().toggleDateColumn()
+    this.main.mainView?.toggleDateColumn()
   }
 
   toggleExtensionColumn() {
-    this.main.getMainView().toggleExtensionColumn()
+    this.main.mainView?.toggleExtensionColumn()
   }
 
   sortByName() {
-    this.main.getMainView().setSortBy('name')
+    this.main.mainView?.setSortBy('name')
   }
 
   sortByExtension() {
-    this.main.getMainView().setSortBy('extension')
+    this.main.mainView?.setSortBy('extension')
   }
 
   sortBySize() {
-    this.main.getMainView().setSortBy('size')
+    this.main.mainView?.setSortBy('size')
   }
 
   sortByDate() {
-    this.main.getMainView().setSortBy('date')
+    this.main.mainView?.setSortBy('date')
   }
 
   sortByDefault() {
-    this.main.getMainView().setSortBy()
+    this.main.mainView?.setSortBy()
   }
 }

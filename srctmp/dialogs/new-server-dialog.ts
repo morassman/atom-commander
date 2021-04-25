@@ -23,7 +23,7 @@ module.exports =
   }
 
   static content() {
-    return this.div({class: "atom-commander-new-server-dialog"}, () => {
+    return this.div({class: "atom-commander-edit-server-dialog"}, () => {
       this.div("Add Server", {class: "heading"});
       this.div({class: "button-panel block"}, () => {
         return this.div({class: "btn-group"}, () => {

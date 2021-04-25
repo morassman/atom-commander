@@ -10,7 +10,7 @@ export function showAddBookmarkModal(item: VItem, fromView: boolean) {
     hideButtons: true
   })
     
-  modal.show()
+  modal.open()
 }
 
 function callback(name: string | undefined, item: VItem, fromView: boolean) {
@@ -21,6 +21,6 @@ function callback(name: string | undefined, item: VItem, fromView: boolean) {
   main.getBookmarkManager().addBookmark(name, item)
 
   if (fromView) {
-    main.mainView.refocusLastView()
+    main.mainView?.refocusLastView()
   }
 }

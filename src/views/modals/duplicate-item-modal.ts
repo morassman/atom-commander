@@ -13,7 +13,7 @@ export function showDuplicateItemModal(containerView: ContainerView, item: VItem
     value: item.getBaseName()
   })
     
-  modal.show()
+  modal.open()
 }
 
 function validate(name: string, containerView: ContainerView): string | undefined {

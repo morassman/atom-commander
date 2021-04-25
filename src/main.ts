@@ -77,7 +77,7 @@ export class Main {
 
   subscriptions: CompositeDisposable
 
-  mainView: MainView
+  mainView?: MainView
 
   element: HTMLElement
 
@@ -213,10 +213,20 @@ export class Main {
     }
   }
 
-  getMainView(createLazy: boolean = false): MainView {
-    if (!this.mainView && createLazy) {
+  ensureMainView(): MainView {
+    console.log(this.state)
+    
+    if (!this.mainView) {
       this.mainView = new MainView(this, this.state)
       this.element = this.mainView.element
+    }
+
+    return this.mainView
+  }
+
+  getMainView(createLazy: boolean = false): MainView | undefined {
+    if (!this.mainView && createLazy) {
+      return this.ensureMainView()
     }
 
     return this.mainView
@@ -334,11 +344,15 @@ export class Main {
     const dock = this.getDock()
 
     if (dock) {
-      this.getMainView().setHorizontal(dock.location === 'bottom')
+      this.mainView.setHorizontal(dock.location === 'bottom')
     }
   }
 
   getDock(): {dock: Dock, location: 'left' | 'right' | 'bottom'} | undefined {
+    if (!this.mainView) {
+      return undefined
+    }
+
     if (atom.workspace.getBottomDock().getPaneItems().indexOf(this.mainView) >= 0) {
       return {
         dock: atom.workspace.getBottomDock(),
@@ -405,7 +419,7 @@ export class Main {
         this.focus()
       }
     } else {
-      atom.workspace.open(this.getMainView(true), {
+      atom.workspace.open(this.ensureMainView(), {
         searchAllPanes: true,
         activatePane: true,
         activateItem: true

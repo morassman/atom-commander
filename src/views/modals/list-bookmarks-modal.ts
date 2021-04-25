@@ -9,7 +9,7 @@ export function showOpenBookmarkModal(fromView: boolean) {
     }
 
     if (fromView) {
-      main.mainView.refocusLastView()
+      main.mainView?.refocusLastView()
     }
 
     return false
@@ -28,7 +28,7 @@ export function showRemoveBookmarkModal(fromView: boolean) {
     }
 
     if (!keepOpen && fromView) {
-      main.mainView.refocusLastView()
+      main.mainView?.refocusLastView()
     }
 
     return keepOpen

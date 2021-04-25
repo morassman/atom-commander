@@ -22,7 +22,7 @@ export function showRenameModal(containerView: ContainerView, item: VItem) {
     value: itemName
   })
 
-  modal.show()
+  modal.open()
 }
 
 function validate(name: string, containerView: ContainerView, pathUtil: any, itemName: string): string | undefined {

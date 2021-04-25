@@ -491,8 +491,11 @@
   letter-spacing: 5px;
 }
 
-.atom-commander-new-server-dialog {
-  .heading {
+.atom-commander-edit-server-modal {
+  display: flex;
+  flex-direction: column;
+
+  &-heading {
     text-align: center;
     font-size: larger;
     color: @text-color-highlight;
@@ -501,9 +504,28 @@
     padding-bottom: 15px;
   }
 
-  .button-panel {
+  &-tabs {
     text-align: center;
     padding-bottom: 10px;
+  }
+
+  &-validation-result {
+    min-height: 2em;
+    height: 2em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    text-align: center;
+    font-size: 1.1em;
+  }
+
+  &-test-result {
+    flex: 1;
+    word-break: break-all;
+  }
+
+  &-buttons {
+    display: flex;
+    align-items: center;
   }
 }
 

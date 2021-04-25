@@ -122,7 +122,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
     this.refs.leftTabbedView.deserialize(state.version, state.leftPath, state.left)
     this.refs.rightTabbedView.deserialize(state.version, state.rightPath, state.right)
 
-    this.focusedView = this.getLeftView()
+    // this.focusedView = this.getLeftView()
   }
 
   initialize() {
@@ -352,7 +352,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
       otherView.unfocus()
     }
 
-    this.applyVisibility()
+    // this.applyVisibility()
   }
 
   applyVisibility() {
@@ -868,7 +868,6 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   deactivate() {
-    console.log('MainView.deactivate')
     this.destroy(true)
   }
 

@@ -13,7 +13,7 @@ export function showSelectModal(containerView: ContainerView, add: boolean) {
     hideButtons: true
   })
     
-  modal.show()
+  modal.open()
 }
 
 function callback(pattern: string | undefined, containerView: ContainerView, add: boolean) {

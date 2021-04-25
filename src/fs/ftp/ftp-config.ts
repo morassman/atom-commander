@@ -16,4 +16,6 @@ export interface FTPConfig extends RemoteConfig {
 
   folder: string
 
+  anonymous: boolean
+
 }

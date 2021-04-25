@@ -134,7 +134,7 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
     this.style.setElement(this.element)
   }
 
-  getElement(): any {
+  getElement(): E {
     return this.element
   }
 
@@ -172,6 +172,11 @@ export abstract class View<P extends Props = Props, R extends object = {}, E ext
       this.classes = this.classes.filter(k => k !== c)
       this.update()
     }
+  }
+
+  removeClasses(cs: string[]) {
+    this.classes = this.classes.filter(k => !cs.includes(k))
+    this.update()
   }
 
   hasClass(c: string): boolean {
