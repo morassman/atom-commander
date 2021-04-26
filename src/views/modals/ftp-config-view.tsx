@@ -1,7 +1,7 @@
 const etch = require('etch')
 
 import { Div } from '../element-view'
-import { InputView } from '../text-editor'
+import { InputView } from '../input-view'
 import { Props } from '../view'
 import { ServerConfigView, ServerModal, ValidateResult } from './server-config-view'
 import Client from 'ftp'

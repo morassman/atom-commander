@@ -13,6 +13,10 @@ export type InputViewProps = {
   value?: string
 
   onChange?: (value: string) => void
+
+  onFocus?: () => void
+
+  onBlur?: () => void
 }
 
 export class InputView {
@@ -43,13 +47,23 @@ export class InputView {
       this.editor.setText(props.value)
     }
 
-    if (this.props.onChange) {
-      this.editor.onDidChange(() => {
-        if (this.props.onChange) {
-          this.props.onChange(this.editor.getText())
-        }
-      })
-    }
+    this.editor.onDidChange(() => {
+      if (this.props.onChange) {
+        this.props.onChange(this.editor.getText())
+      }
+    })
+
+    this.element.addEventListener('blur', () => {
+      if (this.props.onBlur) {
+        this.props.onBlur()
+      }
+    })
+
+    this.element.addEventListener('focus', () => {
+      if (this.props.onFocus) {
+        this.props.onFocus()
+      }
+    })
   }
 
   render() {
@@ -62,6 +76,10 @@ export class InputView {
 
   focus() {
     this.element.focus()
+  }
+
+  hasFocus(): boolean {
+    return this.element === document.activeElement
   }
 
   setValue(value: string) {

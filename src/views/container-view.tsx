@@ -14,10 +14,12 @@ import { Div, TBody } from './element-view'
 import { DirectoryView } from './directory-view'
 import { FileView } from './file-view'
 import { SymLinkView } from './symlink-view'
+import { InputView } from './input-view'
 
 const minimatch = require('minimatch')
 const Scheduler = require('nschedule')
-const { filter } = require('fuzzaldrin')
+// const { filter } = require('fuzzaldrin')
+import { filter } from 'fuzzaldrin'
 
 export interface Snapshot {
 
@@ -119,7 +121,7 @@ class BodyView extends View<Props, BodyViewRefs> {
 type ContainerViewRefs = {
   username: Div
 
-  directoryEditor: HTMLInputElement
+  directoryEditor: InputView
 
   containerView: Div
 
@@ -193,7 +195,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
     this.refs.searchPanel.hide()
     this.refs.spinnerPanel.hide()
 
-    this.disposables.add(atom.commands.add(this.refs.directoryEditor, {
+    this.disposables.add(atom.commands.add(this.refs.directoryEditor.element, {
       'core:confirm': () => this.directoryEditorConfirm(),
       'core:cancel': () => this.directoryEditorCancel()
     }))
@@ -218,11 +220,10 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   render() {
-    // TODO: Replace input with TextEditor.
     return <div className='atom-commander-container-parent-view'>
       <div>
         <Div ref='username' className='highlight-info username' />
-        <input ref='directoryEditor' className='directory-editor input-text' type='text' onBlur={() => this.directoryEditorCancel()} onFocus={() => this.onDirectoryEditorFocus()}/>
+        <InputView ref='directoryEditor' onBlur={() => this.directoryEditorCancel()} onFocus={() => this.onDirectoryEditorFocus()}/>
       </div>
       <Div ref='containerView' className='atom-commander-container-view' attributes={{tabindex:-1}} onFocus={() => this.refreshHighlight()} 
         onBlur={() => this.refreshHighlight()} onClick={() => this.requestFocus()} onDoubleClick={e => this.onDoubleClick(e)} 
@@ -481,10 +482,10 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   search(text: string) {
-    const results = filter(this.itemViews, text, {key: 'itemName', maxResults: 1})
+    const results = filter(this.itemViews, text, {key: 'filter', maxResults: 1})
 
     if (results.length > 0) {
-      this.highlightIndexWithName(results[0].itemName)
+      this.highlightIndex(results[0].index)
     }
   }
 
@@ -559,7 +560,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
   }
 
   hasFocus(): boolean {
-    return this.hasContainerFocus() || document.activeElement === this.refs.directoryEditor
+    return this.hasContainerFocus() || this.refs.directoryEditor.hasFocus()
   }
 
   hasContainerFocus(): boolean {
@@ -831,7 +832,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
       return
     }
 
-    this.refs.directoryEditor.value = this.directory.getURI()
+    this.refs.directoryEditor.setValue(this.directory.getURI())
 
     if (!this.directory.isRoot()) {
       const parent = this.directory.getParent()
@@ -998,12 +999,12 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
       return
     }
 
-    this.refs.directoryEditor.value = path
-    return this.directoryEditorConfirm()
+    this.refs.directoryEditor.setValue(path)
+    this.directoryEditorConfirm()
   }
 
   directoryEditorConfirm() {
-    const uri = this.refs.directoryEditor.value.trim()
+    const uri = this.refs.directoryEditor.getValue().trim()
 
     if (fsp.isDirectorySync(uri)) {
       this.openDirectory(main.localFileSystem.getDirectory(uri), undefined, () => this.focus())
@@ -1043,7 +1044,7 @@ export class ContainerView extends View<Props, ContainerViewRefs> {
 
   directoryEditorCancel() {
     if (this.directory) {
-      this.refs.directoryEditor.value = this.directory.getURI()
+      this.refs.directoryEditor.setValue(this.directory.getURI())
     }
   }
 

@@ -24,6 +24,8 @@ export abstract class ItemView<I extends VItem = VItem> extends View<Props, Item
 
   focused: boolean
 
+  filter: string
+
   constructor(public readonly containerView: ContainerView, public index: number, public readonly item: I) {
     super({}, false)
     this.selected = false
@@ -54,6 +56,7 @@ export abstract class ItemView<I extends VItem = VItem> extends View<Props, Item
     this.refs.extension.textContent = this.getExtensionColumnValue()
     this.refs.size.textContent = this.getSizeColumnValue()
     this.refs.date.textContent = this.getDateColumnValue()
+    this.filter = this.item.getBaseName()
   }
 
   getContainerView(): ContainerView {
