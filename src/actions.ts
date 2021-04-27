@@ -3,7 +3,7 @@ import { Bookmark } from './bookmark-manager'
 import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
-import { showAddBookmarkModal, showCloseServerModal, showListDriveModal, showListProjectsModal, showNewServerModal, showOpenBookmarkModal, showOpenServerModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
+import { showAddBookmarkModal, showCloseServerModal, showEditServerModal, showListDriveModal, showListProjectsModal, showNewServerModal, showOpenBookmarkModal, showOpenServerModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
 
 // const Utils = require('./utils')
 // const BookmarksView = require('./views/bookmarks-view')
@@ -477,9 +477,8 @@ export class Actions {
   }
 
   serversEdit(fromView=true) {
-  //   let view
-  //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
-  //   return view = new ServersView(this, "edit", fromView)
+    this.hideMenuBar()
+    showEditServerModal(fromView)
   }
 
   uploadFile() {

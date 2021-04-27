@@ -2,12 +2,11 @@ const etch = require('etch')
 
 import { ErrorCallback } from '../../fs'
 import { SFTPConfig } from '../../fs/ftp/sftp-config'
-import { Props } from '../view'
-import { ServerConfigView, ValidateResult } from './server-config-view'
+import { ServerConfigProps, ServerConfigView, ValidateResult } from './server-config-view'
 
-export class SFTPConfigView extends ServerConfigView {
+export class SFTPConfigView extends ServerConfigView<SFTPConfig> {
   
-  constructor(props: Props) {
+  constructor(props: ServerConfigProps) {
     super(props)
   }
 
@@ -19,6 +18,10 @@ export class SFTPConfigView extends ServerConfigView {
   }
 
   validate(): ValidateResult {
+    throw new Error('Method not implemented.')
+  }
+
+  setConfig(config: SFTPConfig): void {
     throw new Error('Method not implemented.')
   }
 

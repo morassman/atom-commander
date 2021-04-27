@@ -3,16 +3,10 @@ const etch = require('etch')
 import { Div } from '../element-view'
 import { InputView } from '../input-view'
 import { Props } from '../view'
-import { ServerConfigView, ServerModal, ValidateResult } from './server-config-view'
+import { ServerConfigProps, ServerConfigView, ServerModal, ValidateResult } from './server-config-view'
 import Client from 'ftp'
 import { FTPConfig } from '../../fs/ftp/ftp-config'
 import { ErrorCallback } from '../../fs'
-
-type FTPConfigProps = Props & {
-
-  parent: ServerModal
-
-}
 
 type FTPConfigViewRefs = {
 
@@ -44,7 +38,7 @@ type FTPConfigViewRefs = {
 
 }
 
-export class FTPConfigView extends ServerConfigView<FTPConfigProps, FTPConfigViewRefs> {
+export class FTPConfigView extends ServerConfigView<FTPConfig, ServerConfigProps, FTPConfigViewRefs> {
   
   username: string
 
@@ -52,7 +46,7 @@ export class FTPConfigView extends ServerConfigView<FTPConfigProps, FTPConfigVie
 
   client?: Client
   
-  constructor(props: FTPConfigProps) {
+  constructor(props: ServerConfigProps) {
     super(props)
     this.username = ''
   }
@@ -115,12 +109,12 @@ export class FTPConfigView extends ServerConfigView<FTPConfigProps, FTPConfigVie
     
     this.refs.hostEditor.onChange(() => {
       this.refreshURL()
-      this.props.parent.onConfigChange(this)
+      this.props.parent.onConfigChange()
     })
 
     this.refs.portEditor.onChange(() => {
       this.refreshURL()
-      this.props.parent.onConfigChange(this)
+      this.props.parent.onConfigChange()
     })
 
     this.refs.folderEditor.onChange(() => {
@@ -132,11 +126,11 @@ export class FTPConfigView extends ServerConfigView<FTPConfigProps, FTPConfigVie
         this.username = this.refs.usernameEditor.getValue().trim()
       }
 
-      this.props.parent.onConfigChange(this)
+      this.props.parent.onConfigChange()
     })
 
     this.refs.passwordEditor.onChange(() => {
-      this.props.parent.onConfigChange(this)
+      this.props.parent.onConfigChange()
     })
 
   }
@@ -150,7 +144,7 @@ export class FTPConfigView extends ServerConfigView<FTPConfigProps, FTPConfigVie
       this.refs.usernameEditor.setValue(this.username)
     }
 
-    this.props.parent.onConfigChange(this)
+    this.props.parent.onConfigChange()
   }
 
   isAnonymousSelected(): boolean {
@@ -230,7 +224,7 @@ export class FTPConfigView extends ServerConfigView<FTPConfigProps, FTPConfigVie
   }
 
   getErrorMessage(): string | undefined {
-    const server = this.getServer()
+    const server = this.getHost()
 
     if (server.length === 0) {
       return 'Host must be specified.'
@@ -261,14 +255,14 @@ export class FTPConfigView extends ServerConfigView<FTPConfigProps, FTPConfigVie
 
   serverExists(server: string, port: string, username: string): boolean {
     const id = `ftp_${server}_${port}_${username}`
-    return this.props.parent.serverExists(id)
+    return this.props.parent.anotherServerExists(id)
   }
 
   getName(): string {
     return this.refs.nameEditor.getValue().trim()
   }
 
-  getServer(): string {
+  getHost(): string {
     return this.refs.hostEditor.getValue().trim()
   }
 
@@ -288,6 +282,20 @@ export class FTPConfigView extends ServerConfigView<FTPConfigProps, FTPConfigVie
     return this.messageType === 2
   }
 
+  setConfig(config: FTPConfig) {
+    console.log('setConfig')
+    console.log(config)
+
+    this.refs.nameEditor.setValue(config.name)
+    this.refs.hostEditor.setValue(config.host)
+    this.refs.portEditor.setValue(`${config.port}`)
+    this.refs.folderEditor.setValue(config.folder)
+    this.refs.usernameEditor.setValue(config.user)
+    this.refs.passwordEditor.setValue(config.password || '')
+    this.refs.anonymousCheckbox.checked = config.anonymous
+    this.refs.storeCheckBox.checked = config.storePassword
+  }
+
   private getConfigImpl(test: boolean): FTPConfig {
     const port = this.getPort()
     const anonymous = this.isAnonymousSelected()
@@ -295,7 +303,7 @@ export class FTPConfigView extends ServerConfigView<FTPConfigProps, FTPConfigVie
     const config: FTPConfig = {
       protocol: 'ftp',
       name: this.getName(),
-      host: this.getServer(),
+      host: this.getHost(),
       port: port === undefined ? 21 : Number.parseInt(port),
       folder: this.getFolder(),
       passwordDecrypted: true,

@@ -4,17 +4,24 @@ import { main } from '../../main'
 import { Panel } from 'atom'
 import { ContainerView } from '../container-view'
 import { Div, Span } from '../element-view'
-import { Props } from '../view'
 import { FTPConfigView } from './ftp-config-view'
 import { ServerConfigView, ServerModal, ValidateResult } from './server-config-view'
 import { SFTPConfigView } from './sftp-config-view'
+import { Server } from '../../servers/server'
+import { RemoteConfig } from '../../fs/ftp/remote-config'
+import { FTPConfig } from '../../fs/ftp/ftp-config'
+import { SFTPConfig } from '../../fs/ftp/sftp-config'
 
 export function showNewServerModal(view: ContainerView) {
-  const modal = new NewServerModal(view)
+  const modal = new EditServerModal(view)
   modal.open()
 }
 
-type NewServerModalRefs = {
+type EditServerModalRefs = {
+
+  heading: HTMLElement
+
+  tabs: Div
 
   ftpButton: HTMLButtonElement
 
@@ -38,33 +45,34 @@ type NewServerModalRefs = {
 
 }
 
-export class NewServerModal extends ServerModal<NewServerModalRefs> {
+export class EditServerModal extends ServerModal<EditServerModalRefs> {
 
   panel?: Panel
 
-  currentDialog: ServerConfigView
+  currentDialog: ServerConfigView<RemoteConfig>
 
   testing: boolean
 
   validateResult: ValidateResult
 
-  constructor(private readonly view: ContainerView) {
-    super()
+  constructor(private readonly view?: ContainerView, server?: Server) {
+    super(server)
     this.testing = false
+    this.initialize()
   }
 
   render() {
     return <div className='atom-commander-edit-server-modal'>
-      <div className='atom-commander-edit-server-modal-heading'>Add Server</div>
-      <div className='atom-commander-edit-server-modal-tabs block'>
+      <div ref='heading' className='atom-commander-edit-server-modal-heading'>Add Server</div>
+      <Div ref='tabs' className='atom-commander-edit-server-modal-tabs block'>
         <div className='btn-group'>
           <button ref='ftpButton' className='btn selected' onClick={() => this.onFTPClick()}>FTP</button>
           <button ref='sftpButton' className='btn' onClick={() => this.onSFTPClick()}>SFTP</button>
         </div>
-      </div>
+      </Div>
 
       <FTPConfigView ref='ftpDialog' style={{flex: 1}} parent={this}/>
-      <SFTPConfigView ref='sftpDialog'  style={{flex: 1}}/>
+      <SFTPConfigView ref='sftpDialog'  style={{flex: 1}} parent={this}/>
 
       <Div ref='validationResult' className='atom-commander-edit-server-modal-validation-result'/>
 
@@ -87,10 +95,27 @@ export class NewServerModal extends ServerModal<NewServerModalRefs> {
 
   initialize() {
     super.initialize()
-    this.currentDialog = this.refs.ftpDialog
-
     this.refs.spinner.hide()
-    this.refs.sftpDialog.hide()
+
+    if (this.server) {
+      this.refs.heading.textContent = 'Edit Server'
+      this.refs.tabs.hide()
+
+      if (this.server.isFTP()) {
+        this.currentDialog = this.refs.ftpDialog
+        this.refs.ftpDialog.setConfig(this.server.getConfig() as FTPConfig)
+        this.refs.sftpDialog.hide()
+      } else {
+        this.currentDialog = this.refs.sftpDialog
+        this.refs.sftpDialog.setConfig(this.server.getConfig() as SFTPConfig)
+        this.refs.ftpDialog.hide()
+      }
+    } else {
+      this.currentDialog = this.refs.ftpDialog
+      this.refs.sftpDialog.hide()
+    }
+
+    this.currentDialog.selected()
   }
 
   onFTPClick() {
@@ -110,7 +135,7 @@ export class NewServerModal extends ServerModal<NewServerModalRefs> {
 
     this.currentDialog = dialog
     this.currentDialog.show()
-    this.currentDialog.selected()
+    setTimeout(() => this.currentDialog.selected(), 1)
   }
 
   showMessage(target: Div, message: string, level: 'ok' | 'warning' | 'error') {
@@ -146,7 +171,7 @@ export class NewServerModal extends ServerModal<NewServerModalRefs> {
     return this.validateResult.level === 'error'
   }
 
-  onConfigChange(configView: ServerConfigView): void {
+  onConfigChange(): void {
     this.validate()
   }
 
@@ -183,21 +208,20 @@ export class NewServerModal extends ServerModal<NewServerModalRefs> {
   }
 
   open() {
-    this.panel = atom.workspace.addModalPanel({ item: this, visible: true, autoFocus: true })
+    this.panel = atom.workspace.addModalPanel({ item: this, visible: true, autoFocus: false })
+    this.currentDialog.selected()
   }
 
   close() {
+    if (this.testing) {
+      this.currentDialog.cancelTest()
+    }
+
     if (this.panel) {
       this.panel.destroy()
       this.panel = undefined
     } else {
       this.destroy()
-    }
-  }
-
-  cancel() {
-    if (this.testing) {
-      this.currentDialog.cancelTest()
     }
   }
 
@@ -212,10 +236,9 @@ export class NewServerModal extends ServerModal<NewServerModalRefs> {
     const server = main.getServerManager().addServer(config)
     const directory = server.getInitialDirectory()
 
-    if (directory) {
+    if (directory && this.view) {
       this.view.openDirectory(directory)
     }
-
   }
 
 }

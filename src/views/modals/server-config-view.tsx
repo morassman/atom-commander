@@ -1,19 +1,28 @@
 import { ErrorCallback } from '../../fs'
 import { RemoteConfig } from '../../fs/ftp/remote-config'
 import { main } from '../../main'
+import { Server } from '../../servers/server'
 import { Props, View } from '../view'
 
 export abstract class ServerModal<R extends object = {}> extends View<Props, R> {
 
-  constructor() {
-    super({})
+  /**
+   * 
+   * @param server undefined when creating a new server. Set when editing an existing server.
+   */
+  constructor(protected readonly server?: Server) {
+    super({}, false)
   }
 
-  serverExists(id: string): boolean {
+  anotherServerExists(id: string): boolean {
+    if (this.server && this.server.fileSystem.getID() === id) {
+      return false
+    }
+
     return main.getServerManager().getFileSystemWithID(id) !== undefined
   }
 
-  abstract onConfigChange(configView: ServerConfigView): void
+  abstract onConfigChange(): void
 
   abstract open(): void
 
@@ -26,13 +35,21 @@ export type ValidateResult = {
   level: 'ok' | 'warning' | 'error'
 }
 
-export abstract class ServerConfigView<P extends Props = Props, R extends object = {}> extends View<P, R> {
+export type ServerConfigProps = Props & {
+
+  parent: ServerModal
+
+}
+
+export abstract class ServerConfigView<C extends RemoteConfig = RemoteConfig, P extends ServerConfigProps = ServerConfigProps, R extends object = {}> extends View<P, R> {
 
   constructor(props: P, init=true) {
     super(props, init)
   }
 
-  abstract getConfig(): RemoteConfig
+  abstract setConfig(config: C): void
+
+  abstract getConfig(): C
 
   abstract validate(): ValidateResult
 
