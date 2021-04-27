@@ -12,7 +12,7 @@ import { RemoteConfig } from '../../fs/ftp/remote-config'
 import { FTPConfig } from '../../fs/ftp/ftp-config'
 import { SFTPConfig } from '../../fs/ftp/sftp-config'
 
-export function showNewServerModal(view: ContainerView) {
+export function showNewServerModal(view?: ContainerView) {
   const modal = new EditServerModal(view)
   modal.open()
 }

@@ -3,7 +3,7 @@ import { Bookmark } from './bookmark-manager'
 import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
-import { showAddBookmarkModal, showCloseServerModal, showEditServerModal, showListDriveModal, showListProjectsModal, showNewServerModal, showOpenBookmarkModal, showOpenServerModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
+import { showAddBookmarkModal, showCloseServerModal, showEditServerModal, showListDriveModal, showListProjectsModal, showNewServerModal, showOpenBookmarkModal, showOpenServerModal, showRemoveBookmarkModal, showRemoveServerModal, showSelectModal } from './views/modals'
 
 // const Utils = require('./utils')
 // const BookmarksView = require('./views/bookmarks-view')
@@ -441,21 +441,14 @@ export class Actions {
   }
 
   serversAdd(fromView=true) {
-    const view = this.getFocusedView()
-
-    if (!view) {
-      return
-    }
-
+    const view = fromView ? this.getFocusedView() : undefined
     this.hideMenuBar()
     showNewServerModal(view)
   }
 
   serversRemove(fromView=true) {
-    // TODO
-  //   let view
-  //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
-  //   return view = new ServersView(this, "remove", fromView)
+    this.hideMenuBar()
+    showRemoveServerModal(fromView)
   }
 
   serversOpen(fromView=true) {

@@ -4,11 +4,7 @@ import { EditServerModal } from '.'
 import { main } from '../../main'
 import { Server } from '../../servers/server'
 import { Template } from '../element-view'
-import { Callback, ItemProvider, ItemRenderer, ListModal, TwoLineRenderer, twoLineRenderer } from './list-modal'
-
-const itemProvider = () => {
-  return main.serverManager.getServers()
-}
+import { ItemCallback, ItemProvider, ItemRenderer, ListModal, TwoLineRenderer, twoLineRenderer } from './list-modal'
 
 const rendererWithCacheCount: TwoLineRenderer<Server> = (item: Server) => {
   const name = item.getName()
@@ -57,7 +53,7 @@ export function showOpenServerModal(fromView: boolean) {
     }
   }
 
-  const callback: Callback<Server> = (item?: Server) => {
+  const callback: ItemCallback<Server> = (item?: Server) => {
     if (item) {
       const directory = item.getInitialDirectory()
 
@@ -67,14 +63,10 @@ export function showOpenServerModal(fromView: boolean) {
       }
     }
 
-    if (fromView) {
-      main.mainView?.refocusLastView()
-    }
-
     return false
   }
 
-  showServerModal(itemProvider, twoLineRenderer(renderer), callback)
+  showServerModal(fromView, itemProvider, twoLineRenderer(renderer), callback)
 }
 
 export function showCloseServerModal(fromView: boolean) {
@@ -82,36 +74,39 @@ export function showCloseServerModal(fromView: boolean) {
     return main.serverManager.getServers().filter(s => s.isOpen())
   }
 
-  const callback: Callback<Server> = (item?: Server) => {
+  const callback: ItemCallback<Server> = (item?: Server) => {
     if (item) {
-      closeServer(item, (confirmed: boolean) => {
-        if (confirmed) {
-          item.close()
-        }
-
-        if (fromView) {
-          main.mainView?.refocusLastView()
-        }
-      })
+      return closeServer(item)
     }
 
     return true
   }
 
-  showServerModal(itemProvider, twoLineRenderer(rendererWithCacheCount), callback)
+  showServerModal(fromView, itemProvider, twoLineRenderer(rendererWithCacheCount), callback)
 }
 
-function closeServer(server: Server, close: (confirmed: boolean)=>void) {
-  if (server.getTaskCount() > 0) {
-    atom.confirm({
-      message: 'Close',
-      detail: 'Files on this server are still being accessed. Are you sure you want to close the connection?',
-      buttons: ['No', 'Yes']}, (response: number) => {
-        close(response === 1)
-      })
-  } else {
-    close(true)
+function closeServer(server: Server): boolean | Promise<boolean> {
+  const confirmed = () => {
+    server.close()
   }
+
+  if (server.getTaskCount() > 0) {
+    return new Promise((resolve: (value: boolean)=>void) => {
+      atom.confirm({
+        message: 'Close',
+        detail: 'Files on this server are still being accessed. Are you sure you want to close the connection?',
+        buttons: ['No', 'Yes']}, (response: number) => {
+          if (response === 1) {
+            confirmed()
+          }
+          resolve(true)
+        })
+    })
+  } else {
+    confirmed()
+  }
+
+  return true
 }
 
 export function showEditServerModal(fromView: boolean) {
@@ -119,7 +114,7 @@ export function showEditServerModal(fromView: boolean) {
     return main.serverManager.getServers()
   }
 
-  const callback: Callback<Server> = (item?: Server) => {
+  const callback: ItemCallback<Server> = (item?: Server) => {
     if (item) {
       if (item.isOpen()) {
         atom.notifications.addWarning('The server must be closed before it can be edited.')
@@ -135,7 +130,62 @@ export function showEditServerModal(fromView: boolean) {
     return false
   }
 
-  showServerModal(itemProvider, twoLineRenderer(rendererWithCacheCount), callback)
+  showServerModal(fromView, itemProvider, twoLineRenderer(rendererWithCacheCount), callback)
+}
+
+export function showRemoveServerModal(fromView: boolean) {
+  const itemProvider = () => {
+    return main.serverManager.getServers()
+  }
+
+  const callback: ItemCallback<Server> = (item?: Server) => {
+    if (item) {
+      return removeServer(item)
+    }
+
+    return false
+  }
+
+  showServerModal(fromView, itemProvider, twoLineRenderer(rendererWithCacheCount), callback)
+}
+
+function removeServer(server: Server): boolean | Promise<boolean> {
+  const removeConfirmed = () => {
+    main.serverManager.removeServer(server)
+  }
+
+  if (server.getOpenFileCount() > 0) {
+    atom.notifications.addWarning('A server cannot be removed while its files are being edited.')
+    return true
+  }
+
+  let question: string | undefined = undefined
+  const taskCount = server.getTaskCount()
+  const fileCount = server.getCacheFileCount()
+
+  if (fileCount > 0) {
+    question = 'There are still files in the cache. Removing the server will clear the cache.'
+  } else if (taskCount > 0) {
+    question = 'Files on this server are still being accessed. Removing the server will also clear the cache.'
+  }
+
+  if (question) {
+    return new Promise((resolve: (value: boolean) => void) => {
+      atom.confirm({
+        message: 'Remove',
+        detail: question+' Are you sure you want to remove the server?',
+        buttons: ['No', 'Yes']},
+        (response: number) => {
+          if (response === 1) {
+            removeConfirmed()
+          }
+          resolve(true)
+        })
+    })
+  }
+
+  removeConfirmed()
+  return true
 }
 
 function createFilesInCacheString(server: Server) {
@@ -167,11 +217,17 @@ function createFilesInCacheString(server: Server) {
 //   showBookmarkModal(callback)
 // }
 
-function showServerModal(itemProvider: ItemProvider<Server>, renderer: ItemRenderer<Server>, callback: Callback<Server>) {
+function showServerModal(fromView: boolean, itemProvider: ItemProvider<Server>, renderer: ItemRenderer<Server>, callback: ItemCallback<Server>) {
   const filterKeyForItem = (item: Server) => {
     return `${item.getName()} ${item.getDescription()}`
   }
 
-  const modal = new ListModal<Server>(itemProvider, renderer, filterKeyForItem, callback)
+  const afterClose = () => {
+    if (fromView) {
+      main.mainView?.refocusLastView()
+    }
+  }
+
+  const modal = new ListModal<Server>(itemProvider, renderer, filterKeyForItem, callback, afterClose)
   modal.open()
 }

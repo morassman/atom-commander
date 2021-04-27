@@ -1,9 +1,9 @@
 import { Bookmark } from '../../bookmark-manager';
 import { main } from '../../main'
-import { Callback, ListModal, twoLineRenderer } from './list-modal';
+import { ItemCallback, ListModal, twoLineRenderer } from './list-modal';
 
 export function showOpenBookmarkModal(fromView: boolean) {
-  const callback: Callback<Bookmark> = (item?: Bookmark) => {
+  const callback: ItemCallback<Bookmark> = (item?: Bookmark) => {
     if (item) {
       main.getActions().goBookmark(item)
     }
@@ -19,7 +19,7 @@ export function showOpenBookmarkModal(fromView: boolean) {
 }
 
 export function showRemoveBookmarkModal(fromView: boolean) {
-  const callback: Callback<Bookmark> = (item?: Bookmark) => {
+  const callback: ItemCallback<Bookmark> = (item?: Bookmark) => {
     let keepOpen = false
 
     if (item) {
@@ -37,7 +37,7 @@ export function showRemoveBookmarkModal(fromView: boolean) {
   showBookmarkModal(callback)
 }
 
-function showBookmarkModal(callback: Callback<Bookmark>) {
+function showBookmarkModal(callback: ItemCallback<Bookmark>) {
   const elementForItem = twoLineRenderer<Bookmark>((b: Bookmark) => {
     if (!b.name || b.name.length === 0) {
       return {

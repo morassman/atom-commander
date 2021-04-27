@@ -1,5 +1,5 @@
 import { Directory } from 'atom'
-import { Callback, ListModal, twoLineRenderer } from './list-modal'
+import { ItemCallback, ListModal, twoLineRenderer } from './list-modal'
 import { list } from 'drivelist'
 
 interface Item {
@@ -14,8 +14,8 @@ interface Item {
 
 }
 
-export function showListDriveModal(callback: Callback<Directory | undefined>) {
-  const itemCallback = (item?: Item): boolean => {
+export function showListDriveModal(callback: ItemCallback<Directory | undefined>) {
+  const itemCallback = (item?: Item): boolean | Promise<boolean> => {
     return callback(item ? new Directory(item.path) : undefined)
   }
 
@@ -97,7 +97,7 @@ async function getLinuxItems(): Promise<Item[]> {
 }
 
 
-function showListDriveModalImpl(items: Item[], callback: Callback<Item>) {
+function showListDriveModalImpl(items: Item[], callback: ItemCallback<Item>) {
   const elementForItem = twoLineRenderer<Item>((i: Item) => {
     return {
       primary: i.primary,

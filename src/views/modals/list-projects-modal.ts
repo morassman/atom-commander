@@ -1,7 +1,7 @@
 import { Directory } from 'atom';
-import { Callback, ListModal, twoLineRenderer } from './list-modal';
+import { ItemCallback, ListModal, twoLineRenderer } from './list-modal';
 
-export function showListProjectsModal(callback: Callback<Directory | undefined>) {
+export function showListProjectsModal(callback: ItemCallback<Directory | undefined>) {
   const items = atom.project.getDirectories()
 
   const elementForItem = twoLineRenderer<Directory>((p: Directory) => {

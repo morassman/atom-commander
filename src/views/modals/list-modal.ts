@@ -18,7 +18,9 @@ export type ItemProvider<I> = () => I[]
  * Callback type receives the item that was selected. undefined if the modal was
  * canceled. If an item was selected and the modal should remain open, return true.
  */
-export type Callback<I> = (item?: I) => boolean
+export type ItemCallback<I> = (item?: I) => boolean | Promise<boolean>
+
+export type AfterClose = () => void
 
 export type TwoLineRenderer<I> = (item: I) => {
   primary: string | HTMLElement | View,
@@ -87,37 +89,45 @@ export class ListModal<I> {
   
   panel: Panel
 
-  constructor(itemProvider: ItemProvider<I>, renderer: ItemRenderer<I>, filterKeyForItem: (item: I) => string, callback: Callback<I | undefined>) {
+  constructor(private readonly itemProvider: ItemProvider<I>, renderer: ItemRenderer<I>, filterKeyForItem: (item: I) => string, itemCallback: ItemCallback<I | undefined>, private readonly afterClose?: AfterClose) {
     this.selectList = new SelectList({
       items: itemProvider(),
       elementForItem: renderer,
       filterKeyForItem,
       didConfirmSelection: (item: I) => {
-        const keepOpen = callback(item)
+        const keepOpen = itemCallback(item)
 
-        if (keepOpen) {
-          const items = itemProvider()
-
-          if (items.length > 0) {
-            this.selectList.update({
-              items
-            })
-          } else {
-            this.close()
-          }
+        if (typeof keepOpen === 'boolean') {
+          this.afterConfirmSelection(keepOpen)
         } else {
-          this.close()
+          keepOpen.then(ko => this.afterConfirmSelection(ko))
         }
       },
       didConfirmEmptySelection: () => {
+        itemCallback()
         this.close()
-        callback()
       },
       didCancelSelection: () => {
+        itemCallback()
         this.close()
-        callback()
       }
     })
+  }
+
+  afterConfirmSelection(keepOpen: boolean) {
+    if (keepOpen) {
+      const items = this.itemProvider()
+
+      if (items.length > 0) {
+        this.selectList.update({
+          items
+        })
+      } else {
+        this.close()
+      }
+    } else {
+      this.close()
+    }
   }
 
   open() {
@@ -128,6 +138,10 @@ export class ListModal<I> {
   close() {
     if (this.panel) {
       this.panel.destroy()
+    }
+
+    if (this.afterClose) {
+      this.afterClose()
     }
   }
 
