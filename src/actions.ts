@@ -4,8 +4,8 @@ import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
 import { showAddBookmarkModal, showCloseServerModal, showEditServerModal, showListDriveModal, showListProjectsModal, showNewServerModal, showOpenBookmarkModal, showOpenServerModal, showRemoveBookmarkModal, showRemoveServerModal, showSelectModal } from './views/modals'
+import Utils from './utils'
 
-// const Utils = require('./utils')
 // const BookmarksView = require('./views/bookmarks-view')
 // const DriveListView = require('./views/drive-list-view')
 // const ProjectListView = require('./views/project-list-view')
@@ -299,86 +299,79 @@ export class Actions {
   }
 
   compareFolders() {
-    // TODO
-  //   let itemView
-  //   this.main.mainView?.hideMenuBar()
-  //   const leftView = __guard__(this.main.getMainView(), x => x.getLeftView())
-  //   const rightView = __guard__(this.main.getMainView(), x1 => x1.getRightView())
+    let itemView
+    this.main.mainView?.hideMenuBar()
 
-  //   if ((leftView == null) || (rightView == null)) {
-  //     return
-  //   }
+    const leftView = this.main.mainView?.getLeftView()
+    const rightView = this.main.mainView?.getRightView()
 
-  //   leftView.selectNone()
-  //   rightView.selectNone()
+    if (!leftView || !rightView) {
+      return
+    }
 
-  //   for (itemView of Array.from(leftView.itemViews)) {
-  //     if (rightView.getItemViewWithName(itemView.getName()) === null) {
-  //       itemView.select(true)
-  //     }
-  //   }
+    leftView.selectNone()
+    rightView.selectNone()
 
-  //   return (() => {
-  //     const result = []
-  //     for (itemView of Array.from(rightView.itemViews)) {
-  //       if (leftView.getItemViewWithName(itemView.getName()) === null) {
-  //         result.push(itemView.select(true))
-  //       } else {
-  //         result.push(undefined)
-  //       }
-  //     }
-  //     return result
-  //   })()
+    for (itemView of leftView.itemViews) {
+      if (!rightView.getItemViewWithName(itemView.getName())) {
+        itemView.select(true)
+      }
+    }
+
+    for (itemView of rightView.itemViews) {
+      if (!leftView.getItemViewWithName(itemView.getName())) {
+        itemView.select(true)
+      }
+    }
   }
 
   compareFiles() {
-    // TODO
-  //   this.main.mainView?.hideMenuBar()
-  //   const leftView = __guard__(this.main.getMainView(), x => x.getLeftView())
-  //   const rightView = __guard__(this.main.getMainView(), x1 => x1.getRightView())
+    this.main.mainView?.hideMenuBar()
+    const leftView = this.main.mainView?.getLeftView()
+    const rightView = this.main.mainView?.getRightView()
 
-  //   if ((leftView == null) || (rightView == null)) {
-  //     return
-  //   }
+    if (!leftView || !rightView) {
+      return
+    }
 
-  //   const leftViewItem = leftView.getHighlightedItem()
+    let leftViewItem = leftView.getHighlightedItem()
 
-  //   if (leftViewItem === null) {
-  //     return
-  //   }
+    if (!leftViewItem) {
+      return
+    }
 
-  //   const rightViewItem = rightView.getHighlightedItem()
+    let rightViewItem = rightView.getHighlightedItem()
 
-  //   if (rightViewItem === null) {
-  //     return
-  //   }
+    if (!rightViewItem) {
+      return
+    }
 
-  //   if (!(leftViewItem.itemController instanceof FileController)) {
-  //     return
-  //   }
+    if (!leftViewItem.item.isFile()) {
+      return
+    }
 
-  //   if (!(rightViewItem.itemController instanceof FileController)) {
-  //     return
-  //   }
+    if (!rightViewItem.item.isFile()) {
+      return
+    }
 
-  //   // leftViewItem = Utils.getFirstFileViewItem(leftView.getSelectedItemViews(true))
-  //   //
-  //   // if (leftViewItem == null)
-  //   //   return
-  //   //
-  //   // rightViewItem = Utils.getFirstFileViewItem(rightView.getSelectedItemViews(true))
-  //   //
-  //   // if (rightViewItem == null)
-  //   //   return
+    leftViewItem = Utils.getFirstFileViewItem(leftView.getSelectedItemViews(true))
+    
+    if (!leftViewItem)
+      return
+    
+    rightViewItem = Utils.getFirstFileViewItem(rightView.getSelectedItemViews(true))
+    
+    if (!rightViewItem)
+      return
 
-  //   this.main.mainView?.hideMenuBar()
+    this.main.mainView?.hideMenuBar()
 
-  //   const leftFile = leftViewItem.itemController.getFile()
-  //   const rightFile = rightViewItem.itemController.getFile()
-  //   const title = "Diff: "+leftFile.getBaseName()+" | "+rightFile.getBaseName()
-  //   const tooltip = leftFile.getPath()+" | "+rightFile.getPath()
+    const leftFile = leftViewItem.item as VFile
+    const rightFile = rightViewItem.item as VFile
+    const title = "Diff: "+leftFile.getBaseName()+" | "+rightFile.getBaseName()
+    const tooltip = leftFile.getPath()+" | "+rightFile.getPath()
 
-  //   return Utils.compareFiles(title, tooltip, leftFile, rightFile)
+    Utils.compareFiles(title, tooltip, leftFile, rightFile)
   }
 
   bookmarksAddEditor() {

@@ -6,7 +6,7 @@ import { NotificationOptions } from 'atom'
 // const InputDialog = require('./dialogs/input-dialog')
 
 import fsp from 'fs-plus'
-import { VItem } from './fs'
+import { VFile, VItem } from './fs'
 import { ItemView } from './views/item-view'
 import { InputModal } from './views/modals'
 
@@ -14,12 +14,13 @@ export default {
 
   // Opens a DiffView with the given title. left and right can either
   // be a file or a string.
-  // compareFiles(title: string, tooltip: string, left: string | VFile, right: string | VFile) {
+  compareFiles(title: string, tooltip: string, left: string | VFile, right: string | VFile) {
+    // TODO
   //   const view = new DiffView(title, tooltip, left, right)
   //   const pane = atom.workspace.getActivePane()
   //   const item = pane.addItem(view, { index: 0 })
   //   return pane.activateItem(item)
-  // },
+  },
 
   getFirstFileViewItem(itemViews: ItemView[]): ItemView | undefined {
     if (!itemViews) {
