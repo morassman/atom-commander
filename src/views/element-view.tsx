@@ -32,12 +32,24 @@ export class Div<P extends Props = Props, R extends object = {}> extends Element
 
 }
 
-export class Span<P extends Props = Props, R extends object = {}> extends ElementView <P, R> {
+export class Span<P extends Props = Props, R extends object = {}> extends ElementView<P, R> {
 
   constructor(props: P, children?: any[]) {
     super('span', props, children)
   }
 
+}
+
+export class Template<P extends Props = Props, R extends object = {}> extends View<P, R> {
+
+  constructor(props: P, private readonly content: JSX.Element) {
+    super(props, false)
+    this.initialize()
+  }
+
+  render() {
+    return this.content
+  }
 }
 
 export class TBody<P extends Props = Props, R extends object = {}> extends ElementView <P, R> {

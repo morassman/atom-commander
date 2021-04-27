@@ -99,9 +99,10 @@ async function getLinuxItems(): Promise<Item[]> {
 
 function showListDriveModalImpl(items: Item[], callback: Callback<Item>) {
   const elementForItem = twoLineRenderer<Item>((i: Item) => {
-    return i.primary
-  }, (i: Item) => {
-    return i.secondary
+    return {
+      primary: i.primary,
+      secondary: i.secondary
+    }
   })
 
   const filterKeyForItem = (item: Item) => {

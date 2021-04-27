@@ -3,7 +3,7 @@ import { Bookmark } from './bookmark-manager'
 import { VDirectory, VFile, VItem } from './fs'
 import { Main } from './main'
 import { ContainerView, Snapshot } from './views/container-view'
-import { showAddBookmarkModal, showListDriveModal, showListProjectsModal, showNewServerModal, showOpenBookmarkModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
+import { showAddBookmarkModal, showCloseServerModal, showListDriveModal, showListProjectsModal, showNewServerModal, showOpenBookmarkModal, showOpenServerModal, showRemoveBookmarkModal, showSelectModal } from './views/modals'
 
 // const Utils = require('./utils')
 // const BookmarksView = require('./views/bookmarks-view')
@@ -215,13 +215,16 @@ export class Actions {
 
     if (view) {
       this.main.show(true)
-      view.requestFocus()
-      view.openDirectory(directory)
+      
+      view.openDirectory(directory, undefined, () => {
+        view.requestFocus()
+      })
     }
   }
 
   goDrive(fromView=true) {
     this.hideMenuBar()
+
     showListDriveModal(directory => {
       if (directory) {
         this.goDirectory(directory)
@@ -449,24 +452,20 @@ export class Actions {
   }
 
   serversRemove(fromView=true) {
+    // TODO
   //   let view
   //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
   //   return view = new ServersView(this, "remove", fromView)
   }
 
   serversOpen(fromView=true) {
-    // TODO
-  //   let view
-  //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
-  //   return view = new ServersView(this, "open", fromView)
+    this.hideMenuBar()
+    showOpenServerModal(fromView)
   }
 
   serversClose(fromView=true) {
-    // TODO
-  //   let view
-  //   if (fromView == null) { fromView = true }
-  //   __guard__(this.main.getMainView(), x => x.hideMenuBar())
-  //   return view = new ServersView(this, "close", fromView)
+    this.hideMenuBar()
+    showCloseServerModal(fromView)
   }
 
   serversCache(fromView=true) {
@@ -627,8 +626,6 @@ export class Actions {
   }
 
   openNative(onlyShow: boolean) {
-    console.log('openNative : '+onlyShow)
-    console.log(shell)
     const view = this.getFocusedView()
 
     if (!view) {

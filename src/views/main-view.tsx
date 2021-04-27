@@ -336,7 +336,7 @@ export class MainView extends View<MainViewProps, MainViewRefs> implements ViewM
   }
 
   focusView(focusedView?: ContainerView) {
-    if (!focusedView || (this.focusedView === focusedView)) {
+    if (!focusedView || focusedView.hasFocus()) {
       return
     }
 

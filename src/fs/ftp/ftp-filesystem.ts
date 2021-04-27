@@ -47,8 +47,8 @@ export class FTPFileSystem extends RemoteFileSystem<FTPConfig> {
       prompt += this.clientConfig.host
       prompt += ':'
 
-      Utils.promptForPassword(prompt, (password: string) => {
-        if (password) {
+      Utils.promptForPassword(prompt, (password?: string) => {
+        if (password !== undefined) {
           this.connectWithPassword(password)
         } else {
           const err = {

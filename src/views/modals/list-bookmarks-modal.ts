@@ -40,12 +40,15 @@ export function showRemoveBookmarkModal(fromView: boolean) {
 function showBookmarkModal(callback: Callback<Bookmark>) {
   const elementForItem = twoLineRenderer<Bookmark>((b: Bookmark) => {
     if (!b.name || b.name.length === 0) {
-      return `${b.name}: ${b.pathDescription.uri}`
+      return {
+        primary: b.pathDescription.uri
+      }
     }
 
-    return b.name
-  }, (b: Bookmark) => {
-    return !b.name || b.name.length === 0 ? undefined : b.pathDescription.uri
+    return {
+      primary: b.name,
+      secondary: b.pathDescription.uri
+    }
   })
 
   const filterKeyForItem = (item: Bookmark) => {

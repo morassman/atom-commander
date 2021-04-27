@@ -214,8 +214,6 @@ export class Main {
   }
 
   ensureMainView(): MainView {
-    console.log(this.state)
-    
     if (!this.mainView) {
       this.mainView = new MainView(this, this.state)
       this.element = this.mainView.element
@@ -279,10 +277,10 @@ export class Main {
     const file = this.getSaveFile()
 
     try {
-      return fsp.writeFileSync(file.getPath(), JSON.stringify(state))
+      fsp.writeFileSync(file.getPath(), JSON.stringify(state))
     } catch (error) {
       console.log('Error saving Atom Commander state.')
-      return console.log(error)
+      console.log(error)
     }
   }
 
@@ -502,7 +500,7 @@ export class Main {
     }
   }
 
-  getFileSystemWithID(fileSystemId: string) {
+  getFileSystemWithID(fileSystemId: string): VFileSystem | undefined {
     if (this.localFileSystem.getID() === fileSystemId) {
       return this.localFileSystem
     }

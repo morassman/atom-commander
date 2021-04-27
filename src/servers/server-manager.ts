@@ -102,11 +102,11 @@ export class ServerManager {
     // return main.saveState()
   }
 
-  getServers() {
+  getServers(): Server[] {
     return this.servers
   }
 
-  getServerCount() {
+  getServerCount(): number {
     return this.servers.length
   }
 

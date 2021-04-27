@@ -8,6 +8,7 @@ import { NotificationOptions } from 'atom'
 import fsp from 'fs-plus'
 import { VItem } from './fs'
 import { ItemView } from './views/item-view'
+import { InputModal } from './views/modals'
 
 export default {
 
@@ -53,10 +54,14 @@ export default {
     return PathUtil.join(fsp.getHomeDirectory(), '.atom-commander', 'servers')
   },
 
-  promptForPassword(prompt: string, callback: any) {
-    // TODO
-    // const dialog = new InputDialog(prompt, null, true, callback)
-    // return dialog.attach()
+  promptForPassword(prompt: string, callback: (text?: string)=>void) {
+    const modal = new InputModal({
+      label: prompt,
+      callback,
+      password: true
+    })
+
+    modal.open()
   },
 
   encrypt(text: string, key: string) {
